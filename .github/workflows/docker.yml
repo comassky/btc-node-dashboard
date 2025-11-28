@@ -62,8 +62,31 @@ jobs:
           # Définition des règles de tagging
           tags: |
             # Tag 'latest' uniquement si le push est sur la branche 'main' (pas de PR)
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') && github.event_name != 'pull_request' }}
+            # Simplification de la condition 'enable'
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
             # Tag basé sur le nom du tag Git (ex: v1.0.0 -> 1.0.0)
-            type=ref,event=tag,enable=true,suffix=,priority=100
+            # Suppression du paramètre 'priority' qui semble causer l'erreur
+            type=ref,event=tag,enable=true,suffix=
             # Tag basé sur le SHA court du commit (pour tous les builds sur 'main')
-            type=
+            type=sha,format=short,enable=true
+
+      # Build and push Docker image with Buildx (don't push on PR)
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
+        with:
+          context: .
+          file: ${{ env.DOCKERFILE_PATH }} # Utilise le chemin défini en ENV
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Sign the resulting Docker image digest except on PRs.
+      - name: Sign the published Docker image
+        if: ${{ github.event_name != 'pull_request' }}
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+        run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
