@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peer Statistics Report</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* CSS Variables for Dark Theme */
+        :root {
+            --primary-color: #60a5fa; 
+            --secondary-color: #9ca3af; 
+            --background-color: #111827; 
+            --card-bg-color: #1f2937; 
+            --text-color: #f9fafb; 
+            --border-color: #374151; 
+            --shadow-strong: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            --font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 30px 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: auto;
+            background-color: var(--card-bg-color);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-strong);
+        }
+
+        /* --- Headers --- */
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+        }
+        h1 i {
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+        h2 {
+            color: var(--text-color);
+            font-size: 1.8em;
+            font-weight: 600;
+            margin-top: 40px;
+            margin-bottom: 25px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+        h2 i {
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+
+        /* --- Stats Cards (Stats Grid) --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background-color: #374151; 
+            border-radius: 12px;
+            padding: 20px 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border-left: 5px solid var(--primary-color);
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+        .stat-card .label {
+            font-size: 0.9em;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+        .stat-card strong {
+            display: block;
+            font-size: 2.2em;
+            color: var(--text-color);
+            font-weight: 800;
+        }
+
+        /* --- Distribution Progress Bars --- */
+        .distribution-item {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        .distribution-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        .distribution-bar {
+            background-color: var(--border-color);
+            border-radius: 8px;
+            height: 12px;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.8s ease-out;
+            background-image: linear-gradient(to right, #1d4ed8, var(--primary-color));
+        }
+        .distribution-section {
+            padding: 20px;
+            border-radius: 12px;
+            background-color: var(--card-bg-color);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        /* --- Table (Peer List) --- */
+        .peer-list table {
+            width: 100%;
+            border-collapse: separate; 
+            border-spacing: 0;
+            margin-top: 20px;
+            font-size: 0.9em;
+            background-color: #1f2937;
+            border-radius: 8px;
+            overflow: hidden; 
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        .peer-list th, .peer-list td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .peer-list th {
+            background-color: var(--primary-color); 
+            color: var(--background-color); 
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .peer-list tr:last-child td {
+            border-bottom: none;
+        }
+        .peer-list tr:hover {
+            background-color: #374151; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1><i class="fas fa-satellite-dish"></i> Bitcoin Network Peer Report</h1>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="label">Inbound Peers</span>
+            <strong>{stats.inboundCount}</strong>
+        </div>
+        <div class="stat-card">
+            <span class="label">Outbound Peers</span>
+            <strong>{stats.outboundCount}</strong>
+        </div>
+        <div class="stat-card">
+            <span class="label">Total Peers</span>
+            <strong>{stats.totalPeers}</strong>
+        </div>
+        <div class="stat-card">
+            <span class="label">Last Updated</span>
+            <strong>{time}</strong>
+        </div>
+    </div>
+
+    <h2><i class="fas fa-arrow-down"></i> Detailed Inbound Peers ({inbound_peers.size})</h2>
+    <div class="peer-list">
+        <table>
+            <thead>
+            <tr>
+                <th>Address</th>
+                <th>Client (Subversion)</th>
+                <th>Bytes Received</th>
+                <th>Bytes Sent</th>
+                <th>Network</th>
+                <th>Ping (s)</th>
+            </tr>
+            </thead>
+            <tbody>
+            {#for peer in inbound_peers}
+            <tr>
+                <td>{peer.addr}</td>
+                <td>{peer.subver ?: 'N/A'}</td>
+                <td>{peer.bytesrecv}</td>
+                <td>{peer.bytessent}</td>
+                <td>{peer.network}</td>
+                <td>{peer.pingtime} s</td>
+            </tr>
+            {/for}
+            </tbody>
+        </table>
+    </div>
+
+    <h2><i class="fas fa-arrow-up"></i> Detailed Outbound Peers ({outbound_peers.size})</h2>
+    <div class="peer-list">
+        <table>
+            <thead>
+            <tr>
+                <th>Address</th>
+                <th>Client (Subversion)</th>
+                <th>Bytes Received</th>
+                <th>Bytes Sent</th>
+                <th>Network</th>
+                <th>Ping (s)</th>
+            </tr>
+            </thead>
+            <tbody>
+            {#for peer in outbound_peers}
+            <tr>
+                <td>{peer.addr}</td>
+                <td>{peer.subver}</td>
+                <td>{peer.bytesrecv}</td>
+                <td>{peer.bytessent}</td>
+                <td>{peer.network}</td>
+                <td>{peer.pingtime} s</td>
+            </tr>
+            {/for}
+            </tbody>
+        </table>
+    </div>
+
+    <h2><i class="fas fa-chart-line"></i> Inbound Client Distribution</h2>
+    <div class="distribution-section">
+        {#for version in subver_distribution.inbound}
+        <div class="distribution-item">
+            <div class="distribution-label">
+                <span>{version.server ?: 'Unknown'}</span>
+                <span>{version.percentage} %</span>
+            </div>
+            <div class="distribution-bar">
+                <div class="progress" style="width: {version.percentage}%;"></div>
+            </div>
+        </div>
+        {/for}
+    </div>
+
+    <h2><i class="fas fa-chart-line"></i> Outbound Client Distribution</h2>
+    <div class="distribution-section">
+        {#for version in subver_distribution.outbound}
+        <div class="distribution-item">
+            <div class="distribution-label">
+                <span>{version.server ?: 'Unknown'}</span>
+                <span>{version.percentage} %</span>
+            </div>
+            <div class="distribution-bar">
+                <div class="progress" style="width: {version.percentage}%;"></div>
+            </div>
+        </div>
+        {/for}
+    </div>
+</div>
+</body>
+</html>
