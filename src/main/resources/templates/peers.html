@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#111827">
     <title>Peer Statistics Report</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* CSS Variables for Dark Theme */
         :root {
-            --primary-color: #60a5fa; 
-            --secondary-color: #9ca3af; 
-            --background-color: #111827; 
-            --card-bg-color: #1f2937; 
-            --text-color: #f9fafb; 
-            --border-color: #374151; 
+            --primary-color: #60a5fa;
+            --secondary-color: #9ca3af;
+            --background-color: #111827;
+            --card-bg-color: #1f2937;
+            --text-color: #f9fafb;
+            --border-color: #374151;
             --shadow-strong: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
             --font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -21,7 +22,7 @@
         body {
             font-family: var(--font-family);
             margin: 0;
-            padding: 30px 0;
+            padding: 20px 0; /* Reduced vertical padding for mobile */
             background-color: var(--background-color);
             color: var(--text-color);
             line-height: 1.5;
@@ -30,7 +31,7 @@
             max-width: 1400px;
             margin: auto;
             background-color: var(--card-bg-color);
-            padding: 40px;
+            padding: 20px; /* Reduced padding for mobile */
             border-radius: 16px;
             box-shadow: var(--shadow-strong);
         }
@@ -38,43 +39,44 @@
         /* --- Headers --- */
         h1 {
             color: var(--primary-color);
-            font-size: 2.5em;
+            font-size: 2em; /* Adjusted for mobile */
             font-weight: 700;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
         }
         h1 i {
-            margin-right: 15px;
-            font-size: 1.2em;
+            margin-right: 10px;
+            font-size: 1em;
         }
         h2 {
             color: var(--text-color);
-            font-size: 1.8em;
+            font-size: 1.5em; /* Adjusted for mobile */
             font-weight: 600;
-            margin-top: 40px;
-            margin-bottom: 25px;
-            padding-bottom: 8px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            padding-bottom: 6px;
             border-bottom: 2px solid var(--border-color);
             display: flex;
             align-items: center;
         }
         h2 i {
-            margin-right: 10px;
+            margin-right: 8px;
             color: var(--secondary-color);
         }
 
         /* --- Stats Cards (Stats Grid) --- */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
+            /* Responsive grid: changes to 1 column on small screens */
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px; /* Reduced gap for mobile */
+            margin-bottom: 30px;
         }
         .stat-card {
-            background-color: #374151; 
+            background-color: #374151;
             border-radius: 12px;
-            padding: 20px 25px;
+            padding: 15px; /* Reduced padding for mobile */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
             border-left: 5px solid var(--primary-color);
@@ -84,13 +86,13 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
         }
         .stat-card .label {
-            font-size: 0.9em;
+            font-size: 0.8em;
             color: var(--secondary-color);
             margin-bottom: 5px;
         }
         .stat-card strong {
             display: block;
-            font-size: 2.2em;
+            font-size: 1.8em; /* Adjusted for mobile */
             color: var(--text-color);
             font-weight: 800;
         }
@@ -99,19 +101,20 @@
         .distribution-item {
             display: flex;
             flex-direction: column;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         .distribution-label {
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-weight: 500;
+            font-size: 0.9em;
             margin-bottom: 5px;
         }
         .distribution-bar {
             background-color: var(--border-color);
             border-radius: 8px;
-            height: 12px;
+            height: 10px;
             overflow: hidden;
         }
         .progress {
@@ -121,33 +124,39 @@
             background-image: linear-gradient(to right, #1d4ed8, var(--primary-color));
         }
         .distribution-section {
-            padding: 20px;
+            padding: 15px;
             border-radius: 12px;
             background-color: var(--card-bg-color);
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
         /* --- Table (Peer List) --- */
+        .peer-list {
+            /* Table wrapper to enable horizontal scroll on small screens */
+            overflow-x: auto;
+        }
         .peer-list table {
             width: 100%;
-            border-collapse: separate; 
+            min-width: 600px; /* Ensures table is wide enough to scroll on small screens */
+            border-collapse: separate;
             border-spacing: 0;
-            margin-top: 20px;
-            font-size: 0.9em;
+            margin-top: 15px;
+            font-size: 0.85em; /* Smaller font for mobile */
             background-color: #1f2937;
             border-radius: 8px;
-            overflow: hidden; 
+            overflow: hidden;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
         }
         .peer-list th, .peer-list td {
-            padding: 15px 20px;
+            padding: 12px 15px; /* Reduced padding for mobile */
             text-align: left;
             border-bottom: 1px solid var(--border-color);
+            white-space: nowrap; /* Prevents text wrap in table cells */
         }
         .peer-list th {
-            background-color: var(--primary-color); 
-            color: var(--background-color); 
+            background-color: var(--primary-color);
+            color: var(--background-color);
             font-weight: 600;
             text-transform: uppercase;
         }
@@ -155,14 +164,50 @@
             border-bottom: none;
         }
         .peer-list tr:hover {
-            background-color: #374151; 
+            background-color: #374151;
+        }
+
+        /* --- Media Query for Larger Screens (Desktop/Tablet) --- */
+        @media (min-width: 768px) {
+            .container {
+                padding: 40px;
+            }
+            h1 {
+                font-size: 2.5em;
+                margin-bottom: 30px;
+            }
+            h1 i {
+                margin-right: 15px;
+                font-size: 1.2em;
+            }
+            h2 {
+                font-size: 1.8em;
+                margin-top: 40px;
+                margin-bottom: 25px;
+            }
+            .stats-grid {
+                /* Original desktop grid */
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 25px;
+                margin-bottom: 40px;
+            }
+            .stat-card strong {
+                font-size: 2.2em;
+            }
+            .peer-list table {
+                min-width: 100%; /* No minimum width needed on desktop */
+                font-size: 0.9em;
+            }
+            .peer-list th, .peer-list td {
+                padding: 15px 20px;
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1><i class="fas fa-satellite-dish"></i> Bitcoin Network Peer Report</h1>
+    <h1><i class="fas fa-satellite-dish"></i> Bitcoin Node Dashboard</h1>
 
     <div class="stats-grid">
         <div class="stat-card">
@@ -178,10 +223,43 @@
             <strong>{stats.totalPeers}</strong>
         </div>
         <div class="stat-card">
-            <span class="label">Last Updated</span>
+            <span class="label">Uptime</span>
             <strong>{time}</strong>
         </div>
     </div>
+
+    <h2><i class="fas fa-cubes"></i> Blockchain Status</h2>
+    <div class="stats-grid">
+        <div class="stat-card" style="border-left: 5px solid #10b981;">
+            <span class="label">Current Block</span>
+            <strong>{blockchain.blocks}</strong>
+        </div>
+        <div class="stat-card" style="border-left: 5px solid #f59e0b;">
+            <span class="label">Latest Header</span>
+            <strong>{blockchain.headers}</strong>
+        </div>
+        <div class="stat-card" style="border-left: 5px solid #ef4444;">
+            <span class="label">Network Chain</span>
+            <strong>{blockchain.chain}</strong>
+        </div>
+    </div>
+
+    <h2><i class="fas fa-microchip"></i> Node Network Info</h2>
+    <div class="stats-grid">
+        <div class="stat-card" style="border-left: 5px solid #06b6d4;">
+            <span class="label">Client Version</span>
+            <strong>{node.version}</strong>
+        </div>
+        <div class="stat-card" style="border-left: 5px solid #f97316;">
+            <span class="label">Protocol Version</span>
+            <strong>{node.protocolVersion}</strong>
+        </div>
+        <div class="stat-card" style="border-left: 5px solid var(--primary-color);">
+            <span class="label">Client Subversion</span>
+            <strong>{node.subversion}</strong>
+        </div>
+    </div>
+
 
     <h2><i class="fas fa-arrow-down"></i> Detailed Inbound Peers ({inbound_peers.size})</h2>
     <div class="peer-list">
