@@ -1,6 +1,7 @@
 package comasky.rpcClass;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
 import comasky.exceptions.RpcException;
@@ -23,45 +24,22 @@ public class RpcServices {
     @RestClient
     private RpcClient rpcClient;
 
+    public NodeInfo getNodeInfo() {
+        return this.executeRpcCall("getnetworkinfo", NodeInfo.class);
+    }
+
+    public BlockchainInfo getBlockchainInfo() {
+        return this.executeRpcCall("getblockchaininfo", BlockchainInfo.class);
+    }
+
     public long getUptimeSeconds() {
-
-        // 1. Appel RPC pour la commande "uptime"
-        String jsonResponse = callRpc("uptime");
-
-        try {
-            // Désérialisation complète de l'objet RpcResponse<Integer>
-            // La commande 'uptime' retourne directement un entier (le nombre de secondes).
-            TypeReference<RpcResponse<Integer>> typeRef = new TypeReference<>() {};
-
-            RpcResponse<Integer> response = objectMapper.readValue(jsonResponse, typeRef);
-
-            if (response.getError() != null) {
-                // Erreur RPC lors de l'exécution de la commande
-                throw new RpcException("RPC Error calling uptime: " + response.getError().toString());
-            }
-
-            if (response.getResult() == null) {
-                // Cas où le résultat est null, ce qui ne devrait pas arriver pour 'uptime'
-                throw new RpcException("Result of uptime is null.");
-            }
-
-            // Le résultat est l'uptime en secondes (casté en long pour une manipulation sûre)
-            return response.getResult().longValue();
-
-        } catch (RpcException e) {
-            // Relancer l'exception RPC
-            throw e;
-        } catch (Exception e) {
-            // Erreur de parsing ou autre exception inattendue
-            throw new RpcException("Parsing error for uptime: " + e.getMessage());
-        }
+        return this.executeRpcCall("uptime", long.class);
     }
 
     public GlobalResponse getData() {
         String jsonResponse = callRpc("getpeerinfo");
         List<PeerInfo> allPeers;
         try {
-            // Désérialisation complète de l'objet RpcResponse<List<PeerInfo>>
             TypeReference<RpcResponse<List<PeerInfo>>> typeRef = new TypeReference<>() {};
             RpcResponse<List<PeerInfo>> response = objectMapper.readValue(jsonResponse, typeRef);
             if (response.getError() != null) {
@@ -90,7 +68,9 @@ public class RpcServices {
                 .inboundPeer(inboundPeers)
                 .outboundPeer(outboundPeers)
                 .subverDistribution(stats)
-                        .build();
+                .blockchainInfo(this.getBlockchainInfo())
+                .nodeInfo(this.getNodeInfo())
+                .build();
     }
 
 
@@ -132,6 +112,36 @@ public class RpcServices {
             return this.rpcClient.executeRpcCall(rpcRequest);
         } catch (Exception e) {
             throw new RpcException("Connection failed for method " + method + ": " + e.getMessage());
+        }
+    }
+
+    private <T> T executeRpcCall(String rpcCommand, Class<T> resultClass) {
+        String jsonResponse = callRpc(rpcCommand);
+        try {
+            JavaType type = objectMapper.getTypeFactory().constructParametricType(RpcResponse.class, resultClass);
+
+            // 2. Désérialisation complète de la réponse
+            RpcResponse<T> response = objectMapper.readValue(jsonResponse, type);
+
+            if (response.getError() != null) {
+                // 3. Gestion de l'erreur RPC
+                throw new RpcException("RPC Error calling '" + rpcCommand + "': " + response.getError().toString());
+            }
+
+            T result = response.getResult();
+            if (result == null) {
+                // 4. Gestion du résultat null
+                throw new RpcException("Result of '" + rpcCommand + "' is null.");
+            }
+
+            return result;
+
+        } catch (RpcException e) {
+            // Relancer l'exception RPC
+            throw e;
+        } catch (Exception e) {
+            // 5. Gestion des erreurs de parsing ou autres exceptions I/O/Jackson
+            throw new RpcException("Parsing or I/O error for '" + rpcCommand + "': " + e.getMessage());
         }
     }
 }

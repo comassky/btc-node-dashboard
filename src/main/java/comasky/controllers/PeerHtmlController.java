@@ -16,7 +16,7 @@
      * Contrôleur pour l'affichage des statistiques des pairs en HTML,
      * utilisant le moteur de templates Qute de Quarkus.
      */
-    @Path("/html")
+    @Path("")
     public class PeerHtmlController {
 
         @Inject
@@ -26,7 +26,7 @@
         Template peers;
 
         @GET
-        @Path("/peers")
+        @Path("")
         @Produces(MediaType.TEXT_HTML) // Doit renvoyer du HTML
         public TemplateInstance getPeerReport() {
             GlobalResponse dataNode = rpcServices.getData();
@@ -34,6 +34,8 @@
                     .data("subver_distribution", dataNode.getSubverDistribution())
                     .data("inbound_peers", dataNode.getInboundPeer()) // ArrayNode des pairs entrants
                     .data("outbound_peers", dataNode.getOutboundPeer())
-                    .data("time", formatUptime(rpcServices.getUptimeSeconds())); //
+                    .data("time", formatUptime(rpcServices.getUptimeSeconds()))
+                    .data("blockchain", dataNode.getBlockchainInfo())
+                    .data("node", dataNode.getNodeInfo()); //
         }
     }

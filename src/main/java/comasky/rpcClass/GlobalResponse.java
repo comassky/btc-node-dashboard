@@ -14,4 +14,6 @@ public class GlobalResponse {
     private SubverDistribution subverDistribution;
     private List<PeerInfo> inboundPeer;
     private List<PeerInfo> outboundPeer;
+    private BlockchainInfo blockchainInfo;
+    private NodeInfo nodeInfo;
 }
