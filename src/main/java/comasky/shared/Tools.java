@@ -22,6 +22,6 @@ public class Tools {
         long seconds = remainingSeconds % SECONDS_IN_MINUTE;
 
         // Utilisation de String.format pour garantir le format DD:HH:MM:SS (padding avec zéro)
-        return String.format("%d jours, %02d:%02d:%02d", days, hours, minutes, seconds);
+        return String.format("%dd, %02d:%02d:%02d", days, hours, minutes, seconds);
     }
 }

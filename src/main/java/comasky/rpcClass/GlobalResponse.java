@@ -16,4 +16,5 @@ public class GlobalResponse {
     private List<PeerInfo> outboundPeer;
     private BlockchainInfo blockchainInfo;
     private NodeInfo nodeInfo;
+    private String upTime;
 }
