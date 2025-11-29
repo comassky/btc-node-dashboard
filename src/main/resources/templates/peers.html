@@ -7,7 +7,7 @@
 
     <link rel="icon" type="image/svg+xml" href="https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg">
     <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json"> <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,7 +15,6 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    // Définition d'une palette de couleurs personnalisée et sémantique
                     colors: {
                         'bg-app': '#121212',
                         'bg-card': '#1e1e1e',
@@ -36,15 +35,10 @@
 
     <style>
         /* CSS RÉSIDUEL ET CRITIQUE (Animation et Chart.js) */
-
-        body {
-            font-family: 'Roboto', sans-serif;
-        }
+        body { font-family: 'Roboto', sans-serif; }
 
         /* Animation Pulse pour l'état Déconnecté */
-        .pulse-red {
-            animation: pulse-red 2s infinite;
-        }
+        .pulse-red { animation: pulse-red 2s infinite; }
         @keyframes pulse-red {
             0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
             70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
@@ -53,43 +47,19 @@
 
         /* Ajustements de Chart.js */
         .chart-container {
-            width: 100%;
-            max-width: 450px;
-            height: 350px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            width: 100%; max-width: 450px; height: 350px; display: flex;
+            flex-direction: column; align-items: center;
         }
-        .chart-container canvas {
-            flex-grow: 1;
-            width: 100% !important;
-            height: 100% !important;
-            background-color: transparent !important;
-        }
+        .chart-container canvas { flex-grow: 1; width: 100% !important; height: 100% !important; background-color: transparent !important; }
 
         /* Tables responsives */
-        .peer-table-wrapper {
-            overflow-x: auto;
-        }
-        .peer-table {
-            min-width: 700px; /* Assure la lisibilité des colonnes */
-            border-collapse: collapse;
-        }
+        .peer-table-wrapper { overflow-x: auto; }
+        .peer-table { min-width: 700px; border-collapse: collapse; }
 
-        /* Règle pour forcer l'empilement de la barre de statut sur les petits mobiles (moins de 600px) */
+        /* Règle pour forcer l'empilement de la barre de statut sur les petits mobiles */
         @media (max-width: 600px) {
-            .status-bar.is-mobile {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-            .status-bar.is-mobile span {
-                width: 100%;
-            }
-            .status-bar.is-mobile p {
-                width: 100%;
-                text-align: left;
-            }
+            .status-bar.is-mobile { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .status-bar.is-mobile span, .status-bar.is-mobile p { width: 100%; text-align: left; }
         }
     </style>
 
@@ -258,7 +228,7 @@
         stats: { inboundCount: 0, outboundCount: 0, totalPeers: 0 },
         blockchain: { blocks: 0, headers: 0, chain: 'Loading...' },
         node: { version: 'N/A', protocolVersion: 'N/A', subversion: 'N/A' },
-        time: 'N/A', // Uptime formatted string
+        time: 'N/A',
         inbound_peers: [],
         outbound_peers: [],
         subver_distribution: { inbound: [], outbound: [] }
@@ -267,10 +237,8 @@
 
     /**
      * Generates a consistent set of bright colors suitable for a dark theme.
-     * Uses a larger list of colors for better distribution differentiation.
      */
     const generateColors = (numColors) => {
-        // Palette élargie de couleurs lumineuses
         const baseColors = [
             '#00bcd4', '#ffc107', '#4caf50', '#f44336', '#9c27b0', '#ff9800', '#03a9f4', '#8bc34a',
             '#e91e63', '#607d8b', '#009688', '#cddc39', '#795548', '#ff5722', '#2196f3', '#673ab7',
@@ -360,7 +328,6 @@
             const rpcConnected = ref(false);
             const errorMessage = ref(null);
 
-            // Simplification de la détection mobile
             const isMobile = ref(window.innerWidth <= 600);
 
             const dataState = reactive(DEFAULT_DATA);
@@ -371,12 +338,11 @@
             let inboundPieChart = null;
             let outboundPieChart = null;
 
-            // Gestionnaire de redimensionnement
             const handleResize = () => {
                 isMobile.value = window.innerWidth <= 600;
             };
 
-            // Configuration globale de Chart.js pour le thème sombre
+            // Global Chart.js dark theme configuration
             Chart.defaults.color = '#f0f0f0';
             Chart.defaults.borderColor = '#303030';
             Chart.defaults.plugins.tooltip.backgroundColor = '#1e1e1e';
@@ -385,9 +351,6 @@
             Chart.defaults.plugins.tooltip.cornerRadius = 6;
 
 
-            /**
-             * Processes and normalizes raw data received from the WebSocket.
-             */
             const normalizeData = (rawData) => {
                 const nodeInfo = rawData.nodeInfo || {};
 
@@ -410,7 +373,6 @@
                 });
             };
 
-            // Propriété calculée pour nettoyer la subversion
             const cleanedSubversion = computed(() => {
                 const subver = dataState.node.subversion;
                 if (!subver || subver === 'N/A') return 'N/A';
@@ -474,6 +436,13 @@
             onMounted(() => {
                 connectWebSocket();
                 window.addEventListener('resize', handleResize);
+
+                // 🟢 ENREGISTREMENT DU SERVICE WORKER (PWA)
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('/service-worker.js')
+                        .then(registration => console.log('Service Worker enregistré. Scope:', registration.scope))
+                        .catch(error => console.error('Échec de l\'enregistrement du Service Worker:', error));
+                }
             });
 
             onBeforeUnmount(() => {
@@ -484,8 +453,7 @@
                 }
             });
 
-
-            // Initialisation des graphiques lorsque RPC est connecté
+            // Initialisation des graphiques
             watch(rpcConnected, (newVal) => {
                 if (newVal && inboundPieChart === null && outboundPieChart === null) {
                      nextTick(() => {
@@ -497,15 +465,11 @@
 
             // Mise à jour des données des graphiques
             watch(() => dataState.subver_distribution.inbound, (newVal) => {
-                if (inboundPieChart) {
-                    updateChartData(inboundPieChart, newVal);
-                }
+                if (inboundPieChart) { updateChartData(inboundPieChart, newVal); }
             }, { deep: true });
 
             watch(() => dataState.subver_distribution.outbound, (newVal) => {
-                if (outboundPieChart) {
-                    updateChartData(outboundPieChart, newVal);
-                }
+                if (outboundPieChart) { updateChartData(outboundPieChart, newVal); }
             }, { deep: true });
 
             return {
