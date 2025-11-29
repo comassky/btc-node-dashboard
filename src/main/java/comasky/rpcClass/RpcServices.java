@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static comasky.shared.Tools.formatUptime;
+
 @ApplicationScoped
 public class RpcServices {
 
@@ -70,6 +72,7 @@ public class RpcServices {
                 .subverDistribution(stats)
                 .blockchainInfo(this.getBlockchainInfo())
                 .nodeInfo(this.getNodeInfo())
+                .upTime(formatUptime(this.getUptimeSeconds()))
                 .build();
     }
 

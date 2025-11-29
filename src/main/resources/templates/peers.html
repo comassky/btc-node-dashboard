@@ -3,349 +3,697 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#111827">
-    <title>Peer Statistics Report</title>
+    <title>Bitcoin Node RPC Dashboard</title>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
-        /* CSS Variables for Dark Theme */
+        /* ---------------------------------- */
+        /* VARIABLES & BASE (DARK THEME) */
+        /* ---------------------------------- */
         :root {
-            --primary-color: #60a5fa;
-            --secondary-color: #9ca3af;
-            --background-color: #111827;
-            --card-bg-color: #1f2937;
-            --text-color: #f9fafb;
-            --border-color: #374151;
-            --shadow-strong: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-            --font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --color-primary: #f0f0f0;
+            --color-secondary: #aaaaaa;
+            --color-accent: #007bff;
+            --color-bg: #121212;
+            --color-card-bg: #1e1e1e;
+            --color-border: #303030;
+            --color-success: #4caf50;
+            --color-error: #f44336;
+            --color-warning: #ff9800;
+            --color-table-header: #252525; /* New variable for clarity */
+            --color-table-hover: #282828; /* New variable for clarity */
+
+            --shadow-elevation-2: 0 4px 8px rgba(0, 0, 0, 0.4);
+            --shadow-elevation-1: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         body {
-            font-family: var(--font-family);
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             margin: 0;
-            padding: 20px 0; /* Reduced vertical padding for mobile */
-            background-color: var(--background-color);
-            color: var(--text-color);
+            background-color: var(--color-bg);
+            color: var(--color-primary);
             line-height: 1.5;
+            padding: 20px;
         }
-        .container {
+        #app {
             max-width: 1400px;
-            margin: auto;
-            background-color: var(--card-bg-color);
-            padding: 20px; /* Reduced padding for mobile */
-            border-radius: 16px;
-            box-shadow: var(--shadow-strong);
+            margin: 0 auto;
         }
-
-        /* --- Headers --- */
         h1 {
-            color: var(--primary-color);
-            font-size: 2em; /* Adjusted for mobile */
-            font-weight: 700;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
+            text-align: center;
+            color: var(--color-accent);
+            font-size: 2.2em;
+            font-weight: 400;
+            margin-bottom: 40px;
+            letter-spacing: 1px;
         }
-        h1 i {
-            margin-right: 10px;
-            font-size: 1em;
-        }
-        h2 {
-            color: var(--text-color);
-            font-size: 1.5em; /* Adjusted for mobile */
-            font-weight: 600;
-            margin-top: 30px;
-            margin-bottom: 20px;
-            padding-bottom: 6px;
-            border-bottom: 2px solid var(--border-color);
-            display: flex;
-            align-items: center;
-        }
-        h2 i {
-            margin-right: 8px;
-            color: var(--secondary-color);
+        h2, h3, h4 {
+            color: var(--color-primary);
+            font-weight: 500;
+            margin-top: 0;
+            margin-bottom: 15px;
         }
 
-        /* --- Stats Cards (Stats Grid) --- */
-        .stats-grid {
-            display: grid;
-            /* Responsive grid: changes to 1 column on small screens */
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px; /* Reduced gap for mobile */
+        /* ---------------------------------- */
+        /* STATUS & GRID */
+        /* ---------------------------------- */
+        .status-bar {
+            padding: 15px;
             margin-bottom: 30px;
+            border-radius: 4px;
+            color: white;
+            text-align: center;
+            font-weight: 500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            box-shadow: var(--shadow-elevation-1);
         }
-        .stat-card {
-            background-color: #374151;
-            border-radius: 12px;
-            padding: 15px; /* Reduced padding for mobile */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            border-left: 5px solid var(--primary-color);
+        .status-bar i { margin-right: 8px; }
+        .status-connected { background-color: var(--color-success); }
+        .status-disconnected { background-color: var(--color-error); }
+        .status-bar p { margin: 5px 0 0; font-weight: 400; font-size: 0.9em; border-top: 1px solid rgba(255, 255, 255, 0.3); padding-top: 5px;}
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
         }
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-        }
-        .stat-card .label {
-            font-size: 0.8em;
-            color: var(--secondary-color);
-            margin-bottom: 5px;
-        }
-        .stat-card strong {
-            display: block;
-            font-size: 1.8em; /* Adjusted for mobile */
-            color: var(--text-color);
-            font-weight: 800;
+        .full-width {
+            grid-column: 1 / -1;
         }
 
-        /* --- Distribution Progress Bars --- */
-        .distribution-item {
+        /* ---------------------------------- */
+        /* GENERAL CARDS */
+        /* ---------------------------------- */
+        .data-section {
+            background-color: var(--color-card-bg);
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-elevation-2);
+            transition: box-shadow 0.3s ease;
+        }
+        .data-section:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6), 0 6px 6px rgba(0, 0, 0, 0.5);
+        }
+        .data-section strong {
+            font-weight: 600;
+            color: var(--color-accent);
+        }
+
+        /* ---------------------------------- */
+        /* OVERVIEW (STAT CARDS) */
+        /* ---------------------------------- */
+        .overview-row {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            flex: 1;
+            padding: 20px;
+            background-color: var(--color-card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow-elevation-1);
             display: flex;
             flex-direction: column;
-            margin-bottom: 12px;
-        }
-        .distribution-label {
-            display: flex;
             justify-content: space-between;
-            align-items: center;
-            font-weight: 500;
-            font-size: 0.9em;
-            margin-bottom: 5px;
-        }
-        .distribution-bar {
-            background-color: var(--border-color);
-            border-radius: 8px;
-            height: 10px;
-            overflow: hidden;
-        }
-        .progress {
-            height: 100%;
-            border-radius: 8px;
-            transition: width 0.8s ease-out;
-            background-image: linear-gradient(to right, #1d4ed8, var(--primary-color));
-        }
-        .distribution-section {
-            padding: 15px;
-            border-radius: 12px;
-            background-color: var(--card-bg-color);
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-            margin-top: 15px;
+            min-width: 150px;
         }
 
-        /* --- Table (Peer List) --- */
-        .peer-list {
-            /* Table wrapper to enable horizontal scroll on small screens */
-            overflow-x: auto;
+        .stat-card .icon {
+            font-size: 2em;
+            color: var(--color-accent);
+            margin-bottom: 10px;
         }
-        .peer-list table {
-            width: 100%;
-            min-width: 600px; /* Ensures table is wide enough to scroll on small screens */
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-top: 15px;
-            font-size: 0.85em; /* Smaller font for mobile */
-            background-color: #1f2937;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-        }
-        .peer-list th, .peer-list td {
-            padding: 12px 15px; /* Reduced padding for mobile */
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap; /* Prevents text wrap in table cells */
-        }
-        .peer-list th {
-            background-color: var(--primary-color);
-            color: var(--background-color);
+
+        .stat-card .value {
+            font-size: 1.8em;
             font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .stat-card .label {
+            font-size: 0.9em;
+            color: var(--color-secondary);
             text-transform: uppercase;
         }
-        .peer-list tr:last-child td {
-            border-bottom: none;
-        }
-        .peer-list tr:hover {
-            background-color: #374151;
+
+        .stat-card.peers .icon { color: var(--color-success); }
+        .stat-card.blocks .icon { color: var(--color-warning); }
+        .stat-card.uptime .icon { color: var(--color-accent); }
+        .stat-card.version .icon { color: var(--color-secondary); }
+
+        /* ---------------------------------- */
+        /* DISTRIBUTION (MINIMALIST SUB-CARDS) */
+        /* ---------------------------------- */
+        .distribution-main-content {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
         }
 
-        /* --- Media Query for Larger Screens (Desktop/Tablet) --- */
-        @media (min-width: 768px) {
-            .container {
-                padding: 40px;
+        .sub-card {
+            flex: 1;
+            padding: 0px 10px;
+            border: none;
+            background-color: transparent;
+
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .sub-card h4 {
+            margin: 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--color-border);
+            text-align: center;
+        }
+
+        .sub-card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 100%;
+            align-items: center;
+        }
+
+        .chart-container {
+            width: 100%;
+            max-width: 350px;
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .chart-container canvas {
+            flex-grow: 1;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .sub-card-list {
+             width: 100%;
+             max-height: 200px;
+             overflow-y: auto;
+             border: 1px solid var(--color-border);
+             padding: 10px;
+             border-radius: 4px;
+        }
+        .sub-card-list ul {
+             list-style: none;
+             padding: 0;
+             margin: 0;
+             font-size: 0.8em;
+        }
+        .sub-card-list ul li {
+            padding: 3px 0;
+            color: var(--color-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Chart.js specific styling for Dark Theme */
+        .chart-container canvas {
+            background-color: transparent !important;
+        }
+
+        /* ---------------------------------- */
+        /* TABLES (PEERS) */
+        /* ---------------------------------- */
+        .peer-table-wrapper {
+            overflow-x: auto;
+            margin-top: 15px;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+        }
+        .peer-table {
+            width: 100%;
+            min-width: 800px;
+            border-collapse: collapse;
+            font-size: 0.85em;
+        }
+        .peer-table th, .peer-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .peer-table th {
+            background-color: var(--color-table-header);
+            font-weight: 500;
+            color: var(--color-secondary);
+            text-transform: uppercase;
+        }
+        .peer-table tbody tr:hover {
+            background-color: var(--color-table-hover);
+        }
+
+        /* ---------------------------------- */
+        /* RESPONSIVE MEDIA QUERIES */
+        /* ---------------------------------- */
+
+        /* Medium screens (Tablets - 1024px) */
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
             }
+            .overview-row {
+                flex-wrap: wrap;
+            }
+            .stat-card {
+                flex: 1 1 45%;
+            }
+            .distribution-main-content {
+                flex-direction: column;
+            }
+            .chart-container {
+                max-width: 350px;
+            }
+        }
+
+        /* Small screens (Mobiles - 600px) */
+        @media (max-width: 600px) {
             h1 {
-                font-size: 2.5em;
-                margin-bottom: 30px;
-            }
-            h1 i {
-                margin-right: 15px;
-                font-size: 1.2em;
-            }
-            h2 {
                 font-size: 1.8em;
-                margin-top: 40px;
-                margin-bottom: 25px;
             }
-            .stats-grid {
-                /* Original desktop grid */
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 25px;
-                margin-bottom: 40px;
+            body {
+                padding: 10px;
             }
-            .stat-card strong {
-                font-size: 2.2em;
+            .overview-row {
+                flex-direction: column;
             }
-            .peer-list table {
-                min-width: 100%; /* No minimum width needed on desktop */
-                font-size: 0.9em;
+            .stat-card {
+                flex: 1 1 100%;
             }
-            .peer-list th, .peer-list td {
-                padding: 15px 20px;
+            .chart-container {
+                max-width: 100%;
+            }
+            .sub-card-list {
+                 max-height: 150px;
+            }
+            .status-bar {
+                flex-direction: column;
+                gap: 10px;
             }
         }
     </style>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 <body>
 
-<div class="container">
+<div id="app">
     <h1><i class="fas fa-satellite-dish"></i> Bitcoin Node Dashboard</h1>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <span class="label">Inbound Peers</span>
-            <strong>{stats.inboundCount}</strong>
-        </div>
-        <div class="stat-card">
-            <span class="label">Outbound Peers</span>
-            <strong>{stats.outboundCount}</strong>
-        </div>
-        <div class="stat-card">
-            <span class="label">Total Peers</span>
-            <strong>{stats.totalPeers}</strong>
-        </div>
-        <div class="stat-card">
-            <span class="label">Uptime</span>
-            <strong>{time}</strong>
-        </div>
+    <div class="status-bar" :class="{'status-connected': isConnected && rpcConnected, 'status-disconnected': !isConnected || !rpcConnected}">
+        <span><i class="fas fa-wifi"></i> WebSocket: {{ isConnected ? 'Connected' : 'Disconnected' }}</span>
+        <span><i class="fas fa-hdd"></i> Node RPC: {{ rpcConnected ? 'Connected' : 'Disconnected' }}</span>
+        <p v-if="errorMessage" style="margin: 5px 0 0;">
+            <i class="fas fa-exclamation-triangle"></i> {{ errorMessage }}
+        </p>
     </div>
 
-    <h2><i class="fas fa-cubes"></i> Blockchain Status</h2>
-    <div class="stats-grid">
-        <div class="stat-card" style="border-left: 5px solid #10b981;">
-            <span class="label">Current Block</span>
-            <strong>{blockchain.blocks}</strong>
-        </div>
-        <div class="stat-card" style="border-left: 5px solid #f59e0b;">
-            <span class="label">Latest Header</span>
-            <strong>{blockchain.headers}</strong>
-        </div>
-        <div class="stat-card" style="border-left: 5px solid #ef4444;">
-            <span class="label">Network Chain</span>
-            <strong>{blockchain.chain}</strong>
-        </div>
-    </div>
+    <div class="dashboard-grid">
 
-    <h2><i class="fas fa-microchip"></i> Node Network Info</h2>
-    <div class="stats-grid">
-        <div class="stat-card" style="border-left: 5px solid #06b6d4;">
-            <span class="label">Client Version</span>
-            <strong>{node.version}</strong>
-        </div>
-        <div class="stat-card" style="border-left: 5px solid #f97316;">
-            <span class="label">Protocol Version</span>
-            <strong>{node.protocolVersion}</strong>
-        </div>
-        <div class="stat-card" style="border-left: 5px solid var(--primary-color);">
-            <span class="label">Client Subversion</span>
-            <strong>{node.subversion}</strong>
-        </div>
-    </div>
+        <div class="overview-row" v-if="rpcConnected">
 
-
-    <h2><i class="fas fa-arrow-down"></i> Detailed Inbound Peers ({inbound_peers.size})</h2>
-    <div class="peer-list">
-        <table>
-            <thead>
-            <tr>
-                <th>Address</th>
-                <th>Client (Subversion)</th>
-                <th>Bytes Received</th>
-                <th>Bytes Sent</th>
-                <th>Network</th>
-                <th>Ping (s)</th>
-            </tr>
-            </thead>
-            <tbody>
-            {#for peer in inbound_peers}
-            <tr>
-                <td>{peer.addr}</td>
-                <td>{peer.subver ?: 'N/A'}</td>
-                <td>{peer.bytesrecv}</td>
-                <td>{peer.bytessent}</td>
-                <td>{peer.network}</td>
-                <td>{peer.pingtime} s</td>
-            </tr>
-            {/for}
-            </tbody>
-        </table>
-    </div>
-
-    <h2><i class="fas fa-arrow-up"></i> Detailed Outbound Peers ({outbound_peers.size})</h2>
-    <div class="peer-list">
-        <table>
-            <thead>
-            <tr>
-                <th>Address</th>
-                <th>Client (Subversion)</th>
-                <th>Bytes Received</th>
-                <th>Bytes Sent</th>
-                <th>Network</th>
-                <th>Ping (s)</th>
-            </tr>
-            </thead>
-            <tbody>
-            {#for peer in outbound_peers}
-            <tr>
-                <td>{peer.addr}</td>
-                <td>{peer.subver}</td>
-                <td>{peer.bytesrecv}</td>
-                <td>{peer.bytessent}</td>
-                <td>{peer.network}</td>
-                <td>{peer.pingtime} s</td>
-            </tr>
-            {/for}
-            </tbody>
-        </table>
-    </div>
-
-    <h2><i class="fas fa-chart-line"></i> Inbound Client Distribution</h2>
-    <div class="distribution-section">
-        {#for version in subver_distribution.inbound}
-        <div class="distribution-item">
-            <div class="distribution-label">
-                <span>{version.server ?: 'Unknown'}</span>
-                <span>{version.percentage} %</span>
+            <div class="stat-card peers">
+                <div class="icon"><i class="fas fa-users"></i></div>
+                <div class="value">{{ stats.totalPeers }}</div>
+                <div class="label">Total Peers (<i class="fas fa-arrow-down"></i> {{ stats.inboundCount }} / <i class="fas fa-arrow-up"></i> {{ stats.outboundCount }})</div>
             </div>
-            <div class="distribution-bar">
-                <div class="progress" style="width: {version.percentage}%;"></div>
+
+            <div class="stat-card blocks">
+                <div class="icon"><i class="fas fa-cubes"></i></div>
+                <div class="value">{{ blockchain.blocks }}</div>
+                <div class="label">Blocks (Chain: {{ blockchain.chain }})</div>
+            </div>
+
+            <div class="stat-card uptime">
+                <div class="icon"><i class="fas fa-clock"></i></div>
+                <div class="value">{{ time }}</div>
+                <div class="label">Uptime</div>
+            </div>
+
+            <div class="stat-card version">
+                <div class="icon"><i class="fas fa-code"></i></div>
+                <div class="value">v{{ node.protocolVersion }}</div>
+                <div class="label">Protocol</div>
+            </div>
+
+        </div>
+
+        <div class="data-section full-width" v-else-if="isConnected && !rpcConnected">
+            <p style="text-align: center; color: var(--color-info); font-size: 1.2em;">
+                <i class="fas fa-sync fa-spin"></i> Connecting to node RPC...
+            </p>
+        </div>
+
+
+        <div class="data-section full-width" v-if="rpcConnected">
+            <h2><i class="fas fa-code-branch"></i> SubVersion Distribution</h2>
+
+            <div class="distribution-main-content">
+
+                <div class="sub-card inbound-distribution">
+                    <h4><i class="fas fa-arrow-right"></i> Inbound Peers ({{ stats.inboundCount }})</h4>
+
+                    <div class="sub-card-content">
+                        <div class="chart-container">
+                            <canvas ref="inboundChartCanvas"></canvas>
+                        </div>
+
+                        <div class="sub-card-list">
+                            <ul>
+                                <li v-for="item in subver_distribution.inbound" :key="'inbound-list-' + item.server">
+                                    <code>{{ item.server || '[Unknown]' }}</code> : <strong>{{ item.percentage }}%</strong>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sub-card outbound-distribution">
+                    <h4><i class="fas fa-arrow-left"></i> Outbound Peers ({{ stats.outboundCount }})</h4>
+
+                    <div class="sub-card-content">
+                        <div class="chart-container">
+                            <canvas ref="outboundChartCanvas"></canvas>
+                        </div>
+
+                        <div class="sub-card-list">
+                            <ul>
+                                <li v-for="item in subver_distribution.outbound" :key="'outbound-list-' + item.server">
+                                    <code>{{ item.server || '[Unknown]' }}</code> : <strong>{{ item.percentage }}%</strong>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        {/for}
-    </div>
 
-    <h2><i class="fas fa-chart-line"></i> Outbound Client Distribution</h2>
-    <div class="distribution-section">
-        {#for version in subver_distribution.outbound}
-        <div class="distribution-item">
-            <div class="distribution-label">
-                <span>{version.server ?: 'Unknown'}</span>
-                <span>{version.percentage} %</span>
+        <div class="data-section full-width" v-if="rpcConnected">
+            <h2><i class="fas fa-users"></i> Peer Details</h2>
+
+            <h4>Inbound Peers ({{ inbound_peers.length }})</h4>
+            <div class="peer-table-wrapper">
+                <table class="peer-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Address</th>
+                        <th>SubVer</th>
+                        <th>Type</th>
+                        <th>Ping</th>
+                        <th><i class="fas fa-download"></i> Recv</th>
+                        <th><i class="fas fa-upload"></i> Sent</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="peer in inbound_peers" :key="'in-' + peer.id">
+                        <td>{{ peer.id }}</td>
+                        <td>{{ peer.addr }}</td>
+                        <td>{{ peer.subver || '[Empty]' }}</td>
+                        <td>{{ peer.connection_type }}</td>
+                        <td>{{ peer.minping ? peer.minping.toFixed(3) + ' s' : 'N/A' }}</td>
+                        <td>{{ (peer.bytesrecv / 1024).toFixed(2) }} KB</td>
+                        <td>{{ (peer.bytessent / 1024).toFixed(2) }} KB</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="distribution-bar">
-                <div class="progress" style="width: {version.percentage}%;"></div>
+
+            <h4 style="margin-top: 30px;">Outbound Peers ({{ outbound_peers.length }})</h4>
+            <div class="peer-table-wrapper">
+                <table class="peer-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Address</th>
+                        <th>SubVer</th>
+                        <th>Type</th>
+                        <th>Ping</th>
+                        <th><i class="fas fa-download"></i> Recv</th>
+                        <th><i class="fas fa-upload"></i> Sent</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="peer in outbound_peers" :key="'out-' + peer.id">
+                        <td>{{ peer.id }}</td>
+                        <td>{{ peer.addr }}</td>
+                        <td>{{ peer.subver || '[Empty]' }}</td>
+                        <td>{{ peer.connection_type }}</td>
+                        <td>{{ peer.minping ? peer.minping.toFixed(3) + ' s' : 'N/A' }}</td>
+                        <td>{{ (peer.bytesrecv / 1024).toFixed(2) }} KB</td>
+                        <td>{{ (peer.bytessent / 1024).toFixed(2) }} KB</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-        {/for}
+
     </div>
 </div>
+
+<script>
+    const { createApp, ref, onMounted, reactive, toRefs, watch } = Vue;
+
+    const DEFAULT_DATA = {
+        stats: { inboundCount: 0, outboundCount: 0, totalPeers: 0 },
+        blockchain: { blocks: 0, headers: 0, chain: 'Loading...' },
+        node: { version: 'N/A', protocolVersion: 'N/A', subversion: 'N/A' },
+        time: 'N/A', // Uptime formatted string
+        inbound_peers: [],
+        outbound_peers: [],
+        subver_distribution: { inbound: [], outbound: [] }
+    };
+
+
+    /**
+     * Generates a set of bright colors suitable for a dark theme.
+     */
+    const generateColors = (numColors) => {
+        const baseColors = [
+            '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1', '#fd7e14', '#20c997', '#6610f2',
+            '#e83e8c', '#17a2b8', '#6c757d', '#adb5bd', '#343a40', '#ffe0b2', '#c8e6c9', '#bbdefb'
+        ];
+        const colors = [];
+        for (let i = 0; i < numColors; i++) {
+            colors.push(baseColors[i % baseColors.length]);
+        }
+        return colors;
+    };
+
+    /**
+     * Initializes a new Chart.js instance. This should only be called once.
+     */
+    const initPieChart = (canvasRef, chartData) => {
+        if (!canvasRef.value) return null;
+
+        const labels = chartData.map(d => d.server || '[Unknown]');
+        const percentages = chartData.map(d => d.percentage);
+        const backgroundColors = generateColors(labels.length);
+
+        const ctx = canvasRef.value.getContext('2d');
+        return new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: percentages,
+                    backgroundColor: backgroundColors,
+                    hoverOffset: 4,
+                    borderColor: 'transparent',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                             boxWidth: 10,
+                             color: Chart.defaults.color, // Use the defined default color
+                        }
+                    },
+                    title: {
+                        display: false,
+                    }
+                }
+            }
+        });
+    };
+
+    /**
+     * Updates an existing Chart.js instance with new data. (Fast operation)
+     */
+    const updateChartData = (chartInstance, chartData) => {
+        if (!chartInstance) return;
+
+        const labels = chartData.map(d => d.server || '[Unknown]');
+        const percentages = chartData.map(d => d.percentage);
+        const backgroundColors = generateColors(labels.length);
+
+        chartInstance.data.labels = labels;
+        chartInstance.data.datasets[0].data = percentages;
+        chartInstance.data.datasets[0].backgroundColor = backgroundColors;
+        chartInstance.update();
+    };
+
+
+    createApp({
+        setup() {
+            const isConnected = ref(false);
+            const rpcConnected = ref(false);
+            const errorMessage = ref(null);
+
+            const dataState = reactive(DEFAULT_DATA);
+            let ws = null;
+
+            const inboundChartCanvas = ref(null);
+            const outboundChartCanvas = ref(null);
+            let inboundPieChart = null;
+            let outboundPieChart = null;
+
+            // Apply Chart.js global dark theme settings once
+            Chart.defaults.color = '#f0f0f0';
+            Chart.defaults.borderColor = '#303030';
+            Chart.defaults.plugins.tooltip.backgroundColor = '#1e1e1e';
+            Chart.defaults.plugins.tooltip.bodyColor = '#f0f0f0';
+            Chart.defaults.plugins.tooltip.titleColor = '#aaaaaa';
+
+
+            /**
+             * Processes and normalizes raw data received from the WebSocket.
+             */
+            const normalizeData = (rawData) => {
+                const nodeInfo = rawData.nodeInfo || {};
+
+                Object.assign(dataState, {
+                    stats: rawData.generalStats || {},
+                    blockchain: rawData.blockchainInfo ? {
+                        blocks: rawData.blockchainInfo.blocks,
+                        headers: rawData.blockchainInfo.headers,
+                        chain: rawData.blockchainInfo.chain,
+                    } : {},
+                    node: {
+                        version: nodeInfo.version,
+                        protocolVersion: nodeInfo.protocolversion,
+                        subversion: nodeInfo.subversion,
+                    },
+                    // Format uptime here before setting the state
+                    time: rawData.upTime,
+                    inbound_peers: rawData.inboundPeer || [],
+                    outbound_peers: rawData.outboundPeer || [],
+                    subver_distribution: rawData.subverDistribution || { inbound: [], outbound: [] },
+                });
+            };
+
+            const connectWebSocket = () => {
+                const wsProtocol = location.protocol === "https:" ? "wss:" : "ws:";
+                const hostAndPort = location.host;
+
+                ws = new WebSocket(wsProtocol + "//" + hostAndPort + "/ws/dashboard");
+
+                ws.onopen = () => {
+                    console.log("WebSocket connected!");
+                    isConnected.value = true;
+                };
+
+                ws.onmessage = (event) => {
+                    try {
+                        const json = JSON.parse(event.data);
+
+                        if (json.hasOwnProperty('rpcConnected')) {
+                            rpcConnected.value = json.rpcConnected;
+                            errorMessage.value = json.errorMessage || null;
+                            return;
+                        }
+
+                        if (json.hasOwnProperty('generalStats')) {
+                            rpcConnected.value = true;
+                            errorMessage.value = null;
+                            normalizeData(json);
+                        }
+
+                    } catch (e) {
+                        console.error("Error parsing JSON message from WebSocket:", e, event.data);
+                    }
+                };
+
+                ws.onclose = () => {
+                    console.log("WebSocket disconnected. Retrying in 3s...");
+                    isConnected.value = false;
+                    rpcConnected.value = false;
+                    errorMessage.value = 'WebSocket disconnected from server. Retrying...';
+                    setTimeout(connectWebSocket, 3000);
+                };
+
+                ws.onerror = (error) => {
+                    console.error("WebSocket error:", error);
+                    isConnected.value = false;
+                    rpcConnected.value = false;
+                    errorMessage.value = 'WebSocket connection error.';
+                };
+            };
+
+            onMounted(() => {
+                connectWebSocket();
+
+                // Important: Initialize charts immediately on mount (or with nextTick)
+                // We use nextTick to ensure the canvas elements are rendered by v-if="rpcConnected"
+                // before trying to grab their refs, minimizing the delay.
+                // However, since the charts are inside a v-if, we must use `watch`
+                // on the ref value itself, or wait until `rpcConnected` is true,
+                // but the current setup relies on the watch below for the first data load anyway.
+            });
+
+            // OPTIMIZATION: Use the watch to update the data, and only initialize the chart once.
+            // This ensures the heavy `new Chart()` operation is only run if the chart instance is null.
+
+            watch(rpcConnected, (newVal) => {
+                // If RPC connects, we ensure the chart instances are created.
+                if (newVal && inboundPieChart === null && outboundPieChart === null) {
+                     // Use nextTick to guarantee the DOM elements (canvas) exist after v-if is true
+                     Vue.nextTick(() => {
+                        inboundPieChart = initPieChart(inboundChartCanvas, dataState.subver_distribution.inbound);
+                        outboundPieChart = initPieChart(outboundChartCanvas, dataState.subver_distribution.outbound);
+                    });
+                }
+            });
+
+            watch(() => dataState.subver_distribution.inbound, (newVal) => {
+                if (inboundPieChart) {
+                    updateChartData(inboundPieChart, newVal);
+                }
+            }, { deep: true });
+
+            watch(() => dataState.subver_distribution.outbound, (newVal) => {
+                if (outboundPieChart) {
+                    updateChartData(outboundPieChart, newVal);
+                }
+            }, { deep: true });
+
+            return {
+                isConnected,
+                rpcConnected,
+                errorMessage,
+                ...toRefs(dataState),
+                inboundChartCanvas,
+                outboundChartCanvas,
+            };
+        }
+    }).mount('#app');
+</script>
+
 </body>
 </html>
