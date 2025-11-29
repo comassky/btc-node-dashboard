@@ -344,10 +344,9 @@
 
             <div class="stat-card version">
                 <div class="icon"><i class="fas fa-code"></i></div>
-                <div class="value">v{{ node.protocolVersion }}</div>
-                <div class="label">Protocol</div>
+                <div class="value">{{ cleanedSubversion }}</div>
+                <div class="label">Software (P. v{{ node.protocolVersion }})</div>
             </div>
-
         </div>
 
         <div class="data-section full-width" v-else-if="isConnected && !rpcConnected">
@@ -370,13 +369,6 @@
                             <canvas ref="inboundChartCanvas"></canvas>
                         </div>
 
-                        <div class="sub-card-list">
-                            <ul>
-                                <li v-for="item in subver_distribution.inbound" :key="'inbound-list-' + item.server">
-                                    <code>{{ item.server || '[Unknown]' }}</code> : <strong>{{ item.percentage }}%</strong>
-                                </li>
-                            </ul>
-                        </div>
                     </div>
                 </div>
 
@@ -388,13 +380,6 @@
                             <canvas ref="outboundChartCanvas"></canvas>
                         </div>
 
-                        <div class="sub-card-list">
-                            <ul>
-                                <li v-for="item in subver_distribution.outbound" :key="'outbound-list-' + item.server">
-                                    <code>{{ item.server || '[Unknown]' }}</code> : <strong>{{ item.percentage }}%</strong>
-                                </li>
-                            </ul>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -411,7 +396,7 @@
                         <th>ID</th>
                         <th>Address</th>
                         <th>SubVer</th>
-                        <th>Type</th>
+                        <th>Network</th> <th>Type</th>
                         <th>Ping</th>
                         <th><i class="fas fa-download"></i> Recv</th>
                         <th><i class="fas fa-upload"></i> Sent</th>
@@ -422,7 +407,7 @@
                         <td>{{ peer.id }}</td>
                         <td>{{ peer.addr }}</td>
                         <td>{{ peer.subver || '[Empty]' }}</td>
-                        <td>{{ peer.connection_type }}</td>
+                        <td>{{ peer.network || 'N/A' }}</td> <td>{{ peer.connection_type }}</td>
                         <td>{{ peer.minping ? peer.minping.toFixed(3) + ' s' : 'N/A' }}</td>
                         <td>{{ (peer.bytesrecv / 1024).toFixed(2) }} KB</td>
                         <td>{{ (peer.bytessent / 1024).toFixed(2) }} KB</td>
@@ -439,7 +424,7 @@
                         <th>ID</th>
                         <th>Address</th>
                         <th>SubVer</th>
-                        <th>Type</th>
+                        <th>Network</th> <th>Type</th>
                         <th>Ping</th>
                         <th><i class="fas fa-download"></i> Recv</th>
                         <th><i class="fas fa-upload"></i> Sent</th>
@@ -450,7 +435,7 @@
                         <td>{{ peer.id }}</td>
                         <td>{{ peer.addr }}</td>
                         <td>{{ peer.subver || '[Empty]' }}</td>
-                        <td>{{ peer.connection_type }}</td>
+                        <td>{{ peer.network || 'N/A' }}</td> <td>{{ peer.connection_type }}</td>
                         <td>{{ peer.minping ? peer.minping.toFixed(3) + ' s' : 'N/A' }}</td>
                         <td>{{ (peer.bytesrecv / 1024).toFixed(2) }} KB</td>
                         <td>{{ (peer.bytessent / 1024).toFixed(2) }} KB</td>
@@ -464,7 +449,7 @@
 </div>
 
 <script>
-    const { createApp, ref, onMounted, reactive, toRefs, watch } = Vue;
+    const { createApp, ref, onMounted, reactive, toRefs, watch, computed } = Vue;
 
     const DEFAULT_DATA = {
         stats: { inboundCount: 0, outboundCount: 0, totalPeers: 0 },
@@ -598,6 +583,15 @@
                 });
             };
 
+            // PROPRIÉTÉ CALCULÉE POUR NETTOYER LA SUBVERSION
+            const cleanedSubversion = computed(() => {
+                const subver = dataState.node.subversion;
+                if (!subver || subver === 'N/A') return 'N/A';
+                // Supprime les / et les espaces inutiles autour
+                return subver.replace(/[/\s]/g, '');
+            });
+
+
             const connectWebSocket = () => {
                 const wsProtocol = location.protocol === "https:" ? "wss:" : "ws:";
                 const hostAndPort = location.host;
@@ -648,18 +642,9 @@
 
             onMounted(() => {
                 connectWebSocket();
-
-                // Important: Initialize charts immediately on mount (or with nextTick)
-                // We use nextTick to ensure the canvas elements are rendered by v-if="rpcConnected"
-                // before trying to grab their refs, minimizing the delay.
-                // However, since the charts are inside a v-if, we must use `watch`
-                // on the ref value itself, or wait until `rpcConnected` is true,
-                // but the current setup relies on the watch below for the first data load anyway.
             });
 
             // OPTIMIZATION: Use the watch to update the data, and only initialize the chart once.
-            // This ensures the heavy `new Chart()` operation is only run if the chart instance is null.
-
             watch(rpcConnected, (newVal) => {
                 // If RPC connects, we ensure the chart instances are created.
                 if (newVal && inboundPieChart === null && outboundPieChart === null) {
@@ -690,6 +675,7 @@
                 ...toRefs(dataState),
                 inboundChartCanvas,
                 outboundChartCanvas,
+                cleanedSubversion, // Renvoyer la propriété calculée
             };
         }
     }).mount('#app');
