@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bitcoin Node RPC Dashboard</title>
 
+    <link rel="icon" type="image/svg+xml" href="https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg">
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
@@ -301,14 +303,14 @@
             }
             .overview-row {
                 flex-wrap: wrap;
-                /* 🚀 OPTIMISATION: Passer en mode colonne dès 1024px pour les cartes */
-                flex-direction: column;
-                gap: 15px; /* Ajuste l'espacement vertical */
+                /* 🚀 CORRECTION CRITIQUE: Forcer l'empilement vertical avec !important */
+                flex-direction: column !important;
+                gap: 15px;
             }
-            /* Les cartes prennent toute la largeur et sont empilées */
+            /* Les cartes DOIVENT prendre toute la largeur disponible pour s'empiler */
             .stat-card {
-                flex: 1 1 100%;
-                min-width: unset;
+                flex: 1 1 100%; /* Prend 100% de la largeur du conteneur parent */
+                min-width: 100%; /* S'assurer qu'il n'y a pas de min-width restrictif */
             }
             .distribution-main-content {
                 flex-direction: column;
@@ -318,7 +320,7 @@
                 height: 300px;
             }
             .peer-table {
-                 min-width: 700px; /* Gardé pour tablette pour meilleure lisibilité */
+                 min-width: 700px;
             }
         }
 
@@ -351,7 +353,6 @@
             }
             .peer-table {
                  font-size: 0.75em;
-                 /* 🛑 OPTIMISATION CRITIQUE: REMPLACER LE MIN-WIDTH FIXE (600px) PAR UNE VALEUR AUTO */
                  min-width: auto;
             }
             .peer-table th, .peer-table td {
