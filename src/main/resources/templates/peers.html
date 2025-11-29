@@ -5,29 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bitcoin Node RPC Dashboard</title>
 
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         /* ---------------------------------- */
-        /* VARIABLES & BASE (DARK THEME) */
+        /* VARIABLES & BASE (DARK THEME) 🌙 */
         /* ---------------------------------- */
         :root {
-            --color-primary: #f0f0f0;
-            --color-secondary: #aaaaaa;
-            --color-accent: #007bff;
-            --color-bg: #121212;
-            --color-card-bg: #1e1e1e;
-            --color-border: #303030;
-            --color-success: #4caf50;
-            --color-error: #f44336;
-            --color-warning: #ff9800;
-            --color-table-header: #252525; /* New variable for clarity */
-            --color-table-hover: #282828; /* New variable for clarity */
+            /* Palette Couleurs */
+            --color-primary: #f0f0f0;    /* Texte principal (Light Gray) */
+            --color-secondary: #aaaaaa;  /* Texte secondaire/Label (Medium Gray) */
+            --color-accent: #ff9900;     /* Bitcoin Orange / Accent */
+            --color-bg: #121212;         /* Arrière-plan global (Dark) */
+            --color-card-bg: #1e1e1e;    /* Arrière-plan des cartes (Slightly Lighter Dark) */
+            --color-border: #303030;     /* Bordures/Séparateurs */
+            --color-success: #28a745;    /* Vert Connexion/Inbound */
+            --color-error: #dc3545;      /* Rouge Déconnexion/Erreur */
+            --color-warning: #ffc107;    /* Jaune/Block */
 
-            --shadow-elevation-2: 0 4px 8px rgba(0, 0, 0, 0.4);
-            --shadow-elevation-1: 0 2px 4px rgba(0, 0, 0, 0.3);
+            /* Ombres */
+            --shadow-elevation-2: 0 6px 12px rgba(0, 0, 0, 0.5); /* Profond */
+            --shadow-elevation-1: 0 2px 4px rgba(0, 0, 0, 0.4);  /* Léger */
         }
 
         body {
@@ -45,10 +46,10 @@
         h1 {
             text-align: center;
             color: var(--color-accent);
-            font-size: 2.2em;
-            font-weight: 400;
+            font-size: 2.4em;
+            font-weight: 300;
             margin-bottom: 40px;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
         h2, h3, h4 {
             color: var(--color-primary);
@@ -58,25 +59,61 @@
         }
 
         /* ---------------------------------- */
-        /* STATUS & GRID */
+        /* STATUS & GRID 🌐 */
         /* ---------------------------------- */
         .status-bar {
-            padding: 15px;
+            /* PADDING AJUSTÉ */
+            padding: 18px 30px;
             margin-bottom: 30px;
-            border-radius: 4px;
+            border-radius: 8px; /* Slightly more rounded */
             color: white;
             text-align: center;
             font-weight: 500;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
+            gap: 40px; /* Espace plus grand entre les statuts */
             box-shadow: var(--shadow-elevation-1);
         }
         .status-bar i { margin-right: 8px; }
         .status-connected { background-color: var(--color-success); }
-        .status-disconnected { background-color: var(--color-error); }
-        .status-bar p { margin: 5px 0 0; font-weight: 400; font-size: 0.9em; border-top: 1px solid rgba(255, 255, 255, 0.3); padding-top: 5px;}
+        .status-disconnected {
+            background-color: var(--color-error);
+            animation: pulse-red 2s infinite;
+        }
+        /* Simple pulse animation for disconnected state */
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+
+        .status-bar p {
+            margin: 5px 0 0;
+            font-weight: 400;
+            font-size: 0.9em;
+            /* Retire le border-top qui peut être moche en mode colonne */
+            /* border-top: 1px solid rgba(255, 255, 255, 0.3); */
+            padding-top: 5px;
+            width: auto; /* Maintient la largeur auto */
+        }
+
+        /* Style pour le message d'erreur si la barre est en mode colonne */
+        .status-bar.status-disconnected {
+            display: flex;
+            flex-direction: row; /* Force le mode ligne par défaut */
+        }
+        /* Si l'on passe en mode colonne (dans la media query mobile), on applique cette correction */
+        .status-bar.is-mobile {
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+        .status-bar.is-mobile p {
+            width: 100%; /* Le message d'erreur prend toute la largeur */
+            text-align: left;
+        }
+
 
         .dashboard-grid {
             display: grid;
@@ -93,12 +130,13 @@
         .data-section {
             background-color: var(--color-card-bg);
             padding: 24px;
-            border-radius: 8px;
+            border-radius: 10px; /* Légèrement plus arrondi */
             box-shadow: var(--shadow-elevation-2);
-            transition: box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .data-section:hover {
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6), 0 6px 6px rgba(0, 0, 0, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.7);
         }
         .data-section strong {
             font-weight: 600;
@@ -117,32 +155,45 @@
 
         .stat-card {
             flex: 1;
-            padding: 20px;
+            /* PADDING AJUSTÉ pour un meilleur "air" */
+            padding: 25px;
             background-color: var(--color-card-bg);
             border-radius: 8px;
             box-shadow: var(--shadow-elevation-1);
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            /* UTILISATION DE GAP au lieu de space-between */
+            gap: 10px;
+            justify-content: flex-start; /* Aligner en haut */
             min-width: 150px;
+            border-left: 5px solid var(--color-border);
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            border-left-color: var(--color-accent);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
         }
 
         .stat-card .icon {
-            font-size: 2em;
+            font-size: 2.2em; /* Légèrement plus grande */
             color: var(--color-accent);
-            margin-bottom: 10px;
+            margin-bottom: 5px; /* Réduit la marge */
         }
 
         .stat-card .value {
-            font-size: 1.8em;
-            font-weight: 600;
+            font-size: 2.4em; /* Plus grand et plus impactant */
+            font-weight: 700;
             color: var(--color-primary);
+            line-height: 1.1;
+            margin-bottom: 5px; /* Ajoute un peu d'espace avant le label */
         }
 
         .stat-card .label {
-            font-size: 0.9em;
+            font-size: 0.85em;
             color: var(--color-secondary);
             text-transform: uppercase;
+            margin-top: auto; /* Pousse le label vers le bas si la carte s'étire */
         }
 
         .stat-card.peers .icon { color: var(--color-success); }
@@ -151,7 +202,7 @@
         .stat-card.version .icon { color: var(--color-secondary); }
 
         /* ---------------------------------- */
-        /* DISTRIBUTION (MINIMALIST SUB-CARDS) */
+        /* DISTRIBUTION (PIE CHARTS) 🥧 */
         /* ---------------------------------- */
         .distribution-main-content {
             display: flex;
@@ -164,16 +215,18 @@
             padding: 0px 10px;
             border: none;
             background-color: transparent;
-
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
         .sub-card h4 {
             margin: 0;
             padding-bottom: 5px;
-            border-bottom: 1px solid var(--color-border);
+            border-bottom: 2px solid var(--color-accent);
             text-align: center;
+            text-transform: uppercase;
+            font-size: 1.1em; /* Légèrement plus grand */
+            letter-spacing: 1px;
         }
 
         .sub-card-content {
@@ -182,12 +235,13 @@
             gap: 15px;
             height: 100%;
             align-items: center;
+            justify-content: center;
         }
 
         .chart-container {
             width: 100%;
-            max-width: 350px;
-            height: 250px;
+            max-width: 450px; /* Plus large pour les graphiques */
+            height: 350px; /* Plus haut pour la légende */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -198,65 +252,46 @@
             height: 100% !important;
         }
 
-        .sub-card-list {
-             width: 100%;
-             max-height: 200px;
-             overflow-y: auto;
-             border: 1px solid var(--color-border);
-             padding: 10px;
-             border-radius: 4px;
-        }
-        .sub-card-list ul {
-             list-style: none;
-             padding: 0;
-             margin: 0;
-             font-size: 0.8em;
-        }
-        .sub-card-list ul li {
-            padding: 3px 0;
-            color: var(--color-secondary);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
         /* Chart.js specific styling for Dark Theme */
         .chart-container canvas {
             background-color: transparent !important;
         }
 
         /* ---------------------------------- */
-        /* TABLES (PEERS) */
+        /* TABLES (PEERS) 📊 */
         /* ---------------------------------- */
         .peer-table-wrapper {
             overflow-x: auto;
             margin-top: 15px;
             border: 1px solid var(--color-border);
-            border-radius: 4px;
+            border-radius: 8px; /* Plus arrondi */
         }
         .peer-table {
             width: 100%;
-            min-width: 800px;
+            /* 🛑 OPTIMISATION CRITIQUE: SUPPRIMER LE MIN-WIDTH FIXE */
+            min-width: unset;
             border-collapse: collapse;
-            font-size: 0.85em;
+            font-size: 0.85em; /* Légèrement plus grand pour la lisibilité */
         }
         .peer-table th, .peer-table td {
-            padding: 12px 15px;
+            padding: 12px 18px; /* Plus de padding */
             text-align: left;
             border-bottom: 1px solid var(--color-border);
         }
         .peer-table th {
-            background-color: var(--color-table-header);
+            background-color: #252525;
             font-weight: 500;
             color: var(--color-secondary);
             text-transform: uppercase;
         }
         .peer-table tbody tr:hover {
-            background-color: var(--color-table-hover);
+            background-color: #282828;
         }
+        .peer-table .connection-type-inbound { color: var(--color-success); font-weight: 500;}
+        .peer-table .connection-type-outbound { color: var(--color-accent); font-weight: 500;}
 
         /* ---------------------------------- */
-        /* RESPONSIVE MEDIA QUERIES */
+        /* RESPONSIVE MEDIA QUERIES (Mobile Ready) 📱 */
         /* ---------------------------------- */
 
         /* Medium screens (Tablets - 1024px) */
@@ -266,15 +301,24 @@
             }
             .overview-row {
                 flex-wrap: wrap;
+                /* 🚀 OPTIMISATION: Passer en mode colonne dès 1024px pour les cartes */
+                flex-direction: column;
+                gap: 15px; /* Ajuste l'espacement vertical */
             }
+            /* Les cartes prennent toute la largeur et sont empilées */
             .stat-card {
-                flex: 1 1 45%;
+                flex: 1 1 100%;
+                min-width: unset;
             }
             .distribution-main-content {
                 flex-direction: column;
             }
             .chart-container {
-                max-width: 350px;
+                max-width: 100%;
+                height: 300px;
+            }
+            .peer-table {
+                 min-width: 700px; /* Gardé pour tablette pour meilleure lisibilité */
             }
         }
 
@@ -282,25 +326,39 @@
         @media (max-width: 600px) {
             h1 {
                 font-size: 1.8em;
+                margin-bottom: 20px;
             }
             body {
                 padding: 10px;
             }
-            .overview-row {
-                flex-direction: column;
-            }
             .stat-card {
-                flex: 1 1 100%;
+                padding: 20px;
+                min-width: unset;
             }
-            .chart-container {
-                max-width: 100%;
-            }
-            .sub-card-list {
-                 max-height: 150px;
-            }
+            /* APPLIQUE LA CLASSE MOBILE POUR LA BARRE DE STATUT */
             .status-bar {
                 flex-direction: column;
-                gap: 10px;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 15px;
+            }
+            .status-bar span {
+                width: 100%;
+            }
+            .data-section {
+                padding: 15px;
+                overflow: hidden;
+            }
+            .peer-table {
+                 font-size: 0.75em;
+                 /* 🛑 OPTIMISATION CRITIQUE: REMPLACER LE MIN-WIDTH FIXE (600px) PAR UNE VALEUR AUTO */
+                 min-width: auto;
+            }
+            .peer-table th, .peer-table td {
+                padding: 8px 10px;
+            }
+            .peer-table-wrapper {
+                 width: 100%;
             }
         }
     </style>
@@ -310,9 +368,9 @@
 <body>
 
 <div id="app">
-    <h1><i class="fas fa-satellite-dish"></i> Bitcoin Node Dashboard</h1>
+    <h1><i class="fab fa-bitcoin"></i> Bitcoin Node Dashboard</h1>
 
-    <div class="status-bar" :class="{'status-connected': isConnected && rpcConnected, 'status-disconnected': !isConnected || !rpcConnected}">
+    <div class="status-bar" :class="[{'status-connected': isConnected && rpcConnected, 'status-disconnected': !isConnected || !rpcConnected}, {'is-mobile': isMobile}]">
         <span><i class="fas fa-wifi"></i> WebSocket: {{ isConnected ? 'Connected' : 'Disconnected' }}</span>
         <span><i class="fas fa-hdd"></i> Node RPC: {{ rpcConnected ? 'Connected' : 'Disconnected' }}</span>
         <p v-if="errorMessage" style="margin: 5px 0 0;">
@@ -350,43 +408,41 @@
         </div>
 
         <div class="data-section full-width" v-else-if="isConnected && !rpcConnected">
-            <p style="text-align: center; color: var(--color-info); font-size: 1.2em;">
+            <p style="text-align: center; color: var(--color-secondary); font-size: 1.2em;">
                 <i class="fas fa-sync fa-spin"></i> Connecting to node RPC...
             </p>
         </div>
 
 
         <div class="data-section full-width" v-if="rpcConnected">
-            <h2><i class="fas fa-code-branch"></i> SubVersion Distribution</h2>
+            <h2><i class="fas fa-chart-pie"></i> SubVersion Distribution</h2>
 
             <div class="distribution-main-content">
 
                 <div class="sub-card inbound-distribution">
-                    <h4><i class="fas fa-arrow-right"></i> Inbound Peers ({{ stats.inboundCount }})</h4>
+                    <h4><i class="fas fa-sign-in-alt"></i> Inbound Peers ({{ stats.inboundCount }})</h4>
 
                     <div class="sub-card-content">
                         <div class="chart-container">
                             <canvas ref="inboundChartCanvas"></canvas>
                         </div>
-
                     </div>
                 </div>
 
                 <div class="sub-card outbound-distribution">
-                    <h4><i class="fas fa-arrow-left"></i> Outbound Peers ({{ stats.outboundCount }})</h4>
+                    <h4><i class="fas fa-sign-out-alt"></i> Outbound Peers ({{ stats.outboundCount }})</h4>
 
                     <div class="sub-card-content">
                         <div class="chart-container">
                             <canvas ref="outboundChartCanvas"></canvas>
                         </div>
-
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="data-section full-width" v-if="rpcConnected">
-            <h2><i class="fas fa-users"></i> Peer Details</h2>
+            <h2><i class="fas fa-users-cog"></i> Peer Details</h2>
 
             <h4>Inbound Peers ({{ inbound_peers.length }})</h4>
             <div class="peer-table-wrapper">
@@ -407,7 +463,8 @@
                         <td>{{ peer.id }}</td>
                         <td>{{ peer.addr }}</td>
                         <td>{{ peer.subver || '[Empty]' }}</td>
-                        <td>{{ peer.network || 'N/A' }}</td> <td>{{ peer.connection_type }}</td>
+                        <td>{{ peer.network || 'N/A' }}</td>
+                        <td class="connection-type-inbound">{{ peer.connection_type }}</td>
                         <td>{{ peer.minping ? peer.minping.toFixed(3) + ' s' : 'N/A' }}</td>
                         <td>{{ (peer.bytesrecv / 1024).toFixed(2) }} KB</td>
                         <td>{{ (peer.bytessent / 1024).toFixed(2) }} KB</td>
@@ -435,7 +492,8 @@
                         <td>{{ peer.id }}</td>
                         <td>{{ peer.addr }}</td>
                         <td>{{ peer.subver || '[Empty]' }}</td>
-                        <td>{{ peer.network || 'N/A' }}</td> <td>{{ peer.connection_type }}</td>
+                        <td>{{ peer.network || 'N/A' }}</td>
+                        <td class="connection-type-outbound">{{ peer.connection_type }}</td>
                         <td>{{ peer.minping ? peer.minping.toFixed(3) + ' s' : 'N/A' }}</td>
                         <td>{{ (peer.bytesrecv / 1024).toFixed(2) }} KB</td>
                         <td>{{ (peer.bytessent / 1024).toFixed(2) }} KB</td>
@@ -449,7 +507,7 @@
 </div>
 
 <script>
-    const { createApp, ref, onMounted, reactive, toRefs, watch, computed } = Vue;
+    const { createApp, ref, onMounted, reactive, toRefs, watch, computed, nextTick, onBeforeUnmount } = Vue;
 
     const DEFAULT_DATA = {
         stats: { inboundCount: 0, outboundCount: 0, totalPeers: 0 },
@@ -495,7 +553,7 @@
                 datasets: [{
                     data: percentages,
                     backgroundColor: backgroundColors,
-                    hoverOffset: 4,
+                    hoverOffset: 8, // Slightly more aggressive hover
                     borderColor: 'transparent',
                 }]
             },
@@ -507,8 +565,21 @@
                         position: 'right',
                         labels: {
                              boxWidth: 10,
-                             color: Chart.defaults.color, // Use the defined default color
+                             color: Chart.defaults.color,
                         }
+                    },
+                    tooltip: { // Customizing Tooltips
+                         mode: 'index',
+                         intersect: false,
+                         callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                if (label) {
+                                    return label + ': ' + context.formattedValue + '%';
+                                }
+                                return null;
+                            }
+                         }
                     },
                     title: {
                         display: false,
@@ -540,6 +611,8 @@
             const isConnected = ref(false);
             const rpcConnected = ref(false);
             const errorMessage = ref(null);
+            // NOUVEAU: État pour le responsive de la barre de statut
+            const isMobile = ref(window.innerWidth <= 600);
 
             const dataState = reactive(DEFAULT_DATA);
             let ws = null;
@@ -549,12 +622,18 @@
             let inboundPieChart = null;
             let outboundPieChart = null;
 
+            // Gestionnaire de redimensionnement
+            const handleResize = () => {
+                isMobile.value = window.innerWidth <= 600;
+            };
+
             // Apply Chart.js global dark theme settings once
             Chart.defaults.color = '#f0f0f0';
             Chart.defaults.borderColor = '#303030';
             Chart.defaults.plugins.tooltip.backgroundColor = '#1e1e1e';
             Chart.defaults.plugins.tooltip.bodyColor = '#f0f0f0';
             Chart.defaults.plugins.tooltip.titleColor = '#aaaaaa';
+            Chart.defaults.plugins.tooltip.cornerRadius = 6;
 
 
             /**
@@ -583,16 +662,23 @@
                 });
             };
 
-            // PROPRIÉTÉ CALCULÉE POUR NETTOYER LA SUBVERSION
+            // CALCULATED PROPERTY TO CLEAN SUBVERSION
             const cleanedSubversion = computed(() => {
                 const subver = dataState.node.subversion;
                 if (!subver || subver === 'N/A') return 'N/A';
-                // Supprime les / et les espaces inutiles autour
-                return subver.replace(/[/\s]/g, '');
+                // Remove slashes and unnecessary spaces, keep version number
+                // Example: /Satoshi:25.0.0/ -> Satoshi:25.0.0
+                return subver.replace(/^\/|\/$/g, '').trim();
             });
 
 
             const connectWebSocket = () => {
+                // Cleanup previous connection if it exists
+                if (ws) {
+                    ws.onclose = null; // Prevent immediate retry on intentional close
+                    ws.close();
+                }
+
                 const wsProtocol = location.protocol === "https:" ? "wss:" : "ws:";
                 const hostAndPort = location.host;
 
@@ -642,14 +728,24 @@
 
             onMounted(() => {
                 connectWebSocket();
+                window.addEventListener('resize', handleResize);
             });
+
+            onBeforeUnmount(() => {
+                window.removeEventListener('resize', handleResize);
+                if (ws) {
+                    ws.onclose = null;
+                    ws.close();
+                }
+            });
+
 
             // OPTIMIZATION: Use the watch to update the data, and only initialize the chart once.
             watch(rpcConnected, (newVal) => {
                 // If RPC connects, we ensure the chart instances are created.
                 if (newVal && inboundPieChart === null && outboundPieChart === null) {
                      // Use nextTick to guarantee the DOM elements (canvas) exist after v-if is true
-                     Vue.nextTick(() => {
+                     nextTick(() => { // Using imported nextTick
                         inboundPieChart = initPieChart(inboundChartCanvas, dataState.subver_distribution.inbound);
                         outboundPieChart = initPieChart(outboundChartCanvas, dataState.subver_distribution.outbound);
                     });
@@ -672,10 +768,11 @@
                 isConnected,
                 rpcConnected,
                 errorMessage,
+                isMobile, // Return the mobile state
                 ...toRefs(dataState),
                 inboundChartCanvas,
                 outboundChartCanvas,
-                cleanedSubversion, // Renvoyer la propriété calculée
+                cleanedSubversion, // Return calculated property
             };
         }
     }).mount('#app');
