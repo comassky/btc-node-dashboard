@@ -11,6 +11,7 @@ import jakarta.websocket.OnClose;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.Collections;
 import java.util.Set;
@@ -27,6 +28,10 @@ public class DashboardWebSocket {
     @Inject
     ObjectMapper objectMapper;
 
+    // NOUVEAU : Injection de la propriété de configuration
+    @ConfigProperty(name = "dashboard.polling.interval.seconds", defaultValue = "5")
+    int pollingIntervalSeconds;
+
     // NOUVEAU : Gérer plusieurs sessions
     private final Set<Session> sessions = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
@@ -36,7 +41,7 @@ public class DashboardWebSocket {
     void startScheduler() {
         // Planifie l'envoi des données toutes les 5 secondes
         Executors.newSingleThreadScheduledExecutor()
-                .scheduleAtFixedRate(this::sendData, 0, 5, TimeUnit.SECONDS);
+                .scheduleAtFixedRate(this::sendData, 0, pollingIntervalSeconds, TimeUnit.SECONDS);
     }
 
     // --- Gestion du Cycle de Vie WebSocket ---

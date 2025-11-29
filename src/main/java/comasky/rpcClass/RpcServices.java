@@ -23,7 +23,6 @@ public class RpcServices {
     ObjectMapper objectMapper;
 
     @Inject
-    @RestClient
     private RpcClient rpcClient;
 
     public NodeInfo getNodeInfo() {
