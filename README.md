@@ -6,6 +6,10 @@ The API is built using **Quarkus**, the Supersonic Subatomic Java Framework, off
 
 ---
 
+<img width="2970" height="1504" alt="image" src="https://github.com/user-attachments/assets/08926806-690a-4981-8b66-57d733a2ea50" />
+<img width="2908" height="1480" alt="image" src="https://github.com/user-attachments/assets/ade7b4a8-54cb-4e6c-b4c4-d6fb5c6b8dc0" />
+
+
 ## Features (Inferred)
 
 * **Node Status:** Retrieval of key data such as current block height, sync status, and node version.
