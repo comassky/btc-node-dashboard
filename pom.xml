@@ -10,20 +10,17 @@
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-        <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.version>3.30.1</quarkus.platform.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.5.4</surefire-plugin.version>
-        <!-- Ajouté: S'assure que Quarkus génère le fichier "runner" pour les déploiements -->
         <quarkus.package.type>fast-jar</quarkus.package.type>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>${quarkus.platform.group-id}</groupId>
-                <artifactId>${quarkus.platform.artifact-id}</artifactId>
+                <groupId>io.quarkus.platform</groupId>
+                <artifactId>quarkus-bom</artifactId>
                 <version>${quarkus.platform.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -40,25 +37,29 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-jackson</artifactId>
         </dependency>
+
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-client-jackson</artifactId>
         </dependency>
+
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc</artifactId>
         </dependency>
+
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-qute</artifactId>
-            <version>3.30.1</version>
         </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.32</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5</artifactId>
@@ -69,12 +70,20 @@
             <artifactId>rest-assured</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-websockets</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-scheduler</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>${quarkus.platform.group-id}</groupId>
+                <groupId>io.quarkus.platform</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
                 <version>${quarkus.platform.version}</version>
                 <extensions>true</extensions>
