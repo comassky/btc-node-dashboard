@@ -13,7 +13,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // Configuration Tailwind pour le mode sombre et les couleurs Bitcoin
+        // Tailwind configuration for dark mode and Bitcoin colors
         tailwind.config = {
             theme: {
                 extend: {
@@ -33,13 +33,13 @@
         }
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 
     <style>
-        /* CSS CRITIQUE OPTIMISÉ (Animation et Chart.js) */
+        /* OPTIMIZED CRITICAL CSS (Animation and Chart.js adjustments) */
         body { font-family: 'Roboto', sans-serif; }
 
-        /* Animation Pulse pour l'état Déconnecté */
+        /* Pulse Animation for Disconnected state */
         .pulse-red { animation: pulse-red 2s infinite; }
         @keyframes pulse-red {
             0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
@@ -47,25 +47,36 @@
             100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
         }
 
-        /* Ajustements de Chart.js pour la taille */
+        /* Chart.js size adjustments */
         .chart-container {
             width: 100%; max-width: 450px; height: 350px; display: flex;
             flex-direction: column; align-items: center;
         }
+        /* Important to ensure canvas is responsive within its container */
         .chart-container canvas { flex-grow: 1; width: 100% !important; height: 100% !important; background-color: transparent !important; }
 
-        /* Tables responsives */
-        .peer-table-wrapper { overflow-x: auto; }
-        .peer-table { min-width: 1050px; border-collapse: collapse; }
+        /* Responsive tables setup for horizontal scroll on small screens */
+        .peer-table-wrapper {
+            overflow-x: auto;
+        }
+        .peer-table {
+            border-collapse: collapse;
+            /* Ensures table takes necessary width for content before enabling scroll */
+            width: max-content;
+        }
+        .peer-table th, .peer-table td {
+            /* Prevents long content from wrapping if it's a single string */
+            white-space: nowrap;
+        }
 
-        /* Règle pour forcer l'empilement de la barre de statut sur les petits mobiles */
+        /* Rule to force status bar stacking on small mobiles */
         @media (max-width: 600px) {
             .status-bar.is-mobile { flex-direction: column; align-items: flex-start; gap: 8px; }
             .status-bar.is-mobile span, .status-bar.is-mobile p { width: 100%; text-align: left; }
         }
     </style>
 
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 </head>
 <body class="bg-bg-app text-text-primary leading-relaxed">
 
@@ -82,10 +93,10 @@
         }, {'is-mobile': isMobile}]"
     >
         <span :title="isConnected ? 'WebSocket link is active and open' : 'WebSocket disconnected. Retrying connection...'">
-            <i class="fas fa-wifi mr-2"></i> WebSocket: **{{ isConnected ? 'Connected' : 'Disconnected' }}**
+            <i class="fas fa-wifi mr-2"></i> WebSocket: {{ isConnected ? 'Connected' : 'Disconnected' }}
         </span>
         <span :title="rpcConnected ? 'Node is responding to RPC commands' : 'RPC connection lost or not yet established'">
-            <i class="fas fa-hdd mr-2"></i> Node RPC: **{{ rpcConnected ? 'Connected' : 'Disconnected' }}**
+            <i class="fas fa-hdd mr-2"></i> Node RPC: {{ rpcConnected ? 'Connected' : 'Disconnected' }}
         </span>
         <p v-if="errorMessage" class="mt-1 pt-1 border-t border-white/30 text-sm">
             <i class="fas fa-exclamation-triangle mr-2"></i> {{ errorMessage }}
@@ -112,7 +123,7 @@
                     <div class="value text-4xl font-bold text-text-primary" :title="'Current height of the ' + blockchain.chain + ' blockchain'">{{ blockchain.blocks }}</div>
 
                     <div class="detail mt-2 pt-2 border-t border-border-strong text-sm text-text-secondary">
-                        <p class="mb-1"><i class="fas fa-list-ol mr-1"></i> Headers: <span class="text-text-primary">{{ blockchain.headers }}</span></p>
+                        <p class="mb-1"><i class="fas fa-list-ol mr-1"></i> Headers: <span class="font-bold text-text-primary">{{ blockchain.headers }}</span></p>
                     </div>
 
                     <div class="label text-sm uppercase text-text-secondary mt-auto">Blocks (Chain: {{ blockchain.chain }})</div>
@@ -149,7 +160,6 @@
             </p>
         </div>
 
-
         <div class="data-section bg-bg-card p-6 rounded-xl shadow-2xl lg:col-span-2" v-if="rpcConnected">
             <h2 class="text-xl font-medium mb-4"><i class="fas fa-chart-pie mr-2"></i> SubVersion Distribution</h2>
 
@@ -185,20 +195,20 @@
             <h4 class="text-lg font-medium mt-4">Inbound Peers ({{ inbound_peers.length }})</h4>
             <div class="peer-table-wrapper border border-border-strong rounded-lg mt-4">
                 <table class="peer-table w-full text-sm">
+                    <colgroup>
+                        <col style="min-width: 40px;"> <col style="min-width: 150px;"> <col style="min-width: 250px;"> <col style="min-width: 60px;"> <col style="min-width: 90px;"> <col style="min-width: 90px;"> <col style="min-width: 90px;"> <col style="min-width: 80px;"> <col style="min-width: 70px;"> <col style="min-width: 90px;"> <col style="min-width: 90px;">
+                    </colgroup>
                     <thead>
                     <tr class="bg-border-strong">
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">ID</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Address</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">SubVer</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Version</th>
-                        <th class="p-3 text-left font-medium text-text-secondary uppercase">Height</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Offset (s)</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Time</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Network</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Type</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Ping</th>
-                        <th class="p-3 text-left font-medium text-text-secondary uppercase"><i class="fas fa-arrow-down"></i> Tx Recv</th>
-                        <th class="p-3 text-left font-medium text-text-secondary uppercase"><i class="fas fa-arrow-up"></i> Tx Sent</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase"><i class="fas fa-download"></i> Recv</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase"><i class="fas fa-upload"></i> Sent</th>
                     </tr>
@@ -209,16 +219,13 @@
                         <td class="p-3" :title="peer.addr">{{ peer.addr }}</td>
                         <td class="p-3" :title="peer.subver">{{ peer.subver || '[Empty]' }}</td>
                         <td class="p-3">{{ peer.version }}</td>
-                        <td class="p-3 font-bold">{{ peer.synced_block }}</td>
                         <td class="p-3">{{ formatTimeOffset(peer.timeoffset) }}</td>
                         <td class="p-3">{{ formatTimeSince(peer.conntime) }}</td>
                         <td class="p-3">{{ peer.network || 'N/A' }}</td>
                         <td class="p-3 font-medium text-status-success" :title="'Connection type: ' + peer.connection_type">{{ peer.connection_type }}</td>
-                        <td class="p-3">{{ peer.minping ? peer.minping.toFixed(3) + ' s' : 'N/A' }}</td>
-                        <td class="p-3">{{ peer.mempool_tx_recv || 0 }}</td>
-                        <td class="p-3">{{ peer.mempool_tx_sent || 0 }}</td>
-                        <td class="p-3" :title="peer.bytesrecv + ' Bytes'">{{ (peer.bytesrecv / 1024).toFixed(2) }} KB</td>
-                        <td class="p-3" :title="peer.bytessent + ' Bytes'">{{ (peer.bytessent / 1024).toFixed(2) }} KB</td>
+                        <td class="p-3">{{ formatPing(peer.minping) }}</td>
+                        <td class="p-3" :title="peer.bytesrecv + ' Bytes'">{{ formatBytes(peer.bytesrecv) }}</td>
+                        <td class="p-3" :title="peer.bytessent + ' Bytes'">{{ formatBytes(peer.bytessent) }}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -227,20 +234,20 @@
             <h4 class="text-lg font-medium mt-8">Outbound Peers ({{ outbound_peers.length }})</h4>
             <div class="peer-table-wrapper border border-border-strong rounded-lg mt-4">
                 <table class="peer-table w-full text-sm">
+                    <colgroup>
+                        <col style="min-width: 40px;"> <col style="min-width: 150px;"> <col style="min-width: 250px;"> <col style="min-width: 60px;"> <col style="min-width: 90px;"> <col style="min-width: 90px;"> <col style="min-width: 90px;"> <col style="min-width: 80px;"> <col style="min-width: 70px;"> <col style="min-width: 90px;"> <col style="min-width: 90px;">
+                    </colgroup>
                     <thead>
                     <tr class="bg-border-strong">
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">ID</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Address</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">SubVer</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Version</th>
-                        <th class="p-3 text-left font-medium text-text-secondary uppercase">Height</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Offset (s)</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Time</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Network</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Type</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Ping</th>
-                        <th class="p-3 text-left font-medium text-text-secondary uppercase"><i class="fas fa-arrow-down"></i> Tx Recv</th>
-                        <th class="p-3 text-left font-medium text-text-secondary uppercase"><i class="fas fa-arrow-up"></i> Tx Sent</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase"><i class="fas fa-download"></i> Recv</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase"><i class="fas fa-upload"></i> Sent</th>
                     </tr>
@@ -251,16 +258,13 @@
                         <td class="p-3" :title="peer.addr">{{ peer.addr }}</td>
                         <td class="p-3" :title="peer.subver">{{ peer.subver || '[Empty]' }}</td>
                         <td class="p-3">{{ peer.version }}</td>
-                        <td class="p-3 font-bold">{{ peer.synced_block }}</td>
                         <td class="p-3">{{ formatTimeOffset(peer.timeoffset) }}</td>
                         <td class="p-3">{{ formatTimeSince(peer.conntime) }}</td>
                         <td class="p-3">{{ peer.network || 'N/A' }}</td>
                         <td class="p-3 font-medium text-accent" :title="'Connection type: ' + peer.connection_type">{{ peer.connection_type }}</td>
-                        <td class="p-3">{{ peer.minping ? peer.minping.toFixed(3) + ' s' : 'N/A' }}</td>
-                        <td class="p-3">{{ peer.mempool_tx_recv || 0 }}</td>
-                        <td class="p-3">{{ peer.mempool_tx_sent || 0 }}</td>
-                        <td class="p-3" :title="peer.bytesrecv + ' Bytes'">{{ (peer.bytesrecv / 1024).toFixed(2) }} KB</td>
-                        <td class="p-3" :title="peer.bytessent + ' Bytes'">{{ (peer.bytessent / 1024).toFixed(2) }} KB</td>
+                        <td class="p-3">{{ formatPing(peer.minping) }}</td>
+                        <td class="p-3" :title="peer.bytesrecv + ' Bytes'">{{ formatBytes(peer.bytesrecv) }}</td>
+                        <td class="p-3" :title="peer.bytessent + ' Bytes'">{{ formatBytes(peer.bytessent) }}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -271,9 +275,10 @@
 </div>
 
 <script>
+    // Destructure necessary functions from Vue
     const { createApp, ref, onMounted, reactive, toRefs, watch, computed, nextTick, onBeforeUnmount } = Vue;
 
-    // Définition des données par défaut
+    // Default data structure
     const DEFAULT_DATA = {
         stats: { inboundCount: 0, outboundCount: 0, totalPeers: 0 },
         blockchain: {
@@ -285,7 +290,7 @@
             medianBlockSize: 0,
         },
         node: { version: 'N/A', protocolVersion: 'N/A', subversion: 'N/A' },
-        upTime: 'N/A', // MODIFICATION: Défini comme une chaîne de caractères par défaut
+        upTime: 'N/A',
         inbound_peers: [],
         outbound_peers: [],
         subver_distribution: { inbound: [], outbound: [] }
@@ -293,23 +298,23 @@
 
 
     /**
-     * Génère un ensemble cohérent de couleurs pour les graphiques.
+     * Generates a consistent set of colors for the charts.
+     * Optimization: Moved color palette definition outside the function.
      */
+    const BASE_COLORS = [
+        '#00bcd4', '#ffc107', '#4caf50', '#f44336', '#9c27b0', '#ff9800', '#03a9f4', '#8bc34a',
+        '#e91e63', '#607d8b', '#009688', '#cddc39', '#795548', '#ff5722', '#2196f3', '#673ab7'
+    ];
     const generateColors = (numColors) => {
-        // Palette optimisée pour un fond sombre
-        const baseColors = [
-            '#00bcd4', '#ffc107', '#4caf50', '#f44336', '#9c27b0', '#ff9800', '#03a9f4', '#8bc34a',
-            '#e91e63', '#607d8b', '#009688', '#cddc39', '#795548', '#ff5722', '#2196f3', '#673ab7'
-        ];
         const colors = [];
         for (let i = 0; i < numColors; i++) {
-            colors.push(baseColors[i % baseColors.length]);
+            colors.push(BASE_COLORS[i % BASE_COLORS.length]);
         }
         return colors;
     };
 
     /**
-     * Initialise une nouvelle instance Chart.js de type Pie.
+     * Initializes a new Chart.js Pie instance.
      */
     const initPieChart = (canvasRef, chartData) => {
         if (!canvasRef.value) return null;
@@ -348,6 +353,7 @@
                             label: function(context) {
                                 const label = context.label || '';
                                 if (label) {
+                                    // Append percentage sign
                                     return label + ': ' + context.formattedValue + '%';
                                 }
                                 return null;
@@ -363,7 +369,7 @@
     };
 
     /**
-     * Met à jour une instance Chart.js existante.
+     * Updates an existing Chart.js instance.
      */
     const updateChartData = (chartInstance, chartData) => {
         if (!chartInstance) return;
@@ -380,43 +386,35 @@
 
 
     const formatBytes = (bytes, decimals = 2) => {
-        if (bytes === 0) return '0 Octets';
+        if (bytes === 0) return '0 B';
         const k = 1024;
         const dm = decimals < 0 ? 0 : decimals;
-        const sizes = ['Octets', 'Ko', 'Mo', 'Go', 'To', 'Po', 'Eo', 'Zo', 'Yo'];
+        // Optimized: Changed 'Octets' to standard 'B' and translated unit names.
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     };
 
-    const formatDifficulty = (difficulty) => {
-        if (difficulty === 0) return '0';
-        const suffixes = ['', 'K', 'M', 'G', 'T', 'P', 'E'];
-        const i = Math.floor(Math.log(difficulty) / Math.log(1000));
-        return (difficulty / Math.pow(1000, i)).toFixed(2) + suffixes[i];
-    };
-
     const formatTimeOffset = (timeoffset) => {
         if (timeoffset === undefined || timeoffset === null) return 'N/A';
+        // Multiply by 1 is redundant if timeoffset is guaranteed to be a number, but keep for robustness if it might be a string.
         return (timeoffset * 1).toFixed(1) + ' s';
     };
 
     const formatTimeSince = (timestampOrTotalSeconds) => {
         if (!timestampOrTotalSeconds) return 'N/A';
 
-        // ATTENTION: Cette fonction n'est maintenant utilisée que pour les pairs (peers)
-        // et prend le timestamp Unix (conntime) ou les secondes totales.
-
         let totalSeconds;
-        // Si c'est un timestamp Unix (conntime), calcule la différence
+        // If it's a Unix timestamp (conntime), calculate the difference
         if (timestampOrTotalSeconds > 1000000000) {
             const now = Date.now() / 1000;
             totalSeconds = Math.max(0, now - timestampOrTotalSeconds);
         } else {
-            // Sinon, c'est déjà le total des secondes
+            // Otherwise, assume it's already the total number of seconds
             totalSeconds = timestampOrTotalSeconds;
         }
 
-        if (totalSeconds < 1) return 'moins de 1s';
+        if (totalSeconds < 1) return '<1s';
 
         const s = Math.floor(totalSeconds % 60);
         const m = Math.floor((totalSeconds / 60) % 60);
@@ -424,15 +422,22 @@
         const d = Math.floor(totalSeconds / (60 * 60 * 24));
 
         const parts = [];
-        if (d > 0) parts.push(d + "j");
+        if (d > 0) parts.push(d + "d");
         if (h > 0) parts.push(h + "h");
         if (m > 0) parts.push(m + "m");
+        // Only show seconds if total time is less than a minute and we haven't added other units
         if (parts.length === 0 || totalSeconds < 60) parts.push(s + "s");
 
-        // Limite à deux unités pour la concision
+        // Limit to two units for conciseness
         return parts.slice(0, 2).join(' ');
     };
 
+    const formatPing = (minping) => {
+        if (minping === undefined || minping === null) return 'N/A';
+        return minping > 0 ? minping.toFixed(3) + ' s' : 'N/A';
+    };
+
+    // Optimization: Removed the unused `formatDifficulty` function as it was not used in the template.
     // ---------------------------------------------
 
 
@@ -456,7 +461,7 @@
                 isMobile.value = window.innerWidth <= 600;
             };
 
-            // Configuration globale Chart.js
+            // Global Chart.js configuration for dark theme
             Chart.defaults.color = '#f0f0f0';
             Chart.defaults.borderColor = '#303030';
             Chart.defaults.plugins.tooltip.backgroundColor = '#1e1e1e';
@@ -465,7 +470,7 @@
             Chart.defaults.plugins.tooltip.cornerRadius = 6;
 
 
-            /** Met à jour l'état réactif avec les données reçues du serveur. */
+            /** Updates reactive state with data received from the server. */
             const normalizeData = (rawData) => {
                 const nodeInfo = rawData.nodeInfo || {};
                 const blockchainInfo = rawData.blockchainInfo || {};
@@ -485,7 +490,7 @@
                         protocolVersion: nodeInfo.protocolversion,
                         subversion: nodeInfo.subversion,
                     },
-                    // MODIFICATION: Assurez-vous que rawData.upTime est copié
+                    // upTime is expected to be a pre-formatted string from the server
                     upTime: rawData.upTime || 'N/A',
                     inbound_peers: rawData.inboundPeer || [],
                     outbound_peers: rawData.outboundPeer || [],
@@ -493,16 +498,15 @@
                 });
             };
 
-            /** Calcule la Subversion nettoyée. */
+            /** Computes the cleaned Subversion string. */
             const cleanedSubversion = computed(() => {
                 const subver = dataState.node.subversion;
                 if (!subver || subver === 'N/A') return 'N/A';
+                // Remove leading/trailing slashes and trim whitespace
                 return subver.replace(/^\/|\/$/g, '').trim();
             });
 
-            // SUPPRESSION: formattedUptime n'est plus nécessaire
-
-            /** Détruit les instances Chart.js existantes. */
+            /** Destroys existing Chart.js instances. */
             const destroyCharts = () => {
                 if (inboundPieChart) {
                     inboundPieChart.destroy();
@@ -515,17 +519,19 @@
             };
 
 
-            /** Initialise et gère la connexion WebSocket. */
+            /** Initializes and manages the WebSocket connection. */
             const connectWebSocket = () => {
+                // Cleanup existing connection
                 if (ws) {
-                    ws.onclose = null;
+                    ws.onclose = null; // Prevent onclose from triggering reconnect on manual close
                     ws.close();
                 }
 
+                // Determine WebSocket protocol (wss: for https:, ws: for http:)
                 const wsProtocol = location.protocol === "https:" ? "wss:" : "ws:";
                 const hostAndPort = location.host;
 
-                ws = new WebSocket(wsProtocol + "//" + hostAndPort + "/ws/dashboard");
+                ws = new WebSocket(wsProtocol+ '//' + hostAndPort +'/ws/dashboard');
 
                 ws.onopen = () => {
                     console.log("WebSocket connected!");
@@ -536,12 +542,14 @@
                     try {
                         const json = JSON.parse(event.data);
 
+                        // Check for connection status message first
                         if (json.hasOwnProperty('rpcConnected')) {
                             rpcConnected.value = json.rpcConnected;
                             errorMessage.value = json.errorMessage || null;
                             return;
                         }
 
+                        // Process main dashboard data
                         if (json.hasOwnProperty('generalStats')) {
                             rpcConnected.value = true;
                             errorMessage.value = null;
@@ -558,11 +566,13 @@
                     isConnected.value = false;
                     rpcConnected.value = false;
                     errorMessage.value = 'WebSocket disconnected from server. Retrying...';
+                    // Reconnect logic
                     setTimeout(connectWebSocket, 3000);
                 };
 
                 ws.onerror = (error) => {
                     console.error("WebSocket error:", error);
+                    // Error will often be followed by onclose, but set state here just in case.
                     isConnected.value = false;
                     rpcConnected.value = false;
                     errorMessage.value = 'WebSocket connection error.';
@@ -573,11 +583,11 @@
                 connectWebSocket();
                 window.addEventListener('resize', handleResize);
 
-                // Enregistrement du Service Worker (PWA)
+                // Service Worker Registration (PWA)
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.register('/service-worker.js')
-                        .then(registration => console.log('Service Worker enregistré. Scope:', registration.scope))
-                        .catch(error => console.error('Échec de l\'enregistrement du Service Worker:', error));
+                        .then(registration => console.log('Service Worker registered. Scope:', registration.scope))
+                        .catch(error => console.error('Service Worker registration failed:', error));
                 }
             });
 
@@ -587,27 +597,26 @@
                     ws.onclose = null;
                     ws.close();
                 }
-                // S'assurer que les graphiques sont détruits lors du démontage du composant
+                // Ensure charts are destroyed when component unmounts
                 destroyCharts();
             });
 
-            // CORRECTION DU BUG CHART.JS: Détruire l'instance avant de la recréer.
+            // Watch `rpcConnected` to destroy/recreate Chart.js instances
             watch(rpcConnected, (newVal) => {
                 if (newVal) {
-                     // Connexion Rétablie: Créer les graphiques
+                     // Connection Restored: Create charts
                      nextTick(() => {
-                        // Détruire les anciens graphiques avant de recréer
-                        destroyCharts();
+                        destroyCharts(); // Destroy old charts before recreating
                         inboundPieChart = initPieChart(inboundChartCanvas, dataState.subver_distribution.inbound);
                         outboundPieChart = initPieChart(outboundChartCanvas, dataState.subver_distribution.outbound);
                     });
                 } else {
-                    // Connexion Perdue: Détruire les graphiques pour nettoyer le DOM/mémoire
+                    // Connection Lost: Destroy charts to clean up DOM/memory
                     destroyCharts();
                 }
             });
 
-            // Mise à jour des données des graphiques
+            // Watch for changes in subver_distribution data to update charts
             watch(() => dataState.subver_distribution.inbound, (newVal) => {
                 if (inboundPieChart) { updateChartData(inboundPieChart, newVal); }
             }, { deep: true });
@@ -625,11 +634,10 @@
                 inboundChartCanvas,
                 outboundChartCanvas,
                 cleanedSubversion,
-                // formattedUptime n'est plus retourné
                 formatBytes,
-                formatDifficulty,
                 formatTimeOffset,
                 formatTimeSince,
+                formatPing,
             };
         }
     }).mount('#app');
