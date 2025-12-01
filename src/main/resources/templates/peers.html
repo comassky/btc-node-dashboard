@@ -79,8 +79,12 @@
             'bg-status-error pulse-red': !isConnected || !rpcConnected
         }, {'is-mobile': isMobile}]"
     >
-        <span><i class="fas fa-wifi mr-2"></i> WebSocket: **{{ isConnected ? 'Connected' : 'Disconnected' }}**</span>
-        <span><i class="fas fa-hdd mr-2"></i> Node RPC: **{{ rpcConnected ? 'Connected' : 'Disconnected' }}**</span>
+        <span :title="isConnected ? 'WebSocket link is active and open' : 'WebSocket disconnected. Retrying connection...'">
+            <i class="fas fa-wifi mr-2"></i> WebSocket: **{{ isConnected ? 'Connected' : 'Disconnected' }}**
+        </span>
+        <span :title="rpcConnected ? 'Node is responding to RPC commands' : 'RPC connection lost or not yet established'">
+            <i class="fas fa-hdd mr-2"></i> Node RPC: **{{ rpcConnected ? 'Connected' : 'Disconnected' }}**
+        </span>
         <p v-if="errorMessage" class="mt-1 pt-1 border-t border-white/30 text-sm">
             <i class="fas fa-exclamation-triangle mr-2"></i> {{ errorMessage }}
         </p>
@@ -99,19 +103,19 @@
 
                 <div class="stat-card bg-bg-card p-6 rounded-xl shadow-xl border-l-4 border-status-warning hover:border-accent transition duration-200 flex flex-col gap-3">
                     <div class="icon text-3xl text-status-warning"><i class="fas fa-cubes"></i></div>
-                    <div class="value text-4xl font-bold text-text-primary">{{ blockchain.blocks }}</div>
+                    <div class="value text-4xl font-bold text-text-primary" :title="'Current height of the ' + blockchain.chain + ' blockchain'">{{ blockchain.blocks }}</div>
                     <div class="label text-sm uppercase text-text-secondary mt-auto">Blocks (Chain: {{ blockchain.chain }})</div>
                 </div>
 
                 <div class="stat-card bg-bg-card p-6 rounded-xl shadow-xl border-l-4 border-accent hover:border-accent transition duration-200 flex flex-col gap-3">
                     <div class="icon text-3xl text-accent"><i class="fas fa-clock"></i></div>
-                    <div class="value text-4xl font-bold text-text-primary">{{ time }}</div>
+                    <div class="value text-4xl font-bold text-text-primary" title="Time elapsed since node started">{{ time }}</div>
                     <div class="label text-sm uppercase text-text-secondary mt-auto">Uptime</div>
                 </div>
 
                 <div class="stat-card bg-bg-card p-6 rounded-xl shadow-xl border-l-4 border-text-secondary hover:border-accent transition duration-200 flex flex-col gap-3">
                     <div class="icon text-3xl text-text-secondary"><i class="fas fa-code"></i></div>
-                    <div class="value text-4xl font-bold text-text-primary truncate">{{ cleanedSubversion }}</div>
+                    <div class="value text-4xl font-bold text-text-primary truncate" :title="cleanedSubversion">{{ cleanedSubversion }}</div>
                     <div class="label text-sm uppercase text-text-secondary mt-auto">Software (P. v{{ node.protocolVersion }})</div>
                 </div>
 
@@ -175,13 +179,13 @@
                     <tbody>
                     <tr v-for="peer in inbound_peers" :key="'inbound-' + peer.id" class="border-b border-border-strong hover:bg-border-strong/50 transition duration-150">
                         <td class="p-3">{{ peer.id }}</td>
-                        <td class="p-3">{{ peer.addr }}</td>
-                        <td class="p-3">{{ peer.subver || '[Empty]' }}</td>
+                        <td class="p-3" :title="peer.addr">{{ peer.addr }}</td>
+                        <td class="p-3" :title="peer.subver">{{ peer.subver || '[Empty]' }}</td>
                         <td class="p-3">{{ peer.network || 'N/A' }}</td>
-                        <td class="p-3 font-medium text-status-success">{{ peer.connection_type }}</td>
+                        <td class="p-3 font-medium text-status-success" :title="'Connection type: ' + peer.connection_type">{{ peer.connection_type }}</td>
                         <td class="p-3">{{ peer.minping ? peer.minping.toFixed(3) + ' s' : 'N/A' }}</td>
-                        <td class="p-3">{{ (peer.bytesrecv / 1024).toFixed(2) }} KB</td>
-                        <td class="p-3">{{ (peer.bytessent / 1024).toFixed(2) }} KB</td>
+                        <td class="p-3" :title="peer.bytesrecv + ' Bytes'">{{ (peer.bytesrecv / 1024).toFixed(2) }} KB</td>
+                        <td class="p-3" :title="peer.bytessent + ' Bytes'">{{ (peer.bytessent / 1024).toFixed(2) }} KB</td>
                     </tr>
                     </tbody>
                 </table>
@@ -205,13 +209,13 @@
                     <tbody>
                     <tr v-for="peer in outbound_peers" :key="'outbound-' + peer.id" class="border-b border-border-strong hover:bg-border-strong/50 transition duration-150">
                         <td class="p-3">{{ peer.id }}</td>
-                        <td class="p-3">{{ peer.addr }}</td>
-                        <td class="p-3">{{ peer.subver || '[Empty]' }}</td>
+                        <td class="p-3" :title="peer.addr">{{ peer.addr }}</td>
+                        <td class="p-3" :title="peer.subver">{{ peer.subver || '[Empty]' }}</td>
                         <td class="p-3">{{ peer.network || 'N/A' }}</td>
-                        <td class="p-3 font-medium text-accent">{{ peer.connection_type }}</td>
+                        <td class="p-3 font-medium text-accent" :title="'Connection type: ' + peer.connection_type">{{ peer.connection_type }}</td>
                         <td class="p-3">{{ peer.minping ? peer.minping.toFixed(3) + ' s' : 'N/A' }}</td>
-                        <td class="p-3">{{ (peer.bytesrecv / 1024).toFixed(2) }} KB</td>
-                        <td class="p-3">{{ (peer.bytessent / 1024).toFixed(2) }} KB</td>
+                        <td class="p-3" :title="peer.bytesrecv + ' Bytes'">{{ (peer.bytesrecv / 1024).toFixed(2) }} KB</td>
+                        <td class="p-3" :title="peer.bytessent + ' Bytes'">{{ (peer.bytessent / 1024).toFixed(2) }} KB</td>
                     </tr>
                     </tbody>
                 </table>
