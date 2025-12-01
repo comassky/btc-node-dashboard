@@ -7,11 +7,13 @@
 
     <link rel="icon" type="image/svg+xml" href="https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg">
     <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg">
-    <link rel="manifest" href="/manifest.json"> <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        // Configuration Tailwind pour le mode sombre et les couleurs Bitcoin
         tailwind.config = {
             theme: {
                 extend: {
@@ -34,7 +36,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        /* CSS RÉSIDUEL ET CRITIQUE (Animation et Chart.js) */
+        /* CSS CRITIQUE OPTIMISÉ (Animation et Chart.js) */
         body { font-family: 'Roboto', sans-serif; }
 
         /* Animation Pulse pour l'état Déconnecté */
@@ -45,7 +47,7 @@
             100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
         }
 
-        /* Ajustements de Chart.js */
+        /* Ajustements de Chart.js pour la taille */
         .chart-container {
             width: 100%; max-width: 450px; height: 350px; display: flex;
             flex-direction: column; align-items: center;
@@ -54,7 +56,7 @@
 
         /* Tables responsives */
         .peer-table-wrapper { overflow-x: auto; }
-        .peer-table { min-width: 700px; border-collapse: collapse; }
+        .peer-table { min-width: 1050px; border-collapse: collapse; }
 
         /* Règle pour forcer l'empilement de la barre de statut sur les petits mobiles */
         @media (max-width: 600px) {
@@ -98,27 +100,46 @@
                 <div class="stat-card bg-bg-card p-6 rounded-xl shadow-xl border-l-4 border-status-success hover:border-accent transition duration-200 flex flex-col gap-3">
                     <div class="icon text-3xl text-status-success"><i class="fas fa-users"></i></div>
                     <div class="value text-4xl font-bold text-text-primary">{{ stats.totalPeers }}</div>
-                    <div class="label text-sm uppercase text-text-secondary mt-auto">Total Peers (<i class="fas fa-arrow-down"></i> {{ stats.inboundCount }} / <i class="fas fa-arrow-up"></i> {{ stats.outboundCount }})</div>
+                    <div class="detail mt-2 pt-2 border-t border-border-strong text-sm text-text-secondary">
+                        <p class="mb-1"><i class="fas fa-arrow-down mr-1"></i> Inbound: {{ stats.inboundCount }}</p>
+                        <p class="mb-1"><i class="fas fa-arrow-up mr-1"></i> Outbound: {{ stats.outboundCount }}</p>
+                    </div>
+                    <div class="label text-sm uppercase text-text-secondary mt-auto">Total Peers</div>
                 </div>
 
                 <div class="stat-card bg-bg-card p-6 rounded-xl shadow-xl border-l-4 border-status-warning hover:border-accent transition duration-200 flex flex-col gap-3">
                     <div class="icon text-3xl text-status-warning"><i class="fas fa-cubes"></i></div>
                     <div class="value text-4xl font-bold text-text-primary" :title="'Current height of the ' + blockchain.chain + ' blockchain'">{{ blockchain.blocks }}</div>
+
+                    <div class="detail mt-2 pt-2 border-t border-border-strong text-sm text-text-secondary">
+                        <p class="mb-1"><i class="fas fa-list-ol mr-1"></i> Headers: <span class="text-text-primary">{{ blockchain.headers }}</span></p>
+                    </div>
+
                     <div class="label text-sm uppercase text-text-secondary mt-auto">Blocks (Chain: {{ blockchain.chain }})</div>
                 </div>
 
-                <div class="stat-card bg-bg-card p-6 rounded-xl shadow-xl border-l-4 border-accent hover:border-accent transition duration-200 flex flex-col gap-3">
-                    <div class="icon text-3xl text-accent"><i class="fas fa-clock"></i></div>
-                    <div class="value text-4xl font-bold text-text-primary" title="Time elapsed since node started">{{ time }}</div>
-                    <div class="label text-sm uppercase text-text-secondary mt-auto">Uptime</div>
-                </div>
+                <div class="stat-card bg-bg-card p-6 rounded-xl shadow-xl border-l-4 border-accent hover:border-accent transition duration-200 flex flex-col gap-3 lg:col-span-2">
+                    <div class="icon text-3xl text-text-secondary"><i class="fas fa-server"></i></div>
+                    <div class="label text-sm uppercase text-text-secondary">Node Status</div>
 
-                <div class="stat-card bg-bg-card p-6 rounded-xl shadow-xl border-l-4 border-text-secondary hover:border-accent transition duration-200 flex flex-col gap-3">
-                    <div class="icon text-3xl text-text-secondary"><i class="fas fa-code"></i></div>
-                    <div class="value text-4xl font-bold text-text-primary truncate" :title="cleanedSubversion">{{ cleanedSubversion }}</div>
-                    <div class="label text-sm uppercase text-text-secondary mt-auto">Software (P. v{{ node.protocolVersion }})</div>
-                </div>
+                    <div class="flex flex-row justify-between items-end">
+                        <div>
+                            <div class="value text-xl font-bold text-text-primary truncate" :title="cleanedSubversion">{{ cleanedSubversion }}</div>
+                            <div class="detail text-xs text-text-secondary">Protocol v{{ node.protocolVersion }}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="value text-xl font-bold text-text-primary" title="Time elapsed since node started">{{ upTime }}</div>
+                            <div class="detail text-xs text-text-secondary">Uptime</div>
+                        </div>
+                    </div>
 
+                    <div class="detail mt-3 pt-3 border-t border-border-strong text-sm text-text-secondary">
+                        <p class="mb-1">
+                            <i class="fas fa-check-circle mr-1 text-status-success"></i> Verification Progress:
+                            <span class="font-bold text-text-primary ml-1">{{ (blockchain.verificationProgress * 100).toFixed(4) }}%</span>
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -169,9 +190,15 @@
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">ID</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Address</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">SubVer</th>
+                        <th class="p-3 text-left font-medium text-text-secondary uppercase">Version</th>
+                        <th class="p-3 text-left font-medium text-text-secondary uppercase">Height</th>
+                        <th class="p-3 text-left font-medium text-text-secondary uppercase">Offset (s)</th>
+                        <th class="p-3 text-left font-medium text-text-secondary uppercase">Time</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Network</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Type</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Ping</th>
+                        <th class="p-3 text-left font-medium text-text-secondary uppercase"><i class="fas fa-arrow-down"></i> Tx Recv</th>
+                        <th class="p-3 text-left font-medium text-text-secondary uppercase"><i class="fas fa-arrow-up"></i> Tx Sent</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase"><i class="fas fa-download"></i> Recv</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase"><i class="fas fa-upload"></i> Sent</th>
                     </tr>
@@ -181,9 +208,15 @@
                         <td class="p-3">{{ peer.id }}</td>
                         <td class="p-3" :title="peer.addr">{{ peer.addr }}</td>
                         <td class="p-3" :title="peer.subver">{{ peer.subver || '[Empty]' }}</td>
+                        <td class="p-3">{{ peer.version }}</td>
+                        <td class="p-3 font-bold">{{ peer.synced_block }}</td>
+                        <td class="p-3">{{ formatTimeOffset(peer.timeoffset) }}</td>
+                        <td class="p-3">{{ formatTimeSince(peer.conntime) }}</td>
                         <td class="p-3">{{ peer.network || 'N/A' }}</td>
                         <td class="p-3 font-medium text-status-success" :title="'Connection type: ' + peer.connection_type">{{ peer.connection_type }}</td>
                         <td class="p-3">{{ peer.minping ? peer.minping.toFixed(3) + ' s' : 'N/A' }}</td>
+                        <td class="p-3">{{ peer.mempool_tx_recv || 0 }}</td>
+                        <td class="p-3">{{ peer.mempool_tx_sent || 0 }}</td>
                         <td class="p-3" :title="peer.bytesrecv + ' Bytes'">{{ (peer.bytesrecv / 1024).toFixed(2) }} KB</td>
                         <td class="p-3" :title="peer.bytessent + ' Bytes'">{{ (peer.bytessent / 1024).toFixed(2) }} KB</td>
                     </tr>
@@ -199,9 +232,15 @@
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">ID</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Address</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">SubVer</th>
+                        <th class="p-3 text-left font-medium text-text-secondary uppercase">Version</th>
+                        <th class="p-3 text-left font-medium text-text-secondary uppercase">Height</th>
+                        <th class="p-3 text-left font-medium text-text-secondary uppercase">Offset (s)</th>
+                        <th class="p-3 text-left font-medium text-text-secondary uppercase">Time</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Network</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Type</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">Ping</th>
+                        <th class="p-3 text-left font-medium text-text-secondary uppercase"><i class="fas fa-arrow-down"></i> Tx Recv</th>
+                        <th class="p-3 text-left font-medium text-text-secondary uppercase"><i class="fas fa-arrow-up"></i> Tx Sent</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase"><i class="fas fa-download"></i> Recv</th>
                         <th class="p-3 text-left font-medium text-text-secondary uppercase"><i class="fas fa-upload"></i> Sent</th>
                     </tr>
@@ -211,9 +250,15 @@
                         <td class="p-3">{{ peer.id }}</td>
                         <td class="p-3" :title="peer.addr">{{ peer.addr }}</td>
                         <td class="p-3" :title="peer.subver">{{ peer.subver || '[Empty]' }}</td>
+                        <td class="p-3">{{ peer.version }}</td>
+                        <td class="p-3 font-bold">{{ peer.synced_block }}</td>
+                        <td class="p-3">{{ formatTimeOffset(peer.timeoffset) }}</td>
+                        <td class="p-3">{{ formatTimeSince(peer.conntime) }}</td>
                         <td class="p-3">{{ peer.network || 'N/A' }}</td>
                         <td class="p-3 font-medium text-accent" :title="'Connection type: ' + peer.connection_type">{{ peer.connection_type }}</td>
                         <td class="p-3">{{ peer.minping ? peer.minping.toFixed(3) + ' s' : 'N/A' }}</td>
+                        <td class="p-3">{{ peer.mempool_tx_recv || 0 }}</td>
+                        <td class="p-3">{{ peer.mempool_tx_sent || 0 }}</td>
                         <td class="p-3" :title="peer.bytesrecv + ' Bytes'">{{ (peer.bytesrecv / 1024).toFixed(2) }} KB</td>
                         <td class="p-3" :title="peer.bytessent + ' Bytes'">{{ (peer.bytessent / 1024).toFixed(2) }} KB</td>
                     </tr>
@@ -228,11 +273,19 @@
 <script>
     const { createApp, ref, onMounted, reactive, toRefs, watch, computed, nextTick, onBeforeUnmount } = Vue;
 
+    // Définition des données par défaut
     const DEFAULT_DATA = {
         stats: { inboundCount: 0, outboundCount: 0, totalPeers: 0 },
-        blockchain: { blocks: 0, headers: 0, chain: 'Loading...' },
+        blockchain: {
+            blocks: 0,
+            headers: 0,
+            chain: 'Loading...',
+            verificationProgress: 0,
+            difficulty: 0,
+            medianBlockSize: 0,
+        },
         node: { version: 'N/A', protocolVersion: 'N/A', subversion: 'N/A' },
-        time: 'N/A',
+        upTime: 'N/A', // MODIFICATION: Défini comme une chaîne de caractères par défaut
         inbound_peers: [],
         outbound_peers: [],
         subver_distribution: { inbound: [], outbound: [] }
@@ -240,13 +293,13 @@
 
 
     /**
-     * Generates a consistent set of bright colors suitable for a dark theme.
+     * Génère un ensemble cohérent de couleurs pour les graphiques.
      */
     const generateColors = (numColors) => {
+        // Palette optimisée pour un fond sombre
         const baseColors = [
             '#00bcd4', '#ffc107', '#4caf50', '#f44336', '#9c27b0', '#ff9800', '#03a9f4', '#8bc34a',
-            '#e91e63', '#607d8b', '#009688', '#cddc39', '#795548', '#ff5722', '#2196f3', '#673ab7',
-            '#004d40', '#d50000', '#304ffe', '#ffea00'
+            '#e91e63', '#607d8b', '#009688', '#cddc39', '#795548', '#ff5722', '#2196f3', '#673ab7'
         ];
         const colors = [];
         for (let i = 0; i < numColors; i++) {
@@ -256,7 +309,7 @@
     };
 
     /**
-     * Initializes a new Chart.js instance.
+     * Initialise une nouvelle instance Chart.js de type Pie.
      */
     const initPieChart = (canvasRef, chartData) => {
         if (!canvasRef.value) return null;
@@ -310,7 +363,7 @@
     };
 
     /**
-     * Updates an existing Chart.js instance with new data.
+     * Met à jour une instance Chart.js existante.
      */
     const updateChartData = (chartInstance, chartData) => {
         if (!chartInstance) return;
@@ -324,6 +377,63 @@
         chartInstance.data.datasets[0].backgroundColor = backgroundColors;
         chartInstance.update();
     };
+
+
+    const formatBytes = (bytes, decimals = 2) => {
+        if (bytes === 0) return '0 Octets';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Octets', 'Ko', 'Mo', 'Go', 'To', 'Po', 'Eo', 'Zo', 'Yo'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    };
+
+    const formatDifficulty = (difficulty) => {
+        if (difficulty === 0) return '0';
+        const suffixes = ['', 'K', 'M', 'G', 'T', 'P', 'E'];
+        const i = Math.floor(Math.log(difficulty) / Math.log(1000));
+        return (difficulty / Math.pow(1000, i)).toFixed(2) + suffixes[i];
+    };
+
+    const formatTimeOffset = (timeoffset) => {
+        if (timeoffset === undefined || timeoffset === null) return 'N/A';
+        return (timeoffset * 1).toFixed(1) + ' s';
+    };
+
+    const formatTimeSince = (timestampOrTotalSeconds) => {
+        if (!timestampOrTotalSeconds) return 'N/A';
+
+        // ATTENTION: Cette fonction n'est maintenant utilisée que pour les pairs (peers)
+        // et prend le timestamp Unix (conntime) ou les secondes totales.
+
+        let totalSeconds;
+        // Si c'est un timestamp Unix (conntime), calcule la différence
+        if (timestampOrTotalSeconds > 1000000000) {
+            const now = Date.now() / 1000;
+            totalSeconds = Math.max(0, now - timestampOrTotalSeconds);
+        } else {
+            // Sinon, c'est déjà le total des secondes
+            totalSeconds = timestampOrTotalSeconds;
+        }
+
+        if (totalSeconds < 1) return 'moins de 1s';
+
+        const s = Math.floor(totalSeconds % 60);
+        const m = Math.floor((totalSeconds / 60) % 60);
+        const h = Math.floor((totalSeconds / (60 * 60)) % 24);
+        const d = Math.floor(totalSeconds / (60 * 60 * 24));
+
+        const parts = [];
+        if (d > 0) parts.push(d + "j");
+        if (h > 0) parts.push(h + "h");
+        if (m > 0) parts.push(m + "m");
+        if (parts.length === 0 || totalSeconds < 60) parts.push(s + "s");
+
+        // Limite à deux unités pour la concision
+        return parts.slice(0, 2).join(' ');
+    };
+
+    // ---------------------------------------------
 
 
     createApp({
@@ -346,7 +456,7 @@
                 isMobile.value = window.innerWidth <= 600;
             };
 
-            // Global Chart.js dark theme configuration
+            // Configuration globale Chart.js
             Chart.defaults.color = '#f0f0f0';
             Chart.defaults.borderColor = '#303030';
             Chart.defaults.plugins.tooltip.backgroundColor = '#1e1e1e';
@@ -355,35 +465,57 @@
             Chart.defaults.plugins.tooltip.cornerRadius = 6;
 
 
+            /** Met à jour l'état réactif avec les données reçues du serveur. */
             const normalizeData = (rawData) => {
                 const nodeInfo = rawData.nodeInfo || {};
+                const blockchainInfo = rawData.blockchainInfo || {};
 
                 Object.assign(dataState, {
                     stats: rawData.generalStats || {},
-                    blockchain: rawData.blockchainInfo ? {
-                        blocks: rawData.blockchainInfo.blocks,
-                        headers: rawData.blockchainInfo.headers,
-                        chain: rawData.blockchainInfo.chain,
-                    } : {},
+                    blockchain: {
+                        blocks: blockchainInfo.blocks || 0,
+                        headers: blockchainInfo.headers || 0,
+                        chain: blockchainInfo.chain || 'N/A',
+                        verificationProgress: blockchainInfo.verificationprogress || 0,
+                        difficulty: blockchainInfo.difficulty || 0,
+                        medianBlockSize: blockchainInfo.medianBlocksize || 0,
+                    },
                     node: {
                         version: nodeInfo.version,
                         protocolVersion: nodeInfo.protocolversion,
                         subversion: nodeInfo.subversion,
                     },
-                    time: rawData.upTime,
+                    // MODIFICATION: Assurez-vous que rawData.upTime est copié
+                    upTime: rawData.upTime || 'N/A',
                     inbound_peers: rawData.inboundPeer || [],
                     outbound_peers: rawData.outboundPeer || [],
                     subver_distribution: rawData.subverDistribution || { inbound: [], outbound: [] },
                 });
             };
 
+            /** Calcule la Subversion nettoyée. */
             const cleanedSubversion = computed(() => {
                 const subver = dataState.node.subversion;
                 if (!subver || subver === 'N/A') return 'N/A';
                 return subver.replace(/^\/|\/$/g, '').trim();
             });
 
+            // SUPPRESSION: formattedUptime n'est plus nécessaire
 
+            /** Détruit les instances Chart.js existantes. */
+            const destroyCharts = () => {
+                if (inboundPieChart) {
+                    inboundPieChart.destroy();
+                    inboundPieChart = null;
+                }
+                if (outboundPieChart) {
+                    outboundPieChart.destroy();
+                    outboundPieChart = null;
+                }
+            };
+
+
+            /** Initialise et gère la connexion WebSocket. */
             const connectWebSocket = () => {
                 if (ws) {
                     ws.onclose = null;
@@ -441,7 +573,7 @@
                 connectWebSocket();
                 window.addEventListener('resize', handleResize);
 
-                // 🟢 ENREGISTREMENT DU SERVICE WORKER (PWA)
+                // Enregistrement du Service Worker (PWA)
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.register('/service-worker.js')
                         .then(registration => console.log('Service Worker enregistré. Scope:', registration.scope))
@@ -455,15 +587,23 @@
                     ws.onclose = null;
                     ws.close();
                 }
+                // S'assurer que les graphiques sont détruits lors du démontage du composant
+                destroyCharts();
             });
 
-            // Initialisation des graphiques
+            // CORRECTION DU BUG CHART.JS: Détruire l'instance avant de la recréer.
             watch(rpcConnected, (newVal) => {
-                if (newVal && inboundPieChart === null && outboundPieChart === null) {
+                if (newVal) {
+                     // Connexion Rétablie: Créer les graphiques
                      nextTick(() => {
+                        // Détruire les anciens graphiques avant de recréer
+                        destroyCharts();
                         inboundPieChart = initPieChart(inboundChartCanvas, dataState.subver_distribution.inbound);
                         outboundPieChart = initPieChart(outboundChartCanvas, dataState.subver_distribution.outbound);
                     });
+                } else {
+                    // Connexion Perdue: Détruire les graphiques pour nettoyer le DOM/mémoire
+                    destroyCharts();
                 }
             });
 
@@ -485,6 +625,11 @@
                 inboundChartCanvas,
                 outboundChartCanvas,
                 cleanedSubversion,
+                // formattedUptime n'est plus retourné
+                formatBytes,
+                formatDifficulty,
+                formatTimeOffset,
+                formatTimeSince,
             };
         }
     }).mount('#app');
