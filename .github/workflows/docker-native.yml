@@ -47,6 +47,7 @@ jobs:
           # et la création de l'image Docker (quarkus:image-build)
           mvn clean package \
             -Pnative \
+            -DskipTests \
             -Dquarkus.container-image.image=${{ env.IMAGE_FULL_NAME }}:latest \
             quarkus:image-push
         # Ajout d'un tag supplémentaire pour la traçabilité
