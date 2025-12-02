@@ -1,0 +1,17 @@
+###
+# Image de base ultra-légère pour le runtime natif GraalVM
+###
+FROM registry.access.redhat.com/ubi8/ubi-minimal
+
+# Définir le répertoire de travail
+WORKDIR /work/
+
+# Copie l'exécutable natif
+# L'exécutable a été généré par l'étape Maven du workflow
+COPY target/*-runner /work/application
+
+# Définir l'utilisateur d'exécution non-root
+USER 1001
+
+# Lancer l'application
+ENTRYPOINT ["./application"]
