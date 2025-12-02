@@ -6,8 +6,12 @@ The API is built using **Quarkus**, the Supersonic Subatomic Java Framework, off
 
 ---
 
-<img width="2970" height="1504" alt="image" src="https://github.com/user-attachments/assets/08926806-690a-4981-8b66-57d733a2ea50" />
-<img width="2908" height="1480" alt="image" src="https://github.com/user-attachments/assets/ade7b4a8-54cb-4e6c-b4c4-d6fb5c6b8dc0" />
+<img width="3024" height="914" alt="image" src="https://github.com/user-attachments/assets/0267a62a-a914-4273-92c2-fb1b6886868e" />
+<img width="3024" height="1054" alt="image" src="https://github.com/user-attachments/assets/49209d3a-857d-4076-a82c-ab1d38a4b876" />
+<img width="2988" height="1198" alt="image" src="https://github.com/user-attachments/assets/20d3a60d-b2ec-47c3-900b-3f099eddca17" />
+<img width="3000" height="1162" alt="image" src="https://github.com/user-attachments/assets/8e4a43d6-788c-4a50-88aa-61761d10f365" />
+
+
 
 
 ## Features (Inferred)
