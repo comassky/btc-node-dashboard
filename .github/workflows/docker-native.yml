@@ -1,0 +1,67 @@
+name: Build Quarkus Native et Dockeriser
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  native_build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout du Code
+        uses: actions/checkout@v4
+
+      - name: Configuration de GraalVM pour le Build Natif
+        # Utilise setup-java pour configurer le JDK et GraalVM.
+        # Nous utilisons Mandrel, une distribution supportée de GraalVM.
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'mandrel'
+          java-version: '21'
+          cache: 'maven' # Mettre en cache les dépendances Maven
+
+      - name: Compiler en Natif avec Maven
+        run: |
+          # La commande standard pour le build natif Quarkus
+          # Le profil '-Pnative' est essentiel
+          ./mvnw package -Pnative -DskipTests
+        # L'exécutable natif sera créé dans 'target/' sous le nom 'mon-app-runner' (ou similaire)
+
+      - name: 🐋 Connexion au Registry Docker (GitHub Packages)
+        # Nécessaire pour pousser l'image finale
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📦 Construire et Pousser l'Image Docker
+        env:
+          IMAGE_NAME: ghcr.io/${{ github.repository }}/native-app
+          TAG: ${{ github.sha }}
+        run: |
+          # 1. Copier le Dockerfile multi-stage nécessaire (si vous ne l'avez pas déjà)
+          # Si vous utilisez le plugin QCI (Quarkus Container Image), cette étape est plus simple.
+          
+          # Ici, nous utilisons un Dockerfile multi-stage simple (assurez-vous qu'il existe)
+          docker build -f src/main/Dockerfile.native \
+                       -t ${IMAGE_NAME}:latest \
+                       -t ${IMAGE_NAME}:${TAG} .
+          
+          # Pousser les images vers le GitHub Container Registry
+          docker push ${IMAGE_NAME}:latest
+          docker push ${IMAGE_NAME}:${TAG}
+
+      - name: ✅ Déploiement (Exemple : Utilisation de SSH/Kubernetes/AWS ECR)
+        # Cette étape dépend de votre cible de déploiement (Kubernetes, ECS, VM, etc.)
+        run: |
+          echo "Image ${IMAGE_NAME}:${TAG} construite et poussée."
+          echo "Déployez l'application native ici..."
+          # Exemple : kubectl apply -f deployment.yaml
+          # ou appel à une API de déploiement
