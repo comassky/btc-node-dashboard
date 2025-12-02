@@ -57,11 +57,3 @@ jobs:
           # Pousser les images vers le GitHub Container Registry
           docker push ${IMAGE_NAME}:latest
           docker push ${IMAGE_NAME}:${TAG}
-
-      - name: ✅ Déploiement (Exemple : Utilisation de SSH/Kubernetes/AWS ECR)
-        # Cette étape dépend de votre cible de déploiement (Kubernetes, ECS, VM, etc.)
-        run: |
-          echo "Image ${IMAGE_NAME}:${TAG} construite et poussée."
-          echo "Déployez l'application native ici..."
-          # Exemple : kubectl apply -f deployment.yaml
-          # ou appel à une API de déploiement
