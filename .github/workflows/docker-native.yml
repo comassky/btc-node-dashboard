@@ -48,12 +48,5 @@ jobs:
           mvn clean package \
             -Pnative \
             -DskipTests \
-            -Dquarkus.container-image.image=${{ env.IMAGE_FULL_NAME }}:latest \
+            -Dquarkus.container-image.image=${{ env.IMAGE_FULL_NAME }}:native \
             quarkus:image-push
-        # Ajout d'un tag supplémentaire pour la traçabilité
-      - name: 🔖 Tagging avec le SHA et Push du tag
-        run: |
-          # Tagger l'image qui vient d'être créée avec le SHA de commit
-          docker tag ${{ env.IMAGE_FULL_NAME }}:native ${{ env.IMAGE_FULL_NAME }}:${{ github.sha }}
-          # Pousser le tag spécifique
-          docker push ${{ env.IMAGE_FULL_NAME }}:${{ github.sha }}
