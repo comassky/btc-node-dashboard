@@ -133,17 +133,18 @@
                     <div class="icon text-3xl text-text-secondary"><i class="fas fa-server"></i></div>
                     <div class="label text-sm uppercase text-text-secondary">Node Status</div>
 
-                    <div class="flex flex-row justify-between items-end">
-                        <div>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end">
+
+                        <div class="min-w-0 flex-shrink">
                             <div class="value text-xl font-bold text-text-primary truncate" :title="cleanedSubversion">{{ cleanedSubversion }}</div>
                             <div class="detail text-xs text-text-secondary">Protocol v{{ node.protocolVersion }}</div>
                         </div>
-                        <div class="text-right">
+
+                        <div class="text-left sm:text-right mt-3 sm:mt-0 flex-shrink-0">
                             <div class="value text-xl font-bold text-text-primary" title="Time elapsed since node started">{{ upTime }}</div>
                             <div class="detail text-xs text-text-secondary">Uptime</div>
                         </div>
                     </div>
-
                     <div class="detail mt-3 pt-3 border-t border-border-strong text-sm text-text-secondary">
                         <p class="mb-1">
                             <i class="fas fa-check-circle mr-1 text-status-success"></i> Verification Progress:
@@ -195,9 +196,6 @@
             <h4 class="text-lg font-medium mt-4">Inbound Peers ({{ inbound_peers.length }})</h4>
             <div class="peer-table-wrapper border border-border-strong rounded-lg mt-4">
                 <table class="peer-table w-full text-sm">
-                    <colgroup>
-                        <col style="min-width: 40px;"> <col style="min-width: 150px;"> <col style="min-width: 250px;"> <col style="min-width: 60px;"> <col style="min-width: 90px;"> <col style="min-width: 90px;"> <col style="min-width: 90px;"> <col style="min-width: 80px;"> <col style="min-width: 70px;"> <col style="min-width: 90px;"> <col style="min-width: 90px;">
-                    </colgroup>
                     <thead>
                     <tr class="bg-border-strong">
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">ID</th>
@@ -234,9 +232,6 @@
             <h4 class="text-lg font-medium mt-8">Outbound Peers ({{ outbound_peers.length }})</h4>
             <div class="peer-table-wrapper border border-border-strong rounded-lg mt-4">
                 <table class="peer-table w-full text-sm">
-                    <colgroup>
-                        <col style="min-width: 40px;"> <col style="min-width: 150px;"> <col style="min-width: 250px;"> <col style="min-width: 60px;"> <col style="min-width: 90px;"> <col style="min-width: 90px;"> <col style="min-width: 90px;"> <col style="min-width: 80px;"> <col style="min-width: 70px;"> <col style="min-width: 90px;"> <col style="min-width: 90px;">
-                    </colgroup>
                     <thead>
                     <tr class="bg-border-strong">
                         <th class="p-3 text-left font-medium text-text-secondary uppercase">ID</th>
@@ -437,7 +432,6 @@
         return minping > 0 ? minping.toFixed(3) + ' s' : 'N/A';
     };
 
-    // Optimization: Removed the unused `formatDifficulty` function as it was not used in the template.
     // ---------------------------------------------
 
 
