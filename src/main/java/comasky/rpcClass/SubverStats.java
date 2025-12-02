@@ -1,11 +1,9 @@
 package comasky.rpcClass;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
-@AllArgsConstructor
+@Data
 @Builder
 public class SubverStats {
     private final String server;

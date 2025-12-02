@@ -1,27 +1,20 @@
 package comasky.shared;
 
 public class Tools {
+    private static final long SECONDS_IN_DAY = 86400;
+    private static final long SECONDS_IN_HOUR = 3600;
+    private static final long SECONDS_IN_MINUTE = 60;
+    private static final String UPTIME_FORMAT = "%dd, %02d:%02d:%02d";
+    private static final String INVALID_UPTIME = "00:00:00:00";
+
     public static String formatUptime(long totalSeconds) {
         if (totalSeconds < 0) {
-            return "00:00:00:00";
+            return INVALID_UPTIME;
         }
-
-        // Constantes en secondes
-        final long SECONDS_IN_DAY = 86400;  // 24 * 60 * 60
-        final long SECONDS_IN_HOUR = 3600;   // 60 * 60
-        final long SECONDS_IN_MINUTE = 60;
-
-        // Calcul des jours, heures, minutes et secondes restantes
         long days = totalSeconds / SECONDS_IN_DAY;
-        long remainingSeconds = totalSeconds % SECONDS_IN_DAY;
-
-        long hours = remainingSeconds / SECONDS_IN_HOUR;
-        remainingSeconds %= SECONDS_IN_HOUR;
-
-        long minutes = remainingSeconds / SECONDS_IN_MINUTE;
-        long seconds = remainingSeconds % SECONDS_IN_MINUTE;
-
-        // Utilisation de String.format pour garantir le format DD:HH:MM:SS (padding avec zéro)
-        return String.format("%dd, %02d:%02d:%02d", days, hours, minutes, seconds);
+        long hours = (totalSeconds % SECONDS_IN_DAY) / SECONDS_IN_HOUR;
+        long minutes = (totalSeconds % SECONDS_IN_HOUR) / SECONDS_IN_MINUTE;
+        long seconds = totalSeconds % SECONDS_IN_MINUTE;
+        return String.format(UPTIME_FORMAT, days, hours, minutes, seconds);
     }
 }

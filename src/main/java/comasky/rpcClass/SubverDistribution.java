@@ -1,8 +1,7 @@
 package comasky.rpcClass;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Data;
 
 import java.util.List;
 
@@ -11,8 +10,7 @@ import java.util.List;
  * La map interne utilise la version du client comme clé et un ObjectNode (ou un DTO) comme valeur.
  */
 @AllArgsConstructor
-@Getter
-@NoArgsConstructor
+@Data
 public class SubverDistribution {
     private List<SubverStats> inbound;
     private List<SubverStats> outbound;
