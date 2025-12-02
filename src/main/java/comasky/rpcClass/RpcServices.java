@@ -82,26 +82,20 @@ public class RpcServices {
      * @return ObjectNode avec les pourcentages par subver et le total_peers_count.
      */
     private List<SubverStats> calculateSubverStats(List<PeerInfo> peers) {
-
-        final long totalPeers = peers.size();
-
-        java.util.Map<String, Long> subverCounts = peers.stream()
+        if (peers.isEmpty()) {
+            return Collections.emptyList();
+        }
+        final double totalPeers = peers.size();
+        return peers.stream()
                 .filter(p -> p.getSubver() != null)
-                .collect(Collectors.groupingBy(PeerInfo::getSubver, Collectors.counting()));
-
-        final List<SubverStats> result = new ArrayList<>();
-        subverCounts.forEach((subver, count) -> {
-            double percentage = (double) count * 100.0 / totalPeers;
-            final var stat = SubverStats.builder()
-                    .percentage(Math.round(percentage * 100.0) / 100.0)
-                    .server(subver)
-                    .build();
-            result.add(stat);
-        });
-        return result;
+                .collect(Collectors.groupingBy(PeerInfo::getSubver, Collectors.counting()))
+                .entrySet().stream()
+                .map(e -> SubverStats.builder()
+                        .server(e.getKey())
+                        .percentage(Math.round(e.getValue() * 10000.0 / totalPeers) / 100.0)
+                        .build())
+                .collect(Collectors.toList());
     }
-
-    // --- Méthode d'Abstraction RPC ---
 
     private String callRpc(String method) {
         java.util.Map<String, Object> rpcRequest = new java.util.HashMap<>();
@@ -120,30 +114,24 @@ public class RpcServices {
     private <T> T executeRpcCall(String rpcCommand, Class<T> resultClass) {
         String jsonResponse = callRpc(rpcCommand);
         try {
-            JavaType type = objectMapper.getTypeFactory().constructParametricType(RpcResponse.class, resultClass);
-
-            // 2. Désérialisation complète de la réponse
+            JavaType type = objectMapper.getTypeFactory()
+                    .constructParametricType(RpcResponse.class, resultClass);
             RpcResponse<T> response = objectMapper.readValue(jsonResponse, type);
 
             if (response.getError() != null) {
-                // 3. Gestion de l'erreur RPC
-                throw new RpcException("RPC Error calling '" + rpcCommand + "': " + response.getError().toString());
+                throw new RpcException("RPC Error calling '" + rpcCommand + "': " + response.getError());
             }
 
             T result = response.getResult();
             if (result == null) {
-                // 4. Gestion du résultat null
                 throw new RpcException("Result of '" + rpcCommand + "' is null.");
             }
 
             return result;
-
         } catch (RpcException e) {
-            // Relancer l'exception RPC
             throw e;
         } catch (Exception e) {
-            // 5. Gestion des erreurs de parsing ou autres exceptions I/O/Jackson
-            throw new RpcException("Parsing or I/O error for '" + rpcCommand + "': " + e.getMessage());
+            throw new RpcException("Parsing error for '" + rpcCommand + "': " + e.getMessage());
         }
     }
 }

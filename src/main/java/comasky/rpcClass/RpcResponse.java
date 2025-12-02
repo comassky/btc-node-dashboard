@@ -1,16 +1,10 @@
 package comasky.rpcClass;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 
 // Lombok gère les accesseurs et mutateurs
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RpcResponse<T> {
 

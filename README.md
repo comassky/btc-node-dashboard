@@ -1,30 +1,35 @@
 # BTC Node Dashboard - API Backend ₿
 
-This project is the backend API for a **Bitcoin node monitoring dashboard** (BTC Node Dashboard). It is designed to interface with a **Bitcoin Core** node and expose its status and performance data via a **RESTful interface**, intended to be consumed by a frontend application.
+### Overview
 
-The API is built using **Quarkus**, the Supersonic Subatomic Java Framework, offering fast startup times and low memory consumption.
+This project is a real-time Bitcoin network monitoring application built with Quarkus and WebSocket technology. It provides live statistics about Bitcoin network peers, blockchain information, and node status through an interactive web dashboard.
 
----
+### Features
+
+* **Real-time Peer Statistics**: Monitor inbound and outbound peer connections
+* **Subversion Distribution:** Track Bitcoin client versions across the network
+* **Blockchain Information:** Display current blockchain state and height
+* **Node Uptime:** Show system uptime in a formatted display
+* **Live Updates:** WebSocket-based real-time data push to connected clients
+* **Error Handling:** Comprehensive error management with detailed error messages
+
 
 <img width="2970" height="1504" alt="image" src="https://github.com/user-attachments/assets/08926806-690a-4981-8b66-57d733a2ea50" />
 <img width="2908" height="1480" alt="image" src="https://github.com/user-attachments/assets/ade7b4a8-54cb-4e6c-b4c4-d6fb5c6b8dc0" />
 
-
-## Features (Inferred)
-
-* **Node Status:** Retrieval of key data such as current block height, sync status, and node version.
-* **Network Information:** Monitoring of peer connections (number of peers, addresses, latency).
-* **REST API:** All data points are exposed via easy-to-consume REST endpoints.
-
 ## Technologies Used
 
-| Technology | Description |
-| :--- | :--- |
-| **Framework** | [Quarkus](https://quarkus.io/) |
-| **Langage** | Java |
-| **Outil de Build** | Maven |
-| **Conteneurisation** | Docker |
-| **Licence** | MIT |
+| Technology | Description                          |
+| :--- |:-------------------------------------|
+| **Framework** | [Quarkus 3.x](https://quarkus.io/)   |
+ | **Messaging** | WebSocket (Jakarta WebSocket API)    
+| **HTTP Client** | MicroProfile REST Client             |
+| **JSON Processing** | Jackson ObjectMapper                 |
+| **Web** | HTML5, CSS3, JavaScript (ES6+), Vue3 |
+| **Langage** | Java                                 |
+| **Outil de Build** | Maven                                |
+| **Conteneurisation** | Docker                               |
+| **Licence** | MIT                                  |
 
 
 ## Prerequisites
