@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.rpcClass.GlobalResponse;
 import comasky.rpcClass.RpcServices;
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.websocket.OnClose;
