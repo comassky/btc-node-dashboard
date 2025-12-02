@@ -2,7 +2,7 @@
 # Étape 1: Builder - pour compiler et créer l'archive fast-jar Quarkus
 # ----------------------------------------------------------------------
 # Utilise une image Java/Maven complète pour le build. C'est l'image qui contient 'mvn'.
-FROM maven:3-eclipse-temurin-25-alpine AS builder
+FROM maven:3-eclipse-temurin-21-alpine AS builder
 
 # Définit le répertoire de travail dans le conteneur
 WORKDIR /build
