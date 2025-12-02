@@ -154,6 +154,7 @@
                 <quarkus.package.jar.enabled>false</quarkus.package.jar.enabled>
                 <skipITs>true</skipITs>
                 <quarkus.native.enabled>true</quarkus.native.enabled>
+                <quarkus.container-image.build-context>./</quarkus.container-image.build-context>
                 <quarkus.container-image.builder>docker</quarkus.container-image.builder>
                 <quarkus.container-image.image>ghcr.io/comassky/${project.artifactId}</quarkus.container-image.image>
                 <quarkus.container-image.dockerfile>src/main/docker/Dockerfile.native</quarkus.container-image.dockerfile>
