@@ -167,9 +167,14 @@ If you enjoy my work and would like to support me, you can buy me a coffee using
 
 - **ETH/BSC:**    0x0f26B8Bdc028F6bd0F79FF4959306065C36d5EAa
 
-- **SOL:**    64NUvVYMwwnchsTYwbWboGfyez4j7dGsJnB1eiWZhbkm
+- **SOL:**    FH7HPraEeSva72g5Cv2WTbP65tPxQiZc1GNCSk2ML7eN
+
+-  **Lightning**
+
+  <img width="320" height="312" alt="image" src="https://github.com/user-attachments/assets/6cfd0bfa-fb41-48eb-b429-3420e5cf63de" />
+
 
 ## License
 
-This project is distributed under the [MIT License](https://www.google.com/search?q=LICENSE).
+This project is distributed under the [GPLV3](https://www.gnu.org/licenses/gpl-3.0.html#license-text).
     
