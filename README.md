@@ -1,10 +1,18 @@
 # BTC Node Dashboard - API Backend ₿
 
-This project is the backend API for a **Bitcoin node monitoring dashboard** (BTC Node Dashboard). It is designed to interface with a **Bitcoin Core** node and expose its status and performance data via a **RESTful interface**, intended to be consumed by a frontend application.
+### Overview
 
-The API is built using **Quarkus**, the Supersonic Subatomic Java Framework, offering fast startup times and low memory consumption.
+This project is a real-time Bitcoin network monitoring application built with Quarkus and WebSocket technology. It provides live statistics about Bitcoin network peers, blockchain information, and node status through an interactive web dashboard.
 
----
+### Features
+
+* **Real-time Peer Statistics**: Monitor inbound and outbound peer connections
+* **Subversion Distribution:** Track Bitcoin client versions across the network
+* **Blockchain Information:** Display current blockchain state and height
+* **Node Uptime:** Show system uptime in a formatted display
+* **Live Updates:** WebSocket-based real-time data push to connected clients
+* **Error Handling:** Comprehensive error management with detailed error messages
+
 
 <img width="3024" height="914" alt="image" src="https://github.com/user-attachments/assets/0267a62a-a914-4273-92c2-fb1b6886868e" />
 <img width="3024" height="1054" alt="image" src="https://github.com/user-attachments/assets/49209d3a-857d-4076-a82c-ab1d38a4b876" />
@@ -13,22 +21,19 @@ The API is built using **Quarkus**, the Supersonic Subatomic Java Framework, off
 
 
 
-
-## Features (Inferred)
-
-* **Node Status:** Retrieval of key data such as current block height, sync status, and node version.
-* **Network Information:** Monitoring of peer connections (number of peers, addresses, latency).
-* **REST API:** All data points are exposed via easy-to-consume REST endpoints.
-
 ## Technologies Used
 
-| Technology | Description |
-| :--- | :--- |
-| **Framework** | [Quarkus](https://quarkus.io/) |
-| **Langage** | Java |
-| **Outil de Build** | Maven |
-| **Conteneurisation** | Docker |
-| **Licence** | MIT |
+| Technology | Description                          |
+| :--- |:-------------------------------------|
+| **Framework** | [Quarkus 3.x](https://quarkus.io/)   |
+ | **Messaging** | WebSocket (Jakarta WebSocket API)    
+| **HTTP Client** | MicroProfile REST Client             |
+| **JSON Processing** | Jackson ObjectMapper                 |
+| **Web** | HTML5, CSS3, JavaScript (ES6+), Vue3 |
+| **Langage** | Java                                 |
+| **Outil de Build** | Maven                                |
+| **Conteneurisation** | Docker                               |
+| **Licence** | MIT                                  |
 
 
 ## Prerequisites
