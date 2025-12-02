@@ -45,7 +45,7 @@ jobs:
         run: |
           # Le goal 'quarkus:image-push' exécute implicitement le build natif (-Pnative) 
           # et la création de l'image Docker (quarkus:image-build)
-          ./mvnw clean package \
+          mvn clean package \
             -Pnative \
             -Dquarkus.container-image.image=${{ env.IMAGE_FULL_NAME }}:latest \
             quarkus:image-push
