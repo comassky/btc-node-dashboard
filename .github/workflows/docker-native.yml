@@ -7,53 +7,61 @@ on:
   pull_request:
     branches:
       - main
+  # Permet de lancer manuellement le workflow depuis l'interface GitHub
+  workflow_dispatch:
 
 jobs:
   native_build_and_deploy:
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      packages: write # Nécessaire pour pousser vers ghcr.io
 
     steps:
-
+    
       - name: Checkout du Code
         uses: actions/checkout@v4
 
-      - name: Configuration de GraalVM pour le Build Natif
-        # Utilise setup-java pour configurer le JDK et GraalVM.
-        # Nous utilisons Mandrel, une distribution supportée de GraalVM.
+      - name: ⚙️ Configuration de GraalVM pour le Build Natif
+        # Utilisation de 'graalvm' pour contourner le problème de 'mandrel'
         uses: actions/setup-java@v4
         with:
-          distribution: 'mandrel'
-          java-version: '21'
-          cache: 'maven' # Mettre en cache les dépendances Maven
-
-      - name: Compiler en Natif avec Maven
+          distribution: 'graalvm' 
+          java-version: '21' # Version LTS récente
+          cache: 'maven' 
+          
+      - name: 🔨 Compiler en Natif avec Maven Wrapper
+        # Utilisation de ./mvnw pour la robustesse de l'environnement CI
         run: |
-          # La commande standard pour le build natif Quarkus
-          # Le profil '-Pnative' est essentiel
           ./mvnw package -Pnative -DskipTests
-        # L'exécutable natif sera créé dans 'target/' sous le nom 'mon-app-runner' (ou similaire)
-
+        
       - name: 🐋 Connexion au Registry Docker (GitHub Packages)
-        # Nécessaire pour pousser l'image finale
+        # Connexion à ghcr.io pour le push
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 📦 Construire et Pousser l'Image Docker
-        env:
-          IMAGE_NAME: ghcr.io/${{ github.repository }}/native-app
-          TAG: ${{ github.sha }}
+      - name: 📦 Définition des Variables d'Image
+        id: image_vars
         run: |
-          # 1. Copier le Dockerfile multi-stage nécessaire (si vous ne l'avez pas déjà)
-          # Si vous utilisez le plugin QCI (Quarkus Container Image), cette étape est plus simple.
+          IMAGE_NAME=ghcr.io/${{ github.repository }}/mon-app-native
+          TAG=${{ github.sha }}
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_OUTPUT
+          echo "TAG=$TAG" >> $GITHUB_OUTPUT
+
+      - name: 🏗️ Construire l'Image Docker Multi-Stage
+        # Nécessite un fichier 'src/main/docker/Dockerfile.native' existant
+        # Si vous utilisez le plugin QCI, vous n'auriez pas besoin de ce Dockerfile
+        # et utiliseriez la commande Maven du plugin.
+        run: |
+          docker build -f src/main/docker/Dockerfile.native \
+                       -t ${{ steps.image_vars.outputs.IMAGE_NAME }}:latest \
+                       -t ${{ steps.image_vars.outputs.IMAGE_NAME }}:${{ steps.image_vars.outputs.TAG }} .
           
-          # Ici, nous utilisons un Dockerfile multi-stage simple (assurez-vous qu'il existe)
-          docker build -f src/main/Dockerfile.native \
-                       -t ${IMAGE_NAME}:latest \
-                       -t ${IMAGE_NAME}:${TAG} .
-          
-          # Pousser les images vers le GitHub Container Registry
-          docker push ${IMAGE_NAME}:latest
-          docker push ${IMAGE_NAME}:${TAG}
+      - name: ⬆️ Pousser l'Image Docker
+        run: |
+          docker push ${{ steps.image_vars.outputs.IMAGE_NAME }}:latest
+          docker push ${{ steps.image_vars.outputs.IMAGE_NAME }}:${{ steps.image_vars.outputs.TAG }}
