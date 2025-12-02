@@ -1,7 +1,7 @@
 package comasky.rpcClass;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
+import lombok.Data;
 
 // Lombok gère les accesseurs et mutateurs
 @Data

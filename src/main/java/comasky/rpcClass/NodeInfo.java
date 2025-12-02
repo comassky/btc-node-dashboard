@@ -1,7 +1,8 @@
 package comasky.rpcClass;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
 @Builder
 @Data
