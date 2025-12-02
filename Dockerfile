@@ -23,7 +23,7 @@ RUN mvn package -DskipTests
 # Étape 2: Runner - pour exécuter l'application (image JRE minimale)
 # ----------------------------------------------------------------------
 # Utilise une image JRE/JDK minimaliste pour l'exécution (plus petite que le JDK complet)
-FROM eclipse-temurin:25-jre-alpine AS runner
+FROM eclipse-temurin:21-jre-alpine AS runner
 
 # Définit le port que l'application expose
 EXPOSE 8080

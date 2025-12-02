@@ -1,0 +1,13 @@
+services:
+  btc-gui:
+   ports:
+     - 8080:8080
+   image: ghcr.io/comassky/btc-node-dashboard:main
+   container_name: BTC-Gui
+   environment:
+      BITCOIN_RPC_HOST: <URL OR HOSTNAME>
+      BITCOIN_RPC_PORT: <PORT>
+      BITCOIN_RPC_USER: <RPC_USER>
+      BITCOIN_RPC_PASSWORD: <RPC_PASSWORD>
+      BITCOIN_RPC_SCHEME: <SCHEME> #http or https
+      WS_POLLING_INTERVAL: 1
