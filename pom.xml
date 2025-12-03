@@ -3,16 +3,26 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>comasky</groupId>
     <artifactId>bitcoin-api</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1-SNAPSHOT</version> <!-- Mise à jour vers un SNAPSHOT pour indiquer un développement continu -->
 
     <properties>
-        <compiler-plugin.version>3.14.1</compiler-plugin.version>
+        <!-- Versions principales de l'environnement -->
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <quarkus.platform.version>3.30.1</quarkus.platform.version>
         <skipITs>true</skipITs>
+
+        <quarkus.platform.version>3.30.1</quarkus.platform.version>
+        <lombok.version>1.18.34</lombok.version>
+        <commons-io.version>2.16.1</commons-io.version>
+
+        <frontend-maven-plugin.version>1.15.0</frontend-maven-plugin.version>
+        <node.lts.version>v24.11.1</node.lts.version>
+        <npm.lts.version>11.6.2</npm.lts.version>
+
+        <compiler-plugin.version>3.14.1</compiler-plugin.version>
         <surefire-plugin.version>3.5.4</surefire-plugin.version>
+        <exec-maven-plugin.version>3.3.0</exec-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -28,6 +38,7 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- Quarkus Core & Web -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest</artifactId>
@@ -36,29 +47,36 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-jackson</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-client-jackson</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-qute</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-websockets</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-scheduler</artifactId>
+        </dependency>
 
+        <!-- Utilitaires -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.32</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
 
+        <!-- Tests -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5</artifactId>
@@ -69,22 +87,91 @@
             <artifactId>rest-assured</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-websockets</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-scheduler</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-container-image-docker</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <!-- Configuration du Frontend Maven Plugin (pour Node/NPM) -->
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>${frontend-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>install node and npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Utilisation de la version Node.js 24 LTS -->
+                            <nodeVersion>${node.lts.version}</nodeVersion>
+                            <npmVersion>${npm.lts.version}</npmVersion>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>npm install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>install terser clean-css-cli --save-dev</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Configuration de l'Exec Maven Plugin (pour minification) -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin.version}</version>
+                <executions>
+
+                    <execution>
+                        <id>minify-js</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${project.basedir}/node_modules/.bin/terser</executable>
+                            <arguments>
+                                <argument>${project.basedir}/src/main/resources/META-INF/resources/js/dashboard.js</argument>
+                                <argument>-o</argument>
+                                <argument>${project.build.directory}/classes/META-INF/resources/js/dashboard.js</argument>
+                                <argument>--compress</argument>
+                                <argument>--mangle</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>minify-css</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${project.basedir}/node_modules/.bin/cleancss</executable>
+                            <arguments>
+                                <argument>${project.basedir}/src/main/resources/META-INF/resources/css/dashboard.css</argument>
+                                <argument>-o</argument>
+                                <argument>${project.build.directory}/classes/META-INF/resources/css/dashboard.css</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>commons-io</groupId>
+                        <artifactId>commons-io</artifactId>
+                        <version>${commons-io.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <!-- Configuration du Quarkus Maven Plugin -->
             <plugin>
                 <groupId>io.quarkus.platform</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
@@ -101,6 +188,8 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Configuration du Compiler Plugin -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${compiler-plugin.version}</version>
@@ -108,6 +197,8 @@
                     <parameters>true</parameters>
                 </configuration>
             </plugin>
+
+            <!-- Configuration des Surefire et Failsafe Plugins -->
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
@@ -139,6 +230,7 @@
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 
