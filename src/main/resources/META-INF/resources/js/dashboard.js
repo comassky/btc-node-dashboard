@@ -340,11 +340,7 @@ createApp({
             updateChartDefaults();
             connectWebSocket();
 
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => console.log('Service Worker registered. Scope:', registration.scope))
-                    .catch(error => console.error('Service Worker registration failed:', error));
-            }
+            // L'enregistrement du Service Worker (pour PWA) a été supprimé ici.
         });
 
         onBeforeUnmount(() => {
