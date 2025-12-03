@@ -159,6 +159,7 @@
                 <quarkus.container-image.image>ghcr.io/comassky/${project.artifactId}</quarkus.container-image.image>
                 <quarkus.container-image.dockerfile>src/main/docker/Dockerfile.native</quarkus.container-image.dockerfile>
                 <quarkus.container-image.tag>native</quarkus.container-image.tag>
+                <quarkus.native.native-image-xmx>1g</quarkus.native.native-image-xmx>
             </properties>
         </profile>
     </profiles>
