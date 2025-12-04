@@ -65,19 +65,12 @@ export default defineConfig(({ mode }) => ({
         filename: 'dist/stats.html',
         open: false,
         gzipSize: true,
-        brotliSize: true
+        brotliSize: false
       }),
       // Compression gzip
       viteCompression({
         algorithm: 'gzip',
         ext: '.gz',
-        threshold: 1024,
-        deleteOriginFile: false
-      }),
-      // Compression Brotli (meilleure que gzip)
-      viteCompression({
-        algorithm: 'brotliCompress',
-        ext: '.br',
         threshold: 1024,
         deleteOriginFile: false
       })

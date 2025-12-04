@@ -136,7 +136,6 @@
                                     <directory>${project.basedir}/src/main/web/dist</directory>
                                     <filtering>true</filtering>
                                     <excludes>
-                                        <exclude>**/*.br</exclude>
                                         <exclude>**/*.gz</exclude>
                                     </excludes>
                                 </resource>
@@ -144,7 +143,6 @@
                                     <directory>${project.basedir}/src/main/web/dist</directory>
                                     <filtering>false</filtering>
                                     <includes>
-                                        <include>**/*.br</include>
                                         <include>**/*.gz</include>
                                     </includes>
                                 </resource>
