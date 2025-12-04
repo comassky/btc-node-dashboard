@@ -5,6 +5,9 @@ import { type SubverDistribution } from '../types';
 
 Chart.register(ArcElement, Tooltip, Legend, PieController);
 
+// Désactiver toutes les animations par défaut pour optimiser CPU
+Chart.defaults.animation = false;
+
 // Données de base pour les couleurs
 const BASE_COLORS = [
     '#06d6a0', '#ff9900', '#ef476f', '#118ab2', '#ffd166', '#00bcd4', '#4caf50', '#9c27b0',
@@ -31,6 +34,7 @@ const getChartOptions = () => {
     return {
         responsive: true,
         maintainAspectRatio: false,
+        animation: false, // Désactiver toutes les animations
         plugins: {
             legend: {
                 position: 'right',
@@ -46,6 +50,7 @@ const getChartOptions = () => {
                 bodyColor: getCssVar('--text-primary'),
                 titleColor: getCssVar('--text-secondary'),
                 cornerRadius: 6,
+                animation: false, // Désactiver animation tooltip
                 callbacks: {
                     label: function (context: any) {
                         const label = context.label || '';
@@ -68,7 +73,6 @@ const props = defineProps<{
     peers: SubverDistribution[];
     type: 'inbound' | 'outbound';
     count: number;
-    // 🚨 NOUVELLE PROP : Pour forcer la mise à jour lors du changement de thème
     isDarkMode: boolean;
 }>();
 
@@ -122,16 +126,8 @@ const updateChartData = (chartInstance: Chart, chartData: SubverDistribution[]) 
     chartInstance.data.datasets[0].data = percentages;
     chartInstance.data.datasets[0].backgroundColor = backgroundColors;
 
-    // Mise à jour explicite des options
-    const options = getChartOptions();
-    if (chartInstance.options.plugins && options.plugins) {
-        (chartInstance.options.plugins.legend as any).labels.color = options.plugins.legend.labels.color;
-        (chartInstance.options.plugins.tooltip as any).backgroundColor = options.plugins.tooltip.backgroundColor;
-        (chartInstance.options.plugins.tooltip as any).bodyColor = options.plugins.tooltip.bodyColor;
-        (chartInstance.options.plugins.tooltip as any).titleColor = options.plugins.tooltip.titleColor;
-    }
-
-    chartInstance.update();
+    // Mise à jour sans animation pour optimiser CPU
+    chartInstance.update('none');
 };
 
 // 1. Watcher sur les données (pour les mises à jour en temps réel)
