@@ -2,7 +2,7 @@
 
 import { createApp } from 'vue';
 import App from './App.vue';
-
+import { registerServiceWorker } from './registerServiceWorker';
 
 import './assets/dashboard.css';
 
@@ -66,4 +66,5 @@ app.component('font-awesome-icon', FontAwesomeIcon);
 
 app.mount('#app');
 
-
+// 8. Register Service Worker for PWA
+registerServiceWorker();
