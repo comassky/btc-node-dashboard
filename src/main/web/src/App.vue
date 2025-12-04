@@ -97,7 +97,7 @@ const normalizeData = (rawData: Partial<DashboardData>) => {
     inboundPeer: rawData.inboundPeer || [],
     outboundPeer: rawData.outboundPeer || [],
     subverDistribution: rawData.subverDistribution || { inbound: [], outbound: [] },
-    block: rawData.block || { time: 0, ntx: 0 },
+    block: rawData.block || { time: 0, nTx: 0 },
   });
 };
 

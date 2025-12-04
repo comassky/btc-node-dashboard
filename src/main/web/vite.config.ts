@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { VitePWA } from 'vite-plugin-pwa';
+import { visualizer } from 'rollup-plugin-visualizer';
+import viteCompression from 'vite-plugin-compression';
 
 export default defineConfig(({ mode }) => ({
   plugins: [
@@ -57,7 +59,29 @@ export default defineConfig(({ mode }) => ({
           }
         ]
       }
-    })
+    }),
+    ...(mode === 'production' ? [
+      visualizer({
+        filename: 'dist/stats.html',
+        open: false,
+        gzipSize: true,
+        brotliSize: true
+      }),
+      // Compression gzip
+      viteCompression({
+        algorithm: 'gzip',
+        ext: '.gz',
+        threshold: 1024,
+        deleteOriginFile: false
+      }),
+      // Compression Brotli (meilleure que gzip)
+      viteCompression({
+        algorithm: 'brotliCompress',
+        ext: '.br',
+        threshold: 1024,
+        deleteOriginFile: false
+      })
+    ] : [])
   ],
 
   base: './',
@@ -66,13 +90,54 @@ export default defineConfig(({ mode }) => ({
     outDir: 'dist',
     minify: 'terser',
     cssMinify: true,
+    cssCodeSplit: true,
+    sourcemap: false,
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 1000,
+    terserOptions: {
+      compress: {
+        drop_console: mode === 'production',
+        drop_debugger: mode === 'production',
+        pure_funcs: mode === 'production' ? ['console.log', 'console.info', 'console.debug'] : [],
+        passes: 2,
+      },
+      mangle: {
+        safari10: true,
+      },
+      format: {
+        comments: false,
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: {
-          'vendor': ['vue'],
-        }
-      }
-    }
+          'vue': ['vue'],
+          'chart': ['chart.js'],
+          'fontawesome': [
+            '@fortawesome/fontawesome-svg-core',
+            '@fortawesome/free-solid-svg-icons',
+            '@fortawesome/free-brands-svg-icons',
+            '@fortawesome/free-regular-svg-icons',
+            '@fortawesome/vue-fontawesome'
+          ],
+        },
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name || '';
+          if (/\.css$/i.test(info)) {
+            return 'assets/css/[name]-[hash][extname]';
+          }
+          if (/\.(woff2?|ttf|eot)$/i.test(info)) {
+            return 'assets/fonts/[name]-[hash][extname]';
+          }
+          if (/\.(png|jpe?g|svg|gif|webp|avif)$/i.test(info)) {
+            return 'assets/img/[name]-[hash][extname]';
+          }
+          return 'assets/[name]-[hash][extname]';
+        },
+      },
+    },
   },
 
   server: {

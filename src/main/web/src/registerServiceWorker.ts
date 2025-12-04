@@ -8,7 +8,7 @@ export function registerServiceWorker() {
       }
     },
     onOfflineReady() {
-      console.log('App ready to work offline');
+      // App ready to work offline (silent in production)
     },
   });
 }
