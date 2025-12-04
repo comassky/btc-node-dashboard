@@ -15,5 +15,5 @@ public class GlobalResponse {
     private BlockchainInfo blockchainInfo;
     private NodeInfo nodeInfo;
     private String upTime;
-    private BlockInfo blockInfo;
+    private BlockInfo block;
 }

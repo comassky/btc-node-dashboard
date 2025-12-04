@@ -26,8 +26,8 @@ public class RpcClientProducer {
     String password;
 
     /**
-     * Produit une instance du RpcClient en construisant l'URI dynamique au runtime.
-     * Cette méthode est appelée une seule fois par le CDI de Quarkus.
+     * Produces an instance of RpcClient by building the URI dynamically at runtime.
+     * This method is called once by Quarkus CDI.
      */
     @Produces
     @ApplicationScoped

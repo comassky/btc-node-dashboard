@@ -8,72 +8,72 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PeerInfo {
 
-    // Identifiant unique du pair
+    // Unique peer identifier
     private int id;
 
-    // Adresse IP:Port du pair
+    // Peer IP:Port address
     private String addr;
 
-    // Adresse IP locale:Port du pair
+    // Local peer IP:Port address
     private String addrlocal;
 
-    // Services supportés par le pair (ex: "0000000000000001" pour NODE_NETWORK)
+    // Services supported by the peer (e.g., "0000000000000001" for NODE_NETWORK)
     private String services;
 
-    // Début de l'horodatage de la connexion Unix epoch
+    // Connection start Unix epoch timestamp
     private long conntime;
 
-    // Durée en secondes depuis la dernière activité
+    // Seconds since last send activity
     private long lastsend;
 
-    // Durée en secondes depuis la dernière activité reçue
+    // Seconds since last receive activity
     private long lastrecv;
 
-    // Bytes envoyés depuis la dernière (re)connexion
+    // Bytes sent since last (re)connection
     private long bytesrecv;
 
-    // Bytes reçus depuis la dernière (re)connexion
+    // Bytes received since last (re)connection
     private long bytessent;
 
-    // Bytes envoyés à ce pair (Total)
+    // Bytes sent to this peer (Total)
     @JsonProperty("bytesrecv_per_msg")
     private java.util.Map<String, Long> bytesRecvPerMsg;
 
-    // Bytes reçus de ce pair (Total)
+    // Bytes received from this peer (Total)
     @JsonProperty("bytessent_per_msg")
     private java.util.Map<String, Long> bytesSentPerMsg;
 
-    // Temps de latence (ping) en secondes
+    // Latency (ping) in seconds
     private double pingtime;
 
-    // Temps de latence (ping) minimal en secondes
+    // Minimum latency (ping) in seconds
     private double minping;
 
-    // Temps depuis le dernier ping réussi en secondes
+    // Time since last successful ping in seconds
     private long timeoffset;
 
-    // Version du protocole du pair
+    // Peer protocol version
     private int version;
 
-    // Sous-version (chaîne de caractères descriptive)
+    // Subversion (descriptive string)
     private String subver;
 
-    // Indique si le pair est un pair entrant (true) ou sortant (false)
+    // Indicates if the peer is inbound (true) or outbound (false)
     private boolean inbound;
 
-    // Indique si la connexion est chiffrée (ex: "v2")
+    // Indicates if the connection is encrypted (e.g., "v2")
     private String transport_protocol;
 
-    // Niveau de permission (0 = par défaut)
+    // Permission level (0 = default)
     private int permission;
 
-    // Statut de la connexion (ex: "in_flight")
+    // Connection status (e.g., "in_flight")
     private String connection_type;
 
-    // Nom du réseau (ex: "ipv4", "ipv6", "onion")
+    // Network name (e.g., "ipv4", "ipv6", "onion")
     private String network;
 
-    // Blocs non transmis par le pair
+    // Transactions not transmitted by the peer
     @JsonProperty("unshipped_txs")
     private int unshippedTxs;
 }
