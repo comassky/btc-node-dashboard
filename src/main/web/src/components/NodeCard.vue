@@ -12,7 +12,7 @@
                 <div class="text-xl sm:text-2xl font-bold text-text-primary truncate" :title="cleanedSubversion">
                     {{ cleanedSubversion }}
                 </div>
-                <div class="text-xs sm:text-sm text-text-secondary">Protocol v{{ node.protocolVersion }}</div>
+                <div class="text-xs sm:text-sm text-text-secondary">Protocol v{{ node.protocolversion }}</div>
             </div>
 
             <div class="w-full sm:w-auto">

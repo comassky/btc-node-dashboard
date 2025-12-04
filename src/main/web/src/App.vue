@@ -23,7 +23,7 @@ const DEFAULT_DATA: DashboardData = {
     difficulty: 0,
     medianBlockSize: 0,
   },
-  nodeInfo: { version: 'N/A', protocolVersion: 'N/A', subversion: 'N/A' },
+  nodeInfo: { version: 'N/A', protocolversion: 'N/A', subversion: 'N/A' },
   upTime: 'N/A',
   inboundPeer: [],
   outboundPeer: [],
@@ -90,7 +90,7 @@ const normalizeData = (rawData: Partial<DashboardData>) => {
     },
     nodeInfo: {
       version: nodeInfo.version || 'N/A',
-      protocolVersion: nodeInfo.protocolVersion || 'N/A',
+      protocolversion: nodeInfo.protocolversion || 'N/A',
       subversion: nodeInfo.subversion || 'N/A',
     },
     upTime: rawData.upTime || 'N/A',
