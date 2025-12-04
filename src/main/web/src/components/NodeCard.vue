@@ -9,9 +9,11 @@
 
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mt-3 gap-3 sm:gap-0">
             <div class="min-w-0 w-full sm:w-auto">
-                <div class="text-xl sm:text-2xl font-bold text-text-primary truncate" :title="cleanedSubversion">
-                    {{ cleanedSubversion }}
-                </div>
+                <Tooltip :text="cleanedSubversion">
+                    <div class="text-xl sm:text-2xl font-bold text-text-primary truncate">
+                        {{ cleanedSubversion }}
+                    </div>
+                </Tooltip>
                 <div class="text-xs sm:text-sm text-text-secondary">Protocol v{{ node.protocolversion }}</div>
             </div>
 
@@ -35,7 +37,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { NodeInfo, BlockChainInfo } from '../types';
+import { type NodeInfo, type BlockChainInfo } from '../types';
+import Tooltip from './Tooltip.vue';
 
 const props = defineProps<{
     node: NodeInfo;

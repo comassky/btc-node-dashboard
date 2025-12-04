@@ -32,8 +32,16 @@
                     <tr v-for="peer in peers" :key="type + '-' + peer.id"
                         class="border-b border-border-strong/70 hover:bg-bg-card/70 transition duration-150 whitespace-nowrap">
                         <td class="p-4 font-light">{{ peer.id }}</td>
-                        <td class="p-4 font-light" :title="peer.addr">{{ peer.addr }}</td>
-                        <td class="p-4 font-light max-w-[150px] truncate" :title="peer.subver">{{ peer.subver || '[Empty]' }}</td>
+                        <td class="p-4 font-light">
+                            <Tooltip :text="peer.addr">
+                                <span class="max-w-[150px] truncate inline-block">{{ peer.addr }}</span>
+                            </Tooltip>
+                        </td>
+                        <td class="p-4 font-light">
+                            <Tooltip :text="peer.subver || '[Empty]'">
+                                <span class="max-w-[150px] truncate inline-block">{{ peer.subver || '[Empty]' }}</span>
+                            </Tooltip>
+                        </td>
                         <td class="p-4 font-light">{{ peer.version }}</td>
                         <td class="p-4 font-light">{{ formatTimeOffset(peer.timeoffset) }}</td>
                         <td class="p-4 font-light">{{ formatTimeSince(peer.conntime) }} ago</td>
@@ -55,6 +63,7 @@
 <script setup lang="ts">
 import { type Peer } from '../types';
 import { formatBytes, formatTimeOffset, formatTimeSince, formatPing } from '../utils/formatting';
+import Tooltip from './Tooltip.vue';
 
 const props = defineProps<{
     peers: Peer[];
