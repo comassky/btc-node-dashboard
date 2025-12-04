@@ -15,7 +15,7 @@ export interface BlockChainInfo {
 
 export interface NodeInfo {
   version: string;
-  protocolVersion: string;
+  protocolversion: string;
   subversion: string;
 }
 
