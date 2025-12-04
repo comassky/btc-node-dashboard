@@ -27,7 +27,7 @@ public class BlockInfo {
     private String chainwork;
     
     @JsonProperty("nTx")
-    private int nTx;
+    private int ntx;
 
     // Chain structure
     private String previousblockhash;
