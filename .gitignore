@@ -26,3 +26,6 @@ replay_pid*
 /src/main/resources/application-local.properties
 /target/
 /.idea/
+/src/main/web/dist/
+/src/main/web/node/
+/src/main/web/node_modules/

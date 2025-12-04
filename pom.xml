@@ -3,24 +3,27 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>comasky</groupId>
     <artifactId>bitcoin-api</artifactId>
-    <version>1.2.1-SNAPSHOT</version> <properties>
-    <maven.compiler.release>21</maven.compiler.release>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <skipITs>true</skipITs>
+    <version>1.2.1-SNAPSHOT</version>
 
-    <quarkus.platform.version>3.30.1</quarkus.platform.version>
-    <lombok.version>1.18.34</lombok.version>
-    <commons-io.version>2.16.1</commons-io.version>
+    <properties>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <skipITs>true</skipITs>
 
-    <frontend-maven-plugin.version>1.15.0</frontend-maven-plugin.version>
-    <node.lts.version>v24.11.1</node.lts.version>
-    <npm.lts.version>11.6.2</npm.lts.version>
+        <quarkus.platform.version>3.30.1</quarkus.platform.version>
+        <lombok.version>1.18.34</lombok.version>
+        <commons-io.version>2.16.1</commons-io.version>
+        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
 
-    <compiler-plugin.version>3.14.1</compiler-plugin.version>
-    <surefire-plugin.version>3.5.4</surefire-plugin.version>
-    <exec-maven-plugin.version>3.3.0</exec-maven-plugin.version>
-</properties>
+        <frontend-maven-plugin.version>1.15.0</frontend-maven-plugin.version>
+        <node.lts.version>v24.11.1</node.lts.version>
+        <npm.lts.version>11.6.2</npm.lts.version>
+
+        <compiler-plugin.version>3.14.1</compiler-plugin.version>
+        <surefire-plugin.version>3.5.4</surefire-plugin.version>
+        <exec-maven-plugin.version>3.3.0</exec-maven-plugin.version>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -98,43 +101,56 @@
                         <configuration>
                             <nodeVersion>${node.lts.version}</nodeVersion>
                             <npmVersion>${npm.lts.version}</npmVersion>
+                            <workingDirectory>${project.basedir}/src/main/web</workingDirectory>
                         </configuration>
                     </execution>
 
                     <execution>
-                        <id>npm install</id>
+                        <id>npm install frontend dependencies</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>install terser clean-css-cli --save-dev</arguments>
+                            <workingDirectory>${project.basedir}/src/main/web</workingDirectory>
+                            <arguments>install</arguments>
                         </configuration>
                     </execution>
 
                     <execution>
-                        <id>npx minify-js</id>
+                        <id>npm build frontend</id>
                         <goals>
-                            <goal>npx</goal>
+                            <goal>npm</goal>
                         </goals>
-                        <phase>generate-resources</phase>
+                        <phase>prepare-package</phase>
                         <configuration>
-                            <arguments>terser ${project.basedir}/src/main/resources/META-INF/resources/js/dashboard.js -o ${project.build.directory}/classes/META-INF/resources/js/dashboard.js --compress --mangle</arguments>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>npx minify-css</id>
-                        <goals>
-                            <goal>npx</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <arguments>cleancss ${project.basedir}/src/main/resources/META-INF/resources/css/dashboard.css -o ${project.build.directory}/classes/META-INF/resources/css/dashboard.css</arguments>
+                            <workingDirectory>${project.basedir}/src/main/web</workingDirectory>
+                            <arguments>run build</arguments>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-frontend-resources</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/classes/META-INF/resources</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/src/main/web/dist</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
