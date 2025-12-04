@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "serve": "sirv dist --single --cors --port 4173"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
@@ -21,9 +22,12 @@
     "@vitejs/plugin-vue": "^5.2.4",
     "autoprefixer": "^10.4.22",
     "postcss": "^8.5.6",
+    "rollup-plugin-visualizer": "^6.0.5",
+    "sirv-cli": "^3.0.1",
     "tailwindcss": "^3.4.18",
     "typescript": "^5.7.0",
     "vite": "^6.0.0",
+    "vite-plugin-compression": "^0.5.1",
     "vite-plugin-pwa": "^0.21.1",
     "vue-tsc": "^2.2.0",
     "workbox-window": "^7.3.0"
