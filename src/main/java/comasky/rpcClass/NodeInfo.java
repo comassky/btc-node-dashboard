@@ -1,16 +1,11 @@
 package comasky.rpcClass;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.Data;
 
-@Builder
-@Data
-public class NodeInfo {
-    @JsonProperty("protocolversion")
-    private int protocolVersion;
-    private int version;
-    private String subversion;
-    private int connections;
-    private boolean networkActive;
-}
+public record NodeInfo(
+    @JsonProperty("protocolversion") int protocolVersion,
+    int version,
+    String subversion,
+    int connections,
+    boolean networkActive
+) {}

@@ -12,12 +12,16 @@ import jakarta.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 public class BtcController {
 
+    private final RpcServices rpcServices;
+
     @Inject
-    private RpcServices rpcServices;
+    public BtcController(RpcServices rpcServices) {
+        this.rpcServices = rpcServices;
+    }
 
     @GET
     @Path("peers")
     public GlobalResponse peers() {
-        return this.rpcServices.getData();
+        return rpcServices.getData();
     }
 }

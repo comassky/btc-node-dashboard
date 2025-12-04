@@ -1,11 +1,15 @@
 package comasky.shared;
 
-public class Tools {
+public final class Tools {
     private static final long SECONDS_IN_DAY = 86400;
     private static final long SECONDS_IN_HOUR = 3600;
     private static final long SECONDS_IN_MINUTE = 60;
     private static final String UPTIME_FORMAT = "%dd, %02d:%02d:%02d";
     private static final String INVALID_UPTIME = "00:00:00:00";
+
+    private Tools() {
+        throw new UnsupportedOperationException("Utility class");
+    }
 
     public static String formatUptime(long totalSeconds) {
         if (totalSeconds < 0) {

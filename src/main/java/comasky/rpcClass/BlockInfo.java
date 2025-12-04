@@ -1,13 +1,12 @@
 package comasky.rpcClass;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 public class BlockInfo {
 
-    // Informations d'identification et de structure
+    // Identification and structure information
     private String hash;
     private int confirmations;
     private int strippedsize;
@@ -18,17 +17,19 @@ public class BlockInfo {
     private String versionHex;
     private String merkleroot;
 
-    private long time; // Timestamp Unix en secondes
+    private long time; // Unix timestamp in seconds
     private long mediantime;
 
-    // Informations techniques et de consensus
+    // Technical and consensus information
     private long nonce;
     private String bits;
     private double difficulty;
     private String chainwork;
+    
+    @JsonProperty("nTx")
     private int nTx;
 
-    // Structure de la chaîne
+    // Chain structure
     private String previousblockhash;
     private String nextblockhash;
 }

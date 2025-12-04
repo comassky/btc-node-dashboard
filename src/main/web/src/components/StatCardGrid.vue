@@ -13,7 +13,7 @@
                 <p class="mb-1"><font-awesome-icon :icon="['far', 'clock']" class="mr-1" /> Time: <span
                         class="font-bold text-text-primary">{{ formatTimeSince(block.time) }} ago</span></p>
                 <p class="mb-1"><font-awesome-icon :icon="['fas', 'exchange-alt']" class="mr-1" /> Tx Count: <span
-                        class="font-bold text-text-primary">{{ block.ntx }}</span></p>
+                        class="font-bold text-text-primary">{{ block.tx }}</span></p>
             </StatCard>
 
             <StatCard title="Node Details" :value="cleanedSubversion" :icon="['fas', 'hard-hat']" color="accent"
