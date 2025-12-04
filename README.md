@@ -9,10 +9,11 @@ A modern, real-time Bitcoin network monitoring application with a sleek web inte
 
 ## 📸 Screenshots
 
-<img width="3024" height="914" alt="Dashboard Overview" src="https://github.com/user-attachments/assets/0267a62a-a914-4273-92c2-fb1b6886868e" />
-<img width="3024" height="1054" alt="Peer Statistics" src="https://github.com/user-attachments/assets/49209d3a-857d-4076-a82c-ab1d38a4b876" />
-<img width="2988" height="1198" alt="Network Distribution" src="https://github.com/user-attachments/assets/20d3a60d-b2ec-47c3-900b-3f099eddca17" />
-<img width="3000" height="1162" alt="Connection Details" src="https://github.com/user-attachments/assets/8e4a43d6-788c-4a50-88aa-61761d10f365" />
+<img width="3016" height="1010" alt="Cards" src="https://github.com/user-attachments/assets/8e952912-645d-4f48-aa6c-9610cf2c93a5" />
+<img width="3024" height="1174" alt="Peer Statistics" src="https://github.com/user-attachments/assets/ffe5f913-408c-48f3-9d2f-4c3da98c4f39" />
+<img width="3022" height="1202" alt="image" src="https://github.com/user-attachments/assets/4bf9aa26-6d41-4ede-bb9e-c4dd4002dd37" />
+<img width="3024" height="1394" alt="image" src="https://github.com/user-attachments/assets/2dd16738-c6b4-49b5-93b5-93b694e94690" />
+
 
 ## ✨ Features
 
