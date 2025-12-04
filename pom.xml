@@ -134,17 +134,7 @@
                             <resources>
                                 <resource>
                                     <directory>${project.basedir}/src/main/web/dist</directory>
-                                    <filtering>true</filtering>
-                                    <excludes>
-                                        <exclude>**/*.gz</exclude>
-                                    </excludes>
-                                </resource>
-                                <resource>
-                                    <directory>${project.basedir}/src/main/web/dist</directory>
                                     <filtering>false</filtering>
-                                    <includes>
-                                        <include>**/*.gz</include>
-                                    </includes>
                                 </resource>
                             </resources>
                         </configuration>

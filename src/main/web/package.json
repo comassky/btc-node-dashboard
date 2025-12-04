@@ -15,21 +15,21 @@
     "@fortawesome/free-regular-svg-icons": "^7.1.0",
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@fortawesome/vue-fontawesome": "^3.1.2",
-    "chart.js": "^4.4.3",
-    "vue": "^3.5.0"
+    "chart.js": "^4.5.1",
+    "vue": "^3.5.25"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.4",
+    "@vitejs/plugin-vue": "^6.0.2",
     "autoprefixer": "^10.4.22",
     "postcss": "^8.5.6",
     "rollup-plugin-visualizer": "^6.0.5",
     "sirv-cli": "^3.0.1",
     "tailwindcss": "^3.4.18",
-    "typescript": "^5.7.0",
-    "vite": "^6.0.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.6",
     "vite-plugin-compression": "^0.5.1",
-    "vite-plugin-pwa": "^0.21.1",
-    "vue-tsc": "^2.2.0",
-    "workbox-window": "^7.3.0"
+    "vite-plugin-pwa": "^1.2.0",
+    "vue-tsc": "^3.1.5",
+    "workbox-window": "^7.4.0"
   }
 }
