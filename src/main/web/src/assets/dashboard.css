@@ -1,3 +1,42 @@
+/* --- web/src/assets/dashboard.css --- */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- Light Mode (Default) Variables --- */
+:root {
+    /* Backgrounds */
+    --bg-app: #f7f7f7;
+    /* ... autres variables ... */
+    --bg-card: #ffffff;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --border-strong: #e5e7eb;
+    --accent: #ff9900;
+    --status-success: #10b981;
+    --status-error: #ef4444;
+    --status-warning: #f59e0b;
+    --status-error-rgb: 239, 68, 68;
+}
+
+/* --- Dark Mode Variables --- */
+.dark {
+    /* Backgrounds */
+    --bg-app: #0d0d0d; /* Couleur sombre */
+    /* ... autres variables ... */
+    --bg-card: #1a1a1a;
+    --text-primary: #f0f0f0;
+    --text-secondary: #b0b0b0;
+    --border-strong: #383838;
+    --accent: #ff9900;
+    --status-success: #06d6a0;
+    --status-error: #ef476f;
+    --status-warning: #ffd166;
+    --status-error-rgb: 239, 71, 111;
+}
+
+/* ... (Reste des styles) ... */
 /* --- Light Mode (Default) Variables --- */
 :root {
     /* Backgrounds */
