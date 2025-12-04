@@ -44,20 +44,18 @@ const getChartOptions = () => {
                 }
             },
             tooltip: {
-                mode: 'index',
-                intersect: false,
+                mode: 'point',
+                intersect: true,
                 backgroundColor: getCssVar('--bg-card'),
                 bodyColor: getCssVar('--text-primary'),
                 titleColor: getCssVar('--text-secondary'),
                 cornerRadius: 6,
-                animation: false, // Désactiver animation tooltip
+                animation: false,
                 callbacks: {
                     label: function (context: any) {
                         const label = context.label || '';
-                        if (label) {
-                            return label + ': ' + context.formattedValue + '%';
-                        }
-                        return null;
+                        const value = context.parsed || 0;
+                        return `${label}: ${value}%`;
                     }
                 }
             },
