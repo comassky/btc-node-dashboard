@@ -20,8 +20,8 @@ public class BtcController {
     }
 
     @GET
-    @Path("peers")
-    public GlobalResponse peers() {
+    @Path("dashboard")
+    public GlobalResponse getDashboardData() {
         return rpcServices.getData();
     }
 }

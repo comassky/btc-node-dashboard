@@ -21,7 +21,7 @@ export interface NodeInfo {
 
 export interface BlockInfo {
   time: number;
-  ntx: number;
+  nTx: number;
   hash?: string;
 }
 
