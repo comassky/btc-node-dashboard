@@ -9,6 +9,8 @@ export default defineConfig({
 
   // (La ligne 'root' a été supprimée, car index.html est à la racine)
 
+  base: './',
+
   build: {
     outDir: 'dist',
   },
