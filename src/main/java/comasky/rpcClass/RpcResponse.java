@@ -3,17 +3,17 @@ package comasky.rpcClass;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
-// Lombok gère les accesseurs et mutateurs
+// Lombok handles getters and setters
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RpcResponse<T> {
 
-    // Le résultat de la commande RPC (sera une List<PeerInfo>)
+    // The result of the RPC command (will be a List<PeerInfo>)
     private T result;
 
-    // Le champ d'erreur en cas d'échec
+    // The error field in case of failure
     private Object error;
 
-    // L'ID de la requête (non utilisé ici)
+    // The request ID (not used here)
     private String id;
 }

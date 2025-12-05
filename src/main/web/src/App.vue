@@ -6,10 +6,13 @@ import BlockCard from './components/BlockCard.vue';
 import NodeCard from './components/NodeCard.vue';
 import PeerDistributionChart from './components/PeerDistributionChart.vue';
 import PeerTable from './components/PeerTable.vue';
+import Footer from './components/Footer.vue';
 import { BlockChainInfo, NodeInfo, Peer, type DashboardData } from './types';
 
 // Constants
-const WS_RECONNECT_DELAY = 3000;
+const WS_RECONNECT_BASE_DELAY = 1000;
+const WS_RECONNECT_MAX_DELAY = 30000;
+const WS_RECONNECT_MULTIPLIER = 2;
 const WS_URL = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws/dashboard`;
 
 // Optimized initial state
@@ -41,6 +44,7 @@ const dataState = reactive<DashboardData>(DEFAULT_DATA);
 
 let ws: WebSocket | null = null;
 let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+let reconnectAttempts = 0;
 
 // Computed properties
 const inboundPeers = computed(() => dataState.inboundPeer);
@@ -103,7 +107,14 @@ const normalizeData = (rawData: Partial<DashboardData>) => {
 
 const scheduleReconnect = () => {
   if (reconnectTimeout) clearTimeout(reconnectTimeout);
-  reconnectTimeout = setTimeout(connectWebSocket, WS_RECONNECT_DELAY);
+  
+  const delay = Math.min(
+    WS_RECONNECT_BASE_DELAY * Math.pow(WS_RECONNECT_MULTIPLIER, reconnectAttempts),
+    WS_RECONNECT_MAX_DELAY
+  );
+  
+  reconnectAttempts++;
+  reconnectTimeout = setTimeout(connectWebSocket, delay);
 };
 
 const connectWebSocket = () => {
@@ -117,6 +128,7 @@ const connectWebSocket = () => {
   ws.onopen = () => {
     isConnected.value = true;
     errorMessage.value = null;
+    reconnectAttempts = 0;
   };
 
   ws.onmessage = (event) => {
@@ -258,5 +270,7 @@ onBeforeUnmount(() => {
                 />
             </div>
         </div>
+
+        <Footer />
     </div>
 </template>

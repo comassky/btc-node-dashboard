@@ -5,16 +5,16 @@ import { type SubverDistribution } from '../types';
 
 Chart.register(ArcElement, Tooltip, Legend, PieController);
 
-// Désactiver toutes les animations par défaut pour optimiser CPU
+// Disable all animations by default to optimize CPU
 Chart.defaults.animation = false;
 
-// Données de base pour les couleurs
+// Base colors data
 const BASE_COLORS = [
     '#06d6a0', '#ff9900', '#ef476f', '#118ab2', '#ffd166', '#00bcd4', '#4caf50', '#9c27b0',
     '#ff9800', '#03a9f4', '#8bc34a', '#e91e63', '#607d8b', '#009688', '#cddc39', '#795548'
 ];
 
-// Utilitaires Chart.js adaptés de dashboard.js
+// Chart.js utilities adapted from dashboard.js
 const getCssVar = (name: string): string => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 const generateColors = (numColors: number): string[] => {
@@ -34,7 +34,7 @@ const getChartOptions = () => {
     return {
         responsive: true,
         maintainAspectRatio: false,
-        animation: false, // Désactiver toutes les animations
+        animation: false, // Disable all animations
         plugins: {
             legend: {
                 position: 'right',
@@ -124,11 +124,11 @@ const updateChartData = (chartInstance: Chart, chartData: SubverDistribution[]) 
     chartInstance.data.datasets[0].data = percentages;
     chartInstance.data.datasets[0].backgroundColor = backgroundColors;
 
-    // Mise à jour sans animation pour optimiser CPU
+    // Update without animation to optimize CPU
     chartInstance.update('none');
 };
 
-// 1. Watcher sur les données (pour les mises à jour en temps réel)
+// 1. Watcher on data (for real-time updates)
 watch(() => props.peers, (newVal) => {
     if (pieChartInstance) {
         updateChartData(pieChartInstance, newVal);

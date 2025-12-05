@@ -28,6 +28,10 @@ public class DashboardWebSocket {
 
     private final Set<Session> sessions = ConcurrentHashMap.newKeySet();
     private ScheduledExecutorService scheduler;
+    
+    // Cache for RPC data - thread-safe with synchronized access
+    private final Object cacheLock = new Object();
+    private CachedMessage cachedMessage;
 
     @Inject
     RpcServices rpcServices;
@@ -69,6 +73,9 @@ public class DashboardWebSocket {
     public void onOpen(Session session) {
         sessions.add(session);
         LOG.infof("WebSocket opened: %s (total: %d)", session.getId(), sessions.size());
+        
+        // Send data immediately to the new connection
+        sendDataToSession(session);
     }
 
     @OnClose
@@ -82,17 +89,47 @@ public class DashboardWebSocket {
             return;
         }
 
-        try {
-            GlobalResponse data = rpcServices.getData();
-            String jsonMessage = objectMapper.writeValueAsString(data);
-            broadcastMessage(jsonMessage);
-        } catch (Exception e) {
-            LOG.errorf("RPC call failed: %s", e.getMessage());
-            String errorJson = String.format(
-                    "{\"rpcConnected\": false, \"errorMessage\": \"%s\"}",
-                    e.getMessage().replace("\"", "'")
-            );
-            broadcastMessage(errorJson);
+        CachedMessage message = fetchAndCacheMessage();
+        if (message != null) {
+            broadcastMessage(message.serializedJson());
+        }
+    }
+
+    private void sendDataToSession(Session session) {
+        if (!session.isOpen()) {
+            return;
+        }
+
+        CachedMessage message = fetchAndCacheMessage();
+        if (message != null) {
+            session.getAsyncRemote().sendText(message.serializedJson());
+        }
+    }
+
+    private CachedMessage fetchAndCacheMessage() {
+        synchronized (cacheLock) {
+            long cacheValidityMs = pollingIntervalSeconds * 1000L;
+            
+            // Return cached message if still valid
+            if (cachedMessage != null && cachedMessage.isValid(cacheValidityMs)) {
+                return cachedMessage;
+            }
+            
+            // Fetch new data, serialize once, and cache
+            try {
+                GlobalResponse data = rpcServices.getData();
+                String json = objectMapper.writeValueAsString(data);
+                cachedMessage = CachedMessage.success(data, json);
+                return cachedMessage;
+            } catch (Exception e) {
+                LOG.errorf("RPC call failed: %s", e.getMessage());
+                String errorJson = String.format(
+                        "{\"rpcConnected\": false, \"errorMessage\": \"%s\"}",
+                        e.getMessage().replace("\"", "'")
+                );
+                cachedMessage = CachedMessage.error(e.getMessage(), errorJson);
+                return cachedMessage;
+            }
         }
     }
 

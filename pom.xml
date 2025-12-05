@@ -107,6 +107,18 @@
                     </execution>
 
                     <execution>
+                        <id>sync version to package.json</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <workingDirectory>${project.basedir}/src/main/web</workingDirectory>
+                            <arguments>version ${project.version} --allow-same-version --no-git-tag-version</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
                         <id>npm build frontend</id>
                         <goals>
                             <goal>npm</goal>

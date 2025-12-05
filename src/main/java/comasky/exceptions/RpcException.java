@@ -1,7 +1,7 @@
 package comasky.exceptions;
 
 public class RpcException extends RuntimeException {
-    // Lombok ou simple constructeur
+    // Lombok or simple constructor
     public RpcException(String message) {
         super(message);
     }
