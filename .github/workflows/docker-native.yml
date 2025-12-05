@@ -94,11 +94,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=native
-            type=raw,value=native-{{branch}}
-            type=raw,value=native-{{sha}}
-            type=semver,pattern={{version}}-native
-            type=semver,pattern={{major}}.{{minor}}-native
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
 
       - name: Build and push Docker image
         id: build-and-push
