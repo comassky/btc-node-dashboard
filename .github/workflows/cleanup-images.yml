@@ -13,10 +13,18 @@ jobs:
       contents: read
     
     steps:
-      - name: Delete untagged images
+      - name: Delete untagged and SHA-tagged images
         uses: actions/delete-package-versions@v5
         with:
           package-name: 'btc-node-dashboard'
           package-type: 'container'
           min-versions-to-keep: 0
           delete-only-untagged-versions: 'true'
+      
+      - name: Delete SHA-tagged images (pr-*, sha-*, native-sha*)
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'btc-node-dashboard'
+          package-type: 'container'
+          min-versions-to-keep: 0
+          version-pattern: '^(pr-|sha-|native-sha)'
