@@ -1,6 +1,7 @@
 package comasky.api;
 
 import comasky.rpcClass.GlobalResponse;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 
 /**
  * Cached message holder for WebSocket broadcasts.
@@ -11,6 +12,7 @@ import comasky.rpcClass.GlobalResponse;
  * @param serializedJson Pre-serialized JSON string to avoid repeated serialization
  * @param timestamp      Creation timestamp for cache validation
  */
+@RegisterForReflection
 public record CachedMessage(
         GlobalResponse data,
         String errorMessage,
