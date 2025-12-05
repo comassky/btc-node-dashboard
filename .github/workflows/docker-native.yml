@@ -33,6 +33,11 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           native-image-job-reports: 'true'
 
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: '3.9.6'
+
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
@@ -53,7 +58,7 @@ jobs:
 
       - name: Build Native Executable
         run: |
-          ./mvnw -B clean package -Pnative \
+          mvn -B clean package -Pnative \
             -Dquarkus.native.container-build=false \
             -Dquarkus.native.additional-build-args="--verbose"
         env:
