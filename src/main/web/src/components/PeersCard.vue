@@ -1,6 +1,6 @@
 <template>
-    <div class="bg-bg-card p-4 sm:p-6 rounded-xl shadow-lg border-l-4 transition transform hover:-translate-y-0.5 overflow-visible relative z-10"
-         :class="hasLowOutbound ? 'border-status-warning hover:border-status-warning hover:shadow-2xl' : 'border-status-success hover:border-accent hover:shadow-2xl'">
+    <div class="dashboard-card-interactive"
+         :class="hasLowOutbound ? 'border-status-warning hover:border-status-warning hover:shadow-2xl' : 'border-status-success hover:border-status-success hover:shadow-2xl'">
         <div class="flex justify-between items-center">
             <div class="text-2xl sm:text-3xl"
                  :class="hasLowOutbound ? 'text-status-warning' : 'text-status-success'">
@@ -13,16 +13,18 @@
             <p class="mb-0.5 sm:mb-1">
                 <font-awesome-icon :icon="['fas', 'sign-in-alt']" class="mr-1" /> Inbound: {{ stats.inboundCount }}
             </p>
-            <p class="mb-0.5 sm:mb-1">
-                <font-awesome-icon :icon="['fas', 'sign-out-alt']" class="mr-1" /> Outbound: 
-                <span :class="hasLowOutbound ? 'text-status-warning font-bold' : ''">{{ stats.outboundCount }}</span>
-            </p>
-            <Tooltip v-if="hasLowOutbound" text="Low outbound connections can reduce the security and reliability of your Bitcoin node. Make sure your firewall allows outbound connections." position="bottom" horizontal="right">
-                <div class="mt-2 p-2 bg-status-warning/10 border border-status-warning/30 rounded text-status-warning flex items-center gap-1 cursor-help animate-breathe">
-                    <font-awesome-icon :icon="['fas', 'exclamation-triangle']" class="text-xs" />
-                    <span class="text-xs font-medium">Low outbound connections</span>
-                </div>
-            </Tooltip>
+            <div class="flex items-center justify-between gap-3">
+                <p class="mb-0.5 sm:mb-1">
+                    <font-awesome-icon :icon="['fas', 'sign-out-alt']" class="mr-1" /> Outbound: 
+                    <span :class="hasLowOutbound ? 'text-status-warning font-bold' : ''">{{ stats.outboundCount }}</span>
+                </p>
+                <Tooltip v-if="hasLowOutbound" text="Low outbound connections can reduce the security and reliability of your Bitcoin node. Make sure your firewall allows outbound connections." position="bottom" horizontal="right">
+                    <div class="p-2 bg-status-warning/10 border border-status-warning/30 rounded text-status-warning flex items-center gap-1 cursor-help animate-breathe flex-shrink-0">
+                        <font-awesome-icon :icon="['fas', 'exclamation-triangle']" class="text-xs" />
+                        <span class="text-xs font-medium">Low outbound connections</span>
+                    </div>
+                </Tooltip>
+            </div>
         </div>
     </div>
 </template>
@@ -31,27 +33,14 @@
 import { computed } from 'vue';
 import { GeneralStats } from '@types';
 import Tooltip from '@components/Tooltip.vue';
+import { hasLowOutboundPeers } from '@utils/nodeHealth';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     stats: GeneralStats;
-}>();
+    forceLowPeers?: boolean;
+}>(), {
+    forceLowPeers: false
+});
 
-const hasLowOutbound = computed(() => props.stats.outboundCount < 1000);
+const hasLowOutbound = computed(() => props.forceLowPeers || hasLowOutboundPeers(props.stats.outboundCount));
 </script>
-
-<style scoped>
-@keyframes breathe {
-  0%, 100% {
-    opacity: 0.4;
-    transform: scale(0.98);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.02);
-  }
-}
-
-.animate-breathe {
-  animation: breathe 2s ease-in-out infinite;
-}
-</style>

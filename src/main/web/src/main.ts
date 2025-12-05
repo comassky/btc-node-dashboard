@@ -3,6 +3,7 @@ import App from '@/App.vue';
 import { registerServiceWorker } from '@/registerServiceWorker';
 
 import './assets/dashboard.css';
+import './assets/animations.css';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';

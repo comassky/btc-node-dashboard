@@ -1,6 +1,22 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import Status from '@components/Status.vue';
+import type { BlockChainInfo, BlockInfo } from '@types';
+
+const mockBlockchain: BlockChainInfo = {
+  blocks: 800000,
+  headers: 800000,
+  chain: 'main',
+  verificationprogress: 0.9999,
+  difficulty: 50000000000000,
+  medianBlockSize: 1000000,
+};
+
+const mockBlock: BlockInfo = {
+  time: Math.floor(Date.now() / 1000) - 300, // 5 minutes ago
+  nTx: 2500,
+  hash: '00000000000000000001234567890abcdef',
+};
 
 describe('Status.vue', () => {
   it('should render correctly', () => {
@@ -9,6 +25,9 @@ describe('Status.vue', () => {
         isConnected: true,
         rpcConnected: true,
         errorMessage: null,
+        outboundPeers: 10,
+        blockchain: mockBlockchain,
+        block: mockBlock,
       },
     });
 
@@ -21,6 +40,9 @@ describe('Status.vue', () => {
         isConnected: true,
         rpcConnected: true,
         errorMessage: null,
+        outboundPeers: 10,
+        blockchain: mockBlockchain,
+        block: mockBlock,
       },
     });
 
@@ -34,6 +56,9 @@ describe('Status.vue', () => {
         isConnected: false,
         rpcConnected: false,
         errorMessage: null,
+        outboundPeers: 10,
+        blockchain: mockBlockchain,
+        block: mockBlock,
       },
     });
 
@@ -48,6 +73,9 @@ describe('Status.vue', () => {
         isConnected: false,
         rpcConnected: false,
         errorMessage: errorMsg,
+        outboundPeers: 10,
+        blockchain: mockBlockchain,
+        block: mockBlock,
       },
     });
 
@@ -60,6 +88,9 @@ describe('Status.vue', () => {
         isConnected: true,
         rpcConnected: false,
         errorMessage: 'RPC unavailable',
+        outboundPeers: 10,
+        blockchain: mockBlockchain,
+        block: mockBlock,
       },
     });
 
@@ -73,6 +104,9 @@ describe('Status.vue', () => {
         isConnected: false,
         rpcConnected: false,
         errorMessage: null,
+        outboundPeers: 10,
+        blockchain: mockBlockchain,
+        block: mockBlock,
       },
     });
 

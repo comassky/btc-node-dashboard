@@ -106,17 +106,21 @@ cd btc-node-dashboard
 ```bash
 # GraalVM Native (⚡ recommended - 50ms startup, 30MB memory)
 docker run -d -p 8080:8080 \
-  -e BITCOIN_RPC_HOST=<HOST> \
-  -e BITCOIN_RPC_USER=<USER> \
-  -e BITCOIN_RPC_PASSWORD=<PASS> \
+  -e RPC_HOST=<HOST> \
+  -e RPC_PORT=<PORT> \
+  -e RPC_USER=<USER> \
+  -e RPC_PASS=<PASS> \
+  -e MIN_OUTBOUND_PEERS=8 \
   -e LOG_LEVEL=INFO \
   ghcr.io/comassky/btc-node-dashboard:native
 
 # JVM Image
 docker run -d -p 8080:8080 \
-  -e BITCOIN_RPC_HOST=<HOST> \
-  -e BITCOIN_RPC_USER=<USER> \
-  -e BITCOIN_RPC_PASSWORD=<PASS> \
+  -e RPC_HOST=<HOST> \
+  -e RPC_PORT=<PORT> \
+  -e RPC_USER=<USER> \
+  -e RPC_PASS=<PASS> \
+  -e MIN_OUTBOUND_PEERS=8 \
   -e LOG_LEVEL=INFO \
   ghcr.io/comassky/btc-node-dashboard:main
 ```
@@ -127,6 +131,7 @@ Browse all images: [GitHub Packages](https://github.com/comassky/btc-node-dashbo
 
 ### REST API
 
+- **GET** `/api/config` - Get dashboard configuration (min outbound peers threshold)
 - **GET** `/data/peers` - Get current peer statistics and blockchain info
 
 ### WebSocket

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, computed, onBeforeUnmount } from 'vue';
+import { reactive, computed, onBeforeUnmount, ref, onMounted } from 'vue';
 import Status from '@components/Status.vue';
 import PeersCard from '@components/PeersCard.vue';
 import BlockCard from '@components/BlockCard.vue';
@@ -7,9 +7,10 @@ import NodeCard from '@components/NodeCard.vue';
 import PeerDistributionChart from '@components/PeerDistributionChart.vue';
 import PeerTable from '@components/PeerTable.vue';
 import Footer from '@components/Footer.vue';
-import { BlockChainInfo, NodeInfo, Peer, type DashboardData } from '@types';
+import { BlockChainInfo, NodeInfo, Peer, type DashboardData, type DashboardConfig } from '@types';
 import { useWebSocket } from '@composables/useWebSocket';
 import { useTheme } from '@composables/useTheme';
+import { setMinOutboundPeers } from '@utils/nodeHealth';
 
 const WS_URL = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws/dashboard`;
 
@@ -33,6 +34,7 @@ const DEFAULT_DATA: DashboardData = {
 };
 
 const dataState = reactive<DashboardData>(DEFAULT_DATA);
+const configLoaded = ref(false);
 
 const inboundPeers = computed(() => dataState.inboundPeer);
 const outboundPeers = computed(() => dataState.outboundPeer);
@@ -42,6 +44,25 @@ const inboundCount = computed(() => dataState.generalStats.inboundCount);
 const outboundCount = computed(() => dataState.generalStats.outboundCount);
 
 const { isDarkMode, toggleDarkMode } = useTheme();
+
+// Load configuration from backend
+const loadConfig = async () => {
+  try {
+    const response = await fetch('/api/config');
+    if (response.ok) {
+      const config: DashboardConfig = await response.json();
+      setMinOutboundPeers(config.minOutboundPeers);
+      configLoaded.value = true;
+    }
+  } catch (error) {
+    console.error('Failed to load dashboard configuration:', error);
+    configLoaded.value = true; // Continue with default values
+  }
+};
+
+onMounted(async () => {
+  await loadConfig();
+});
 
 const normalizeData = (rawData: Partial<DashboardData>) => {
   const nodeInfo = rawData.nodeInfo as NodeInfo || {};
@@ -100,6 +121,8 @@ onBeforeUnmount(() => {
             :rpcConnected="rpcConnected"
             :errorMessage="errorMessage"
             :outboundPeers="dataState.generalStats.outboundCount"
+            :blockchain="dataState.blockchainInfo"
+            :block="dataState.block"
         />
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
