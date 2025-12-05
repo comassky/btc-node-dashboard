@@ -49,7 +49,14 @@ public class DashboardWebSocket {
             thread.setDaemon(true);
             return thread;
         });
-        scheduler.scheduleAtFixedRate(this::sendData, 0, pollingIntervalSeconds, TimeUnit.SECONDS);
+        // Schedule on worker thread to avoid blocking event loop
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                sendData();
+            } catch (Exception e) {
+                LOG.errorf("Error in scheduled task: %s", e.getMessage());
+            }
+        }, 0, pollingIntervalSeconds, TimeUnit.SECONDS);
         LOG.infof("WebSocket scheduler started with %d seconds interval", pollingIntervalSeconds);
     }
 
@@ -74,8 +81,8 @@ public class DashboardWebSocket {
         sessions.add(session);
         LOG.infof("WebSocket opened: %s (total: %d)", session.getId(), sessions.size());
         
-        // Send data immediately to the new connection
-        sendDataToSession(session);
+        // Send data immediately in background to avoid blocking event loop
+        scheduler.execute(() -> sendDataToSession(session));
     }
 
     @OnClose
