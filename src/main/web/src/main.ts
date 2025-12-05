@@ -40,6 +40,7 @@ import {
 // 4. BRAND icons (fab) imports
 import {
     faBitcoin,          // App.vue (Title)
+    faGithub,           // Footer.vue (GitHub link)
 } from '@fortawesome/free-brands-svg-icons';
 
 
@@ -54,7 +55,7 @@ library.add(
     faClock,
 
     // Brands (fab)
-    faBitcoin,
+    faBitcoin, faGithub,
 );
 
 
