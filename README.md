@@ -128,6 +128,18 @@ http://localhost:8080
 
 ## 🐳 Docker Deployment
 
+### Available Images
+
+Browse all available Docker images and tags:
+- **GitHub Packages**: [https://github.com/comassky/btc-node-dashboard/pkgs/container/btc-node-dashboard](https://github.com/comassky/btc-node-dashboard/pkgs/container/btc-node-dashboard)
+
+**Available Tags:**
+- `main` - Latest JVM build from main branch
+- `native` - Latest GraalVM native build (recommended)
+- `native-main` - GraalVM native build from main branch
+- `native-<sha>` - GraalVM native build from specific commit
+- `X.Y.Z-native` - GraalVM native build for version X.Y.Z (e.g., `1.3.0-native`)
+
 ### Quick Start - JVM Image
 
 ```bash
