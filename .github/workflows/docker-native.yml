@@ -61,9 +61,10 @@ jobs:
           mvn -B clean package -Pnative \
             -DskipTests \
             -Dquarkus.native.container-build=false \
+            -Dquarkus.native.native-image-xmx=6g \
             -Dquarkus.native.additional-build-args="--verbose"
         env:
-          MAVEN_OPTS: "-Xmx4g"
+          MAVEN_OPTS: "-Xmx8g"
 
       - name: Verify Native Executable
         run: |
