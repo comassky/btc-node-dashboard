@@ -25,17 +25,24 @@ public class RpcClientProducer {
     @ConfigProperty(name = "bitcoin.rpc.password")
     String password;
 
-    /**
-     * Produces an instance of RpcClient by building the URI dynamically at runtime.
-     * This method is called once by Quarkus CDI.
-     */
     @Produces
     @ApplicationScoped
     public RpcClient createRpcClient() {
+        validateCredentials();
+        
         String urlWithAuth = String.format("%s://%s:%s@%s:%d", scheme, user, password, host, port);
         URI baseUri = URI.create(urlWithAuth);
         return RestClientBuilder.newBuilder()
                 .baseUri(baseUri)
                 .build(RpcClient.class);
+    }
+
+    private void validateCredentials() {
+        if (user.contains(":") || user.contains("@")) {
+            throw new IllegalArgumentException("bitcoin.rpc.user contains invalid characters (: or @)");
+        }
+        if (password.contains("@")) {
+            throw new IllegalArgumentException("bitcoin.rpc.password contains invalid character (@)");
+        }
     }
 }

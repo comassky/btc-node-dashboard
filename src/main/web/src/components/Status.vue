@@ -8,9 +8,7 @@ const props = defineProps<{
 }>();
 
 const statusClass = computed(() => ({
-    // Classes Tailwind pour les couleurs de statut
     'bg-status-success/10 border border-status-success text-status-success': props.isConnected && props.rpcConnected,
-    // 🚨 Classes CSS personnalisées pour l'animation et le responsive
     'bg-status-error/10 border border-status-error text-status-error pulse-error': !props.isConnected || !props.rpcConnected
 }));
 </script>

@@ -35,32 +35,20 @@ public class RpcServices {
     }
 
     /**
-     * Retrieves detailed information about a block by its hash.
-     * Verbosity 1 is used to get the JSON object of the block.
-     * This is sufficient for the timestamp (time) and reduces the response size
-     * compared to verbosity 2 (which includes details of all transactions).
-     * @param blockHash The hash of the block.
-     * @return The block information.
+     * Retrieves block information by hash with verbosity 1.
+     * Verbosity 1 returns block data without full transaction details, reducing response size.
      */
     public BlockInfo getBlockInfo(String blockHash) {
-        // Changed verbosity from 2 to 1 to reduce RPC response size.
         List<Object> params = List.of(blockHash, 1);
         return this.executeRpcCall("getblock", params, BlockInfo.class);
     }
 
     /**
-     * Retrieves only the Unix timestamp of the last validated block.
-     * This combines getbestblockhash and getblock.
-     * @return The Unix timestamp (in seconds) of the last block.
+     * Returns Unix timestamp (seconds) of the most recent block.
      */
     public long getLastBlockTimestamp() {
-        // 1. Get the hash of the best block
         String bestHash = this.getBestBlockHash();
-
-        // 2. Get all block information, including the timestamp
         BlockInfo blockInfo = this.getBlockInfo(bestHash);
-
-        // 3. Return only the timestamp
         return blockInfo.getTime();
     }
 
@@ -88,13 +76,12 @@ public class RpcServices {
             throw new RpcException("Parsing error for peer info: " + e.getMessage());
         }
 
-        // Separation of peers into Inbound and Outbound with a single pass
         var peersByType = allPeers.stream()
                 .collect(Collectors.partitioningBy(PeerInfo::isInbound));
         List<PeerInfo> inboundPeers = peersByType.get(true);
         List<PeerInfo> outboundPeers = peersByType.get(false);
 
-        // 3. Calculate statistics for each group
+
         var stats = new SubverDistribution(calculateSubverStats(inboundPeers), calculateSubverStats(outboundPeers));
         var generalStat = new GeneralStats(inboundPeers.size(), outboundPeers.size(), inboundPeers.size() + outboundPeers.size());
         return GlobalResponse.builder()
@@ -111,9 +98,7 @@ public class RpcServices {
 
 
     /**
-     * Calculates the distribution of subversions (subver) as percentages.
-     * @param peers The list of peers (inbound or outbound).
-     * @return List of statistics by subver with percentages.
+     * Calculates subversion distribution statistics with percentages.
      */
     private List<SubverStats> calculateSubverStats(List<PeerInfo> peers) {
         if (peers.isEmpty()) {
@@ -131,9 +116,6 @@ public class RpcServices {
                 .toList();
     }
 
-    /**
-     * Calls the RPC client with a method and a list of parameters.
-     */
     private String callRpc(String method, List<Object> params) {
         var rpcRequest = java.util.Map.of(
             "jsonrpc", "1.0",
@@ -149,9 +131,6 @@ public class RpcServices {
         }
     }
 
-    /**
-     * Executes the RPC call and deserializes the response.
-     */
     private <T> T executeRpcCall(String rpcMethod, List<Object> params, Class<T> resultClass) {
         String jsonResponse = callRpc(rpcMethod, params);
         try {

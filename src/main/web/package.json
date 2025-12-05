@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
-    "serve": "sirv dist --single --cors --port 4173"
+    "serve": "sirv dist --single --cors --port 4173",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
@@ -21,7 +24,11 @@
   "devDependencies": {
     "@types/node": "^24.10.1",
     "@vitejs/plugin-vue": "^6.0.2",
+    "@vitest/coverage-v8": "^2.1.9",
+    "@vitest/ui": "^2.1.9",
+    "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.22",
+    "happy-dom": "^15.11.7",
     "postcss": "^8.5.6",
     "rollup-plugin-visualizer": "^6.0.5",
     "sirv-cli": "^3.0.1",
@@ -30,6 +37,7 @@
     "vite": "^7.2.6",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-pwa": "^1.2.0",
+    "vitest": "^2.1.9",
     "vue-tsc": "^3.1.5",
     "workbox-window": "^7.4.0"
   }
