@@ -1,7 +1,8 @@
 ###
 # Image de base ultra-légère pour le runtime natif GraalVM
+# UBI9 has GLIBC 2.34+ required by the native executable built on Ubuntu
 ###
-FROM registry.access.redhat.com/ubi8/ubi-minimal
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
 
 # Définir le répertoire de travail
 WORKDIR /work/
@@ -9,6 +10,9 @@ WORKDIR /work/
 # Copie l'exécutable natif
 # L'exécutable a été généré par l'étape Maven du workflow
 COPY target/*-runner /work/application
+
+# Définir les permissions
+RUN chmod +x /work/application
 
 # Définir l'utilisateur d'exécution non-root
 USER 1001
