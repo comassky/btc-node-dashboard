@@ -1,11 +1,13 @@
 package comasky.rpcClass;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Data;
 
 // Lombok handles getters and setters
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
+@RegisterForReflection
 public class RpcResponse<T> {
 
     // The result of the RPC command (will be a List<PeerInfo>)

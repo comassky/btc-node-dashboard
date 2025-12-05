@@ -2,10 +2,12 @@ package comasky.rpcClass;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
+@RegisterForReflection
 public class PeerInfo {
 
     // Unique peer identifier
