@@ -149,3 +149,4 @@ logs/
 # Quarkus
 .quarkus/
 quarkus.log
+/node/
