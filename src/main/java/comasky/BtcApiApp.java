@@ -44,12 +44,12 @@ public class BtcApiApp implements QuarkusApplication {
     public int run(String... args) {
         validateConfiguration();
         
-        LOG.infof("=== Application Configuration ===");
-        LOG.infof("Bitcoin RPC: %s://%s:%d", rpcScheme, rpcHost, rpcPort);
-        LOG.infof("RPC User: %s", rpcUser);
-        LOG.infof("RPC Password: %s", maskPassword(rpcPassword));
-        LOG.infof("WebSocket Polling Interval: %d seconds", pollingInterval);
-        LOG.infof("=================================");
+        LOG.debugf("=== Application Configuration ===");
+        LOG.debugf("Bitcoin RPC: %s://%s:%d", rpcScheme, rpcHost, rpcPort);
+        LOG.debugf("RPC User: %s", rpcUser);
+        LOG.debugf("RPC Password: %s", maskPassword(rpcPassword));
+        LOG.debugf("WebSocket Polling Interval: %d seconds", pollingInterval);
+        LOG.debugf("=================================");
 
         Quarkus.waitForExit();
         return 0;

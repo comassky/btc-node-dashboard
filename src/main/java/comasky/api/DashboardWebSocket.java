@@ -57,7 +57,7 @@ public class DashboardWebSocket {
                 LOG.errorf("Error in scheduled task: %s", e.getMessage());
             }
         }, 0, pollingIntervalSeconds, TimeUnit.SECONDS);
-        LOG.infof("WebSocket scheduler started with %d seconds interval", pollingIntervalSeconds);
+        LOG.debugf("WebSocket scheduler started with %d seconds interval", pollingIntervalSeconds);
     }
 
     @PreDestroy

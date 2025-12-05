@@ -109,6 +109,7 @@ docker run -d -p 8080:8080 \
   -e BITCOIN_RPC_HOST=<HOST> \
   -e BITCOIN_RPC_USER=<USER> \
   -e BITCOIN_RPC_PASSWORD=<PASS> \
+  -e LOG_LEVEL=INFO \
   ghcr.io/comassky/btc-node-dashboard:native
 
 # JVM Image
@@ -116,6 +117,7 @@ docker run -d -p 8080:8080 \
   -e BITCOIN_RPC_HOST=<HOST> \
   -e BITCOIN_RPC_USER=<USER> \
   -e BITCOIN_RPC_PASSWORD=<PASS> \
+  -e LOG_LEVEL=INFO \
   ghcr.io/comassky/btc-node-dashboard:main
 ```
 
