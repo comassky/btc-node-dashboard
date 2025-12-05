@@ -1,0 +1,35 @@
+package comasky.api;
+
+import comasky.rpcClass.GlobalResponse;
+
+/**
+ * Cached message holder for WebSocket broadcasts.
+ * Stores either successful data or error state with pre-serialized JSON.
+ *
+ * @param data           The RPC response data (null if error)
+ * @param errorMessage   The error message (null if success)
+ * @param serializedJson Pre-serialized JSON string to avoid repeated serialization
+ * @param timestamp      Creation timestamp for cache validation
+ */
+public record CachedMessage(
+        GlobalResponse data,
+        String errorMessage,
+        String serializedJson,
+        long timestamp
+) {
+    public static CachedMessage success(GlobalResponse data, String serializedJson) {
+        return new CachedMessage(data, null, serializedJson, System.currentTimeMillis());
+    }
+
+    public static CachedMessage error(String errorMessage, String serializedJson) {
+        return new CachedMessage(null, errorMessage, serializedJson, System.currentTimeMillis());
+    }
+
+    public boolean isError() {
+        return errorMessage != null;
+    }
+
+    public boolean isValid(long cacheValidityMs) {
+        return System.currentTimeMillis() - timestamp < cacheValidityMs;
+    }
+}
