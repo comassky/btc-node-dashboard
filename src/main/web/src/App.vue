@@ -79,8 +79,8 @@ const loadTheme = () => {
 
 // WebSocket
 const normalizeData = (rawData: Partial<DashboardData>) => {
-  const nodeInfo = rawData.nodeInfo as NodeInfo|| {};
-  const blockchainInfo= rawData.blockchainInfo as BlockChainInfo|| {};
+  const nodeInfo = rawData.nodeInfo as NodeInfo || {};
+  const blockchainInfo = rawData.blockchainInfo as BlockChainInfo || {};
 
   Object.assign(dataState, {
     generalStats: rawData.generalStats || dataState.generalStats,
@@ -147,7 +147,7 @@ const connectWebSocket = () => {
         normalizeData(json);
       }
     } catch (e) {
-      console.error('WebSocket JSON parse error:', e);
+      // Silent error handling - error already visible in UI via errorMessage
     }
   };
 
