@@ -7,6 +7,7 @@ A modern, real-time Bitcoin network monitoring application with a sleek web inte
 ![Quarkus](https://img.shields.io/badge/Quarkus-3.18.1-blue.svg)
 ![Vue](https://img.shields.io/badge/Vue.js-3.5.25-green.svg)
 ![GraalVM](https://img.shields.io/badge/GraalVM-Native-blueviolet.svg)
+![Tests](https://img.shields.io/badge/tests-130%20passing-brightgreen.svg)
 
 ## 📸 Screenshots
 
@@ -63,211 +64,62 @@ A modern, real-time Bitcoin network monitoring application with a sleek web inte
 ### Build & Deploy
 - **Maven** (Backend build and dependency management)
 - **Docker** (JVM & GraalVM Native images)
-- **GitHub Actions** (CI/CD with native image builds)
+- **GitHub Actions** (CI/CD with automated testing and native image builds)
 - **GraalVM Native Image** (AOT compilation for ultra-fast startup)
 
-## 📋 Prerequisites
-
-- **Java Development Kit (JDK) 21** or higher
-- **Apache Maven 3.9+** (or use the included wrapper `./mvnw`)
-- **Bitcoin Core** node with RPC access enabled
-- **Node.js 24+** and **npm 11+** (for frontend development)
+### Testing
+| Technology | Version | Description |
+|------------|---------|-------------|
+| **JUnit** | 5.10.5 | Backend unit & integration tests |
+| **Mockito** | 5.15.2 | Java mocking framework |
+| **Vitest** | 2.1.9 | Frontend unit test framework |
+| **Vue Test Utils** | 2.4.6 | Vue component testing |
+| **Happy DOM** | 15.11.7 | Lightweight DOM implementation |
 
 ## 🚀 Quick Start
 
-### 1. Clone the Repository
+**For detailed build and deployment instructions, see [BUILD.md](BUILD.md)**
+
+### Prerequisites
+
+- Java 21+, Maven 3.9+, Bitcoin Core with RPC enabled
+- Node.js 24+ and npm 11+ (for frontend development)
+
+### Run Locally
 
 ```bash
+# Clone repository
 git clone https://github.com/comassky/btc-node-dashboard.git
 cd btc-node-dashboard
-```
 
-### 2. Configure Bitcoin Core RPC
+# Configure Bitcoin RPC (create application-local.properties or use env vars)
+# See BUILD.md for configuration details
 
-Create a configuration file at `src/main/resources/application-local.properties`:
-
-```properties
-# Bitcoin RPC Configuration
-bitcoin.rpc.scheme=http
-bitcoin.rpc.host=localhost
-bitcoin.rpc.port=8332
-bitcoin.rpc.user=your_rpc_username
-bitcoin.rpc.password=your_rpc_password
-
-# WebSocket polling interval (seconds)
-dashboard.polling.interval.seconds=5
-```
-
-### 3. Build and Run
-
-#### Development Mode (with hot reload)
-
-```bash
-# Backend + Frontend
+# Development mode with hot reload
 ./mvnw quarkus:dev
 
-# Access the dashboard at http://localhost:8080
+# Access at http://localhost:8080
 ```
 
-#### Production Build
+### Docker Deployment
 
 ```bash
-# Build the application
-./mvnw clean package
-
-# Run the JAR
-java -jar target/quarkus-app/quarkus-run.jar
-```
-
-### 4. Access the Dashboard
-
-Open your browser and navigate to:
-```
-http://localhost:8080
-```
-
-## 🐳 Docker Deployment
-
-### Available Images
-
-Browse all available Docker images and tags:
-- **GitHub Packages**: [https://github.com/comassky/btc-node-dashboard/pkgs/container/btc-node-dashboard](https://github.com/comassky/btc-node-dashboard/pkgs/container/btc-node-dashboard)
-
-**Available Tags:**
-- `main` - Latest JVM build from main branch
-- `native` - Latest GraalVM native build (recommended)
-- `native-main` - GraalVM native build from main branch
-- `native-<sha>` - GraalVM native build from specific commit
-- `X.Y.Z-native` - GraalVM native build for version X.Y.Z (e.g., `1.3.0-native`)
-
-### Quick Start - JVM Image
-
-```bash
-docker run -d \
-  -p 8080:8080 \
-  --name btc-dashboard \
+# GraalVM Native (⚡ recommended - 50ms startup, 30MB memory)
+docker run -d -p 8080:8080 \
   -e BITCOIN_RPC_HOST=<HOST> \
-  -e BITCOIN_RPC_PORT=<PORT> \
-  -e BITCOIN_RPC_USER=<RPC_USER> \
-  -e BITCOIN_RPC_PASSWORD=<RPC_PASSWORD> \
-  -e BITCOIN_RPC_SCHEME=http \
-  -e WS_POLLING_INTERVAL=5 \
+  -e BITCOIN_RPC_USER=<USER> \
+  -e BITCOIN_RPC_PASSWORD=<PASS> \
+  ghcr.io/comassky/btc-node-dashboard:native
+
+# JVM Image
+docker run -d -p 8080:8080 \
+  -e BITCOIN_RPC_HOST=<HOST> \
+  -e BITCOIN_RPC_USER=<USER> \
+  -e BITCOIN_RPC_PASSWORD=<PASS> \
   ghcr.io/comassky/btc-node-dashboard:main
 ```
 
-### GraalVM Native Image (⚡ Recommended)
-
-**Ultra-fast startup (~50ms) and minimal memory footprint (~30MB)**
-
-```bash
-docker run -d \
-  -p 8080:8080 \
-  --name btc-dashboard-native \
-  -e BITCOIN_RPC_HOST=<HOST> \
-  -e BITCOIN_RPC_PORT=<PORT> \
-  -e BITCOIN_RPC_USER=<RPC_USER> \
-  -e BITCOIN_RPC_PASSWORD=<RPC_PASSWORD> \
-  -e BITCOIN_RPC_SCHEME=http \
-  -e WS_POLLING_INTERVAL=5 \
-  ghcr.io/comassky/btc-node-dashboard:native
-```
-
-**Performance Comparison:**
-
-| Metric | JVM Image | Native Image |
-|--------|-----------|--------------|
-| **Startup Time** | ~3-5s | **~50ms** |
-| **Memory (RSS)** | ~200-300MB | **~30-50MB** |
-| **Image Size** | ~500MB | **~150MB** |
-| **CPU (Idle)** | ~1-2% | **<0.5%** |
-
-### Build Docker Image Locally
-
-**JVM Image:**
-```bash
-docker build -f Dockerfile -t btc-node-dashboard:jvm .
-```
-
-**Native Image:**
-```bash
-# Build native executable first
-./mvnw clean package -Pnative -DskipTests
-
-# Build Docker image
-docker build -f Dockerfile.native -t btc-node-dashboard:native .
-```
-
-### Docker Compose
-
-```yaml
-version: '3.8'
-
-services:
-  btc-dashboard:
-    image: ghcr.io/comassky/btc-node-dashboard:main
-    ports:
-      - "8080:8080"
-    environment:
-      BITCOIN_RPC_SCHEME: http
-      BITCOIN_RPC_HOST: bitcoin-core
-      BITCOIN_RPC_PORT: 8332
-      BITCOIN_RPC_USER: your_username
-      BITCOIN_RPC_PASSWORD: your_password
-      WS_POLLING_INTERVAL: 5
-    depends_on:
-      - bitcoin-core
-
-  bitcoin-core:
-    image: btcsuite/bitcoind:latest
-    # ... your Bitcoin Core configuration
-```
-
-## 🔧 Configuration
-
-### Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `BITCOIN_RPC_HOST` | `127.0.0.1` | Bitcoin node hostname or IP address |
-| `BITCOIN_RPC_PORT` | `8332` | Bitcoin RPC port |
-| `BITCOIN_RPC_USER` | - | RPC username for authentication |
-| `BITCOIN_RPC_PASSWORD` | - | RPC password for authentication |
-| `BITCOIN_RPC_SCHEME` | `http` | RPC protocol (`http` or `https`) |
-| `WS_POLLING_INTERVAL` | `5` | Dashboard refresh interval in seconds |
-
-### Application Properties
-
-Alternatively, create `src/main/resources/application-local.properties`:
-
-```properties
-bitcoin.rpc.scheme=http
-bitcoin.rpc.host=localhost
-bitcoin.rpc.port=8332
-bitcoin.rpc.user=your_rpc_username
-bitcoin.rpc.password=your_rpc_password
-dashboard.polling.interval.seconds=5
-```
-
-## 🎨 Frontend Development
-
-### Development Server with Hot Reload
-
-```bash
-cd src/main/web
-npm install
-npm run dev
-```
-
-The Vite dev server will start on `http://localhost:5173` with proxy configured to forward API/WebSocket requests to `http://localhost:8080`.
-
-### Build for Production
-
-```bash
-cd src/main/web
-npm run build
-```
-
-The optimized build will be output to `dist/` and automatically copied to `target/classes/META-INF/resources/` by Maven.
+Browse all images: [GitHub Packages](https://github.com/comassky/btc-node-dashboard/pkgs/container/btc-node-dashboard)
 
 ## 📊 API Endpoints
 
@@ -281,21 +133,40 @@ The optimized build will be output to `dist/` and automatically copied to `targe
 
 ## 🧪 Testing
 
-### Run Tests
+![Tests](https://img.shields.io/badge/tests-130%20passing-brightgreen.svg)
+
+The project includes a comprehensive test suite with **130 tests** covering both backend and frontend.
+
+**For detailed testing documentation, see [TESTING.md](TESTING.md)**
+
+### Quick Start
 
 ```bash
-# Unit tests
+# Run all tests (backend + frontend)
+./mvnw clean test
+
+# Backend only
 ./mvnw test
 
-# Integration tests
-./mvnw verify
+# Frontend only
+cd src/main/web && npm test
 ```
+
+### Test Coverage
+
+| Component | Tests | Technologies |
+|-----------|-------|--------------|
+| **Backend** | 64 | JUnit 5.10.5, Mockito 5.15.2, Quarkus Test |
+| **Frontend** | 66 | Vitest 2.1.9, Vue Test Utils 2.4.6, Happy DOM |
 
 ## 🚀 Performance Optimizations
 
 ### Backend
 - ✅ **WebSocket Message Caching**: Single RPC call shared across multiple concurrent connections
 - ✅ **Thread-safe Caching**: Synchronized access with `CachedMessage` record pattern
+  - Smart cache invalidation: `validity = max(100ms, pollingInterval - 100ms)`
+  - Prevents concurrent RPC calls even if Bitcoin Core RPC takes >200ms
+  - Lock-based synchronization ensures only one thread fetches data at a time
 - ✅ **Non-blocking I/O**: RPC calls executed on worker threads to avoid blocking event loop
 - ✅ **Efficient Broadcasting**: Single JSON serialization per broadcast cycle
 - ✅ **Stream API**: Optimal peer statistics calculation with parallel processing

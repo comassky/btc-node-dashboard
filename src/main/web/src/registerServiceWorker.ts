@@ -7,8 +7,6 @@ export function registerServiceWorker() {
         updateSW(true);
       }
     },
-    onOfflineReady() {
-      // App ready to work offline (silent in production)
-    },
+    onOfflineReady() {},
   });
 }

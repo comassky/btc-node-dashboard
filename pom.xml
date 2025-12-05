@@ -13,7 +13,6 @@
 
         <quarkus.platform.version>3.18.1</quarkus.platform.version>
         <lombok.version>1.18.36</lombok.version>
-        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
 
         <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
         <node.lts.version>v24.11.1</node.lts.version>
@@ -70,6 +69,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit5-mockito</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
             <scope>test</scope>
@@ -96,7 +100,7 @@
                     </execution>
 
                     <execution>
-                        <id>npm install frontend dependencies</id>
+                        <id>npm install</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
@@ -107,7 +111,19 @@
                     </execution>
 
                     <execution>
-                        <id>sync version to package.json</id>
+                        <id>npm test</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <workingDirectory>${project.basedir}/src/main/web</workingDirectory>
+                            <arguments>test -- --run</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>sync version</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
@@ -119,7 +135,7 @@
                     </execution>
 
                     <execution>
-                        <id>npm build frontend</id>
+                        <id>npm build</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
@@ -133,10 +149,10 @@
             </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>${maven-resources-plugin.version}</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
-                        <id>copy-frontend-resources</id>
+                        <id>copy-frontend</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>copy-resources</goal>
@@ -165,7 +181,6 @@
                             <goal>build</goal>
                             <goal>generate-code</goal>
                             <goal>generate-code-tests</goal>
-                            <goal>native-image-agent</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -183,7 +198,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
                 <configuration>
-                    <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
@@ -202,7 +216,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
                     <systemPropertyVariables>
                         <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>

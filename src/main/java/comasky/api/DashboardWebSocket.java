@@ -79,16 +79,14 @@ public class DashboardWebSocket {
     @OnOpen
     public void onOpen(Session session) {
         sessions.add(session);
-        LOG.infof("WebSocket opened: %s (total: %d)", session.getId(), sessions.size());
-        
-        // Send data immediately in background to avoid blocking event loop
+        LOG.debugf("WebSocket opened: %s (total: %d)", session.getId(), sessions.size());
         scheduler.execute(() -> sendDataToSession(session));
     }
 
     @OnClose
     public void onClose(Session session) {
         sessions.remove(session);
-        LOG.infof("WebSocket closed: %s (remaining: %d)", session.getId(), sessions.size());
+        LOG.debugf("WebSocket closed: %s (remaining: %d)", session.getId(), sessions.size());
     }
 
     private void sendData() {
@@ -115,21 +113,19 @@ public class DashboardWebSocket {
 
     private CachedMessage fetchAndCacheMessage() {
         synchronized (cacheLock) {
-            long cacheValidityMs = pollingIntervalSeconds * 1000L;
+            long cacheValidityMs = Math.max(100, (pollingIntervalSeconds * 1000L) - 100);
             
-            // Return cached message if still valid
             if (cachedMessage != null && cachedMessage.isValid(cacheValidityMs)) {
                 return cachedMessage;
             }
             
-            // Fetch new data, serialize once, and cache
             try {
                 GlobalResponse data = rpcServices.getData();
                 String json = objectMapper.writeValueAsString(data);
                 cachedMessage = CachedMessage.success(data, json);
                 return cachedMessage;
             } catch (Exception e) {
-                LOG.errorf("RPC call failed: %s", e.getMessage());
+                LOG.warnf("RPC call failed: %s", e.getMessage());
                 String errorJson = String.format(
                         "{\"rpcConnected\": false, \"errorMessage\": \"%s\"}",
                         e.getMessage().replace("\"", "'")
