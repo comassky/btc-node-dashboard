@@ -44,11 +44,11 @@ A modern, real-time Bitcoin network monitoring application with a sleek web inte
 | Technology | Version | Description |
 |------------|---------|-------------|
 | **Java** | 21 | Programming language |
-| **Quarkus** | 3.30.1 | Supersonic Subatomic Java Framework |
+| **Quarkus** | 3.18.1 | Supersonic Subatomic Java Framework |
 | **Jakarta WebSocket** | - | Real-time communication |
 | **MicroProfile REST Client** | - | HTTP client for Bitcoin RPC |
 | **Jackson** | - | JSON processing |
-| **Lombok** | 1.18.34 | Boilerplate reduction |
+| **Lombok** | 1.18.36 | Boilerplate reduction |
 
 ### Frontend
 | Technology | Version | Description |
@@ -56,7 +56,7 @@ A modern, real-time Bitcoin network monitoring application with a sleek web inte
 | **Vue.js** | 3.5.25 | Progressive JavaScript framework |
 | **TypeScript** | 5.9.3 | Type-safe JavaScript |
 | **Vite** | 7.2.6 | Next-generation frontend tooling |
-| **Tailwind CSS** | 4.0.0 | Utility-first CSS framework |
+| **Tailwind CSS** | 3.4.18 | Utility-first CSS framework |
 | **Chart.js** | 4.5.1 | Interactive charts |
 | **Font Awesome** | 7.1 | Icon library |
 
@@ -302,13 +302,14 @@ The optimized build will be output to `dist/` and automatically copied to `targe
 - ✅ **GraalVM Native**: AOT compilation for instant startup and low memory usage
 
 ### Frontend
-- ✅ **Tailwind CSS v4**: Modern CSS with `@import` syntax and optimized bundling
+- ✅ **Tailwind CSS v3**: Utility-first CSS framework with PostCSS optimization
 - ✅ **Vite Production Build**: Terser minification (2 passes), code splitting, tree-shaking
 - ✅ **Gzip Compression**: ~70% size reduction on JS/CSS assets
 - ✅ **Modular TypeScript**: Individual type files with barrel exports
 - ✅ **Chart.js Optimizations**: Animations disabled for better performance
 - ✅ **WebSocket Exponential Backoff**: Smart reconnection (1s → 30s max delay)
 - ✅ **Version Sync**: Automatic version injection from `pom.xml` → `package.json` → runtime
+- ✅ **PWA Support**: Service Worker for offline capability and app-like experience
 
 ### Build Optimizations
 - ✅ **Maven Resource Filtering**: Binary-safe handling of compressed assets
