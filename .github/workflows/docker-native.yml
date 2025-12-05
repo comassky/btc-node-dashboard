@@ -10,7 +10,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}-native
+  IMAGE_NAME: ${{ github.repository }}
   GRAALVM_VERSION: '21'
 
 jobs:
@@ -59,6 +59,7 @@ jobs:
       - name: Build Native Executable
         run: |
           mvn -B clean package -Pnative \
+            -DskipTests \
             -Dquarkus.native.container-build=false \
             -Dquarkus.native.additional-build-args="--verbose"
         env:
@@ -92,11 +93,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=native
+            type=raw,value=native-{{branch}}
+            type=raw,value=native-{{sha}}
+            type=semver,pattern={{version}}-native
+            type=semver,pattern={{major}}.{{minor}}-native
 
       - name: Build and push Docker image
         id: build-and-push
