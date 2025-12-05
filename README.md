@@ -4,7 +4,7 @@ A modern, real-time Bitcoin network monitoring application with a sleek web inte
 
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
 ![Java](https://img.shields.io/badge/Java-21-orange.svg)
-![Quarkus](https://img.shields.io/badge/Quarkus-3.30.1-blue.svg)
+![Quarkus](https://img.shields.io/badge/Quarkus-3.18.1-blue.svg)
 ![Vue](https://img.shields.io/badge/Vue.js-3.5.25-green.svg)
 ![GraalVM](https://img.shields.io/badge/GraalVM-Native-blueviolet.svg)
 
@@ -296,10 +296,15 @@ The optimized build will be output to `dist/` and automatically copied to `targe
 ### Backend
 - ✅ **WebSocket Message Caching**: Single RPC call shared across multiple concurrent connections
 - ✅ **Thread-safe Caching**: Synchronized access with `CachedMessage` record pattern
+- ✅ **Non-blocking I/O**: RPC calls executed on worker threads to avoid blocking event loop
 - ✅ **Efficient Broadcasting**: Single JSON serialization per broadcast cycle
 - ✅ **Stream API**: Optimal peer statistics calculation with parallel processing
 - ✅ **Immutable Records** (Java 21): Thread-safe DTOs with zero boilerplate
-- ✅ **GraalVM Native**: AOT compilation for instant startup and low memory usage
+- ✅ **GraalVM Native Optimizations**:
+  - `@RegisterForReflection` on all DTOs for Jackson compatibility
+  - SLF4J initialized at build-time for faster startup
+  - Native image reports enabled for debugging
+  - AOT compilation: <50ms startup, ~30MB memory footprint
 
 ### Frontend
 - ✅ **Tailwind CSS v3**: Utility-first CSS framework with PostCSS optimization
