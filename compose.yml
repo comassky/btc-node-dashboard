@@ -11,3 +11,4 @@ services:
       BITCOIN_RPC_PASSWORD: <RPC_PASSWORD>
       BITCOIN_RPC_SCHEME: <SCHEME> #http or https
       WS_POLLING_INTERVAL: 1
+      LOG_LEVEL: WARN # Default: INFO. Use DEBUG to see detailed startup configuration
