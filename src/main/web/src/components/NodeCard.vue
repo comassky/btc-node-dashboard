@@ -37,8 +37,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { type NodeInfo, type BlockChainInfo } from '../types';
-import Tooltip from './Tooltip.vue';
+import { type NodeInfo, type BlockChainInfo } from '@types';
+import Tooltip from '@components/Tooltip.vue';
 
 const props = defineProps<{
     node: NodeInfo;

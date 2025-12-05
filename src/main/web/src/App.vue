@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { reactive, computed, onBeforeUnmount } from 'vue';
-import Status from './components/Status.vue';
-import PeersCard from './components/PeersCard.vue';
-import BlockCard from './components/BlockCard.vue';
-import NodeCard from './components/NodeCard.vue';
-import PeerDistributionChart from './components/PeerDistributionChart.vue';
-import PeerTable from './components/PeerTable.vue';
-import Footer from './components/Footer.vue';
-import { BlockChainInfo, NodeInfo, Peer, type DashboardData } from './types';
-import { useWebSocket } from './composables/useWebSocket';
-import { useTheme } from './composables/useTheme';
+import Status from '@components/Status.vue';
+import PeersCard from '@components/PeersCard.vue';
+import BlockCard from '@components/BlockCard.vue';
+import NodeCard from '@components/NodeCard.vue';
+import PeerDistributionChart from '@components/PeerDistributionChart.vue';
+import PeerTable from '@components/PeerTable.vue';
+import Footer from '@components/Footer.vue';
+import { BlockChainInfo, NodeInfo, Peer, type DashboardData } from '@types';
+import { useWebSocket } from '@composables/useWebSocket';
+import { useTheme } from '@composables/useTheme';
 
 const WS_URL = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws/dashboard`;
 

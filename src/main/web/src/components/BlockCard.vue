@@ -6,8 +6,19 @@
             </div>
             <div class="text-xs uppercase text-text-secondary font-medium">Current Block</div>
         </div>
-        <div class="text-4xl sm:text-5xl font-light text-text-primary mt-2 sm:mt-3"
-             :title="'Current height of the ' + blockchain.chain + ' blockchain'">
+        <Tooltip v-if="block.hash" :text="'View block ' + blockchain.blocks + ' on mempool.space'">
+            <a 
+                :href="getMempoolUrl()" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="text-4xl sm:text-5xl font-light text-text-primary mt-2 sm:mt-3 block hover:text-accent transition-colors cursor-pointer">
+                {{ blockchain.blocks }}
+            </a>
+        </Tooltip>
+        <div 
+            v-else
+            class="text-4xl sm:text-5xl font-light text-text-primary mt-2 sm:mt-3"
+            :title="'Current height of the ' + blockchain.chain + ' blockchain'">
             {{ blockchain.blocks }}
         </div>
 
@@ -29,11 +40,19 @@
 </template>
 
 <script setup lang="ts">
-import { BlockChainInfo, BlockInfo } from '../types';
-import { formatTimeSince } from '../utils/formatting';
+import { BlockChainInfo, BlockInfo } from '@types';
+import { formatTimeSince } from '@utils/formatting';
+import Tooltip from '@components/Tooltip.vue';
 
-defineProps<{
+const props = defineProps<{
     blockchain: BlockChainInfo;
     block: BlockInfo;
 }>();
+
+const getMempoolUrl = () => {
+    const baseUrl = props.blockchain.chain === 'test' 
+        ? 'https://mempool.space/testnet' 
+        : 'https://mempool.space';
+    return `${baseUrl}/block/${props.block.hash}`;
+};
 </script>

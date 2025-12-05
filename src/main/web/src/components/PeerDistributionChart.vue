@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, onBeforeUnmount } from 'vue';
 import { Chart, ArcElement, Tooltip, Legend, PieController, type TooltipItem, type ChartOptions } from 'chart.js';
-import { type SubverDistribution } from '../types';
+import { type SubverDistribution } from '@types';
 
 Chart.register(ArcElement, Tooltip, Legend, PieController);
 

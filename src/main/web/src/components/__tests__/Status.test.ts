@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
-import Status from '../Status.vue';
+import Status from '@components/Status.vue';
 
 describe('Status.vue', () => {
   it('should render correctly', () => {

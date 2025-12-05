@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { GeneralStats, BlockChainInfo, NodeInfo, BlockInfo, Peer, SubverDistribution } from '../index';
+import type { GeneralStats, BlockChainInfo, NodeInfo, BlockInfo, Peer, SubverDistribution } from '@types';
 
 describe('Type Definitions', () => {
   describe('GeneralStats', () => {

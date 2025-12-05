@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { GeneralStats } from '../types';
+import { GeneralStats } from '@types';
 
 defineProps<{
     stats: GeneralStats;

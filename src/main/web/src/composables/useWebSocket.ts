@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import type { DashboardData } from '../types';
+import type { DashboardData } from '@types';
 
 const WS_RECONNECT_BASE_DELAY = 1000;
 const WS_RECONNECT_MAX_DELAY = 30000;

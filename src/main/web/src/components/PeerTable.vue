@@ -61,9 +61,9 @@
 </template>
 
 <script setup lang="ts">
-import { type Peer } from '../types';
-import { formatBytes, formatTimeOffset, formatTimeSince, formatPing } from '../utils/formatting';
-import Tooltip from './Tooltip.vue';
+import { type Peer } from '@types';
+import { formatBytes, formatTimeOffset, formatTimeSince, formatPing } from '@utils/formatting';
+import Tooltip from '@components/Tooltip.vue';
 
 const props = defineProps<{
     peers: Peer[];

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { useTheme } from '../useTheme';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { useTheme } from '@composables/useTheme';
 import { defineComponent, h } from 'vue';
 import { mount } from '@vue/test-utils';
 
@@ -12,7 +12,7 @@ describe('useTheme', () => {
     // Mock matchMedia
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
-      value: vi.fn().mockImplementation(query => ({
+      value: vi.fn().mockImplementation((query: string) => ({
         matches: query === '(prefers-color-scheme: dark)',
         media: query,
         onchange: null,

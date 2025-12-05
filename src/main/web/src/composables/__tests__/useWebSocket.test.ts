@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { useWebSocket } from '../useWebSocket';
-import type { DashboardData } from '../../types';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { useWebSocket } from '@composables/useWebSocket';
+import type { DashboardData } from '@types';
 
 describe('useWebSocket', () => {
   let wsInstances: any[] = [];
