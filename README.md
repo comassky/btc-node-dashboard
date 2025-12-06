@@ -3,7 +3,7 @@
 Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
-![Java](https://img.shields.io/badge/Java-21-orange.svg)
+![Java](https://img.shields.io/badge/Java-25-orange.svg)
 ![Quarkus](https://img.shields.io/badge/Quarkus-3.18.1-blue.svg)
 ![Vue](https://img.shields.io/badge/Vue.js-3.5.25-green.svg)
 ![Tests](https://img.shields.io/badge/tests-144%20passing-brightgreen.svg)
@@ -34,12 +34,12 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 ### Backend
 | Technology | Version | Description |
 |------------|---------|-------------|
-| **Java** | 21 | Programming language |
-| **Quarkus** | 3.18.1 | Supersonic Subatomic Java Framework |
+| **Java** | 25 | Programming language |
+| **Quarkus** | 3.30.2 | Supersonic Subatomic Java Framework |
 | **Jakarta WebSocket** | - | Real-time communication |
 | **MicroProfile REST Client** | - | HTTP client for Bitcoin RPC |
 | **Jackson** | - | JSON processing |
-| **Lombok** | 1.18.36 | Boilerplate reduction |
+| **Lombok** | 1.18.42 | Boilerplate reduction |
 
 ### Frontend
 | Technology | Version | Description |
@@ -53,6 +53,10 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ### Build & Deploy
 - **Maven** 3.9.11 (Backend build and dependency management)
+- **Maven Compiler Plugin** 4.0.0-beta-3
+- **Maven Surefire Plugin** 3.5.4
+- **Frontend Maven Plugin** 1.15.4
+- **npm** 11.6.2 (with Node.js v24.11.1)
 - **npm ci** (Optimized frontend dependency installation with --prefer-offline)
 - **Docker** (JVM & GraalVM Native images)
 - **GitHub Actions** (CI/CD with automated testing and native image builds)
@@ -70,7 +74,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Java 21+, Maven 3.9+, Bitcoin Core with RPC enabled
+- Java 25+, Maven 3.9+, Bitcoin Core with RPC enabled
 - Node.js 24+ (optional, for frontend dev)
 
 ### Development
