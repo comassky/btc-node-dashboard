@@ -33,12 +33,12 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ### Backend
 | Technology | Version | Description |
-|------------|---------|-------------|
-| **Java** | 21      | Programming language |
-| **Quarkus** | 3.30.2  | Supersonic Subatomic Java Framework |
-| **Jakarta WebSocket** | -       | Real-time communication |
-| **MicroProfile REST Client** | -       | HTTP client for Bitcoin RPC |
-| **Jackson** | -       | JSON processing |
+|------------|---|-------------|
+| **Java** | 21 | Programming language |
+| **Quarkus** | 3.30.2 | Supersonic Subatomic Java Framework |
+| **Jakarta WebSocket** | - | Real-time communication |
+| **MicroProfile REST Client** | - | HTTP client for Bitcoin RPC |
+| **Jackson** | - | JSON processing |
 | **Lombok** | 1.18.42 | Boilerplate reduction |
 
 ### Frontend
