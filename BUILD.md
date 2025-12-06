@@ -190,12 +190,16 @@ npm run build
 
 **Or use** `application-local.properties` in `src/main/resources/`.
 
-## 🎨 Frontend Development
+## 📊 API Endpoints
 
-```bash
-cd src/main/web
+### REST API
 
-# Install
+- **GET** `/data/dashboard` — Dashboard data (GlobalResponse)
+- **GET** `/data/getnetworkinfo` — Node info (NodeInfo)
+- **GET** `/data/getblock/{hash}` — Block info by hash (BlockInfo)
+- **GET** `/data/getbestblockhash` — Best block hash (plain text)
+- **GET** `/data/getBlockchainInfo` — Blockchain info (BlockchainInfo)
+
 ## 🔍 Verification
 
 ```bash
