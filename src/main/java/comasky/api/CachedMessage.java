@@ -5,11 +5,12 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 
 /**
  * Cached message holder for WebSocket broadcasts.
- * Stores either successful data or error state with pre-serialized JSON.
+ * Stores either successful data or error state with pre-serialized JSON
+ * to avoid redundant serialization on each broadcast.
  *
  * @param data           The RPC response data (null if error)
  * @param errorMessage   The error message (null if success)
- * @param serializedJson Pre-serialized JSON string to avoid repeated serialization
+ * @param serializedJson Pre-serialized JSON to avoid repeated serialization
  * @param timestamp      Creation timestamp for cache validation
  */
 @RegisterForReflection

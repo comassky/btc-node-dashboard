@@ -18,10 +18,13 @@ const isOutOfSync = computed(() => isNodeOutOfSync(props.blockchain, props.block
 
 const hasWarnings = computed(() => hasLowOutbound.value || isOutOfSync.value);
 
+const isHealthy = computed(() => props.isConnected && props.rpcConnected && !hasWarnings.value);
+const hasIssue = computed(() => !props.isConnected || !props.rpcConnected);
+
 const statusClass = computed(() => ({
-    'bg-status-success/10 border border-status-success text-status-success': props.isConnected && props.rpcConnected && !hasWarnings.value,
+    'bg-status-success/10 border border-status-success text-status-success': isHealthy.value,
     'bg-status-warning/10 border border-status-warning text-status-warning': props.isConnected && props.rpcConnected && hasWarnings.value,
-    'bg-status-error/10 border border-status-error text-status-error pulse-error': !props.isConnected || !props.rpcConnected
+    'bg-status-error/10 border border-status-error text-status-error pulse-error': hasIssue.value
 }));
 </script>
 

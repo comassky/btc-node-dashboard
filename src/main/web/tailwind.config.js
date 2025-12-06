@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  // Le mode sombre est géré par la classe 'dark' sur l'élément <html>
+  // Dark mode is managed by the 'dark' class on the <html> element
   darkMode: 'class',
   content: [
     "./index.html",

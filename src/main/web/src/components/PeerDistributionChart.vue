@@ -3,6 +3,12 @@ import { ref, watch, nextTick, onBeforeUnmount } from 'vue';
 import { Chart, ArcElement, Tooltip, Legend, PieController, type TooltipItem, type ChartOptions } from 'chart.js';
 import { type SubverDistribution } from '@types';
 
+/**
+ * Peer Distribution Chart Component
+ * Displays a pie chart showing the distribution of peer software versions.
+ * Optimized with CSS variable caching and efficient data extraction.
+ */
+
 Chart.register(ArcElement, Tooltip, Legend, PieController);
 
 Chart.defaults.animation = false;
@@ -12,14 +18,27 @@ const BASE_COLORS = [
     '#ff9800', '#03a9f4', '#8bc34a', '#e91e63', '#607d8b', '#009688', '#cddc39', '#795548'
 ];
 
-const getCssVar = (name: string): string => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+let cssVarCache: Map<string, string> | null = null;
+
+const getCssVar = (name: string): string => {
+    if (!cssVarCache) {
+        cssVarCache = new Map();
+    }
+    if (!cssVarCache.has(name)) {
+        cssVarCache.set(name, getComputedStyle(document.documentElement).getPropertyValue(name).trim());
+    }
+    return cssVarCache.get(name)!;
+};
+
+const invalidateCssCache = () => {
+    cssVarCache = null;
+};
 
 const generateColors = (numColors: number): string[] => {
-    const colors: string[] = [];
-    for (let i = 0; i < numColors; i++) {
-        colors.push(BASE_COLORS[i % BASE_COLORS.length]);
+    if (numColors <= BASE_COLORS.length) {
+        return BASE_COLORS.slice(0, numColors);
     }
-    return colors;
+    return Array.from({ length: numColors }, (_, i) => BASE_COLORS[i % BASE_COLORS.length]);
 };
 
 const updateChartDefaults = () => {
@@ -80,14 +99,24 @@ const destroyChart = () => {
     }
 };
 
+const extractChartData = (chartData: SubverDistribution[]) => {
+    const count = chartData.length;
+    const labels = new Array(count);
+    const percentages = new Array(count);
+    
+    for (let i = 0; i < count; i++) {
+        labels[i] = chartData[i].server || '[Unknown]';
+        percentages[i] = chartData[i].percentage;
+    }
+    
+    return { labels, percentages, backgroundColors: generateColors(count) };
+};
+
 const initPieChart = (chartData: SubverDistribution[]): Chart | null => {
     if (!canvasRef.value) return null;
 
     updateChartDefaults();
-
-    const labels = chartData.map(d => d.server || '[Unknown]');
-    const percentages = chartData.map(d => d.percentage);
-    const backgroundColors = generateColors(labels.length);
+    const { labels, percentages, backgroundColors } = extractChartData(chartData);
 
     const ctx = canvasRef.value.getContext('2d');
     if (!ctx) return null;
@@ -95,7 +124,7 @@ const initPieChart = (chartData: SubverDistribution[]): Chart | null => {
     return new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: labels,
+            labels,
             datasets: [{
                 data: percentages,
                 backgroundColor: backgroundColors,
@@ -111,10 +140,7 @@ const updateChartData = (chartInstance: Chart, chartData: SubverDistribution[]) 
     if (!chartInstance) return;
 
     updateChartDefaults();
-
-    const labels = chartData.map(d => d.server || '[Unknown]');
-    const percentages = chartData.map(d => d.percentage);
-    const backgroundColors = generateColors(labels.length);
+    const { labels, percentages, backgroundColors } = extractChartData(chartData);
 
     chartInstance.data.labels = labels;
     chartInstance.data.datasets[0].data = percentages;
@@ -136,6 +162,7 @@ watch(() => props.peers, (newVal) => {
 }, { deep: true, immediate: true });
 
 watch(() => props.isDarkMode, () => {
+    invalidateCssCache();
     destroyChart();
     nextTick(() => {
         pieChartInstance = initPieChart(props.peers);

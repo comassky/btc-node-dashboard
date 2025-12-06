@@ -8,6 +8,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
+/**
+ * REST API controller for Bitcoin node data.
+ * Provides HTTP endpoints to retrieve dashboard information.
+ */
 @Path("/data")
 @Produces(MediaType.APPLICATION_JSON)
 public class BtcController {

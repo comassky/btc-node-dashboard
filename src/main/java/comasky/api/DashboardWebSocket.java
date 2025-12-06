@@ -20,6 +20,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * WebSocket endpoint for real-time dashboard updates.
+ * Broadcasts Bitcoin node data to all connected clients at configured intervals.
+ * Implements caching to avoid redundant RPC calls when data is fresh.
+ */
 @ServerEndpoint("/ws/dashboard")
 @ApplicationScoped
 public class DashboardWebSocket {
@@ -41,9 +46,13 @@ public class DashboardWebSocket {
 
     @ConfigProperty(name = "dashboard.polling.interval.seconds", defaultValue = "5")
     int pollingIntervalSeconds;
+    
+    private long cacheValidityMs;
 
     @PostConstruct
     void startScheduler() {
+        // Pre-calculate cache validity to avoid recalculation on each fetch
+        cacheValidityMs = Math.max(100, (pollingIntervalSeconds * 1000L) - 100);
         scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread thread = new Thread(r, "websocket-scheduler");
             thread.setDaemon(true);
@@ -113,8 +122,6 @@ public class DashboardWebSocket {
 
     private CachedMessage fetchAndCacheMessage() {
         synchronized (cacheLock) {
-            long cacheValidityMs = Math.max(100, (pollingIntervalSeconds * 1000L) - 100);
-            
             if (cachedMessage != null && cachedMessage.isValid(cacheValidityMs)) {
                 return cachedMessage;
             }
@@ -126,10 +133,12 @@ public class DashboardWebSocket {
                 return cachedMessage;
             } catch (Exception e) {
                 LOG.warnf("RPC call failed: %s", e.getMessage());
-                String errorJson = String.format(
-                        "{\"rpcConnected\": false, \"errorMessage\": \"%s\"}",
-                        e.getMessage().replace("\"", "'")
-                );
+                String errorMsg = e.getMessage().replace("\"", "'");
+                String errorJson = new StringBuilder(64)
+                    .append("{\"rpcConnected\": false, \"errorMessage\": \"")
+                    .append(errorMsg)
+                    .append("\"}")
+                    .toString();
                 cachedMessage = CachedMessage.error(e.getMessage(), errorJson);
                 return cachedMessage;
             }

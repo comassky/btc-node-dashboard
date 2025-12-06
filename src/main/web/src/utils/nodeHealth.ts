@@ -1,9 +1,16 @@
 import { BlockChainInfo, BlockInfo } from '@types';
 
+/**
+ * Node health monitoring utilities.
+ * Defines thresholds and checks for Bitcoin node synchronization status.
+ */
+
 let MIN_OUTBOUND_PEERS = 8;
 export const MAX_BLOCK_AGE_SECONDS = 3600; // 1 hour
 export const MAX_HEADER_BLOCK_DIFF = 2;
 export const MIN_VERIFICATION_PROGRESS = 0.9999;
+
+const SECONDS_TO_MS = 1000;
 
 export function setMinOutboundPeers(value: number): void {
     MIN_OUTBOUND_PEERS = value;
@@ -18,9 +25,7 @@ export function getHeaderBlockDiff(blockchain: BlockChainInfo): number {
 }
 
 export function isBlockTooOld(blockTime: number): boolean {
-    const now = Date.now() / 1000; // Convert to seconds
-    const blockAge = now - blockTime;
-    return blockAge > MAX_BLOCK_AGE_SECONDS;
+    return ((Date.now() / SECONDS_TO_MS) - blockTime) > MAX_BLOCK_AGE_SECONDS;
 }
 
 export function isSyncing(blockchain: BlockChainInfo): boolean {
@@ -36,16 +41,17 @@ export function isNodeOutOfSync(blockchain: BlockChainInfo, block: BlockInfo): b
 }
 
 export function getSyncWarningMessage(blockchain: BlockChainInfo, block: BlockInfo, formatTimeSince: (timestamp: number) => string): string {
-    const headerBlockDiff = getHeaderBlockDiff(blockchain);
+    const progress = (blockchain.verificationprogress * 100).toFixed(2);
     
     if (isBlockTooOld(block.time)) {
         return `Last block is ${formatTimeSince(block.time)} old. Your node may have lost connection to the network or stopped syncing.`;
     }
     if (isSyncing(blockchain)) {
-        return `Node is syncing: ${headerBlockDiff} blocks behind. Verification progress: ${(blockchain.verificationprogress * 100).toFixed(2)}%`;
+        const headerBlockDiff = getHeaderBlockDiff(blockchain);
+        return `Node is syncing: ${headerBlockDiff} blocks behind. Verification progress: ${progress}%`;
     }
     if (isNotFullySynced(blockchain)) {
-        return `Node is still syncing. Verification progress: ${(blockchain.verificationprogress * 100).toFixed(2)}%`;
+        return `Node is still syncing. Verification progress: ${progress}%`;
     }
     return 'Node is out of sync with the blockchain.';
 }

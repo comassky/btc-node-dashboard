@@ -98,9 +98,9 @@ export default defineConfig(({ mode }) => ({
     minify: 'terser',
     cssMinify: true,
     cssCodeSplit: true,
+    chunkSizeWarningLimit: 600,
     sourcemap: false,
     reportCompressedSize: true,
-    chunkSizeWarningLimit: 1000,
     terserOptions: {
       compress: {
         drop_console: mode === 'production',
@@ -143,6 +143,10 @@ export default defineConfig(({ mode }) => ({
           }
           return 'assets/[name]-[hash][extname]';
         },
+      },
+      treeshake: {
+        moduleSideEffects: false,
+        propertyReadSideEffects: false,
       },
     },
   },

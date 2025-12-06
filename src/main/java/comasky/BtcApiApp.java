@@ -3,7 +3,6 @@ package comasky;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
-import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -12,27 +11,21 @@ public class BtcApiApp implements QuarkusApplication {
 
     private static final Logger LOG = Logger.getLogger(BtcApiApp.class);
 
-    @Inject
     @ConfigProperty(name = "bitcoin.rpc.scheme")
     String rpcScheme;
 
-    @Inject
     @ConfigProperty(name = "bitcoin.rpc.host")
     String rpcHost;
 
-    @Inject
     @ConfigProperty(name = "bitcoin.rpc.port")
     int rpcPort;
 
-    @Inject
     @ConfigProperty(name = "bitcoin.rpc.user")
     String rpcUser;
 
-    @Inject
     @ConfigProperty(name = "bitcoin.rpc.password")
     String rpcPassword;
 
-    @Inject
     @ConfigProperty(name = "dashboard.polling.interval.seconds")
     int pollingInterval;
 
@@ -56,11 +49,9 @@ public class BtcApiApp implements QuarkusApplication {
     }
 
     private void validateConfiguration() {
-        if (rpcScheme == null || rpcScheme.isBlank()) {
-            throw new IllegalStateException("bitcoin.rpc.scheme is required");
-        }
-        if (!rpcScheme.equals("http") && !rpcScheme.equals("https")) {
-            throw new IllegalStateException("bitcoin.rpc.scheme must be 'http' or 'https'");
+        if (rpcScheme == null || rpcScheme.isBlank() || 
+            (!"http".equals(rpcScheme) && !"https".equals(rpcScheme))) {
+            throw new IllegalStateException("bitcoin.rpc.scheme is required and must be 'http' or 'https'");
         }
         if (rpcHost == null || rpcHost.isBlank()) {
             throw new IllegalStateException("bitcoin.rpc.host is required");
@@ -68,11 +59,8 @@ public class BtcApiApp implements QuarkusApplication {
         if (rpcPort < 1 || rpcPort > 65535) {
             throw new IllegalStateException("bitcoin.rpc.port must be between 1 and 65535");
         }
-        if (rpcUser == null || rpcUser.isBlank()) {
-            throw new IllegalStateException("bitcoin.rpc.user is required");
-        }
-        if (rpcPassword == null || rpcPassword.isBlank()) {
-            throw new IllegalStateException("bitcoin.rpc.password is required");
+        if (rpcUser == null || rpcUser.isBlank() || rpcPassword == null || rpcPassword.isBlank()) {
+            throw new IllegalStateException("bitcoin.rpc.user and bitcoin.rpc.password are required");
         }
         if (pollingInterval < 1 || pollingInterval > 300) {
             throw new IllegalStateException("dashboard.polling.interval.seconds must be between 1 and 300");

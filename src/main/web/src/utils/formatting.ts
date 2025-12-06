@@ -1,10 +1,14 @@
 const BYTE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'] as const;
 const BYTE_MULTIPLIER = 1024;
+const LOG_1024 = Math.log(BYTE_MULTIPLIER);
 
+/**
+ * Formats bytes into human-readable units (KB, MB, GB, etc.).
+ */
 export const formatBytes = (bytes: number, decimals = 2): string => {
   if (bytes === 0) return '0 B';
   
-  const unitIndex = Math.floor(Math.log(bytes) / Math.log(BYTE_MULTIPLIER));
+  const unitIndex = Math.min(Math.floor(Math.log(bytes) / LOG_1024), BYTE_UNITS.length - 1);
   const value = bytes / Math.pow(BYTE_MULTIPLIER, unitIndex);
   
   return `${value.toFixed(decimals)} ${BYTE_UNITS[unitIndex]}`;
@@ -13,6 +17,13 @@ export const formatBytes = (bytes: number, decimals = 2): string => {
 export const formatTimeOffset = (timeoffset?: number | null): string => 
   `${(timeoffset ?? 0).toFixed(1)} s`;
 
+const SECONDS_IN_DAY = 86400;
+const SECONDS_IN_HOUR = 3600;
+const SECONDS_IN_MINUTE = 60;
+
+/**
+ * Formats time duration or Unix timestamp into human-readable format (e.g., "2d 5h").
+ */
 export const formatTimeSince = (timestampOrTotalSeconds?: number | null): string => {
   if (!timestampOrTotalSeconds) return 'N/A';
 
@@ -22,18 +33,17 @@ export const formatTimeSince = (timestampOrTotalSeconds?: number | null): string
 
   if (totalSeconds < 1) return '<1s';
 
-  const d = Math.floor(totalSeconds / 86400);
-  const h = Math.floor((totalSeconds % 86400) / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60);
-  const s = Math.floor(totalSeconds % 60);
+  const d = Math.floor(totalSeconds / SECONDS_IN_DAY);
+  const remainderAfterDays = totalSeconds % SECONDS_IN_DAY;
+  const h = Math.floor(remainderAfterDays / SECONDS_IN_HOUR);
+  const remainderAfterHours = remainderAfterDays % SECONDS_IN_HOUR;
+  const m = Math.floor(remainderAfterHours / SECONDS_IN_MINUTE);
+  const s = Math.floor(remainderAfterHours % SECONDS_IN_MINUTE);
 
-  const parts: string[] = [];
-  if (d > 0) parts.push(`${d}d`);
-  if (h > 0) parts.push(`${h}h`);
-  if (m > 0) parts.push(`${m}m`);
-  if (parts.length === 0 || totalSeconds < 60) parts.push(`${s}s`);
-
-  return parts.slice(0, 2).join(' ');
+  if (d > 0) return h > 0 ? `${d}d ${h}h` : `${d}d`;
+  if (h > 0) return m > 0 ? `${h}h ${m}m` : `${h}h`;
+  if (m > 0) return `${m}m`;
+  return `${s}s`;
 };
 
 export const formatPing = (minping?: number | null): string => 
