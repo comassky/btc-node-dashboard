@@ -33,7 +33,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ### Backend
 | Technology | Version | Description |
-|------------|---|-------------|
+|------------|---------|-------------|
 | **Java** | 21 | Programming language |
 | **Quarkus** | 3.30.2 | Supersonic Subatomic Java Framework |
 | **Jakarta WebSocket** | - | Real-time communication |
