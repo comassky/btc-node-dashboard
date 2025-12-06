@@ -10,6 +10,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <skipITs>true</skipITs>
+        <skipFrontendTests>false</skipFrontendTests>
 
         <quarkus.platform.version>3.18.1</quarkus.platform.version>
         <lombok.version>1.18.36</lombok.version>
@@ -106,7 +107,7 @@
                         </goals>
                         <configuration>
                             <workingDirectory>${project.basedir}/src/main/web</workingDirectory>
-                            <arguments>install</arguments>
+                            <arguments>ci --prefer-offline --no-audit</arguments>
                         </configuration>
                     </execution>
 
@@ -117,6 +118,7 @@
                         </goals>
                         <phase>test</phase>
                         <configuration>
+                            <skip>${skipFrontendTests}</skip>
                             <workingDirectory>${project.basedir}/src/main/web</workingDirectory>
                             <arguments>test -- --run</arguments>
                         </configuration>

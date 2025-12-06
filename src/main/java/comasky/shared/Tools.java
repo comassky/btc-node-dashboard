@@ -1,5 +1,8 @@
 package comasky.shared;
 
+/**
+ * Utility methods for common formatting operations.
+ */
 public final class Tools {
     private static final long SECONDS_IN_DAY = 86400;
     private static final long SECONDS_IN_HOUR = 3600;

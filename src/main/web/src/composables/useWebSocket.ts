@@ -5,6 +5,15 @@ const WS_RECONNECT_BASE_DELAY = 1000;
 const WS_RECONNECT_MAX_DELAY = 30000;
 const WS_RECONNECT_MULTIPLIER = 2;
 
+/**
+ * WebSocket composable for real-time dashboard updates.
+ * Handles connection lifecycle, automatic reconnection with exponential backoff,
+ * and data parsing from the server.
+ * 
+ * @param wsUrl - WebSocket endpoint URL
+ * @param onDataReceived - Callback invoked when dashboard data is received
+ * @returns Reactive connection state and control functions
+ */
 export function useWebSocket(wsUrl: string, onDataReceived: (data: Partial<DashboardData>) => void) {
     const isConnected = ref(false);
     const rpcConnected = ref(false);
@@ -47,15 +56,12 @@ export function useWebSocket(wsUrl: string, onDataReceived: (data: Partial<Dashb
                 if ('rpcConnected' in json) {
                     rpcConnected.value = json.rpcConnected ?? false;
                     errorMessage.value = json.errorMessage || null;
-                    return;
-                }
-
-                if ('generalStats' in json) {
+                } else if ('generalStats' in json) {
                     rpcConnected.value = true;
                     errorMessage.value = null;
                     onDataReceived(json);
                 }
-            } catch (e) {}
+            } catch {}
         };
 
         ws.onclose = () => {

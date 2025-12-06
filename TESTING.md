@@ -1,233 +1,54 @@
 # Testing Guide
 
-This document describes the comprehensive test suite for the Bitcoin Node Dashboard project.
+**144 automated tests** covering backend and frontend for reliability and stability.
 
-## 📊 Test Coverage Overview
+## 📊 Overview
 
-The project includes **130 passing tests** across backend and frontend:
-
-| Component | Framework | Tests | Coverage |
-|-----------|-----------|-------|----------|
-| **Backend** | JUnit 5 + Mockito | 64 tests | Controllers, WebSocket, RPC, Caching |
-| **Frontend** | Vitest + Vue Test Utils | 66 tests | Composables, Components, Types, Utils |
+| Component   | Tests | Technologies                        |
+|------------ |-------|-------------------------------------|
+| Backend     | 78    | JUnit 5, Mockito, Quarkus Test      |
+| Frontend    | 66    | Vitest, Vue Test Utils, Happy DOM   |
 
 ## 🧪 Running Tests
 
-### Full Test Suite
-
-Run all tests (backend + frontend) during the Maven build:
-
 ```bash
+# All tests
 ./mvnw clean test
-```
 
-This will:
-1. Execute 64 backend tests (JUnit)
-2. Execute 66 frontend tests (Vitest)
-3. Generate test reports
-
-### Backend Tests Only
-
-```bash
-# Unit tests
+# Backend only
 ./mvnw test
 
-# Integration tests
-./mvnw verify
+# Frontend only
+cd src/main/web && npm test
 
-# Specific test class
-./mvnw test -Dtest=BtcControllerTest
+# With coverage
+cd src/main/web && npm run coverage
 ```
 
-### Frontend Tests Only
+## 🔍 Backend Tests (78)
 
-```bash
-cd src/main/web
+**Test Classes**:
+- `BtcControllerTest` - REST API endpoints
+- `DashboardWebSocketTest` - WebSocket lifecycle
+- `DashboardWebSocketAdvancedTest` - Concurrent connections, cache
+- `RpcServicesTest` - Bitcoin RPC calls
+- `RpcServicesAdvancedTest` - Multi-peer aggregation, errors
+- `RpcServicesParallelTest` - Parallel execution, CompletableFuture
+- `CachedMessageTest` - Cache validation, thread-safety
+- `SubverStatsCalculationTest` - Version distribution
+- `ToolsTest` - Utility functions
+- `BtcApiAppTest` - Application lifecycle
 
-# Run all tests once
-npm test
+## 🎨 Frontend Tests (66)
 
-# Run tests with coverage
-npm run coverage
-
-# Watch mode (re-run on changes)
-npm test -- --watch
-
-# UI mode (interactive browser interface)
-npm run test:ui
-```
-
-## 🔍 Backend Test Suite (64 tests)
-
-### Technologies
-
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **JUnit** | 5.10.5 | Test framework |
-| **Mockito** | 5.15.2 | Mocking framework |
-| **Quarkus Test** | 3.18.1 | Integration testing |
-| **REST Assured** | - | API testing |
-
-### Test Categories
-
-#### 1. REST API Controllers
-- **BtcControllerTest** - API endpoints validation
-  - Peer data endpoint
-  - Error handling
-  - Response format validation
-
-#### 2. WebSocket Communication
-- **DashboardWebSocketTest** - WebSocket lifecycle
-  - Connection management
-  - Message broadcasting
-  - Error scenarios
-
-- **DashboardWebSocketAdvancedTest** - Complex scenarios
-  - Concurrent connections
-  - Cache invalidation
-  - RPC error propagation
-
-#### 3. RPC Client Integration
-- **RpcServicesAdvancedTest** - Bitcoin Core RPC
-  - Multi-peer data aggregation
-  - Network statistics calculation
-  - Error handling (connection failures, invalid responses)
-
-#### 4. Data Transformation & Caching
-- **CachedMessageTest** - Cache validation
-  - Message validity checks
-  - Expiration logic
-  - Thread-safety
-
-- **SubverStatsCalculationTest** - Version distribution
-  - Percentage calculations
-  - Peer grouping by version
-  - Edge cases (null values, empty lists)
-
-#### 5. Utilities & Tools
-- **ToolsTest** - Helper functions
-  - Uptime formatting
-  - Hash rate calculations
-  - Data transformations
-
-- **BtcApiAppTest** - Application lifecycle
-  - Password masking in logs
-  - Configuration validation
-
-### Running Specific Backend Tests
-
-```bash
-# Single test class
-./mvnw test -Dtest=BtcControllerTest
-
-# Single test method
-./mvnw test -Dtest=BtcControllerTest#testGetPeers
-
-# Pattern matching
-./mvnw test -Dtest=*WebSocket*
-
-# With specific profile
-./mvnw test -Dquarkus.test.profile=test
-```
-
-## 🎨 Frontend Test Suite (66 tests)
-
-### Technologies
-
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Vitest** | 2.1.9 | Test runner |
-| **Vue Test Utils** | 2.4.6 | Component testing |
-| **Happy DOM** | 15.11.7 | DOM simulation |
-| **@vitest/ui** | 2.1.9 | Interactive test UI |
-| **@vitest/coverage-v8** | 2.1.9 | Code coverage |
-
-### Test Categories
-
-#### 1. Composables (18 tests)
-
-**useWebSocket.test.ts** (9 tests)
-- ✅ Connection lifecycle (connect, disconnect)
-- ✅ Message handling (dashboard data, RPC errors)
-- ✅ WebSocket events (close, error)
-- ✅ Reconnection with exponential backoff
-- ✅ Invalid JSON handling
-
-**useTheme.test.ts** (9 tests)
-- ✅ Dark/light mode toggle
-- ✅ localStorage persistence
-- ✅ DOM class manipulation
-- ✅ CSS variable updates
-- ✅ prefers-color-scheme detection
-
-#### 2. Components (6 tests)
-
-**Status.test.ts** (6 tests)
-- ✅ Component rendering
-- ✅ Connected/disconnected states
-- ✅ Error message display
-- ✅ RPC connection status
-- ✅ Props reactivity
-
-#### 3. Types & Validation (15 tests)
-
-**types.test.ts** (15 tests)
-- ✅ GeneralStats interface
-- ✅ BlockChainInfo interface
-- ✅ NodeInfo interface
-- ✅ BlockInfo interface
-- ✅ Peer interface (with null handling)
-- ✅ SubverDistribution interface
-- ✅ Data normalization
-- ✅ Edge cases
-
-#### 4. Utilities (12 tests)
-
-**formatters.test.ts** (12 tests)
-- ✅ Number formatting (commas, decimals)
-- ✅ Hash rate calculation (EH/s, PH/s)
-- ✅ Date/timestamp formatting
-- ✅ Percentage formatting
-- ✅ Large number handling
-
-#### 5. Business Logic (15 tests)
-
-**logic.test.ts** (15 tests)
-- ✅ WebSocket reconnection logic
-- ✅ Data validation functions
-- ✅ Peer filtering and grouping
-- ✅ Chart data preparation
-- ✅ Statistics calculations
-
-### Frontend Test Configuration
-
-**vitest.config.ts**
-```typescript
-export default defineConfig({
-  test: {
-    environment: 'happy-dom',
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      exclude: ['node_modules/', 'dist/', '**/*.test.ts']
-    }
-  }
-})
-```
-
-### Coverage Report
-
-After running `npm run coverage`, view the detailed HTML report:
-
-```bash
-open src/main/web/coverage/index.html
-```
-
-Coverage targets:
-- **Statements**: >80%
-- **Branches**: >80%
-- **Functions**: >80%
-- **Lines**: >80%
+**Test Files**:
+- `useWebSocket.test.ts` (9) - Connection, messaging, reconnection
+- `useTheme.test.ts` (9) - Dark/light mode, localStorage
+- `useMockData.test.ts` (9) - Mock scenarios, auto-cycle
+- `Status.test.ts` (6) - Component rendering, states
+- `types.test.ts` (15) - Interfaces, data validation
+- `formatters.test.ts` (12) - Number/date formatting
+- `logic.test.ts` (15) - Business logic, calculations
 
 ## 🔄 Continuous Integration
 
@@ -324,65 +145,47 @@ describe('MyComponent', () => {
 ./mvnw test -Dtest=MyTest -Dmaven.surefire.debug
 ```
 
-### Frontend
+## 🔄 CI/CD
 
-```bash
-# Run with verbose output
-npm test -- --reporter=verbose
+GitHub Actions runs all tests on every push. Docker images are only built if tests pass.
 
-# Debug in browser
-npm run test:ui
+## 📝 Test Templates
 
-# Run specific test file
-npm test -- useWebSocket.test.ts
+**Backend**:
+```java
+@QuarkusTest
+class MyTest {
+    @InjectMock MyDep dep;
+    @Inject MyService svc;
+    
+    @Test void shouldWork() {
+        when(dep.method()).thenReturn(value);
+        assertEquals(expected, svc.doSomething());
+    }
+}
 ```
 
-## 📚 Additional Resources
+**Frontend**:
+```typescript
+import { mount } from '@vue/test-utils';
+describe('MyComponent', () => {
+  it('renders', () => {
+    const wrapper = mount(MyComponent, { props: { val: 'test' } });
+    expect(wrapper.text()).toContain('test');
+  });
+});
+```
 
-- **Frontend Testing Guide**: [src/main/web/TESTS.md](src/main/web/TESTS.md)
-- **JUnit 5 Documentation**: https://junit.org/junit5/docs/current/user-guide/
-- **Vitest Documentation**: https://vitest.dev/
-- **Vue Test Utils**: https://test-utils.vuejs.org/
+## 🐛 Debugging
 
-## 🎯 Best Practices
+```bash
+# Backend verbose
+./mvnw test -X
 
-### General
-- ✅ Write tests before fixing bugs (TDD)
-- ✅ Keep tests isolated and independent
-- ✅ Use descriptive test names
-- ✅ Test edge cases and error scenarios
-- ✅ Mock external dependencies
-
-### Backend
-- ✅ Use `@InjectMock` for CDI beans
-- ✅ Test both success and failure paths
-- ✅ Verify interactions with `verify()`
-- ✅ Clean up resources in `@AfterEach`
-
-### Frontend
-- ✅ Test user interactions, not implementation
-- ✅ Use `mount()` for integration tests
-- ✅ Mock external APIs and WebSockets
-- ✅ Test accessibility (ARIA attributes)
-- ✅ Use fake timers for async operations
-
-## 🚀 Performance
-
-### Test Execution Times
-
-| Suite | Tests | Duration |
-|-------|-------|----------|
-| Backend | 64 | ~15-20s |
-| Frontend | 66 | ~2-3s |
-| **Total** | **130** | **~20s** |
-
-### Optimization Tips
-
-- Use `@QuarkusTest` instead of `@QuarkusIntegrationTest` when possible
-- Mock expensive operations (RPC calls, database queries)
-- Run tests in parallel: `./mvnw test -T 1C`
-- Use `vi.useFakeTimers()` for time-dependent tests
+# Frontend UI mode
+cd src/main/web && npm run test:ui
+```
 
 ---
 
-**Questions or issues with tests?** Open an issue on [GitHub](https://github.com/comassky/btc-node-dashboard/issues)
+**Test execution**: ~25s total (Backend: ~20s, Frontend: ~3s)

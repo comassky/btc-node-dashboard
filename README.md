@@ -1,13 +1,12 @@
 # Bitcoin Node Dashboard ₿
 
-A modern, real-time Bitcoin network monitoring application with a sleek web interface. Monitor your Bitcoin Core node's peers, blockchain status, and network statistics through an interactive dashboard.
+Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
 ![Java](https://img.shields.io/badge/Java-21-orange.svg)
 ![Quarkus](https://img.shields.io/badge/Quarkus-3.18.1-blue.svg)
 ![Vue](https://img.shields.io/badge/Vue.js-3.5.25-green.svg)
-![GraalVM](https://img.shields.io/badge/GraalVM-Native-blueviolet.svg)
-![Tests](https://img.shields.io/badge/tests-130%20passing-brightgreen.svg)
+![Tests](https://img.shields.io/badge/tests-144%20passing-brightgreen.svg)
 
 ## 📸 Screenshots
 
@@ -19,25 +18,16 @@ A modern, real-time Bitcoin network monitoring application with a sleek web inte
 
 ## ✨ Features
 
-### Real-time Monitoring
-- **Live Peer Statistics**: Track inbound and outbound peer connections in real-time
-- **Network Distribution**: Visualize Bitcoin client versions across the network with interactive charts
-- **Blockchain Information**: Monitor current blockchain height, verification progress, and sync status
-- **Node Metrics**: Display node uptime, protocol version, and connection statistics
-
-### Modern UI/UX
-- **Dark/Light Mode**: Toggle between themes for comfortable viewing
-- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
-- **Real-time Updates**: WebSocket-based live data streaming (configurable interval, default 5s)
-- **Interactive Charts**: Beautiful pie charts showing peer distribution
-- **Exponential Backoff**: Smart reconnection strategy with 1s → 30s retry delays
-
-### Technical Features
-- **WebSocket Communication**: Efficient real-time data push with message caching
-- **Error Handling**: Comprehensive error management with user-friendly messages
-- **Auto-reconnection**: Automatic WebSocket reconnection on connection loss
-- **Optimized Performance**: Tree-shaking, code splitting, Terser minification, and gzip compression
-- **GraalVM Native**: Ultra-fast startup (<50ms) and minimal memory footprint (~30MB)
+- **Live Peer Statistics**: Real-time display of inbound/outbound connections, peer details, version and geographic distribution.
+- **Blockchain Status**: Track block height, sync progress, node uptime, and network health.
+- **Modern UI/UX**: Dark/light mode, responsive design, interactive charts, smooth animations, icon support.
+- **WebSocket Streaming**: Instant dashboard updates, automatic reconnection, exponential backoff.
+- **Parallel RPC Execution**: Up to 6 simultaneous Bitcoin Core requests for fast refresh.
+- **Mock/Test Mode**: Simulate errors, low peer count, disconnected mode for testing and demos.
+- **Comprehensive Error Handling**: Clear user messages, automatic recovery and reconnection.
+- **Performance Optimized**: GraalVM Native (<50ms startup, ~30MB RAM), tree-shaking, code splitting, gzip compression.
+- **Full Test Suite**: 144 automated tests (backend + frontend) for reliability.
+- **Docker & CI/CD Ready**: Easy deployment, optimized images, automated builds and tests.
 
 ## 🛠️ Tech Stack
 
@@ -62,7 +52,8 @@ A modern, real-time Bitcoin network monitoring application with a sleek web inte
 | **Font Awesome** | 7.1 | Icon library |
 
 ### Build & Deploy
-- **Maven** (Backend build and dependency management)
+- **Maven** 3.9.11 (Backend build and dependency management)
+- **npm ci** (Optimized frontend dependency installation with --prefer-offline)
 - **Docker** (JVM & GraalVM Native images)
 - **GitHub Actions** (CI/CD with automated testing and native image builds)
 - **GraalVM Native Image** (AOT compilation for ultra-fast startup)
@@ -78,54 +69,38 @@ A modern, real-time Bitcoin network monitoring application with a sleek web inte
 
 ## 🚀 Quick Start
 
-**For detailed build and deployment instructions, see [BUILD.md](BUILD.md)**
-
 ### Prerequisites
-
 - Java 21+, Maven 3.9+, Bitcoin Core with RPC enabled
-- Node.js 24+ and npm 11+ (for frontend development)
+- Node.js 24+ (optional, for frontend dev)
 
-### Run Locally
-
+### Development
 ```bash
-# Clone repository
 git clone https://github.com/comassky/btc-node-dashboard.git
 cd btc-node-dashboard
 
-# Configure Bitcoin RPC (create application-local.properties or use env vars)
-# See BUILD.md for configuration details
+# Configure RPC (env vars or application-local.properties)
+export RPC_HOST=localhost
+export RPC_PORT=8332
+export RPC_USER=your_user
+export RPC_PASS=your_password
 
-# Development mode with hot reload
-./mvnw quarkus:dev
-
-# Access at http://localhost:8080
+# Run with hot reload
+./mvnw quarkus:dev  # → http://localhost:8080
 ```
 
-### Docker Deployment
-
+### Docker (Recommended)
 ```bash
-# GraalVM Native (⚡ recommended - 50ms startup, 30MB memory)
+# GraalVM Native (50ms startup, 30MB memory)
 docker run -d -p 8080:8080 \
-  -e RPC_HOST=<HOST> \
-  -e RPC_PORT=<PORT> \
-  -e RPC_USER=<USER> \
-  -e RPC_PASS=<PASS> \
+  -e RPC_HOST=<HOST> -e RPC_PORT=<PORT> \
+  -e RPC_USER=<USER> -e RPC_PASS=<PASSWORD> \
+  -e WS_POLLING_INTERVAL=5 \
   -e MIN_OUTBOUND_PEERS=8 \
   -e LOG_LEVEL=INFO \
   ghcr.io/comassky/btc-node-dashboard:native
-
-# JVM Image
-docker run -d -p 8080:8080 \
-  -e RPC_HOST=<HOST> \
-  -e RPC_PORT=<PORT> \
-  -e RPC_USER=<USER> \
-  -e RPC_PASS=<PASS> \
-  -e MIN_OUTBOUND_PEERS=8 \
-  -e LOG_LEVEL=INFO \
-  ghcr.io/comassky/btc-node-dashboard:main
 ```
 
-Browse all images: [GitHub Packages](https://github.com/comassky/btc-node-dashboard/pkgs/container/btc-node-dashboard)
+See [BUILD.md](BUILD.md) for detailed instructions.
 
 ## 📊 API Endpoints
 
@@ -140,83 +115,28 @@ Browse all images: [GitHub Packages](https://github.com/comassky/btc-node-dashbo
 
 ## 🧪 Testing
 
-![Tests](https://img.shields.io/badge/tests-130%20passing-brightgreen.svg)
+![Tests](https://img.shields.io/badge/tests-144%20passing-brightgreen.svg)
 
-The project includes a comprehensive test suite with **130 tests** covering both backend and frontend.
+The project includes a comprehensive test suite with **144 tests** covering both backend and frontend.
 
 **For detailed testing documentation, see [TESTING.md](TESTING.md)**
 
-### Quick Start
+## 📊 API
+
+**REST**: `/api/config`, `/data/peers`  
+**WebSocket**: `/ws/dashboard` (real-time updates)
+
+## 🧪 Testing
+
+**144 tests** (78 backend + 66 frontend)
 
 ```bash
-# Run all tests (backend + frontend)
-./mvnw clean test
-
-# Backend only
-./mvnw test
-
-# Frontend only
-cd src/main/web && npm test
+./mvnw clean test           # All tests
+./mvnw test                 # Backend only
+cd src/main/web && npm test # Frontend only
 ```
 
-### Test Coverage
-
-| Component | Tests | Technologies |
-|-----------|-------|--------------|
-| **Backend** | 64 | JUnit 5.10.5, Mockito 5.15.2, Quarkus Test |
-| **Frontend** | 66 | Vitest 2.1.9, Vue Test Utils 2.4.6, Happy DOM |
-
-## 🚀 Performance Optimizations
-
-### Backend
-- ✅ **WebSocket Message Caching**: Single RPC call shared across multiple concurrent connections
-- ✅ **Thread-safe Caching**: Synchronized access with `CachedMessage` record pattern
-  - Smart cache invalidation: `validity = max(100ms, pollingInterval - 100ms)`
-  - Prevents concurrent RPC calls even if Bitcoin Core RPC takes >200ms
-  - Lock-based synchronization ensures only one thread fetches data at a time
-- ✅ **Non-blocking I/O**: RPC calls executed on worker threads to avoid blocking event loop
-- ✅ **Efficient Broadcasting**: Single JSON serialization per broadcast cycle
-- ✅ **Stream API**: Optimal peer statistics calculation with parallel processing
-- ✅ **Immutable Records** (Java 21): Thread-safe DTOs with zero boilerplate
-- ✅ **GraalVM Native Optimizations**:
-  - `@RegisterForReflection` on all DTOs for Jackson compatibility
-  - SLF4J initialized at build-time for faster startup
-  - Native image reports enabled for debugging
-  - AOT compilation: <50ms startup, ~30MB memory footprint
-
-### Frontend
-- ✅ **Tailwind CSS v3**: Utility-first CSS framework with PostCSS optimization
-- ✅ **Vite Production Build**: Terser minification (2 passes), code splitting, tree-shaking
-- ✅ **Gzip Compression**: ~70% size reduction on JS/CSS assets
-- ✅ **Modular TypeScript**: Individual type files with barrel exports
-- ✅ **Chart.js Optimizations**: Animations disabled for better performance
-- ✅ **WebSocket Exponential Backoff**: Smart reconnection (1s → 30s max delay)
-- ✅ **Version Sync**: Automatic version injection from `pom.xml` → `package.json` → runtime
-- ✅ **PWA Support**: Service Worker for offline capability and app-like experience
-
-### Build Optimizations
-- ✅ **Maven Resource Filtering**: Binary-safe handling of compressed assets
-- ✅ **Frontend Cache**: Node.js modules cached in GitHub Actions
-- ✅ **Docker Multi-stage**: Optimized image layers with build cache
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
-
-## ☕ Support the Project
-
-If you find this project useful and want to support its development, consider making a donation!
-
+See [TESTING.md](TESTING.md) for details.
 <div align="center">
 
 ### Cryptocurrency Donations
@@ -241,17 +161,12 @@ If you find this project useful and want to support its development, consider ma
 
 ## 🙏 Acknowledgments
 
-- [Quarkus](https://quarkus.io/) - Supersonic Subatomic Java
-- [Vue.js](https://vuejs.org/) - The Progressive JavaScript Framework
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-- [Chart.js](https://www.chartjs.org/) - Simple yet flexible JavaScript charting
-- [Bitcoin Core](https://bitcoincore.org/) - Bitcoin reference implementation
-
-## 📧 Contact
-
-Project Link: [https://github.com/comassky/btc-node-dashboard](https://github.com/comassky/btc-node-dashboard)
+Built with [Quarkus](https://quarkus.io/), [Vue.js](https://vuejs.org/), [Tailwind CSS](https://tailwindcss.com/), [Chart.js](https://www.chartjs.org/), and [Bitcoin Core](https://bitcoincore.org/).
 
 ---
 
 **Built with ❤️ for the Bitcoin community**
     
+## 🤝 Contributing
+
+Contributions welcome! Fork, branch, commit, push, PR.

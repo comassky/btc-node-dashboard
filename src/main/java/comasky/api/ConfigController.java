@@ -7,6 +7,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
+/**
+ * REST API controller for dashboard configuration.
+ * Exposes runtime configuration values to the frontend.
+ */
 @Path("/api/config")
 public class ConfigController {
 

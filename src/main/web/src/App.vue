@@ -10,7 +10,13 @@ import Footer from '@components/Footer.vue';
 import { BlockChainInfo, NodeInfo, Peer, type DashboardData, type DashboardConfig } from '@types';
 import { useWebSocket } from '@composables/useWebSocket';
 import { useTheme } from '@composables/useTheme';
+import { useMockData } from '@composables/useMockData';
 import { setMinOutboundPeers } from '@utils/nodeHealth';
+
+/**
+ * Main Dashboard Application Component
+ * Manages WebSocket connection, data state, and theme for the Bitcoin node dashboard.
+ */
 
 const WS_URL = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws/dashboard`;
 
@@ -45,6 +51,16 @@ const outboundCount = computed(() => dataState.generalStats.outboundCount);
 
 const { isDarkMode, toggleDarkMode } = useTheme();
 
+// Mock data composable for testing error/warning states
+const { 
+  MOCK_MODE, 
+  mockScenario, 
+  cycleMockScenario, 
+  generateMockData, 
+  getMockConnectionState,
+  startAutoCycle 
+} = useMockData();
+
 // Load configuration from backend
 const loadConfig = async () => {
   try {
@@ -62,8 +78,16 @@ const loadConfig = async () => {
 
 onMounted(async () => {
   await loadConfig();
+  
+  // Apply mock data in dev mode
+  if (MOCK_MODE.value) {
+    Object.assign(dataState, generateMockData());
+    // Auto-cycle scenarios every 8 seconds for demo
+    startAutoCycle(8000);
+  }
 });
 
+// Normalizes incoming WebSocket data and updates reactive state
 const normalizeData = (rawData: Partial<DashboardData>) => {
   const nodeInfo = rawData.nodeInfo as NodeInfo || {};
   const blockchainInfo = rawData.blockchainInfo as BlockChainInfo || {};
@@ -93,11 +117,13 @@ const normalizeData = (rawData: Partial<DashboardData>) => {
 
 const { isConnected, rpcConnected, errorMessage, connect, disconnect } = useWebSocket(WS_URL, normalizeData);
 
-connect();
-
-onBeforeUnmount(() => {
-  disconnect();
-});
+if (!MOCK_MODE.value) {
+  connect();
+  
+  onBeforeUnmount(() => {
+    disconnect();
+  });
+}
 </script>
 
 <template>
@@ -108,6 +134,21 @@ onBeforeUnmount(() => {
             <font-awesome-icon :icon="isDarkMode ? ['fas', 'sun'] : ['fas', 'moon']" />
         </button>
 
+        <!-- 🧪 DEV MOCK CONTROLS -->
+        <div v-if="MOCK_MODE" class="fixed top-3 left-3 sm:top-4 sm:left-4 z-50 bg-bg-card border border-accent shadow-lg rounded-lg p-3 text-xs">
+            <div class="font-bold text-accent mb-2 flex items-center gap-2">
+                <font-awesome-icon :icon="['fas', 'hard-hat']" /> MOCK MODE
+            </div>
+            <button 
+                @click="cycleMockScenario(); Object.assign(dataState, generateMockData())"
+                class="px-3 py-1.5 bg-accent text-bg-app rounded hover:opacity-80 transition-all font-medium">
+                Cycle Scenario
+            </button>
+            <div class="mt-2 text-text-secondary">
+                Current: <span class="font-bold text-text-primary">{{ mockScenario }}</span>
+            </div>
+        </div>
+
         <div class="mb-6 sm:mb-8 md:mb-12 mt-12 sm:mt-4 text-center">
             <h1 class="text-accent text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extralight tracking-wide sm:tracking-widest uppercase px-2">
                 <font-awesome-icon :icon="['fab', 'bitcoin']" class="mr-1 sm:mr-2" /> 
@@ -117,9 +158,9 @@ onBeforeUnmount(() => {
         </div>
 
         <Status
-            :isConnected="isConnected"
-            :rpcConnected="rpcConnected"
-            :errorMessage="errorMessage"
+            :isConnected="MOCK_MODE ? getMockConnectionState().isConnected : isConnected"
+            :rpcConnected="MOCK_MODE ? getMockConnectionState().rpcConnected : rpcConnected"
+            :errorMessage="MOCK_MODE ? getMockConnectionState().errorMessage : errorMessage"
             :outboundPeers="dataState.generalStats.outboundCount"
             :blockchain="dataState.blockchainInfo"
             :block="dataState.block"
@@ -127,7 +168,7 @@ onBeforeUnmount(() => {
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
 
-            <div class="lg:col-span-2 mb-3 sm:mb-5" v-if="rpcConnected">
+            <div class="lg:col-span-2 mb-3 sm:mb-5" v-if="MOCK_MODE ? dataState.rpcConnected : rpcConnected">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
 
                     <PeersCard :stats="dataState.generalStats" />
