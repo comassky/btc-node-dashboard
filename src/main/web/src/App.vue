@@ -1,21 +1,19 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed, onBeforeUnmount } from 'vue';
-import Status from './components/Status.vue';
-import PeersCard from './components/PeersCard.vue';
-import BlockCard from './components/BlockCard.vue';
-import NodeCard from './components/NodeCard.vue';
-import PeerDistributionChart from './components/PeerDistributionChart.vue';
-import PeerTable from './components/PeerTable.vue';
-import Footer from './components/Footer.vue';
-import { BlockChainInfo, NodeInfo, Peer, type DashboardData } from './types';
+import { reactive, computed, onBeforeUnmount, ref, onMounted } from 'vue';
+import Status from '@components/Status.vue';
+import PeersCard from '@components/PeersCard.vue';
+import BlockCard from '@components/BlockCard.vue';
+import NodeCard from '@components/NodeCard.vue';
+import PeerDistributionChart from '@components/PeerDistributionChart.vue';
+import PeerTable from '@components/PeerTable.vue';
+import Footer from '@components/Footer.vue';
+import { BlockChainInfo, NodeInfo, Peer, type DashboardData, type DashboardConfig } from '@types';
+import { useWebSocket } from '@composables/useWebSocket';
+import { useTheme } from '@composables/useTheme';
+import { setMinOutboundPeers } from '@utils/nodeHealth';
 
-// Constants
-const WS_RECONNECT_BASE_DELAY = 1000;
-const WS_RECONNECT_MAX_DELAY = 30000;
-const WS_RECONNECT_MULTIPLIER = 2;
 const WS_URL = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws/dashboard`;
 
-// Optimized initial state
 const DEFAULT_DATA: DashboardData = {
   generalStats: { inboundCount: 0, outboundCount: 0, totalPeers: 0 },
   blockchainInfo: {
@@ -35,18 +33,9 @@ const DEFAULT_DATA: DashboardData = {
   rpcConnected: false,
 };
 
-// Reactive state
-const isConnected = ref(false);
-const rpcConnected = ref(false);
-const errorMessage = ref<string | null>(null);
-const isDarkMode = ref(true);
 const dataState = reactive<DashboardData>(DEFAULT_DATA);
+const configLoaded = ref(false);
 
-let ws: WebSocket | null = null;
-let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
-let reconnectAttempts = 0;
-
-// Computed properties
 const inboundPeers = computed(() => dataState.inboundPeer);
 const outboundPeers = computed(() => dataState.outboundPeer);
 const subverInbound = computed(() => dataState.subverDistribution.inbound);
@@ -54,30 +43,27 @@ const subverOutbound = computed(() => dataState.subverDistribution.outbound);
 const inboundCount = computed(() => dataState.generalStats.inboundCount);
 const outboundCount = computed(() => dataState.generalStats.outboundCount);
 
-// Theme management
-const updateErrorPulseRgb = () => {
-  const errorColor = isDarkMode.value ? '239, 71, 111' : '239, 68, 68';
-  document.documentElement.style.setProperty('--status-error-rgb', errorColor);
+const { isDarkMode, toggleDarkMode } = useTheme();
+
+// Load configuration from backend
+const loadConfig = async () => {
+  try {
+    const response = await fetch('/api/config');
+    if (response.ok) {
+      const config: DashboardConfig = await response.json();
+      setMinOutboundPeers(config.minOutboundPeers);
+      configLoaded.value = true;
+    }
+  } catch (error) {
+    console.error('Failed to load dashboard configuration:', error);
+    configLoaded.value = true; // Continue with default values
+  }
 };
 
-const toggleDarkMode = () => {
-  isDarkMode.value = !isDarkMode.value;
-  localStorage.setItem('theme', isDarkMode.value ? 'dark' : 'light');
-  document.documentElement.classList.toggle('dark', isDarkMode.value);
-  updateErrorPulseRgb();
-};
+onMounted(async () => {
+  await loadConfig();
+});
 
-const loadTheme = () => {
-  const savedTheme = localStorage.getItem('theme');
-  isDarkMode.value = savedTheme 
-    ? savedTheme === 'dark' 
-    : window.matchMedia('(prefers-color-scheme: dark)').matches;
-  
-  document.documentElement.classList.toggle('dark', isDarkMode.value);
-  updateErrorPulseRgb();
-};
-
-// WebSocket
 const normalizeData = (rawData: Partial<DashboardData>) => {
   const nodeInfo = rawData.nodeInfo as NodeInfo || {};
   const blockchainInfo = rawData.blockchainInfo as BlockChainInfo || {};
@@ -105,77 +91,12 @@ const normalizeData = (rawData: Partial<DashboardData>) => {
   });
 };
 
-const scheduleReconnect = () => {
-  if (reconnectTimeout) clearTimeout(reconnectTimeout);
-  
-  const delay = Math.min(
-    WS_RECONNECT_BASE_DELAY * Math.pow(WS_RECONNECT_MULTIPLIER, reconnectAttempts),
-    WS_RECONNECT_MAX_DELAY
-  );
-  
-  reconnectAttempts++;
-  reconnectTimeout = setTimeout(connectWebSocket, delay);
-};
+const { isConnected, rpcConnected, errorMessage, connect, disconnect } = useWebSocket(WS_URL, normalizeData);
 
-const connectWebSocket = () => {
-  if (ws) {
-    ws.onclose = null;
-    ws.close();
-  }
-
-  ws = new WebSocket(WS_URL);
-
-  ws.onopen = () => {
-    isConnected.value = true;
-    errorMessage.value = null;
-    reconnectAttempts = 0;
-  };
-
-  ws.onmessage = (event) => {
-    try {
-      const json = JSON.parse(event.data) as Partial<DashboardData>;
-
-      if ('rpcConnected' in json) {
-        rpcConnected.value = json.rpcConnected ?? false;
-        errorMessage.value = json.errorMessage || null;
-        return;
-      }
-
-      if ('generalStats' in json) {
-        rpcConnected.value = true;
-        errorMessage.value = null;
-        normalizeData(json);
-      }
-    } catch (e) {
-      // Silent error handling - error already visible in UI via errorMessage
-    }
-  };
-
-  ws.onclose = () => {
-    isConnected.value = false;
-    rpcConnected.value = false;
-    errorMessage.value = 'WebSocket disconnected. Retrying...';
-    scheduleReconnect();
-  };
-
-  ws.onerror = () => {
-    isConnected.value = false;
-    rpcConnected.value = false;
-    errorMessage.value = 'WebSocket connection error.';
-  };
-};
-
-onMounted(() => {
-  loadTheme();
-  connectWebSocket();
-});
+connect();
 
 onBeforeUnmount(() => {
-  if (reconnectTimeout) clearTimeout(reconnectTimeout);
-  if (ws) {
-    ws.onclose = null;
-    ws.close();
-  }
+  disconnect();
 });
 </script>
 
@@ -199,6 +120,9 @@ onBeforeUnmount(() => {
             :isConnected="isConnected"
             :rpcConnected="rpcConnected"
             :errorMessage="errorMessage"
+            :outboundPeers="dataState.generalStats.outboundCount"
+            :blockchain="dataState.blockchainInfo"
+            :block="dataState.block"
         />
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8">

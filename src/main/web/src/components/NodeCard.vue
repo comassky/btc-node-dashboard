@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-bg-card p-4 sm:p-6 rounded-xl shadow-lg border-l-4 border-accent hover:shadow-2xl hover:border-accent transition transform hover:-translate-y-0.5 lg:col-span-2">
+    <div class="dashboard-card border-accent hover:shadow-2xl hover:border-accent lg:col-span-2">
         <div class="flex justify-between items-center">
             <div class="text-2xl sm:text-3xl text-accent">
                 <font-awesome-icon :icon="['fas', 'hard-hat']" />
@@ -37,8 +37,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { type NodeInfo, type BlockChainInfo } from '../types';
-import Tooltip from './Tooltip.vue';
+import { type NodeInfo, type BlockChainInfo } from '@types';
+import Tooltip from '@components/Tooltip.vue';
 
 const props = defineProps<{
     node: NodeInfo;

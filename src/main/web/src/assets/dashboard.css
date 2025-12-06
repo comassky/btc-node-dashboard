@@ -133,6 +133,17 @@ body {
     white-space: nowrap;
 }
 
+/* Dashboard Card Base Styles */
+@layer components {
+    .dashboard-card {
+        @apply bg-bg-card p-4 sm:p-6 rounded-xl shadow-lg border-l-4 transition;
+    }
+    
+    .dashboard-card-interactive {
+        @apply dashboard-card overflow-visible relative z-10;
+    }
+}
+
 /* Responsive Improvements */
 @media (max-width: 600px) {
     .status-bar.is-mobile {

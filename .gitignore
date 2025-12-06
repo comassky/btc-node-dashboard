@@ -8,12 +8,6 @@
 # Log files
 *.log
 
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
 # Package Files
 *.jar
 *.war
@@ -59,6 +53,7 @@ bin/
 # VS Code
 .vscode/
 *.code-workspace
+.history/
 
 # NetBeans
 nbproject/private/
@@ -79,15 +74,26 @@ src/main/web/node/
 
 # Build output
 src/main/web/dist/
+src/main/web/dist-ssr/
+src/main/web/stats.html
 
-# npm
+# Test coverage
+src/main/web/coverage/
+
+# npm/pnpm/yarn
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json
-
-# pnpm
 pnpm-debug.log*
+.pnpm-store/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment files
+.env
+.env.local
+.env.*.local
 
 #################
 # OS specific
@@ -98,6 +104,9 @@ pnpm-debug.log*
 .AppleDouble
 .LSOverride
 ._*
+Icon?
+.Spotlight-V100
+.Trashes
 
 # Windows
 Thumbs.db
@@ -106,11 +115,13 @@ ehthumbs.db
 ehthumbs_vista.db
 Desktop.ini
 $RECYCLE.BIN/
+*.lnk
 
 # Linux
 *~
 .directory
 .Trash-*
+.nfs*
 
 #################
 # Application specific
@@ -125,9 +136,17 @@ src/main/resources/application-local.properties
 *.temp
 *.swp
 *.swo
-*~
+*.bak
+*.cache
 
 # Logs
 logs/
 *.log.*
+
+# Docker
+.dockerignore
+
+# Quarkus
+.quarkus/
+quarkus.log
 /node/

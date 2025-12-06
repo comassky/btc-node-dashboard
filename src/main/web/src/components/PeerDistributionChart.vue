@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, onBeforeUnmount } from 'vue';
-import { Chart, ArcElement, Tooltip, Legend, PieController } from 'chart.js';
-import { type SubverDistribution } from '../types';
+import { Chart, ArcElement, Tooltip, Legend, PieController, type TooltipItem, type ChartOptions } from 'chart.js';
+import { type SubverDistribution } from '@types';
 
 Chart.register(ArcElement, Tooltip, Legend, PieController);
 
-// Disable all animations by default to optimize CPU
 Chart.defaults.animation = false;
 
-// Base colors data
 const BASE_COLORS = [
     '#06d6a0', '#ff9900', '#ef476f', '#118ab2', '#ffd166', '#00bcd4', '#4caf50', '#9c27b0',
     '#ff9800', '#03a9f4', '#8bc34a', '#e91e63', '#607d8b', '#009688', '#cddc39', '#795548'
 ];
 
-// Chart.js utilities adapted from dashboard.js
 const getCssVar = (name: string): string => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 const generateColors = (numColors: number): string[] => {
@@ -30,11 +27,11 @@ const updateChartDefaults = () => {
     Chart.defaults.borderColor = getCssVar('--border-strong');
 };
 
-const getChartOptions = () => {
+const getChartOptions = (): ChartOptions<'pie'> => {
     return {
         responsive: true,
         maintainAspectRatio: false,
-        animation: false, // Disable all animations
+        animation: false,
         plugins: {
             legend: {
                 position: 'right',
@@ -52,7 +49,7 @@ const getChartOptions = () => {
                 cornerRadius: 6,
                 animation: false,
                 callbacks: {
-                    label: function (context: any) {
+                    label: (context: TooltipItem<'pie'>) => {
                         const label = context.label || '';
                         const value = context.parsed || 0;
                         return `${label}: ${value}%`;
@@ -66,7 +63,6 @@ const getChartOptions = () => {
     };
 };
 
-// Logique du composant
 const props = defineProps<{
     peers: SubverDistribution[];
     type: 'inbound' | 'outbound';
@@ -107,7 +103,7 @@ const initPieChart = (chartData: SubverDistribution[]): Chart | null => {
                 borderColor: 'transparent',
             }]
         },
-        options: getChartOptions() as any
+        options: getChartOptions()
     });
 };
 
@@ -124,11 +120,9 @@ const updateChartData = (chartInstance: Chart, chartData: SubverDistribution[]) 
     chartInstance.data.datasets[0].data = percentages;
     chartInstance.data.datasets[0].backgroundColor = backgroundColors;
 
-    // Update without animation to optimize CPU
     chartInstance.update('none');
 };
 
-// 1. Watcher on data (for real-time updates)
 watch(() => props.peers, (newVal) => {
     if (pieChartInstance) {
         updateChartData(pieChartInstance, newVal);
@@ -141,12 +135,9 @@ watch(() => props.peers, (newVal) => {
     }
 }, { deep: true, immediate: true });
 
-// 2. 🚨 Watcher sur le Dark Mode (pour forcer la recréation du graphique)
 watch(() => props.isDarkMode, () => {
-    // Détruit et recrée le graphique pour appliquer les nouvelles couleurs du thème
     destroyChart();
     nextTick(() => {
-        // Recrée le graphique avec les données actuelles
         pieChartInstance = initPieChart(props.peers);
     });
 });
