@@ -106,8 +106,12 @@ See [BUILD.md](BUILD.md) for detailed instructions.
 
 ### REST API
 
-- **GET** `/api/config` - Get dashboard configuration (min outbound peers threshold)
-- **GET** `/data/peers` - Get current peer statistics and blockchain info
+- **GET** `/api/config` — Dashboard config (minOutboundPeers)
+- **GET** `/data/dashboard` — Get dashboard data (GlobalResponse)
+- **GET** `/data/getnetworkinfo` — Get node info (NodeInfo)
+- **GET** `/data/getblock/{hash}` — Get block info by hash (BlockInfo)
+- **GET** `/data/getbestblockhash` — Get best block hash (plain text)
+- **GET** `/data/getBlockchainInfo` — Get blockchain info (BlockchainInfo)
 
 ### WebSocket
 
