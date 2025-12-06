@@ -53,7 +53,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ### Build & Deploy
 - **Maven** 3.9.11 (Backend build and dependency management)
-- **Maven Compiler Plugin** 4.0.0-beta-3
+- **Maven Compiler Plugin** 3.14.1
 - **Maven Surefire Plugin** 3.5.4
 - **Frontend Maven Plugin** 1.15.4
 - **npm** 11.6.2 (with Node.js v24.11.1)
