@@ -13,7 +13,7 @@
         <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
         <node.lts.version>v24.11.1</node.lts.version>
         <npm.lts.version>11.6.2</npm.lts.version>
-        <compiler-plugin.version>3.14.1</compiler-plugin.version>
+        <compiler-plugin.version>4.0.0-beta-3</compiler-plugin.version>
         <surefire-plugin.version>3.5.4</surefire-plugin.version>
 
         <!-- Other Properties -->
