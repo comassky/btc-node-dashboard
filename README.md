@@ -1,9 +1,3 @@
-# 🚦 Build & Continuous Integration
-
-- The Maven build (`mvn package`) runs all tests and produces the final artifact (backend + frontend bundled).
-- Docker and native workflows use this artifact: no build or tests are repeated in those steps.
-- CI (GitHub Actions) blocks any deployment if a test fails.
-- See [BUILD.md](BUILD.md) and [TESTING.md](TESTING.md) for more details.
 # Bitcoin Node Dashboard ₿
 
 Monitor your Bitcoin Core node in real-time with a modern web interface.
@@ -150,6 +144,13 @@ bitcoin.rpc.password=your_password
 dashboard.polling.interval.seconds=5
 dashboard.cache.validity-buffer-ms=200
 ```
+
+# 🚦 Build & Continuous Integration
+
+- The Maven build (`mvn package`) runs all tests and produces the final artifact (backend + frontend bundled).
+- Docker and native workflows use this artifact: no build or tests are repeated in those steps.
+- CI (GitHub Actions) blocks any deployment if a test fails.
+- See [BUILD.md](BUILD.md) and [TESTING.md](TESTING.md) for more details.
 
 ## 🎨 Frontend Development
 
