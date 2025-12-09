@@ -1,4 +1,3 @@
-
 package comasky.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +14,8 @@ import jakarta.websocket.server.ServerEndpoint;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -99,26 +100,26 @@ public class DashboardWebSocket {
         try {
             if (message == null || message.serializedJson() == null) {
                 LOG.errorf("Fetched message or its JSON is null for session %s", session.getId());
-                sendErrorJson(session, "No data available");
+                sendErrorJson(session, new ErrorResponse("No data available"));
             } else {
                 session.getAsyncRemote().sendText(message.serializedJson());
             }
         } catch (Exception e) {
             LOG.errorf(e, "Exception while sending data to session %s", session.getId());
-            sendErrorJson(session, "Internal error while sending data");
+            sendErrorJson(session, new ErrorResponse("Internal error while sending data"));
         }
     }
 
     private void handleSendError(Session session, Throwable failure) {
         LOG.errorf(failure, "Failed to send initial data to session %s: %s", session.getId(), failure.getMessage());
         String msg = (failure.getMessage() != null) ? failure.getMessage() : "unknown error";
-        sendErrorJson(session, String.format("Failed to fetch data: %s", msg.replace("\"", "'")));
+        sendErrorJson(session, new ErrorResponse(String.format("Failed to fetch data: %s", msg)));
     }
 
-    private void sendErrorJson(Session session, String errorMsg) {
+    private void sendErrorJson(Session session, ErrorResponse errorResponse) {
         if (session != null && session.isOpen()) {
             try {
-                session.getAsyncRemote().sendText(String.format("{\"error\":\"%s\"}", errorMsg.replace("\"", "'")));
+                session.getAsyncRemote().sendText(objectMapper.writeValueAsString(errorResponse));
             } catch (Exception e) {
                 LOG.errorf(e, "Exception while sending error message to session %s", session.getId());
             }
@@ -157,9 +158,19 @@ public class DashboardWebSocket {
                         LOG.warnf("RPC call failed: %s", e.getMessage());
                         String msg = (e.getCause() != null && e.getCause().getMessage() != null) ? e.getCause().getMessage() : e.getMessage();
                         if (msg == null) msg = "Unknown error";
-                        String errorMsg = msg.replace("\"", "'");
-                        String errorJson = "{\"rpcConnected\": false, \"errorMessage\": \"" + errorMsg + "\"}";
-                        return CachedMessage.error(errorMsg, errorJson);
+
+                        // Construct the specific error JSON for the client
+                        Map<String, Object> errorMap = new HashMap<>();
+                        errorMap.put("rpcConnected", false);
+                        errorMap.put("errorMessage", msg);
+                        String errorJson;
+                        try {
+                            errorJson = objectMapper.writeValueAsString(errorMap);
+                        } catch (Exception jsonEx) {
+                            LOG.errorf(jsonEx, "Failed to serialize error map to JSON for WebSocket client");
+                            errorJson = "{\"rpcConnected\": false, \"errorMessage\": \"Internal server error during error serialization\"}";
+                        }
+                        return CachedMessage.error(msg, errorJson);
                     })
                     .onItem().invoke(message -> {
                         // Cache the new result

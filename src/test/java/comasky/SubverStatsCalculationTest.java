@@ -1,15 +1,27 @@
 package comasky;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
+import comasky.client.RpcRequestDto;
+import comasky.exceptions.RpcException;
+import comasky.rpcClass.BlockInfo;
+import comasky.rpcClass.BlockchainInfo;
 import comasky.rpcClass.GlobalResponse;
+import comasky.rpcClass.NodeInfo;
+import comasky.rpcClass.PeerInfo;
+import comasky.rpcClass.RpcResponse;
 import comasky.rpcClass.RpcServices;
 import comasky.rpcClass.SubverStats;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,33 +36,61 @@ class SubverStatsCalculationTest {
     @Inject
     RpcServices rpcServices;
 
-    @Test
-    void testSubverDistribution_singleVersion() {
-        String mockPeerInfoResponse = """
-            {
-                "result": [
-                    {
-                        "id": 1,
-                        "inbound": true,
-                        "subver": "/Satoshi:27.0.0/"
-                    },
-                    {
-                        "id": 2,
-                        "inbound": true,
-                        "subver": "/Satoshi:27.0.0/"
-                    },
-                    {
-                        "id": 3,
-                        "inbound": true,
-                        "subver": "/Satoshi:27.0.0/"
-                    }
-                ],
-                "error": null,
-                "id": "quarkus-getpeerinfo"
-            }
-            """;
+    @Inject
+    ObjectMapper objectMapper; // Inject ObjectMapper to help with JSON creation
 
-        mockAllRpcCalls(mockPeerInfoResponse);
+    // Helper to create a successful RpcResponse JSON string
+    private <T> String createSuccessRpcResponseJson(T result) throws Exception {
+        RpcResponse<T> response = new RpcResponse<>();
+        response.setResult(result);
+        response.setId("1.0"); // Assuming a default ID
+        return objectMapper.writeValueAsString(response);
+    }
+
+    // Helper to create an error RpcResponse JSON string
+    private String createErrorRpcResponseJson(Object error) throws Exception {
+        RpcResponse<Object> response = new RpcResponse<>();
+        response.setError(error);
+        response.setId("1.0"); // Assuming a default ID
+        return objectMapper.writeValueAsString(response);
+    }
+
+    // Helper method to create a PeerInfo instance with default values for less relevant fields
+    private PeerInfo createPeerInfo(String id, String addr, boolean inbound, String subver, int version) {
+        return new PeerInfo(
+                Integer.parseInt(id), // id
+                addr, // addr
+                "127.0.0.1:8333", // addrlocal
+                "00000001", // services
+                System.currentTimeMillis() / 1000 - 3600, // conntime (1 hour ago)
+                System.currentTimeMillis() / 1000, // lastsend
+                System.currentTimeMillis() / 1000, // lastrecv
+                1024 * 1024, // bytesrecv
+                512 * 1024, // bytessent
+                Collections.emptyMap(), // bytesRecvPerMsg
+                Collections.emptyMap(), // bytesSentPerMsg
+                0.1, // pingtime
+                0.05, // minping
+                0, // timeoffset
+                version, // version
+                subver, // subver
+                inbound, // inbound
+                "V2", // transportProtocol
+                0, // permission
+                "inbound", // connectionType
+                "mainnet", // network
+                0 // unshippedTxs
+        );
+    }
+
+    @Test
+    void testSubverDistribution_singleVersion() throws Exception {
+        List<PeerInfo> mockPeers = List.of(
+                createPeerInfo("1", "192.168.1.100:8333", true, "/Satoshi:27.0.0/", 270000),
+                createPeerInfo("2", "192.168.1.101:8333", true, "/Satoshi:27.0.0/", 270000),
+                createPeerInfo("3", "192.168.1.102:8333", true, "/Satoshi:27.0.0/", 270000)
+        );
+        mockAllRpcCalls(createSuccessRpcResponseJson(mockPeers));
 
         GlobalResponse response = rpcServices.getData().await().indefinitely(); // Await the Uni
 
@@ -63,37 +103,14 @@ class SubverStatsCalculationTest {
     }
 
     @Test
-    void testSubverDistribution_multipleVersions() {
-        String mockPeerInfoResponse = """
-            {
-                "result": [
-                    {
-                        "id": 1,
-                        "inbound": true,
-                        "subver": "/Satoshi:27.0.0/"
-                    },
-                    {
-                        "id": 2,
-                        "inbound": true,
-                        "subver": "/Satoshi:27.0.0/"
-                    },
-                    {
-                        "id": 3,
-                        "inbound": true,
-                        "subver": "/Satoshi:26.0.0/"
-                    },
-                    {
-                        "id": 4,
-                        "inbound": true,
-                        "subver": "/Satoshi:25.0.0/"
-                    }
-                ],
-                "error": null,
-                "id": "quarkus-getpeerinfo"
-            }
-            """;
-
-        mockAllRpcCalls(mockPeerInfoResponse);
+    void testSubverDistribution_multipleVersions() throws Exception {
+        List<PeerInfo> mockPeers = List.of(
+                createPeerInfo("1", "192.168.1.100:8333", true, "/Satoshi:27.0.0/", 270000),
+                createPeerInfo("2", "192.168.1.101:8333", true, "/Satoshi:27.0.0/", 270000),
+                createPeerInfo("3", "192.168.1.102:8333", true, "/Satoshi:26.0.0/", 260000),
+                createPeerInfo("4", "192.168.1.103:8333", true, "/Satoshi:25.0.0/", 250000)
+        );
+        mockAllRpcCalls(createSuccessRpcResponseJson(mockPeers));
 
         GlobalResponse response = rpcServices.getData().await().indefinitely(); // Await the Uni
 
@@ -110,32 +127,13 @@ class SubverStatsCalculationTest {
     }
 
     @Test
-    void testSubverDistribution_withNullSubver() {
-        String mockPeerInfoResponse = """
-            {
-                "result": [
-                    {
-                        "id": 1,
-                        "inbound": true,
-                        "subver": "/Satoshi:27.0.0/"
-                    },
-                    {
-                        "id": 2,
-                        "inbound": true,
-                        "subver": null
-                    },
-                    {
-                        "id": 3,
-                        "inbound": true,
-                        "subver": "/Satoshi:27.0.0/"
-                    }
-                ],
-                "error": null,
-                "id": "quarkus-getpeerinfo"
-            }
-            """;
-
-        mockAllRpcCalls(mockPeerInfoResponse);
+    void testSubverDistribution_withNullSubver() throws Exception {
+        List<PeerInfo> mockPeers = List.of(
+                createPeerInfo("1", "192.168.1.100:8333", true, "/Satoshi:27.0.0/", 270000),
+                createPeerInfo("2", "192.168.1.101:8333", true, null, 0), // Null subver
+                createPeerInfo("3", "192.168.1.102:8333", true, "/Satoshi:27.0.0/", 270000)
+        );
+        mockAllRpcCalls(createSuccessRpcResponseJson(mockPeers));
 
         GlobalResponse response = rpcServices.getData().await().indefinitely(); // Await the Uni
 
@@ -149,37 +147,14 @@ class SubverStatsCalculationTest {
     }
 
     @Test
-    void testSubverDistribution_inboundVsOutbound() {
-        String mockPeerInfoResponse = """
-            {
-                "result": [
-                    {
-                        "id": 1,
-                        "inbound": true,
-                        "subver": "/Satoshi:27.0.0/"
-                    },
-                    {
-                        "id": 2,
-                        "inbound": false,
-                        "subver": "/Satoshi:26.0.0/"
-                    },
-                    {
-                        "id": 3,
-                        "inbound": true,
-                        "subver": "/Satoshi:27.0.0/"
-                    },
-                    {
-                        "id": 4,
-                        "inbound": false,
-                        "subver": "/Satoshi:26.0.0/"
-                    }
-                ],
-                "error": null,
-                "id": "quarkus-getpeerinfo"
-            }
-            """;
-
-        mockAllRpcCalls(mockPeerInfoResponse);
+    void testSubverDistribution_inboundVsOutbound() throws Exception {
+        List<PeerInfo> mockPeers = List.of(
+                createPeerInfo("1", "192.168.1.100:8333", true, "/Satoshi:27.0.0/", 270000),
+                createPeerInfo("2", "192.168.1.101:8333", false, "/Satoshi:26.0.0/", 260000),
+                createPeerInfo("3", "192.168.1.102:8333", true, "/Satoshi:27.0.0/", 270000),
+                createPeerInfo("4", "192.168.1.103:8333", false, "/Satoshi:26.0.0/", 260000)
+        );
+        mockAllRpcCalls(createSuccessRpcResponseJson(mockPeers));
 
         GlobalResponse response = rpcServices.getData().await().indefinitely(); // Await the Uni
 
@@ -197,37 +172,14 @@ class SubverStatsCalculationTest {
     }
 
     @Test
-    void testSubverDistribution_percentageCalculation() {
-        String mockPeerInfoResponse = """
-            {
-                "result": [
-                    {
-                        "id": 1,
-                        "inbound": true,
-                        "subver": "/Satoshi:27.0.0/"
-                    },
-                    {
-                        "id": 2,
-                        "inbound": true,
-                        "subver": "/Satoshi:27.0.0/"
-                    },
-                    {
-                        "id": 3,
-                        "inbound": true,
-                        "subver": "/Satoshi:27.0.0/"
-                    },
-                    {
-                        "id": 4,
-                        "inbound": true,
-                        "subver": "/Satoshi:26.0.0/"
-                    }
-                ],
-                "error": null,
-                "id": "quarkus-getpeerinfo"
-            }
-            """;
-
-        mockAllRpcCalls(mockPeerInfoResponse);
+    void testSubverDistribution_percentageCalculation() throws Exception {
+        List<PeerInfo> mockPeers = List.of(
+                createPeerInfo("1", "192.168.1.100:8333", true, "/Satoshi:27.0.0/", 270000),
+                createPeerInfo("2", "192.168.1.101:8333", true, "/Satoshi:27.0.0/", 270000),
+                createPeerInfo("3", "192.168.1.102:8333", true, "/Satoshi:27.0.0/", 270000),
+                createPeerInfo("4", "192.168.1.103:8333", true, "/Satoshi:26.0.0/", 260000)
+        );
+        mockAllRpcCalls(createSuccessRpcResponseJson(mockPeers));
 
         GlobalResponse response = rpcServices.getData().await().indefinitely(); // Await the Uni
 
@@ -241,50 +193,25 @@ class SubverStatsCalculationTest {
     }
 
     @Test
-    void testSubverDistribution_emptyPeers() {
-        String mockPeerInfoResponse = """
-            {
-                "result": [],
-                "error": null,
-                "id": "quarkus-getpeerinfo"
-            }
-            """;
-
-        mockAllRpcCalls(mockPeerInfoResponse);
+    void testSubverDistribution_emptyPeers() throws Exception {
+        mockAllRpcCalls(createSuccessRpcResponseJson(List.of())); // Empty list
 
         GlobalResponse response = rpcServices.getData().await().indefinitely(); // Await the Uni
 
+        assertTrue(response.generalStats().inboundCount() == 0);
+        assertTrue(response.generalStats().outboundCount() == 0);
         assertTrue(response.subverDistribution().inbound().isEmpty()); // Use record accessor
         assertTrue(response.subverDistribution().outbound().isEmpty()); // Use record accessor
     }
 
     @Test
-    void testSubverDistribution_roundingPrecision() {
-        String mockPeerInfoResponse = """
-            {
-                "result": [
-                    {
-                        "id": 1,
-                        "inbound": true,
-                        "subver": "/Satoshi:27.0.0/"
-                    },
-                    {
-                        "id": 2,
-                        "inbound": true,
-                        "subver": "/Satoshi:26.0.0/"
-                    },
-                    {
-                        "id": 3,
-                        "inbound": true,
-                        "subver": "/Satoshi:26.0.0/"
-                    }
-                ],
-                "error": null,
-                "id": "quarkus-getpeerinfo"
-            }
-            """;
-
-        mockAllRpcCalls(mockPeerInfoResponse);
+    void testSubverDistribution_roundingPrecision() throws Exception {
+        List<PeerInfo> mockPeers = List.of(
+                createPeerInfo("1", "192.168.1.100:8333", true, "/Satoshi:27.0.0/", 270000),
+                createPeerInfo("2", "192.168.1.101:8333", true, "/Satoshi:26.0.0/", 260000),
+                createPeerInfo("3", "192.168.1.102:8333", true, "/Satoshi:26.0.0/", 260000)
+        );
+        mockAllRpcCalls(createSuccessRpcResponseJson(mockPeers));
 
         GlobalResponse response = rpcServices.getData().await().indefinitely(); // Await the Uni
 
@@ -299,60 +226,36 @@ class SubverStatsCalculationTest {
     }
 
     @SuppressWarnings("unchecked")
-    private void mockAllRpcCalls(String peerInfoResponse) {
-        String mockBlockchainResponse = """
-            {
-                "result": {"blocks": 870000, "chain": "main", "verificationprogress": 0.99, "initialblockdownload": false},
-                "error": null,
-                "id": "quarkus-getblockchaininfo"
+    private void mockAllRpcCalls(String peerInfoResponse) throws Exception {
+        // These should be full RpcResponse JSON strings
+        String mockBlockchainResponse = createSuccessRpcResponseJson(new BlockchainInfo(870000, 870000, "main", 0.99, false));
+        String mockNodeInfoResponse = createSuccessRpcResponseJson(new NodeInfo(70016, 270000, "/Satoshi:27.0.0/", 10, true));
+        String mockUptimeResponse = createSuccessRpcResponseJson(432000L);
+        String mockBestBlockHashResponse = createSuccessRpcResponseJson("00000000000000000001abc");
+        String mockBlockInfoResponse = createSuccessRpcResponseJson(new BlockInfo(
+                "00000000000000000001abc", 1, 0, 0, 0, 870000, 1, "", "", 1733443200L, 0L, 0L, "", 1.0, "", 2500, "", ""
+        ));
+
+        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenAnswer(invocation -> {
+            RpcRequestDto request = invocation.getArgument(0);
+            String method = request.method();
+
+            switch (method) {
+                case "getpeerinfo":
+                    return peerInfoResponse;
+                case "getblockchaininfo":
+                    return mockBlockchainResponse;
+                case "getnetworkinfo":
+                    return mockNodeInfoResponse;
+                case "uptime":
+                    return mockUptimeResponse;
+                case "getbestblockhash":
+                    return mockBestBlockHashResponse;
+                case "getblock":
+                    return mockBlockInfoResponse;
+                default:
+                    throw new IllegalArgumentException("Unexpected method: " + method);
             }
-            """;
-
-        String mockNodeInfoResponse = """
-            {
-                "result": {"version": 270000, "subversion": "/Satoshi:27.0.0/", "protocolversion": 70016, "connections": 10, "networkactive": true},
-                "error": null,
-                "id": "quarkus-getnetworkinfo"
-            }
-            """;
-
-        String mockUptimeResponse = """
-            {
-                "result": 432000,
-                "error": null,
-                "id": "quarkus-uptime"
-            }
-            """;
-
-        String mockBestBlockHashResponse = """
-            {
-                "result": "00000000000000000001abc",
-                "error": null,
-                "id": "quarkus-getbestblockhash"
-            }
-            """;
-
-        String mockBlockInfoResponse = """
-            {
-                "result": {"hash": "00000000000000000001abc", "time": 1733443200, "nTx": 2500},
-                "error": null,
-                "id": "quarkus-getblock"
-            }
-            """;
-
-        when(rpcClient.executeRpcCall(any())).thenAnswer(invocation -> {
-            var request = (java.util.Map<String, Object>) invocation.getArgument(0);
-            String method = (String) request.get("method");
-
-            return switch (method) {
-                case "getpeerinfo" -> peerInfoResponse;
-                case "getblockchaininfo" -> mockBlockchainResponse;
-                case "getnetworkinfo" -> mockNodeInfoResponse;
-                case "uptime" -> mockUptimeResponse;
-                case "getbestblockhash" -> mockBestBlockHashResponse;
-                case "getblock" -> mockBlockInfoResponse;
-                default -> throw new IllegalArgumentException("Unexpected method: " + method);
-            };
         });
     }
 }
