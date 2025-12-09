@@ -1,3 +1,9 @@
+# 🚦 Build & Continuous Integration
+
+- The Maven build (`mvn package`) runs all tests and produces the final artifact (backend + frontend bundled).
+- Docker and native workflows use this artifact: no build or tests are repeated in those steps.
+- CI (GitHub Actions) blocks any deployment if a test fails.
+- See [BUILD.md](BUILD.md) and [TESTING.md](TESTING.md) for more details.
 # Bitcoin Node Dashboard ₿
 
 Monitor your Bitcoin Core node in real-time with a modern web interface.
@@ -36,7 +42,6 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | **Jakarta WebSocket** | - | Real-time communication |
 | **MicroProfile REST Client** | - | HTTP client for Bitcoin RPC |
 | **Jackson** | - | JSON processing |
-| **Lombok** | 1.18.42 | Boilerplate reduction |
 
 ### Frontend
 | Technology | Version | Description |
@@ -112,10 +117,20 @@ See [BUILD.md](BUILD.md) for detailed instructions.
 
 ## 🔧 Configuration
 
+For details on reactive programming, non-blocking guarantees, and contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-`DASHBOARD_CACHE_VALIDITY_BUFFER_MS` : Définit le temps (en millisecondes) à soustraire à la durée de validité du cache pour garantir la fraîcheur des données. Par défaut : `200`. Modifiez cette valeur si votre environnement nécessite une actualisation plus agressive ou plus tolérante du cache.
 
-Exemple dans `application-local.properties` :
+Main user-configurable environment variables:
+
+- `RPC_HOST`, `RPC_PORT`, `RPC_USER`, `RPC_PASS`: Bitcoin node connection
+- `WS_POLLING_INTERVAL`: dashboard refresh interval (seconds)
+- `MIN_OUTBOUND_PEERS`: minimum outbound peers
+- `DASHBOARD_CACHE_VALIDITY_BUFFER_MS`: cache validity buffer (ms)
+- `LOG_LEVEL`: log level (INFO, DEBUG, ...)
+
+For the full list and default values, see [BUILD.md](BUILD.md).
+
+Example in `application-local.properties`:
 ```properties
 bitcoin.rpc.host=localhost
 bitcoin.rpc.port=8332
@@ -124,8 +139,6 @@ bitcoin.rpc.password=your_password
 dashboard.polling.interval.seconds=5
 dashboard.cache.validity-buffer-ms=200
 ```
-
-Voir aussi [BUILD.md](BUILD.md) pour toutes les options de configuration, variables d'environnement et propriétés d'application.
 
 ## 🎨 Frontend Development
 

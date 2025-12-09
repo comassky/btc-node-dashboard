@@ -1,3 +1,8 @@
+# 🔄 Continuous Integration
+
+- CI runs all tests (backend and frontend) during the Maven build.
+- Docker/native images are only built and published if all tests pass.
+- No tests are re-run during Docker or native build steps.
 # Testing Guide
 
 **146 automated tests** covering backend and frontend for reliability and stability.

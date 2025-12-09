@@ -1,7 +1,6 @@
 package comasky.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import comasky.rpcClass.GlobalResponse;
 import comasky.rpcClass.RpcServices;
 import io.quarkus.scheduler.Scheduled;
 import io.smallrye.mutiny.Uni;
@@ -29,7 +28,7 @@ public class DashboardWebSocket {
 
     private static final Logger LOG = Logger.getLogger(DashboardWebSocket.class);
 
-    private final Set<Session> sessions = ConcurrentHashMap.newKeySet();
+    private final Set<Session> sessions = ConcurrentHashMap.<Session>newKeySet();
 
     // Cache for RPC data
     private final Object cacheLock = new Object();
@@ -83,15 +82,45 @@ public class DashboardWebSocket {
     }
 
     private void sendDataToSession(Session session) {
-        if (!session.isOpen()) {
+        if (session == null || !session.isOpen()) {
+            LOG.warn("Attempted to send data to a null or closed session.");
             return;
         }
 
         fetchAndCacheMessage()
                 .subscribe().with(
-                        message -> session.getAsyncRemote().sendText(message.serializedJson()),
-                        failure -> LOG.errorf("Failed to send initial data to session %s: %s", session.getId(), failure.getMessage())
+                        message -> safeSend(session, message),
+                        failure -> handleSendError(session, failure)
                 );
+    }
+
+    private void safeSend(Session session, CachedMessage message) {
+        try {
+            if (message == null || message.serializedJson() == null) {
+                LOG.errorf("Fetched message or its JSON is null for session %s", session.getId());
+                sendErrorJson(session, "No data available");
+            } else {
+                session.getAsyncRemote().sendText(message.serializedJson());
+            }
+        } catch (Exception e) {
+            LOG.errorf(e, "Exception while sending data to session %s", session.getId());
+            sendErrorJson(session, "Internal error while sending data");
+        }
+    }
+
+    private void handleSendError(Session session, Throwable failure) {
+        LOG.errorf(failure, "Failed to send initial data to session %s: %s", session.getId(), failure.getMessage());
+        sendErrorJson(session, String.format("Failed to fetch data: %s", failure.getMessage() != null ? failure.getMessage().replace("\"", "'") : "unknown error"));
+    }
+
+    private void sendErrorJson(Session session, String errorMsg) {
+        if (session != null && session.isOpen()) {
+            try {
+                session.getAsyncRemote().sendText(String.format("{\"error\":\"%s\"}", errorMsg.replace("\"", "'")));
+            } catch (Exception e) {
+                LOG.errorf(e, "Exception while sending error message to session %s", session.getId());
+            }
+        }
     }
 
     private Uni<CachedMessage> fetchAndCacheMessage() {
@@ -148,16 +177,16 @@ public class DashboardWebSocket {
 
     private void broadcastMessage(String message) {
         sessions.removeIf(session -> {
-            if (session.isOpen()) {
-                try {
-                    session.getAsyncRemote().sendText(message);
-                    return false;
-                } catch (Exception e) {
-                    LOG.warnf("Failed to send message to session %s: %s", session.getId(), e.getMessage());
-                    return true; // Remove session if sending fails
-                }
+            if (session == null || !session.isOpen()) {
+                return true;
             }
-            return true; // Remove closed sessions
+            try {
+                session.getAsyncRemote().sendText(message);
+                return false;
+            } catch (Exception e) {
+                LOG.warnf(e, "Failed to send message to session %s", session != null ? session.getId() : "null");
+                return true;
+            }
         });
     }
 }

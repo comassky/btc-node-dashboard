@@ -1,7 +1,9 @@
 package comasky;
 
 import comasky.client.RpcClient;
-import comasky.rpcClass.*;
+import comasky.rpcClass.GlobalResponse;
+import comasky.rpcClass.RpcServices;
+import comasky.rpcClass.SubverStats;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;

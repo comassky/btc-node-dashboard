@@ -2,20 +2,19 @@
 # Image de base ultra-légère pour le runtime natif GraalVM
 # UBI9 has GLIBC 2.34+ required by the native executable built on Ubuntu
 ###
-FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
+FROM quay.io/quarkus/ubi9-quarkus-micro-image:2.0
 
-# Définir le répertoire de travail
+# Set working directory
 WORKDIR /work/
 
-# Copie l'exécutable natif
-# L'exécutable a été généré par l'étape Maven du workflow
-COPY target/*-runner /work/application
+# Copy the native executable and set permissions
+COPY --chown=1001:root --chmod=0755 target/*-runner /work/application
 
-# Définir les permissions
-RUN chmod +x /work/application
+# Expose the default Quarkus port
+EXPOSE 8080
 
-# Définir l'utilisateur d'exécution non-root
+# Run as non-root user
 USER 1001
 
-# Lancer l'application
-ENTRYPOINT ["./application"]
+# Run the native executable with Quarkus host binding
+ENTRYPOINT ["/work/application", "-Dquarkus.http.host=0.0.0.0"]

@@ -9,7 +9,6 @@
         <!-- Version Properties -->
         <maven.compiler.release>21</maven.compiler.release>
         <quarkus.platform.version>3.30.2</quarkus.platform.version>
-        <lombok.version>1.18.42</lombok.version>
         <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
         <node.lts.version>v24.11.1</node.lts.version>
         <npm.lts.version>11.6.2</npm.lts.version>
@@ -57,12 +56,6 @@
             <artifactId>quarkus-websockets</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-            <scope>provided</scope>
-        </dependency>
 
         <dependency>
             <groupId>io.quarkus</groupId>

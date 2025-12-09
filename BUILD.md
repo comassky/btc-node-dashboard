@@ -1,3 +1,15 @@
+# 🏗️ Single Build (CI/CD)
+
+In CI, the Maven build (`./mvnw clean package`) runs all tests and produces the artifact used for Docker and native images. No build or tests are repeated in Docker/native steps: this ensures speed and consistency.
+
+- To build and test locally:
+  ```bash
+  ./mvnw clean package
+  ```
+- To build native (tests already run):
+  ```bash
+  ./mvnw clean package -Pnative -DskipTests
+  ```
 # Build and Run Guide
 
 Complete guide for building and deploying the Bitcoin Node Dashboard.
