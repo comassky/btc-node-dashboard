@@ -2,36 +2,35 @@ package comasky.shared;
 
 import io.smallrye.config.ConfigMapping;
 
+/**
+ * Configuration mapping for dashboard properties.
+ */
 @ConfigMapping(prefix = "dashboard")
 public interface DashboardConfig {
-    
     Polling polling();
-    
     Health health();
+    Cache cache();
+    int sessionsMax();
 
-    Cache cache(); // Add this line
-    
     interface Polling {
         Interval interval();
-        
         interface Interval {
             int seconds();
         }
     }
-    
+
     interface Health {
         Min min();
-        
         interface Min {
             Outbound outbound();
-            
             interface Outbound {
                 int peers();
             }
         }
     }
 
-    interface Cache { // Add this interface
+    interface Cache {
         int validityBufferMs();
+        int maxItems();
     }
 }

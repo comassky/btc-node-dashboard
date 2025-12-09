@@ -35,7 +35,7 @@ class DashboardWebSocketAdvancedTest {
         int concurrentClients = 5;
         CountDownLatch latch = new CountDownLatch(concurrentClients);
 
-        // Simulate multiple clients connecting at the same time
+        
         for (int i = 0; i < concurrentClients; i++) {
             Session mockSession = mock(Session.class);
             RemoteEndpoint.Async mockAsync = mock(RemoteEndpoint.Async.class);
@@ -51,10 +51,10 @@ class DashboardWebSocketAdvancedTest {
             webSocket.onOpen(mockSession);
         }
 
-        // Wait for all clients to have received their message
+        
         latch.await(5, TimeUnit.SECONDS);
 
-        // Verify that rpcServices.getData() was only called once, thanks to the in-flight request cache
+        
         verify(rpcServices, times(1)).getData();
     }
 

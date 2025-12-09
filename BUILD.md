@@ -1,3 +1,16 @@
+# 🏗️ Single Build (CI/CD)
+
+In CI, the Maven build (`./mvnw clean package`) runs all tests and produces the artifact used for Docker and native images. No build or tests are repeated in Docker/native steps: speed and consistency guaranteed.
+
+- To build and test locally:
+  ```bash
+  ./mvnw clean package
+  ```
+- To build native (tests already passed):
+  ```bash
+  ./mvnw clean package -Pnative -DskipTests
+  ```
+git clone https://github.com/comassky/btc-node-dashboard.git
 # Build and Run Guide
 
 Complete guide for building and deploying the Bitcoin Node Dashboard.
@@ -5,7 +18,7 @@ Complete guide for building and deploying the Bitcoin Node Dashboard.
 ## Prerequisites
 
 **Required**: Java 21+, Maven 3.9+, Bitcoin Core with RPC enabled  
-**Optional**: Node.js 24+ (for frontend dev), Docker
+**Optional**: Node.js 24+ (for frontend development), Docker
 
 ## 🚀 Quick Start
 
@@ -40,44 +53,8 @@ export RPC_PASS=your_password
 
 ## 🐳 Docker
 
-**Pre-built images**: [GitHub Packages](https://github.com/comassky/btc-node-dashboard/pkgs/container/btc-node-dashboard)
+Docker build and run instructions are now in [DOCKER.md](DOCKER.md).
 
-```bash
-# Native (recommended - 50ms startup, 30MB memory)
-docker run -d -p 8080:8080 \
-  -e RPC_HOST=<HOST> \
-  -e RPC_PORT=<PORT> \
-  -e RPC_USER=<USER> \
-  -e RPC_PASS=<PASSWORD> \
-  -e WS_POLLING_INTERVAL=5 \
-  -e MIN_OUTBOUND_PEERS=8 \
-  -e LOG_LEVEL=INFO \
-  -e DASHBOARD_CACHE_VALIDITY_BUFFER_MS=200 \
-  ghcr.io/comassky/btc-node-dashboard:native
-
-# JVM
-docker run -d -p 8080:8080 \
-  -e RPC_HOST=<HOST> \
-  -e RPC_PORT=<PORT> \
-  -e RPC_USER=<USER> \
-  -e RPC_PASS=<PASSWORD> \
-  -e WS_POLLING_INTERVAL=5 \
-  -e MIN_OUTBOUND_PEERS=8 \
-  -e LOG_LEVEL=INFO \
-  -e DASHBOARD_CACHE_VALIDITY_BUFFER_MS=200 \
-  ghcr.io/comassky/btc-node-dashboard:main
-```
-
-**Image Performance**:
-
-| Metric        | JVM         | Native      |
-|-------------- |------------|------------ |
-| **Startup**   | ~2-4s      | **~80ms**   |
-| **Memory**    | ~180-250MB | **~35-60MB**|
-| **Image Size**| ~400MB     | **~120MB**  |
-| **CPU (Idle)**| ~1%        | **<0.5%**   |
-
-**Docker Compose**: See [compose.yml](compose.yml) for full setup with Bitcoin Core.
 
 ## 🔧 Configuration
 
@@ -96,7 +73,7 @@ docker run -d -p 8080:8080 \
 
 ### Application Properties
 
-Alternative to environment variables, create `src/main/resources/application-local.properties`:
+As an alternative to environment variables, create `src/main/resources/application-local.properties`:
 
 ```properties
 bitcoin.rpc.scheme=http
@@ -122,6 +99,7 @@ java -jar target/quarkus-app/quarkus-run.jar
 # Custom profile
 java -Dquarkus.profile=staging -jar target/quarkus-app/quarkus-run.jar
 ```
+
 
 ## 🎨 Frontend Development
 

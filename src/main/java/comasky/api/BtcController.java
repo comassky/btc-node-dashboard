@@ -1,3 +1,4 @@
+
 package comasky.api;
 
 import comasky.rpcClass.*;
@@ -10,8 +11,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 /**
- * REST API controller for Bitcoin node data.
- * Provides HTTP endpoints to retrieve dashboard information.
+ * REST API controller exposing endpoints to retrieve Bitcoin node and dashboard data.
+ * <p>
+ * Provides HTTP endpoints for dashboard, network, block, and blockchain information.
  */
 @Path("/data")
 @Produces(MediaType.APPLICATION_JSON)
@@ -24,24 +26,48 @@ public class BtcController {
         this.rpcServices = rpcServices;
     }
 
+    /**
+     * Retrieves aggregated dashboard data for the Bitcoin node.
+     *
+     * @return a {@link Uni} emitting the global dashboard response
+     */
     @GET
     @Path("dashboard")
     public Uni<GlobalResponse> getDashboardData() {
         return rpcServices.getData();
     }
 
+    /**
+     * Retrieves network information about the Bitcoin node.
+     *
+     * @return a {@link Uni} emitting the node network information
+     */
     @GET
     @Path("getnetworkinfo")
     public Uni<NodeInfo> getNetworkInfo() {
         return rpcServices.getNodeInfo();
     }
 
+    /**
+     * Retrieves block information for a given block hash.
+     *
+     * @param hash the block hash (must not be null or blank)
+     * @return a {@link Uni} emitting the block information, or a failed Uni if the hash is invalid
+     */
     @GET
     @Path("getblock/{hash}")
-    public Uni<BlockInfo> getBlockkInfo(@PathParam("hash") String hash) {
+    public Uni<BlockInfo> getBlockInfo(@PathParam("hash") String hash) {
+        if (hash == null || hash.isBlank()) {
+            return Uni.createFrom().failure(new IllegalArgumentException("Block hash must not be null or blank"));
+        }
         return rpcServices.getBlockInfo(hash);
     }
 
+    /**
+     * Retrieves the hash of the best (most recent) block as plain text.
+     *
+     * @return a {@link Uni} emitting the best block hash as a string
+     */
     @GET
     @Path("getbestblockhash")
     @Produces(MediaType.TEXT_PLAIN)
@@ -49,6 +75,11 @@ public class BtcController {
         return rpcServices.getBestBlockHash();
     }
 
+    /**
+     * Retrieves blockchain information for the Bitcoin node.
+     *
+     * @return a {@link Uni} emitting the blockchain information
+     */
     @GET
     @Path("getBlockchainInfo")
     public Uni<BlockchainInfo> getBlockchainInfo() {

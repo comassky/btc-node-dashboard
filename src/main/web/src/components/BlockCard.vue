@@ -8,40 +8,47 @@
             </div>
             <div class="text-xs uppercase text-text-secondary font-medium">Current Block</div>
         </div>
-        <Tooltip v-if="block.hash" :text="'View block ' + blockchain.blocks + ' on mempool.space'">
-            <a 
-                :href="getMempoolUrl()" 
-                target="_blank" 
+        <Tooltip :text="'Current height of the blockchain. This is the number of blocks in the chain. Click to view on mempool.org.'" position="bottom" horizontal="center">
+            <a
+                :href="`https://mempool.org/block/${blockchain.blocks}`"
+                target="_blank"
                 rel="noopener noreferrer"
-                class="text-4xl sm:text-5xl font-light text-text-primary mt-2 sm:mt-3 block hover:text-accent transition-colors cursor-pointer">
+                :class="[
+                                'text-4xl sm:text-5xl font-light mt-2 sm:mt-3 block focus:text-status-warning transition-colors duration-150 outline-none',
+                                    isOutOfSync ? 'text-status-error hover:text-accent' : 'text-status-success hover:text-accent'
+                ]"
+            >
                 {{ blockchain.blocks }}
             </a>
         </Tooltip>
-        <div 
-            v-else
-            class="text-4xl sm:text-5xl font-light text-text-primary mt-2 sm:mt-3"
-            :title="'Current height of the ' + blockchain.chain + ' blockchain'">
-            {{ blockchain.blocks }}
-        </div>
 
         <div class="mt-1 sm:mt-2 pt-1 sm:pt-2 border-t border-border-strong text-xs sm:text-sm text-text-secondary overflow-visible">
             <div class="flex items-center justify-between gap-3">
                 <div class="flex-1">
                     <p class="mb-0.5 sm:mb-1">
-                        <font-awesome-icon :icon="['fas', 'list-ol']" class="mr-1" /> Headers: 
+                        <Tooltip :text="'Number of block headers known to the node.'" position="bottom" horizontal="left">
+                            <font-awesome-icon :icon="['fas', 'list-ol']" class="mr-1" />
+                        </Tooltip>
+                        Headers: 
                         <span class="font-bold text-text-primary" :class="isSyncing ? 'text-status-warning' : ''">
                             {{ blockchain.headers }}
                             <span v-if="isSyncing" class="text-status-warning"> (+{{ headerBlockDiff }})</span>
                         </span>
                     </p>
                     <p class="mb-0.5 sm:mb-1">
-                        <font-awesome-icon :icon="['far', 'clock']" class="mr-1" /> Time: 
+                        <Tooltip :text="'Time since the last block was found.'" position="bottom" horizontal="left">
+                            <font-awesome-icon :icon="['far', 'clock']" class="mr-1" />
+                        </Tooltip>
+                        Time: 
                         <span class="font-bold text-text-primary" :class="isBlockTooOld ? 'text-status-error' : ''">
                             {{ formatTimeSince(block.time) }} ago
                         </span>
                     </p>
                     <p>
-                        <font-awesome-icon :icon="['fas', 'exchange-alt']" class="mr-1" /> Tx Count: 
+                        <Tooltip :text="'Number of transactions in the current block.'" position="bottom" horizontal="left">
+                            <font-awesome-icon :icon="['fas', 'exchange-alt']" class="mr-1" />
+                        </Tooltip>
+                        Tx Count: 
                         <span class="font-bold text-text-primary">{{ block.nTx }}</span>
                     </p>
                 </div>
@@ -78,12 +85,6 @@ const props = withDefaults(defineProps<{
     forceOutOfSync: false
 });
 
-const getMempoolUrl = () => {
-    const baseUrl = props.blockchain.chain === 'test' 
-        ? 'https://mempool.space/testnet' 
-        : 'https://mempool.space';
-    return `${baseUrl}/block/${props.block.hash}`;
-};
 
 const headerBlockDiff = computed(() => getHeaderBlockDiff(props.blockchain));
 

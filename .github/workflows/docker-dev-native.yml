@@ -1,4 +1,4 @@
-name: Docker Native (GraalVM)
+name: DEVELOP / Docker Native (GraalVM)
 
 on:
   push:
@@ -13,13 +13,10 @@ env:
   GRAALVM_VERSION: '21'
 
 jobs:
-  build-and-test-native:
-    name: Test, Build & Push Native Image
+  test:
+    name: Run Tests
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      id-token: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -48,6 +45,19 @@ jobs:
       - name: Run frontend tests
         working-directory: src/main/web
         run: npm test -- --run
+
+  build-native:
+    name: Build Native Image
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
@@ -116,13 +126,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            # type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
-            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            tags: |
+              type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
 
       - name: Build and push Docker image
         id: build-and-push

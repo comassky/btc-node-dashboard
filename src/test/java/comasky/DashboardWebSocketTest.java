@@ -11,7 +11,6 @@ import jakarta.websocket.Session;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -38,7 +37,7 @@ class DashboardWebSocketTest {
 
         webSocket.onOpen(mockSession);
 
-        // Verify that the session was added and data was sent asynchronously
+        
         verify(mockSession, atLeastOnce()).getId();
         verify(mockAsync, timeout(1000).times(1)).sendText(anyString());
     }
@@ -48,7 +47,7 @@ class DashboardWebSocketTest {
         Session mockSession = mock(Session.class);
         when(mockSession.getId()).thenReturn("test-session-456");
 
-        // Add and then remove the session to test the close logic
+        
         webSocket.onOpen(mockSession);
         webSocket.onClose(mockSession);
 

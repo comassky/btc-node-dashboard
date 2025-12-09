@@ -11,34 +11,52 @@
             <table class="peer-table w-full text-sm">
                 <thead>
                     <tr class="bg-border-strong/50 whitespace-nowrap">
-                        <th class="p-4 text-left font-semibold text-text-secondary uppercase">ID</th>
-                        <th class="p-4 text-left font-semibold text-text-secondary uppercase">Address</th>
-                        <th class="p-4 text-left font-semibold text-text-secondary uppercase">Software (SubVer)</th>
-                        <th class="p-4 text-left font-semibold text-text-secondary uppercase">Version</th>
-                        <th class="p-4 text-left font-semibold text-text-secondary uppercase">Time Offset</th>
-                        <th class="p-4 text-left font-semibold text-text-secondary uppercase">Connection Time</th>
-                        <th class="p-4 text-left font-semibold text-text-secondary uppercase">Network</th>
-                        <th class="p-4 text-left font-semibold text-text-secondary uppercase">Type</th>
-                        <th class="p-4 text-left font-semibold text-text-secondary uppercase">Ping</th>
-                        <th class="p-4 text-left font-semibold text-text-secondary uppercase">
-                            <font-awesome-icon :icon="['fas', 'arrow-down']" class="text-status-success" /> Received
+                        <th class="p-4 text-left font-semibold text-text-secondary uppercase cursor-pointer" @click="setSort('id')">
+                            ID <span v-if="sortKey==='id'">{{ sortOrder==='asc' ? '↑' : '↓' }}</span>
                         </th>
-                        <th class="p-4 text-left font-semibold text-text-secondary uppercase">
-                            <font-awesome-icon :icon="['fas', 'arrow-up']" class="text-accent" /> Sent
+                        <th class="p-4 text-left font-semibold text-text-secondary uppercase cursor-pointer" @click="setSort('addr')">
+                            Address <span v-if="sortKey==='addr'">{{ sortOrder==='asc' ? '↑' : '↓' }}</span>
+                        </th>
+                        <th class="p-4 text-left font-semibold text-text-secondary uppercase cursor-pointer" @click="setSort('subver')">
+                            Software (SubVer) <span v-if="sortKey==='subver'">{{ sortOrder==='asc' ? '↑' : '↓' }}</span>
+                        </th>
+                        <th class="p-4 text-left font-semibold text-text-secondary uppercase cursor-pointer" @click="setSort('version')">
+                            Version <span v-if="sortKey==='version'">{{ sortOrder==='asc' ? '↑' : '↓' }}</span>
+                        </th>
+                        <th class="p-4 text-left font-semibold text-text-secondary uppercase cursor-pointer" @click="setSort('timeoffset')">
+                            Time Offset <span v-if="sortKey==='timeoffset'">{{ sortOrder==='asc' ? '↑' : '↓' }}</span>
+                        </th>
+                        <th class="p-4 text-left font-semibold text-text-secondary uppercase cursor-pointer" @click="setSort('conntime')">
+                            Connection Time <span v-if="sortKey==='conntime'">{{ sortOrder==='asc' ? '↑' : '↓' }}</span>
+                        </th>
+                        <th class="p-4 text-left font-semibold text-text-secondary uppercase cursor-pointer" @click="setSort('network')">
+                            Network <span v-if="sortKey==='network'">{{ sortOrder==='asc' ? '↑' : '↓' }}</span>
+                        </th>
+                        <th class="p-4 text-left font-semibold text-text-secondary uppercase cursor-pointer" @click="setSort('connection_type')">
+                            Type <span v-if="sortKey==='connection_type'">{{ sortOrder==='asc' ? '↑' : '↓' }}</span>
+                        </th>
+                        <th class="p-4 text-left font-semibold text-text-secondary uppercase cursor-pointer" @click="setSort('minping')">
+                            Ping <span v-if="sortKey==='minping'">{{ sortOrder==='asc' ? '↑' : '↓' }}</span>
+                        </th>
+                        <th class="p-4 text-left font-semibold text-text-secondary uppercase cursor-pointer" @click="setSort('bytesrecv')">
+                            <font-awesome-icon :icon="['fas', 'arrow-down']" class="text-status-success" /> Received <span v-if="sortKey==='bytesrecv'">{{ sortOrder==='asc' ? '↑' : '↓' }}</span>
+                        </th>
+                        <th class="p-4 text-left font-semibold text-text-secondary uppercase cursor-pointer" @click="setSort('bytessent')">
+                            <font-awesome-icon :icon="['fas', 'arrow-up']" class="text-accent" /> Sent <span v-if="sortKey==='bytessent'">{{ sortOrder==='asc' ? '↑' : '↓' }}</span>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="peer in peers" :key="type + '-' + peer.id"
+                    <tr v-for="peer in sortedPeers" :key="type + '-' + peer.id"
                         class="border-b border-border-strong/70 hover:bg-bg-card/70 transition duration-150 whitespace-nowrap">
                         <td class="p-4 font-light">{{ peer.id }}</td>
-                        <td class="p-4 font-light">
-                            <Tooltip :text="peer.addr">
+                        <td class="p-4 font-light overflow-visible">
+                            <Tooltip :text="peer.addr" position="bottom" horizontal="left">
                                 <span class="max-w-[150px] truncate inline-block">{{ peer.addr }}</span>
                             </Tooltip>
                         </td>
                         <td class="p-4 font-light">
-                            <Tooltip :text="peer.subver || '[Empty]'">
+                            <Tooltip :text="peer.subver || '[Empty]'" position="bottom" horizontal="left">
                                 <span class="max-w-[150px] truncate inline-block">{{ peer.subver || '[Empty]' }}</span>
                             </Tooltip>
                         </td>
@@ -61,14 +79,44 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue';
 import { type Peer } from '@types';
 import { formatBytes, formatTimeOffset, formatTimeSince, formatPing } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
 
 const props = defineProps<{
-    peers: Peer[];
-    type: 'inbound' | 'outbound';
+        peers: Peer[];
+        type: 'inbound' | 'outbound';
 }>();
 
 const headerColor = props.type === 'inbound' ? 'status-success' : 'accent';
+
+const sortKey = ref<'id'|'addr'|'subver'|'version'|'timeoffset'|'conntime'|'network'|'connection_type'|'minping'|'bytesrecv'|'bytessent'>('id');
+const sortOrder = ref<'asc' | 'desc'>('asc');
+
+function setSort(key: typeof sortKey.value) {
+    if (sortKey.value === key) {
+        sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortKey.value = key;
+        sortOrder.value = 'asc';
+    }
+}
+
+const sortedPeers = computed(() => {
+    const key = sortKey.value;
+    return [...props.peers].sort((a, b) => {
+        const aVal = a[key];
+        const bVal = b[key];
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null) return 1;
+        if (bVal == null) return -1;
+        if (typeof aVal === 'number' && typeof bVal === 'number') {
+            return sortOrder.value === 'asc' ? aVal - bVal : bVal - aVal;
+        }
+        return sortOrder.value === 'asc'
+            ? String(aVal).localeCompare(String(bVal))
+            : String(bVal).localeCompare(String(aVal));
+    });
+});
 </script>

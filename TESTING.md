@@ -1,3 +1,8 @@
+# 🔄 Continuous Integration
+
+- CI runs all tests (backend and frontend) during the Maven build.
+- Docker/native images are only built and published if all tests pass.
+- No tests are re-run during Docker or native build steps.
 # Testing Guide
 
 **146 automated tests** covering backend and frontend for reliability and stability.
@@ -27,19 +32,20 @@ cd src/main/web && npm test
 cd src/main/web && npm run coverage
 ```
 
+
 ## 🔍 Backend Tests (79)
 
 **Test Classes**:
 - `BtcControllerTest` - REST API endpoints
 - `DashboardWebSocketTest` - WebSocket lifecycle
-- `DashboardWebSocketAdvancedTest` - Concurrent connections, cache
-- `RpcServicesTest` - Bitcoin RPC calls
-- `RpcServicesAdvancedTest` - Multi-peer aggregation, errors
-- `RpcServicesParallelTest` - Parallel execution, CompletableFuture
-- `CachedMessageTest` - Cache validation, thread-safety
-- `SubverStatsCalculationTest` - Version distribution
-- `ToolsTest` - Utility functions
-- `BtcApiAppTest` - Application lifecycle
+- `DashboardWebSocketAdvancedTest` - Connexions concurrentes, cache
+- `RpcServicesTest` - Appels RPC Bitcoin, logs et latence
+- `RpcServicesAdvancedTest` - Agrégation multi-peer, erreurs
+- `RpcServicesParallelTest` - Exécution parallèle, CompletableFuture
+- `CachedMessageTest` - Validation du cache, thread-safety
+- `SubverStatsCalculationTest` - Distribution des versions
+- `ToolsTest` - Fonctions utilitaires
+- `BtcApiAppTest` - Cycle de vie de l'application
 
 ## 🎨 Frontend Tests (67)
 

@@ -32,7 +32,7 @@ public record PeerInfo(
     String network,
     @JsonProperty("unshipped_txs") int unshippedTxs
 ) {
-    // Custom accessor to align with the old getter name, ensuring compatibility with existing code.
+    
     public boolean isInbound() {
         return inbound;
     }

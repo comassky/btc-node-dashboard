@@ -2,6 +2,7 @@ package comasky;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
+import comasky.client.RpcRequestDto;
 import comasky.exceptions.RpcException;
 import comasky.rpcClass.*;
 import io.quarkus.test.InjectMock;
@@ -25,23 +26,33 @@ class RpcServicesTest {
     @Inject
     ObjectMapper objectMapper;
 
-    @Test
-    void testGetNodeInfo_success() {
-        String mockResponse = """
-            {
-                "result": {
-                    "version": 270000,
-                    "protocolversion": 70016,
-                    "subversion": "/Satoshi:27.0.0/",
-                    "connections": 10,
-                    "networkactive": true
-                },
-                "error": null,
-                "id": "quarkus-getnetworkinfo"
-            }
-            """;
+    
+    private <T> String createSuccessRpcResponseJson(T result) throws Exception {
+        RpcResponse<T> response = new RpcResponse<>();
+        response.setResult(result);
+        response.setId("1.0");
+        return objectMapper.writeValueAsString(response);
+    }
 
-        when(rpcClient.executeRpcCall(any())).thenReturn(mockResponse);
+    
+    private String createErrorRpcResponseJson(Object error) throws Exception {
+        RpcResponse<Object> response = new RpcResponse<>();
+        response.setError(error);
+        response.setId("1.0");
+        return objectMapper.writeValueAsString(response);
+    }
+
+    @Test
+    void testGetNodeInfo_success() throws Exception {
+        NodeInfo expectedNodeInfo = new NodeInfo(
+            70016,
+            270000,
+            "/Satoshi:27.0.0/",
+            10,
+            true
+        );
+        
+        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createSuccessRpcResponseJson(expectedNodeInfo));
 
         NodeInfo nodeInfo = rpcServices.getNodeInfo().await().indefinitely();
 
@@ -52,16 +63,9 @@ class RpcServicesTest {
     }
 
     @Test
-    void testGetBestBlockHash_success() {
-        String mockResponse = """
-            {
-                "result": "00000000000000000001234567890abcdef",
-                "error": null,
-                "id": "quarkus-getbestblockhash"
-            }
-            """;
-
-        when(rpcClient.executeRpcCall(any())).thenReturn(mockResponse);
+    void testGetBestBlockHash_success() throws Exception {
+        String expectedBlockHash = "00000000000000000001234567890abcdef";
+        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createSuccessRpcResponseJson(expectedBlockHash));
 
         String blockHash = rpcServices.getBestBlockHash().await().indefinitely();
 
@@ -70,22 +74,15 @@ class RpcServicesTest {
     }
 
     @Test
-    void testGetBlockchainInfo_success() {
-        String mockResponse = """
-            {
-                "result": {
-                    "blocks": 870000,
-                    "headers": 870000,
-                    "chain": "main",
-                    "verificationprogress": 0.9999,
-                    "difficulty": 95000000000000.0
-                },
-                "error": null,
-                "id": "quarkus-getblockchaininfo"
-            }
-            """;
-
-        when(rpcClient.executeRpcCall(any())).thenReturn(mockResponse);
+    void testGetBlockchainInfo_success() throws Exception {
+        BlockchainInfo expectedBlockchainInfo = new BlockchainInfo(
+            870000,
+            870000,
+            "main",
+            0.9999,
+            false
+        );
+        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createSuccessRpcResponseJson(expectedBlockchainInfo));
 
         BlockchainInfo blockchainInfo = rpcServices.getBlockchainInfo().await().indefinitely();
 
@@ -97,73 +94,65 @@ class RpcServicesTest {
     }
 
     @Test
-    void testGetUptimeSeconds_success() {
-        String mockResponse = """
-            {
-                "result": 432000,
-                "error": null,
-                "id": "quarkus-uptime"
-            }
-            """;
-
-        when(rpcClient.executeRpcCall(any())).thenReturn(mockResponse);
+    void testGetUptimeSeconds_success() throws Exception {
+        Long expectedUptime = 432000L;
+        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createSuccessRpcResponseJson(expectedUptime));
 
         long uptime = rpcServices.getUptimeSeconds().await().indefinitely();
 
-        assertEquals(432000, uptime);
+        assertEquals(expectedUptime, uptime);
     }
 
     @Test
-    void testGetBlockInfo_success() {
-        String mockResponse = """
-            {
-                "result": {
-                    "time": 1733443200,
-                    "nTx": 2500
-                },
-                "error": null,
-                "id": "quarkus-getblock"
-            }
-            """;
+    void testGetBlockInfo_success() throws Exception {
+            BlockInfo expectedBlockInfo = new BlockInfo(
+                "00000000000000000001234567890abcdef",
+                1,
+                0,
+                0,
+                0,
+                870000,
+                1,
+                "",
+                "",
+                1733443200L,
+                0L,
+                0L,
+                "",
+                1.0,
+                "",
+                2500,
+                "",
+                ""
+            );
+            when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createSuccessRpcResponseJson(expectedBlockInfo));
 
-        when(rpcClient.executeRpcCall(any())).thenReturn(mockResponse);
+            BlockInfo blockInfo = rpcServices.getBlockInfo("00000000000000000001234567890abcdef").await().indefinitely();
 
-        BlockInfo blockInfo = rpcServices.getBlockInfo("00000000000000000001234567890abcdef").await().indefinitely();
-
-        assertNotNull(blockInfo);
-        assertEquals(1733443200, blockInfo.time());
-        assertEquals(2500, blockInfo.ntx());
+            assertNotNull(blockInfo);
+            assertEquals(1733443200, blockInfo.time());
+            assertEquals(2500, blockInfo.ntx());
     }
 
     @Test
-    void testRpcError_throwsException() {
-        String mockResponse = """
-            {
-                "result": null,
-                "error": {
-                    "code": -28,
-                    "message": "Verifying blocks..."
-                },
-                "id": "quarkus-getblockchaininfo"
-            }
-            """;
-
-        when(rpcClient.executeRpcCall(any())).thenReturn(mockResponse);
-
-        RpcException exception = assertThrows(RpcException.class, () -> {
-            rpcServices.getBlockchainInfo().await().indefinitely();
-        });
+    void testRpcError_throwsException() throws Exception {
         
-        assertTrue(exception.getMessage().contains("Verifying blocks..."));
+        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createErrorRpcResponseJson("RPC Error: Verifying blocks..."));
+
+        RpcException exception = assertThrows(RpcException.class,
+            () -> rpcServices.getBlockchainInfo().await().indefinitely());
+        
+        
+        assertTrue(exception.getMessage().contains("RPC Error for method getblockchaininfo: RPC Error: Verifying blocks..."));
     }
 
     @Test
     void testRpcConnectionFailure_throwsException() {
-        when(rpcClient.executeRpcCall(any())).thenThrow(new RuntimeException("Connection refused"));
+        
+        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenThrow(new RuntimeException("Connection refused"));
 
-        RpcException exception = assertThrows(RpcException.class, () -> {
-            rpcServices.getNodeInfo().await().indefinitely();
-        });
+        RpcException exception = assertThrows(RpcException.class,
+            () -> rpcServices.getNodeInfo().await().indefinitely());
         
         assertTrue(exception.getMessage().contains("Connection failed"));
         assertNotNull(exception.getCause());

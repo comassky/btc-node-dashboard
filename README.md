@@ -1,3 +1,9 @@
+# 🚦 Build & Continuous Integration
+
+- The Maven build (`mvn package`) runs all tests and produces the final artifact (backend + frontend bundled).
+- Docker and native workflows use this artifact: no build or tests are repeated in those steps.
+- CI (GitHub Actions) blocks any deployment if a test fails.
+- See [BUILD.md](BUILD.md) and [TESTING.md](TESTING.md) for more details.
 # Bitcoin Node Dashboard ₿
 
 Monitor your Bitcoin Core node in real-time with a modern web interface.
@@ -11,15 +17,16 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 <img width="3024" height="5236" alt="node hjacquot xyz_" src="https://github.com/user-attachments/assets/9d4ac01d-47cc-4bd1-996c-31deb6b7609a" />
 
+
 ## ✨ Features
 
-- **Reactive Architecture (Mutiny)**: Built with Mutiny for an event-driven, non-blocking backend, ensuring high responsiveness and efficient resource utilization.
-- **Optimized Caching with `inFlightRequest`**: Prevents redundant RPC calls by caching ongoing requests, improving performance and reducing load on the Bitcoin node. Configurable via `dashboard.cache.validity-buffer-ms` (see below for details).
+- **Reactive Architecture (Mutiny)**: Event-driven, non-blocking backend for high responsiveness and efficient resource utilization.
+- **Parallel & Monitored RPC Execution**: All Bitcoin Core RPC calls are executed in parallel, with DEBUG logs and latency measurement for each call.
+- **Optimized Caching**: Prevents redundant RPC calls by caching ongoing requests, improving performance and reducing load on the Bitcoin node. Configurable via `dashboard.cache.validity-buffer-ms`.
 - **Live Peer Statistics**: Real-time display of inbound/outbound connections, peer details, version and geographic distribution.
 - **Blockchain Status**: Track block height, sync progress, node uptime, and network health.
 - **Modern UI/UX**: Dark/light mode, responsive design, interactive charts, smooth animations, icon support.
 - **WebSocket Streaming**: Instant dashboard updates, automatic reconnection, exponential backoff.
-- **Parallel RPC Execution**: Up to 6 simultaneous Bitcoin Core requests for fast refresh.
 - **Mock/Test Mode**: Simulate errors, low peer count, disconnected mode for testing and demos.
 - **Comprehensive Error Handling**: Clear user messages, automatic recovery and reconnection.
 - **Performance Optimized**: GraalVM Native (<50ms startup, ~30MB RAM), tree-shaking, code splitting, gzip compression.
@@ -36,7 +43,6 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | **Jakarta WebSocket** | - | Real-time communication |
 | **MicroProfile REST Client** | - | HTTP client for Bitcoin RPC |
 | **Jackson** | - | JSON processing |
-| **Lombok** | 1.18.42 | Boilerplate reduction |
 
 ### Frontend
 | Technology | Version | Description |
@@ -80,7 +86,7 @@ export RPC_PASS=your_password
 ./mvnw quarkus:dev  # → http://localhost:8080
 ```
 
-### Docker (Recommended)
+## 🐳 Docker (Recommended)
 ```bash
 # GraalVM Native (50ms startup, 30MB memory)
 docker run -d -p 8080:8080 \
@@ -93,7 +99,17 @@ docker run -d -p 8080:8080 \
   ghcr.io/comassky/btc-node-dashboard:native
 ```
 
-See [BUILD.md](BUILD.md) for detailed instructions.
+### Image Performance
+
+| Metric        | JVM         | Native      |
+|-------------- |------------|------------ |
+| **Startup**   | ~2-4s      | **~50-80ms**   |
+| **Memory**    | ~180-250MB | **~30-60MB**|
+| **Image Size**| ~400MB     | **~120MB**  |
+| **CPU (Idle)**| ~1%        | **<0.5%**   |
+
+
+See [DOCKER.md](DOCKER.md) for more details.
 
 ## 📊 API Endpoints
 
@@ -112,10 +128,20 @@ See [BUILD.md](BUILD.md) for detailed instructions.
 
 ## 🔧 Configuration
 
+For details on reactive programming, non-blocking guarantees, and contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-`DASHBOARD_CACHE_VALIDITY_BUFFER_MS` : Définit le temps (en millisecondes) à soustraire à la durée de validité du cache pour garantir la fraîcheur des données. Par défaut : `200`. Modifiez cette valeur si votre environnement nécessite une actualisation plus agressive ou plus tolérante du cache.
 
-Exemple dans `application-local.properties` :
+Main user-configurable environment variables:
+
+- `RPC_HOST`, `RPC_PORT`, `RPC_USER`, `RPC_PASS`: Bitcoin node connection
+- `WS_POLLING_INTERVAL`: dashboard refresh interval (seconds)
+- `MIN_OUTBOUND_PEERS`: minimum outbound peers
+- `DASHBOARD_CACHE_VALIDITY_BUFFER_MS`: cache validity buffer (ms)
+- `LOG_LEVEL`: log level (INFO, DEBUG, ...)
+
+For the full list and default values, see [BUILD.md](BUILD.md).
+
+Example in `application-local.properties`:
 ```properties
 bitcoin.rpc.host=localhost
 bitcoin.rpc.port=8332
@@ -124,8 +150,6 @@ bitcoin.rpc.password=your_password
 dashboard.polling.interval.seconds=5
 dashboard.cache.validity-buffer-ms=200
 ```
-
-Voir aussi [BUILD.md](BUILD.md) pour toutes les options de configuration, variables d'environnement et propriétés d'application.
 
 ## 🎨 Frontend Development
 
@@ -164,4 +188,4 @@ Built with [Quarkus](https://quarkus.io/), [Vue.js](https://vuejs.org/), [Tailwi
 ---
 
 **Built with ❤️ for the Bitcoin community**
-    
+

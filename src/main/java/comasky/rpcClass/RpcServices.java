@@ -4,26 +4,42 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
+import comasky.client.RpcRequestDto;
 import comasky.exceptions.RpcException;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.infrastructure.Infrastructure;
 import io.smallrye.mutiny.tuples.Tuple5;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.jboss.logging.Logger;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static comasky.shared.Tools.formatUptime;
 
 /**
- * Service for executing RPC calls to Bitcoin Core node using a reactive approach with Mutiny.
+ * Service for executing RPC calls to the Bitcoin Core node using a reactive approach with Mutiny.
+ * <p>
  * This service orchestrates multiple RPC calls in parallel to optimize response time for dashboard data retrieval.
+ * It provides methods to fetch node, block, peer, and blockchain information.
  */
 @ApplicationScoped
 public class RpcServices {
+    private static final Logger LOG = Logger.getLogger(RpcServices.class);
 
-    private static final TypeReference<RpcResponse<List<PeerInfo>>> PEER_INFO_TYPE_REF = new TypeReference<>() {};
+    
+    private static final String GET_NETWORK_INFO = "getnetworkinfo";
+    private static final String GET_BEST_BLOCK_HASH = "getbestblockhash";
+    private static final String GET_BLOCK = "getblock";
+    private static final String GET_BLOCKCHAIN_INFO = "getblockchaininfo";
+    private static final String UPTIME = "uptime";
+    private static final String GET_PEER_INFO = "getpeerinfo";
+
+    
+    private static final TypeReference<List<PeerInfo>> PEER_INFO_TYPE_REF = new TypeReference<>() {};
 
     private final ObjectMapper objectMapper;
     private final RpcClient rpcClient;
@@ -34,54 +50,100 @@ public class RpcServices {
         this.rpcClient = rpcClient;
     }
 
+    /**
+     * Retrieves network information about the Bitcoin node.
+     *
+     * @return a {@link Uni} emitting the node network information
+     */
     public Uni<NodeInfo> getNodeInfo() {
-        return this.executeRpcCall("getnetworkinfo", Collections.emptyList(), NodeInfo.class);
-    }
-
-    public Uni<String> getBestBlockHash() {
-        return this.executeRpcCall("getbestblockhash", Collections.emptyList(), String.class);
+        return callRpcTyped(GET_NETWORK_INFO, Collections.emptyList(), NodeInfo.class);
     }
 
     /**
-     * Retrieves block information by hash with verbosity 1.
+     * Retrieves the hash of the best (most recent) block.
+     *
+     * @return a {@link Uni} emitting the best block hash as a string
+     */
+    public Uni<String> getBestBlockHash() {
+        return callRpcTyped(GET_BEST_BLOCK_HASH, Collections.emptyList(), String.class);
+    }
+
+    /**
+     * Retrieves block information for a given block hash with verbosity 1.
      * Verbosity 1 returns block data without full transaction details, reducing response size.
+     *
+     * @param blockHash the block hash
+     * @return a {@link Uni} emitting the block information
      */
     public Uni<BlockInfo> getBlockInfo(String blockHash) {
         List<Object> params = List.of(blockHash, 1);
-        return this.executeRpcCall("getblock", params, BlockInfo.class);
+        return callRpcTyped(GET_BLOCK, params, BlockInfo.class);
     }
 
+    /**
+     * Retrieves blockchain information for the Bitcoin node.
+     *
+     * @return a {@link Uni} emitting the blockchain information
+     */
     public Uni<BlockchainInfo> getBlockchainInfo() {
-        return this.executeRpcCall("getblockchaininfo", Collections.emptyList(), BlockchainInfo.class);
+        return callRpcTyped(GET_BLOCKCHAIN_INFO, Collections.emptyList(), BlockchainInfo.class);
     }
 
+    /**
+     * Retrieves the node uptime in seconds.
+     *
+     * @return a {@link Uni} emitting the uptime in seconds
+     */
     public Uni<Long> getUptimeSeconds() {
-        return this.executeRpcCall("uptime", Collections.emptyList(), long.class);
+        return callRpcTyped(UPTIME, Collections.emptyList(), Long.class);
     }
 
     /**
      * Fetches all dashboard data by executing multiple RPC calls in parallel using Mutiny.
      * This method is fully non-blocking and composes multiple Unis to create a final aggregated response.
      *
-     * @return Uni<GlobalResponse> containing all aggregated node data.
+     * @return a {@link Uni} emitting the aggregated global dashboard response
      */
     public Uni<GlobalResponse> getData() {
-        // Launch parallel independent RPC calls
-        Uni<List<PeerInfo>> peerInfoUni = executePeerInfoRpcCall();
-        Uni<BlockchainInfo> blockchainInfoUni = getBlockchainInfo();
-        Uni<NodeInfo> nodeInfoUni = getNodeInfo();
-        Uni<Long> uptimeUni = getUptimeSeconds();
+        
+        Uni<List<PeerInfo>> peerInfoUni = executePeerInfoRpcCall()
+            .onFailure().invoke(e -> LOG.warnf("PeerInfo RPC failed: %s", e.getMessage()))
+            .onFailure().recoverWithItem(Collections.emptyList());
 
-        // Chain block hash and block info calls
+        Uni<BlockchainInfo> blockchainInfoUni = getBlockchainInfo()
+            .onFailure().invoke(e -> LOG.warnf("BlockchainInfo RPC failed: %s", e.getMessage()))
+            .onFailure().recoverWithItem(() -> null);
+
+        Uni<NodeInfo> nodeInfoUni = getNodeInfo()
+            .onFailure().invoke(e -> LOG.warnf("NodeInfo RPC failed: %s", e.getMessage()))
+            .onFailure().recoverWithItem(() -> null);
+
+        Uni<Long> uptimeUni = getUptimeSeconds()
+            .onFailure().invoke(e -> LOG.warnf("Uptime RPC failed: %s", e.getMessage()))
+            .onFailure().recoverWithItem(() -> 0L);
+
         Uni<BlockInfo> blockInfoUni = getBestBlockHash()
-                .onItem().transformToUni(this::getBlockInfo);
+            .onFailure().invoke(e -> LOG.warnf("BestBlockHash RPC failed: %s", e.getMessage()))
+            .onFailure().recoverWithItem(() -> null)
+            .onItem().transformToUni(hash -> {
+                if (hash == null) return Uni.createFrom().item((BlockInfo) null);
+                return getBlockInfo(hash)
+                .onFailure().invoke(e -> LOG.warnf("BlockInfo RPC failed: %s", e.getMessage()))
+                .onFailure().recoverWithItem(() -> null);
+            });
 
-        // Combine all Unis and transform the results into the final GlobalResponse
+        
         return Uni.combine().all().unis(peerInfoUni, blockchainInfoUni, nodeInfoUni, uptimeUni, blockInfoUni)
-                .asTuple()
-                .onItem().transform(this::buildGlobalResponseFromTuple);
+            .asTuple()
+            .onItem().transform(this::buildGlobalResponseFromTuple);
     }
 
+    /**
+     * Builds a {@link GlobalResponse} object from a tuple of peer, blockchain, node, uptime, and block info.
+     *
+     * @param tuple a tuple containing all required data
+     * @return the aggregated {@link GlobalResponse}
+     */
     private GlobalResponse buildGlobalResponseFromTuple(Tuple5<List<PeerInfo>, BlockchainInfo, NodeInfo, Long, BlockInfo> tuple) {
         List<PeerInfo> allPeers = tuple.getItem1();
         BlockchainInfo blockchainInfo = tuple.getItem2();
@@ -109,82 +171,86 @@ public class RpcServices {
         );
     }
 
-    private Uni<List<PeerInfo>> executePeerInfoRpcCall() {
-        return callRpc("getpeerinfo", Collections.emptyList())
-                .onItem().transform(jsonResponse -> {
-                    try {
-                        RpcResponse<List<PeerInfo>> response = objectMapper.readValue(jsonResponse, PEER_INFO_TYPE_REF);
-                        if (response.getError() != null) {
-                            throw new RpcException("RPC Error: " + response.getError());
-                        }
-                        return response.getResult();
-                    } catch (Exception e) {
-                        throw new RpcException("Parsing error for peer info: " + e.getMessage(), e);
-                    }
-                });
-    }
-
+    
     /**
-     * Calculates subversion distribution statistics with percentages.
+     * Executes the peer info RPC call and returns the result as a list of peers.
+     *
+     * @return a {@link Uni} emitting the list of peers
+     */
+    private Uni<List<PeerInfo>> executePeerInfoRpcCall() {
+        return callRpcTyped(GET_PEER_INFO, Collections.emptyList(), PEER_INFO_TYPE_REF);
+    }
+    
+    /**
+     * Calculates subversion distribution statistics with percentages for a list of peers.
      * Uses single-pass stream processing for optimal performance.
+     *
+     * @param peers the list of peers
+     * @return a list of {@link SubverStats} representing the subversion distribution
      */
     private List<SubverStats> calculateSubverStats(List<PeerInfo> peers) {
         if (peers.isEmpty()) {
             return Collections.emptyList();
         }
         final double totalPeers = peers.size();
-        return peers.stream()
-                .filter(p -> p.subver() != null) // Use record accessor
-                .collect(Collectors.groupingBy(PeerInfo::subver, Collectors.counting())) // Use record accessor
+        Stream<PeerInfo> stream = peers.size() > 1000 ? peers.parallelStream() : peers.stream();
+        return stream
+                .filter(p -> p.subver() != null)
+                .collect(Collectors.groupingBy(PeerInfo::subver, Collectors.counting()))
                 .entrySet().stream()
                 .map(entry -> {
                     double rawPercentage = (entry.getValue() / totalPeers) * 100.0;
-                    // Round to two decimal places
                     double roundedPercentage = Math.round(rawPercentage * 100.0) / 100.0;
                     return new SubverStats(entry.getKey(), roundedPercentage);
                 })
                 .toList();
     }
 
-    private Uni<String> callRpc(String method, List<Object> params) {
-        var rpcRequest = java.util.Map.of(
-                "jsonrpc", "1.0",
-                "id", "quarkus-" + method,
-                "method", method,
-                "params", params
+    /**
+     * Centralized method for deserializing and handling errors for RPC calls.
+     *
+     * @param method the RPC method name
+     * @param params the parameters for the RPC call
+     * @param type the expected result type (Class or TypeReference)
+     * @return a {@link Uni} emitting the typed result or failing with an exception
+     */
+    private <T> Uni<T> callRpcTyped(String method, List<Object> params, Object type) {
+        final var rpcRequest = new RpcRequestDto(
+            "1.0",
+            "quarkus-" + method,
+            method,
+            params
         );
-
-        // Assuming rpcClient.executeRpcCall is blocking, we wrap it to run on a worker thread.
-        // If rpcClient is already reactive and returns a Uni, this wrapping is not needed.
         return Uni.createFrom().item(() -> {
+            long start = System.nanoTime();
             try {
-                return rpcClient.executeRpcCall(rpcRequest);
+                final JavaType resultType;
+                if (type instanceof Class<?> clazz) {
+                    resultType = objectMapper.getTypeFactory().constructType(clazz);
+                } else if (type instanceof TypeReference<?> typeRef) {
+                    resultType = objectMapper.getTypeFactory().constructType(typeRef);
+                } else {
+                    throw new IllegalArgumentException("Type must be Class<T> or TypeReference<T>");
+                }
+
+                final var rpcResponseType = objectMapper.getTypeFactory().constructParametricType(RpcResponse.class, resultType);
+                RpcResponse<T> rpcResponse = objectMapper.readValue(rpcClient.executeRpcCall(rpcRequest), rpcResponseType);
+
+                
+                if (rpcResponse.getError() != null) {
+                    throw new RpcException("RPC Error for method " + method + ": " + rpcResponse.getError());
+                }
+
+                if (LOG.isDebugEnabled()) {
+                    long durationMs = (System.nanoTime() - start) / 1_000_000;
+                    LOG.debugf("RPC '%s' executed in %d ms", method, durationMs);
+                }
+                return rpcResponse.getResult();
             } catch (Exception e) {
+                long durationMs = (System.nanoTime() - start) / 1_000_000;
+                LOG.debugf("RPC '%s' failed after %d ms: %s", method, durationMs, e.getMessage());
                 throw new RpcException("Connection failed for method " + method + ": " + e.getMessage(), e);
             }
-        });
-    }
-
-    private <T> Uni<T> executeRpcCall(String rpcMethod, List<Object> params, Class<T> resultClass) {
-        return callRpc(rpcMethod, params)
-                .onItem().transform(jsonResponse -> {
-                    try {
-                        JavaType type = objectMapper.getTypeFactory()
-                                .constructParametricType(RpcResponse.class, resultClass);
-                        RpcResponse<T> response = objectMapper.readValue(jsonResponse, type);
-
-                        if (response.getError() != null) {
-                            throw new RpcException("RPC Error calling '" + rpcMethod + "': " + response.getError());
-                        }
-
-                        T result = response.getResult();
-                        if (result == null) {
-                            throw new RpcException("Result of '" + rpcMethod + "' is null.");
-                        }
-                        return result;
-                    } catch (Exception e) {
-                        throw new RpcException("Parsing error for '" + rpcMethod + "': " + e.getMessage(), e);
-                    }
-                });
+        }).runSubscriptionOn(Infrastructure.getDefaultWorkerPool());
     }
 }
