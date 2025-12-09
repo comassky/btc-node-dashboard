@@ -14,10 +14,13 @@ env:
   GRAALVM_VERSION: '21'
 
 jobs:
-  test:
-    name: Run Tests
+  build-and-test-native:
+    name: Test, Build & Push Native Image
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,7 +38,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: src/main/web/package-lock.json
 
@@ -46,34 +49,6 @@ jobs:
       - name: Run frontend tests
         working-directory: src/main/web
         run: npm test -- --run
-
-      # Upload the 'target' directory as an artifact
-      # This contains compiled classes and resources needed for the native build
-      - name: Upload Maven Target Directory
-        uses: actions/upload-artifact@v4
-        with:
-          name: maven-target
-          path: target/
-          retention-days: 1 # Only needed for the next job
-
-  build-native:
-    name: Build Native Image
-    needs: test
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      id-token: write
-
-    steps:
-      # Download the 'target' directory from the 'test' job
-      - name: Download Maven Target Directory
-        uses: actions/download-artifact@v4
-        with:
-          name: maven-target
-          path: . # Download into the root directory, so Dockerfile can access target/
-
-      # No need for 'Checkout repository' here as we downloaded the artifact
 
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
@@ -88,7 +63,6 @@ jobs:
         with:
           maven-version: '3.9.6'
 
-      # Cache Maven packages (still useful for dependencies not in target/)
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
@@ -97,7 +71,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # Cache Node.js modules (still useful if frontend build is part of mvn package)
       - name: Cache Node.js modules
         uses: actions/cache@v4
         with:
@@ -109,9 +82,8 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Build Native Executable
-        # Use 'package' instead of 'clean package' to reuse existing compiled classes
         run: |
-          mvn -B package -Pnative \
+          mvn -B clean package -Pnative \
             -DskipTests \
             -Dquarkus.native.container-build=false \
             -Dquarkus.native.native-image-xmx=6g \
@@ -166,7 +138,7 @@ jobs:
           platforms: linux/amd64
 
       - name: Sign the published Docker image
-        if: ${{ github.event_name != 'pull_request' }}
+        if: github.event_name != 'pull_request'
         env:
           TAGS: ${{ steps.meta.outputs.tags }}
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
