@@ -14,7 +14,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 ## ✨ Features
 
 - **Reactive Architecture (Mutiny)**: Built with Mutiny for an event-driven, non-blocking backend, ensuring high responsiveness and efficient resource utilization.
-- **Optimized Caching with `inFlightRequest`**: Prevents redundant RPC calls by caching ongoing requests, improving performance and reducing load on the Bitcoin node. Configurable via `dashboard.cache.validity-buffer-ms`.
+- **Optimized Caching with `inFlightRequest`**: Prevents redundant RPC calls by caching ongoing requests, improving performance and reducing load on the Bitcoin node. Configurable via `dashboard.cache.validity-buffer-ms` (see below for details).
 - **Live Peer Statistics**: Real-time display of inbound/outbound connections, peer details, version and geographic distribution.
 - **Blockchain Status**: Track block height, sync progress, node uptime, and network health.
 - **Modern UI/UX**: Dark/light mode, responsive design, interactive charts, smooth animations, icon support.
@@ -112,7 +112,20 @@ See [BUILD.md](BUILD.md) for detailed instructions.
 
 ## 🔧 Configuration
 
-See [BUILD.md](BUILD.md) for detailed configuration options, including environment variables and application properties.
+
+`DASHBOARD_CACHE_VALIDITY_BUFFER_MS` : Définit le temps (en millisecondes) à soustraire à la durée de validité du cache pour garantir la fraîcheur des données. Par défaut : `200`. Modifiez cette valeur si votre environnement nécessite une actualisation plus agressive ou plus tolérante du cache.
+
+Exemple dans `application-local.properties` :
+```properties
+bitcoin.rpc.host=localhost
+bitcoin.rpc.port=8332
+bitcoin.rpc.user=your_user
+bitcoin.rpc.password=your_password
+dashboard.polling.interval.seconds=5
+dashboard.cache.validity-buffer-ms=200
+```
+
+Voir aussi [BUILD.md](BUILD.md) pour toutes les options de configuration, variables d'environnement et propriétés d'application.
 
 ## 🎨 Frontend Development
 
