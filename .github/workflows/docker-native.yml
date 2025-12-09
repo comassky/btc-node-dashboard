@@ -1,4 +1,4 @@
-name: Docker Native (GraalVM)
+name: Main / Docker Native (GraalVM)
 
 on:
   push:
