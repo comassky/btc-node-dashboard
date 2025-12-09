@@ -1,0 +1,66 @@
+# Quarkus Application Configuration in YAML format
+
+quarkus:
+  banner:
+    path: banner.txt
+  
+  # Logging Configuration
+  log:
+    level: ${LOG_LEVEL:INFO}
+    console:
+      level: ${LOG_LEVEL:INFO}
+
+  # HTTP Server Configuration
+  http:
+    enable-compression: true
+    compressors:
+      - deflate
+      - gzip
+    compress-media-types:
+      - text/html
+      - text/plain
+      - text/css
+      - application/javascript
+      - application/json
+      - text/javascript
+    compression-level: 6
+    io-threads: 2
+    limits:
+      max-body-size: 10M
+
+  # TLS Configuration
+  tls:
+    trust-all: true
+
+  # REST Client optimizations for RPC calls
+  rest-client:
+    read-timeout: 10000
+    connect-timeout: 5000
+
+  # GraalVM Native Image optimizations
+  native:
+    additional-build-args:
+      - --initialize-at-build-time=org.slf4j.LoggerFactory
+      - --initialize-at-build-time=org.slf4j.impl.StaticLoggerBinder
+    enable-reports: true
+    resources:
+      includes:
+        - banner.txt
+
+# Application-specific configuration
+bitcoin:
+  rpc:
+    host: ${RPC_HOST}
+    port: ${RPC_PORT}
+    user: ${RPC_USER}
+    password: ${RPC_PASS}
+    scheme: http
+
+dashboard:
+  polling:
+    interval:
+      seconds: ${WS_POLLING_INTERVAL:5}
+  health:
+    min:
+      outbound:
+        peers: ${MIN_OUTBOUND_PEERS:8}

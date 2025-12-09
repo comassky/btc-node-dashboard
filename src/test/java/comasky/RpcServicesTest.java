@@ -26,7 +26,7 @@ class RpcServicesTest {
     ObjectMapper objectMapper;
 
     @Test
-    void testGetNodeInfo_success() throws Exception {
+    void testGetNodeInfo_success() {
         String mockResponse = """
             {
                 "result": {
@@ -43,7 +43,7 @@ class RpcServicesTest {
 
         when(rpcClient.executeRpcCall(any())).thenReturn(mockResponse);
 
-        NodeInfo nodeInfo = rpcServices.getNodeInfo();
+        NodeInfo nodeInfo = rpcServices.getNodeInfo().await().indefinitely();
 
         assertNotNull(nodeInfo);
         assertEquals(270000, nodeInfo.version());
@@ -52,7 +52,7 @@ class RpcServicesTest {
     }
 
     @Test
-    void testGetBestBlockHash_success() throws Exception {
+    void testGetBestBlockHash_success() {
         String mockResponse = """
             {
                 "result": "00000000000000000001234567890abcdef",
@@ -63,14 +63,14 @@ class RpcServicesTest {
 
         when(rpcClient.executeRpcCall(any())).thenReturn(mockResponse);
 
-        String blockHash = rpcServices.getBestBlockHash();
+        String blockHash = rpcServices.getBestBlockHash().await().indefinitely();
 
         assertNotNull(blockHash);
         assertEquals("00000000000000000001234567890abcdef", blockHash);
     }
 
     @Test
-    void testGetBlockchainInfo_success() throws Exception {
+    void testGetBlockchainInfo_success() {
         String mockResponse = """
             {
                 "result": {
@@ -87,7 +87,7 @@ class RpcServicesTest {
 
         when(rpcClient.executeRpcCall(any())).thenReturn(mockResponse);
 
-        BlockchainInfo blockchainInfo = rpcServices.getBlockchainInfo();
+        BlockchainInfo blockchainInfo = rpcServices.getBlockchainInfo().await().indefinitely();
 
         assertNotNull(blockchainInfo);
         assertEquals(870000, blockchainInfo.getBlocks());
@@ -97,7 +97,7 @@ class RpcServicesTest {
     }
 
     @Test
-    void testGetUptimeSeconds_success() throws Exception {
+    void testGetUptimeSeconds_success() {
         String mockResponse = """
             {
                 "result": 432000,
@@ -108,13 +108,13 @@ class RpcServicesTest {
 
         when(rpcClient.executeRpcCall(any())).thenReturn(mockResponse);
 
-        long uptime = rpcServices.getUptimeSeconds();
+        long uptime = rpcServices.getUptimeSeconds().await().indefinitely();
 
         assertEquals(432000, uptime);
     }
 
     @Test
-    void testGetBlockInfo_success() throws Exception {
+    void testGetBlockInfo_success() {
         String mockResponse = """
             {
                 "result": {
@@ -128,7 +128,7 @@ class RpcServicesTest {
 
         when(rpcClient.executeRpcCall(any())).thenReturn(mockResponse);
 
-        BlockInfo blockInfo = rpcServices.getBlockInfo("00000000000000000001234567890abcdef");
+        BlockInfo blockInfo = rpcServices.getBlockInfo("00000000000000000001234567890abcdef").await().indefinitely();
 
         assertNotNull(blockInfo);
         assertEquals(1733443200, blockInfo.getTime());
@@ -150,13 +150,23 @@ class RpcServicesTest {
 
         when(rpcClient.executeRpcCall(any())).thenReturn(mockResponse);
 
-        assertThrows(RpcException.class, () -> rpcServices.getBlockchainInfo());
+        RpcException exception = assertThrows(RpcException.class, () -> {
+            rpcServices.getBlockchainInfo().await().indefinitely();
+        });
+        
+        assertTrue(exception.getMessage().contains("Verifying blocks..."));
     }
 
     @Test
     void testRpcConnectionFailure_throwsException() {
         when(rpcClient.executeRpcCall(any())).thenThrow(new RuntimeException("Connection refused"));
 
-        assertThrows(RpcException.class, () -> rpcServices.getNodeInfo());
+        RpcException exception = assertThrows(RpcException.class, () -> {
+            rpcServices.getNodeInfo().await().indefinitely();
+        });
+        
+        assertTrue(exception.getMessage().contains("Connection failed"));
+        assertNotNull(exception.getCause());
+        assertTrue(exception.getCause().getMessage().contains("Connection refused"));
     }
 }

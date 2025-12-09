@@ -1,11 +1,10 @@
-name: Docker Native (GraalVM)
+name: Docker Native (GraalVM) - Develop Branch
 
 on:
   push:
-    branches: [ "main" ]
-    tags: [ '*.*.*' ]
+    branches: [ "develop" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "develop" ]
   workflow_dispatch:
 
 env:
@@ -17,7 +16,7 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -48,7 +47,7 @@ jobs:
         run: npm test -- --run
 
       # Upload the 'target' directory as an artifact
-      # This contains compiled classes and resources needed for the native build
+      # This contains compiled classes and resources needed for native build
       - name: Upload Maven Target Directory
         uses: actions/upload-artifact@v4
         with:
@@ -71,7 +70,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: maven-target
-          path: . # Download into the root directory, so Dockerfile can access target/
+          path: target/ # Download into the 'target' directory
 
       # No need for 'Checkout repository' here as we downloaded the artifact
 
@@ -147,10 +146,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
+            # You can also add a tag based on the short commit SHA for unique dev builds:
+            # type=sha,prefix=develop-,format=short
 
       - name: Build and push Docker image
         id: build-and-push
@@ -176,6 +174,6 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
-          name: native-executable
+          name: native-executable-develop
           path: target/*-runner
           retention-days: 7

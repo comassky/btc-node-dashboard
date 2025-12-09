@@ -1,13 +1,13 @@
 package comasky.rpcClass;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import lombok.Builder;
-import lombok.Data;
 
-@Data
-@Builder
+/**
+ * DTO for subversion distribution statistics.
+ * Using a record for immutability and conciseness.
+ */
 @RegisterForReflection
-public class SubverStats {
-    private final String server;
-    private final double percentage;
-}
+public record SubverStats(
+    String server,
+    double percentage
+) {}

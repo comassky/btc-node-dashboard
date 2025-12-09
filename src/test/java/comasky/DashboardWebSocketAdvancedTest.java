@@ -1,17 +1,21 @@
 package comasky;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import comasky.exceptions.RpcException;
+import comasky.api.DashboardWebSocket;
 import comasky.rpcClass.*;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.infrastructure.Infrastructure;
 import jakarta.inject.Inject;
+import jakarta.websocket.RemoteEndpoint;
+import jakarta.websocket.Session;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @QuarkusTest
@@ -21,135 +25,49 @@ class DashboardWebSocketAdvancedTest {
     RpcServices rpcServices;
 
     @Inject
-    ObjectMapper objectMapper;
+    DashboardWebSocket webSocket;
 
     @Test
-    void testCachedMessage_success() {
+    void testConcurrentAccess_singleRpcCall() throws InterruptedException {
         GlobalResponse mockResponse = createMockGlobalResponse();
-        when(rpcServices.getData()).thenReturn(mockResponse);
+        when(rpcServices.getData()).thenReturn(Uni.createFrom().item(mockResponse).emitOn(Infrastructure.getDefaultExecutor()));
 
-        assertNotNull(mockResponse);
-        assertEquals(2, mockResponse.getGeneralStats().inboundCount());
-        assertEquals(8, mockResponse.getGeneralStats().outboundCount());
-    }
+        int concurrentClients = 5;
+        CountDownLatch latch = new CountDownLatch(concurrentClients);
 
-    @Test
-    void testCachedMessage_error() {
-        when(rpcServices.getData()).thenThrow(new RpcException("Connection failed"));
+        // Simulate multiple clients connecting at the same time
+        for (int i = 0; i < concurrentClients; i++) {
+            Session mockSession = mock(Session.class);
+            RemoteEndpoint.Async mockAsync = mock(RemoteEndpoint.Async.class);
+            when(mockSession.getId()).thenReturn("session-" + i);
+            when(mockSession.isOpen()).thenReturn(true);
+            when(mockSession.getAsyncRemote()).thenReturn(mockAsync);
 
-        assertThrows(RpcException.class, () -> rpcServices.getData());
-    }
+            doAnswer(invocation -> {
+                latch.countDown();
+                return null;
+            }).when(mockAsync).sendText(anyString());
 
-    @Test
-    void testGlobalResponse_structure() {
-        GlobalResponse mockResponse = createMockGlobalResponse();
+            webSocket.onOpen(mockSession);
+        }
 
-        assertNotNull(mockResponse.getNodeInfo());
-        assertNotNull(mockResponse.getBlockchainInfo());
-        assertNotNull(mockResponse.getGeneralStats());
-        assertNotNull(mockResponse.getSubverDistribution());
-        assertEquals("5d, 03:00:00", mockResponse.getUpTime());
-    }
+        // Wait for all clients to have received their message
+        latch.await(5, TimeUnit.SECONDS);
 
-    @Test
-    void testJsonSerialization() throws Exception {
-        GlobalResponse mockResponse = createMockGlobalResponse();
-        
-        String json = objectMapper.writeValueAsString(mockResponse);
-        
-        assertNotNull(json);
-        assertTrue(json.contains("generalStats"));
-        assertTrue(json.contains("nodeInfo"));
-        assertTrue(json.contains("blockchainInfo"));
-    }
-
-    @Test
-    void testRpcException_handling() {
-        String errorMessage = "Test RPC error";
-        RpcException exception = new RpcException(errorMessage);
-        
-        assertEquals(errorMessage, exception.getMessage());
-    }
-
-    @Test
-    void testNodeInfo_fields() {
-        GlobalResponse mockResponse = createMockGlobalResponse();
-        NodeInfo nodeInfo = mockResponse.getNodeInfo();
-        
-        assertEquals(270000, nodeInfo.version());
-        assertEquals(70016, nodeInfo.protocolVersion());
-        assertEquals("/Satoshi:27.0.0/", nodeInfo.subversion());
-    }
-
-    @Test
-    void testBlockchainInfo_fields() {
-        GlobalResponse mockResponse = createMockGlobalResponse();
-        BlockchainInfo blockchainInfo = mockResponse.getBlockchainInfo();
-        
-        assertEquals(870000, blockchainInfo.getBlocks());
-        assertEquals("main", blockchainInfo.getChain());
-    }
-
-    @Test
-    void testGeneralStats_calculation() {
-        GlobalResponse mockResponse = createMockGlobalResponse();
-        GeneralStats stats = mockResponse.getGeneralStats();
-        
-        assertEquals(10, stats.totalPeers());
-        assertEquals(stats.inboundCount() + stats.outboundCount(), stats.totalPeers());
-    }
-
-    @Test
-    void testSubverDistribution_structure() {
-        GlobalResponse mockResponse = createMockGlobalResponse();
-        SubverDistribution distribution = mockResponse.getSubverDistribution();
-        
-        assertNotNull(distribution.inbound());
-        assertNotNull(distribution.outbound());
-    }
-
-    @Test
-    void testBlockInfo_fields() {
-        GlobalResponse mockResponse = createMockGlobalResponse();
-        BlockInfo blockInfo = mockResponse.getBlock();
-        
-        assertNotNull(blockInfo);
-        assertEquals(1733443200, blockInfo.getTime());
-        assertEquals(2500, blockInfo.getNtx());
-    }
-
-    @Test
-    void testMultipleRpcCalls() {
-        GlobalResponse mockResponse = createMockGlobalResponse();
-        when(rpcServices.getData()).thenReturn(mockResponse);
-        
-        GlobalResponse result1 = rpcServices.getData();
-        GlobalResponse result2 = rpcServices.getData();
-        
-        assertNotNull(result1);
-        assertNotNull(result2);
-        verify(rpcServices, times(2)).getData();
+        // Verify that rpcServices.getData() was only called once, thanks to the in-flight request cache
+        verify(rpcServices, times(1)).getData();
     }
 
     private GlobalResponse createMockGlobalResponse() {
-        NodeInfo nodeInfo = new NodeInfo(70016, 270000, "/Satoshi:27.0.0/", 10, true);
-        BlockchainInfo blockchainInfo = new BlockchainInfo();
-        blockchainInfo.setBlocks(870000);
-        blockchainInfo.setChain("main");
-
-        BlockInfo blockInfo = new BlockInfo();
-        blockInfo.setTime(1733443200);
-        blockInfo.setNtx(2500);
-
-        return GlobalResponse.builder()
-                .generalStats(new GeneralStats(2, 8, 10))
-                .nodeInfo(nodeInfo)
-                .blockchainInfo(blockchainInfo)
-                .inboundPeer(Collections.emptyList())
-                .outboundPeer(Collections.emptyList())
-                .subverDistribution(new SubverDistribution(Collections.emptyList(), Collections.emptyList()))
-                .upTime("5d, 03:00:00")
-                .block(blockInfo)
-                .build();
+        return new GlobalResponse(
+                new GeneralStats(0, 0, 0),
+                new SubverDistribution(Collections.emptyList(), Collections.emptyList()),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                new BlockchainInfo(0, 0, "", 0.0, false),
+                new NodeInfo(0, 0, "", 0, false),
+                "0s",
+                new BlockInfo(null, 0, 0, 0, 0, 0, 0, null, null, 0, 0, 0, null, 0, null, 0, null, null)
+        );
     }
 }

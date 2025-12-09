@@ -1,37 +1,28 @@
 package comasky.rpcClass;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import lombok.Data;
 
-@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 @RegisterForReflection
-public class BlockInfo {
-
-    // Identification and structure information
-    private String hash;
-    private int confirmations;
-    private int strippedsize;
-    private int size;
-    private int weight;
-    private int height;
-    private int version;
-    private String versionHex;
-    private String merkleroot;
-
-    private long time; // Unix timestamp in seconds
-    private long mediantime;
-
-    // Technical and consensus information
-    private long nonce;
-    private String bits;
-    private double difficulty;
-    private String chainwork;
-    
-    @JsonProperty("nTx")
-    private int ntx;
-
-    // Chain structure
-    private String previousblockhash;
-    private String nextblockhash;
-}
+public record BlockInfo(
+    String hash,
+    int confirmations,
+    int strippedsize,
+    int size,
+    int weight,
+    int height,
+    int version,
+    String versionHex,
+    String merkleroot,
+    long time,
+    long mediantime,
+    long nonce,
+    String bits,
+    double difficulty,
+    String chainwork,
+    @JsonProperty("nTx") int ntx,
+    String previousblockhash,
+    String nextblockhash
+) {}
