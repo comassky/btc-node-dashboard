@@ -1,15 +1,16 @@
 # 🏗️ Single Build (CI/CD)
 
-In CI, the Maven build (`./mvnw clean package`) runs all tests and produces the artifact used for Docker and native images. No build or tests are repeated in Docker/native steps: this ensures speed and consistency.
+In CI, the Maven build (`./mvnw clean package`) runs all tests and produces the artifact used for Docker and native images. No build or tests are repeated in Docker/native steps: speed and consistency guaranteed.
 
 - To build and test locally:
   ```bash
   ./mvnw clean package
   ```
-- To build native (tests already run):
+- To build native (tests already passed):
   ```bash
   ./mvnw clean package -Pnative -DskipTests
   ```
+git clone https://github.com/comassky/btc-node-dashboard.git
 # Build and Run Guide
 
 Complete guide for building and deploying the Bitcoin Node Dashboard.
@@ -17,7 +18,7 @@ Complete guide for building and deploying the Bitcoin Node Dashboard.
 ## Prerequisites
 
 **Required**: Java 21+, Maven 3.9+, Bitcoin Core with RPC enabled  
-**Optional**: Node.js 24+ (for frontend dev), Docker
+**Optional**: Node.js 24+ (for frontend development), Docker
 
 ## 🚀 Quick Start
 
@@ -80,6 +81,7 @@ docker run -d -p 8080:8080 \
   ghcr.io/comassky/btc-node-dashboard:main
 ```
 
+
 **Image Performance**:
 
 | Metric        | JVM         | Native      |
@@ -89,7 +91,9 @@ docker run -d -p 8080:8080 \
 | **Image Size**| ~400MB     | **~120MB**  |
 | **CPU (Idle)**| ~1%        | **<0.5%**   |
 
+
 **Docker Compose**: See [compose.yml](compose.yml) for full setup with Bitcoin Core.
+
 
 ## 🔧 Configuration
 
@@ -108,7 +112,7 @@ docker run -d -p 8080:8080 \
 
 ### Application Properties
 
-Alternative to environment variables, create `src/main/resources/application-local.properties`:
+As an alternative to environment variables, create `src/main/resources/application-local.properties`:
 
 ```properties
 bitcoin.rpc.scheme=http
@@ -134,6 +138,7 @@ java -jar target/quarkus-app/quarkus-run.jar
 # Custom profile
 java -Dquarkus.profile=staging -jar target/quarkus-app/quarkus-run.jar
 ```
+
 
 ## 🎨 Frontend Development
 

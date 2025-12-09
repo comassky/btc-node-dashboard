@@ -17,15 +17,16 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 <img width="3024" height="5236" alt="node hjacquot xyz_" src="https://github.com/user-attachments/assets/9d4ac01d-47cc-4bd1-996c-31deb6b7609a" />
 
+
 ## ✨ Features
 
-- **Reactive Architecture (Mutiny)**: Built with Mutiny for an event-driven, non-blocking backend, ensuring high responsiveness and efficient resource utilization.
-- **Optimized Caching with `inFlightRequest`**: Prevents redundant RPC calls by caching ongoing requests, improving performance and reducing load on the Bitcoin node. Configurable via `dashboard.cache.validity-buffer-ms` (see below for details).
+- **Reactive Architecture (Mutiny)**: Event-driven, non-blocking backend for high responsiveness and efficient resource utilization.
+- **Parallel & Monitored RPC Execution**: All Bitcoin Core RPC calls are executed in parallel, with DEBUG logs and latency measurement for each call.
+- **Optimized Caching**: Prevents redundant RPC calls by caching ongoing requests, improving performance and reducing load on the Bitcoin node. Configurable via `dashboard.cache.validity-buffer-ms`.
 - **Live Peer Statistics**: Real-time display of inbound/outbound connections, peer details, version and geographic distribution.
 - **Blockchain Status**: Track block height, sync progress, node uptime, and network health.
 - **Modern UI/UX**: Dark/light mode, responsive design, interactive charts, smooth animations, icon support.
 - **WebSocket Streaming**: Instant dashboard updates, automatic reconnection, exponential backoff.
-- **Parallel RPC Execution**: Up to 6 simultaneous Bitcoin Core requests for fast refresh.
 - **Mock/Test Mode**: Simulate errors, low peer count, disconnected mode for testing and demos.
 - **Comprehensive Error Handling**: Clear user messages, automatic recovery and reconnection.
 - **Performance Optimized**: GraalVM Native (<50ms startup, ~30MB RAM), tree-shaking, code splitting, gzip compression.

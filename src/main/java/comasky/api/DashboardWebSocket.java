@@ -110,7 +110,8 @@ public class DashboardWebSocket {
 
     private void handleSendError(Session session, Throwable failure) {
         LOG.errorf(failure, "Failed to send initial data to session %s: %s", session.getId(), failure.getMessage());
-        sendErrorJson(session, String.format("Failed to fetch data: %s", failure.getMessage() != null ? failure.getMessage().replace("\"", "'") : "unknown error"));
+        String msg = (failure.getMessage() != null) ? failure.getMessage() : "unknown error";
+        sendErrorJson(session, String.format("Failed to fetch data: %s", msg.replace("\"", "'")));
     }
 
     private void sendErrorJson(Session session, String errorMsg) {
@@ -153,7 +154,9 @@ public class DashboardWebSocket {
                     })
                     .onFailure().recoverWithItem(e -> {
                         LOG.warnf("RPC call failed: %s", e.getMessage());
-                        String errorMsg = e.getCause() != null ? e.getCause().getMessage().replace("\"", "'") : e.getMessage().replace("\"", "'");
+                        String msg = (e.getCause() != null && e.getCause().getMessage() != null) ? e.getCause().getMessage() : e.getMessage();
+                        if (msg == null) msg = "Unknown error";
+                        String errorMsg = msg.replace("\"", "'");
                         String errorJson = "{\"rpcConnected\": false, \"errorMessage\": \"" + errorMsg + "\"}";
                         return CachedMessage.error(errorMsg, errorJson);
                     })

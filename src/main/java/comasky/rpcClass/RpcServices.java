@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
 import comasky.exceptions.RpcException;
+import org.jboss.logging.Logger;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.tuples.Tuple5;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -13,6 +14,7 @@ import jakarta.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import io.smallrye.mutiny.infrastructure.Infrastructure;
 
 import static comasky.shared.Tools.formatUptime;
 
@@ -22,6 +24,7 @@ import static comasky.shared.Tools.formatUptime;
  */
 @ApplicationScoped
 public class RpcServices {
+    private static final Logger LOG = Logger.getLogger(RpcServices.class);
 
     private static final TypeReference<RpcResponse<List<PeerInfo>>> PEER_INFO_TYPE_REF = new TypeReference<>() {};
 
@@ -154,15 +157,21 @@ public class RpcServices {
                 "params", params
         );
 
-        // Assuming rpcClient.executeRpcCall is blocking, we wrap it to run on a worker thread.
-        // If rpcClient is already reactive and returns a Uni, this wrapping is not needed.
         return Uni.createFrom().item(() -> {
+            long start = System.nanoTime();
             try {
-                return rpcClient.executeRpcCall(rpcRequest);
+                String result = rpcClient.executeRpcCall(rpcRequest);
+                long durationMs = (System.nanoTime() - start) / 1_000_000;
+                if (LOG.isDebugEnabled()) {
+                    LOG.debugf("RPC '%s' executed in %d ms", method, durationMs);
+                }
+                return result;
             } catch (Exception e) {
+                long durationMs = (System.nanoTime() - start) / 1_000_000;
+                LOG.debugf("RPC '%s' failed after %d ms: %s", method, durationMs, e.getMessage());
                 throw new RpcException("Connection failed for method " + method + ": " + e.getMessage(), e);
             }
-        });
+        }).runSubscriptionOn(Infrastructure.getDefaultWorkerPool());
     }
 
     private <T> Uni<T> executeRpcCall(String rpcMethod, List<Object> params, Class<T> resultClass) {

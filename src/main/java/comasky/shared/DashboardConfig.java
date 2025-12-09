@@ -10,6 +10,7 @@ public interface DashboardConfig {
     Polling polling();
     Health health();
     Cache cache();
+    int sessionsMax(); // dashboard.sessions.max
 
     interface Polling {
         Interval interval();
@@ -30,5 +31,6 @@ public interface DashboardConfig {
 
     interface Cache {
         int validityBufferMs();
+        int maxItems(); // dashboard.cache.max-items
     }
 }
