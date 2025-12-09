@@ -24,34 +24,34 @@ class RpcServicesTest {
     RpcServices rpcServices;
 
     @Inject
-    ObjectMapper objectMapper; // Inject ObjectMapper to help with JSON creation
+    ObjectMapper objectMapper;
 
-    // Helper to create a successful RpcResponse JSON string
+    
     private <T> String createSuccessRpcResponseJson(T result) throws Exception {
         RpcResponse<T> response = new RpcResponse<>();
         response.setResult(result);
-        response.setId("1.0"); // Assuming a default ID
+        response.setId("1.0");
         return objectMapper.writeValueAsString(response);
     }
 
-    // Helper to create an error RpcResponse JSON string
+    
     private String createErrorRpcResponseJson(Object error) throws Exception {
         RpcResponse<Object> response = new RpcResponse<>();
         response.setError(error);
-        response.setId("1.0"); // Assuming a default ID
+        response.setId("1.0");
         return objectMapper.writeValueAsString(response);
     }
 
     @Test
     void testGetNodeInfo_success() throws Exception {
         NodeInfo expectedNodeInfo = new NodeInfo(
-            70016, // protocolVersion
-            270000, // version
-            "/Satoshi:27.0.0/", // subversion
-            10, // connections
-            true // networkActive
+            70016,
+            270000,
+            "/Satoshi:27.0.0/",
+            10,
+            true
         );
-        // Mock RpcClient to return the full JSON string
+        
         when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createSuccessRpcResponseJson(expectedNodeInfo));
 
         NodeInfo nodeInfo = rpcServices.getNodeInfo().await().indefinitely();
@@ -76,11 +76,11 @@ class RpcServicesTest {
     @Test
     void testGetBlockchainInfo_success() throws Exception {
         BlockchainInfo expectedBlockchainInfo = new BlockchainInfo(
-            870000, // blocks
-            870000, // headers
-            "main", // chain
-            0.9999, // verificationProgress
-            false // initialBlockDownload
+            870000,
+            870000,
+            "main",
+            0.9999,
+            false
         );
         when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createSuccessRpcResponseJson(expectedBlockchainInfo));
 
@@ -106,24 +106,24 @@ class RpcServicesTest {
     @Test
     void testGetBlockInfo_success() throws Exception {
             BlockInfo expectedBlockInfo = new BlockInfo(
-                "00000000000000000001234567890abcdef", // hash
-                1, // confirmations
-                0, // strippedsize
-                0, // size
-                0, // weight
-                870000, // height
-                1, // version
-                "", // versionHex
-                "", // merkleroot
-                1733443200L, // time
-                0L, // mediantime
-                0L, // nonce
-                "", // bits
-                1.0, // difficulty
-                "", // chainwork
-                2500, // ntx
-                "", // previousblockhash
-                "" // nextblockhash
+                "00000000000000000001234567890abcdef",
+                1,
+                0,
+                0,
+                0,
+                870000,
+                1,
+                "",
+                "",
+                1733443200L,
+                0L,
+                0L,
+                "",
+                1.0,
+                "",
+                2500,
+                "",
+                ""
             );
             when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createSuccessRpcResponseJson(expectedBlockInfo));
 
@@ -136,20 +136,19 @@ class RpcServicesTest {
 
     @Test
     void testRpcError_throwsException() throws Exception {
-        // Mock RpcClient to return an error JSON string
+        
         when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createErrorRpcResponseJson("RPC Error: Verifying blocks..."));
 
         RpcException exception = assertThrows(RpcException.class,
             () -> rpcServices.getBlockchainInfo().await().indefinitely());
         
-        // The error message now includes the method name from RpcServices
+        
         assertTrue(exception.getMessage().contains("RPC Error for method getblockchaininfo: RPC Error: Verifying blocks..."));
     }
 
     @Test
     void testRpcConnectionFailure_throwsException() {
-        // This test case still throws a RuntimeException directly from the mock,
-        // which RpcServices will catch and wrap in an RpcException.
+        
         when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenThrow(new RuntimeException("Connection refused"));
 
         RpcException exception = assertThrows(RpcException.class,

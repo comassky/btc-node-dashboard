@@ -21,8 +21,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * WebSocket endpoint for real-time dashboard updates.
+ * <p>
  * Broadcasts Bitcoin node data to all connected clients at configured intervals using a reactive approach.
  * Implements caching to avoid redundant RPC calls when data is fresh.
+ * Handles connection, disconnection, and error reporting for WebSocket clients.
  */
 @ServerEndpoint("/ws/dashboard")
 @ApplicationScoped
@@ -51,6 +53,9 @@ public class DashboardWebSocket {
 
     private long cacheValidityMs;
 
+    /**
+     * Initializes the cache validity duration after construction.
+     */
     @PostConstruct
     void init() {
         // Pre-calculate cache validity to avoid recalculation on each fetch
@@ -58,6 +63,9 @@ public class DashboardWebSocket {
         this.cacheValidityMs = Math.max(100, pollingIntervalMs - cacheValidityBufferMs);
     }
 
+    /**
+     * Periodically broadcasts the latest dashboard data to all connected WebSocket clients.
+     */
     @Scheduled(every = "${dashboard.polling.interval.seconds}s", identity = "dashboard-broadcast")
     void scheduledBroadcast() {
         if (sessions.isEmpty()) {
@@ -65,11 +73,23 @@ public class DashboardWebSocket {
         }
         fetchAndCacheMessage()
                 .subscribe().with(
-                        message -> broadcastMessage(message.serializedJson()),
+                        message -> {
+                            String json = message.serializedJson();
+                            if (json != null) {
+                                broadcastMessage(json); // diffuse la même chaîne à tous
+                            } else {
+                                LOG.error("No JSON to broadcast");
+                            }
+                        },
                         failure -> LOG.errorf("Failed to fetch and broadcast message: %s", failure.getMessage())
                 );
     }
 
+    /**
+     * Handles a new WebSocket connection.
+     *
+     * @param session the new WebSocket session
+     */
     @OnOpen
     public void onOpen(Session session) {
         sessions.add(session);
@@ -77,12 +97,22 @@ public class DashboardWebSocket {
         sendDataToSession(session);
     }
 
+    /**
+     * Handles the closure of a WebSocket connection.
+     *
+     * @param session the closed WebSocket session
+     */
     @OnClose
     public void onClose(Session session) {
         sessions.remove(session);
         LOG.debugf("WebSocket closed: %s (remaining: %d)", session.getId(), sessions.size());
     }
 
+    /**
+     * Sends the latest dashboard data to a specific WebSocket session.
+     *
+     * @param session the WebSocket session to send data to
+     */
     private void sendDataToSession(Session session) {
         if (session == null || !session.isOpen()) {
             LOG.warn("Attempted to send data to a null or closed session.");
@@ -96,6 +126,12 @@ public class DashboardWebSocket {
                 );
     }
 
+    /**
+     * Safely sends a message to a WebSocket session, handling errors and nulls.
+     *
+     * @param session the WebSocket session
+     * @param message the cached message to send
+     */
     private void safeSend(Session session, CachedMessage message) {
         try {
             if (message == null || message.serializedJson() == null) {
@@ -110,12 +146,24 @@ public class DashboardWebSocket {
         }
     }
 
+    /**
+     * Handles errors that occur when sending data to a WebSocket session.
+     *
+     * @param session the WebSocket session
+     * @param failure the error that occurred
+     */
     private void handleSendError(Session session, Throwable failure) {
         LOG.errorf(failure, "Failed to send initial data to session %s: %s", session.getId(), failure.getMessage());
         String msg = (failure.getMessage() != null) ? failure.getMessage() : "unknown error";
         sendErrorJson(session, new ErrorResponse(String.format("Failed to fetch data: %s", msg)));
     }
 
+    /**
+     * Sends an error message as JSON to a WebSocket session.
+     *
+     * @param session the WebSocket session
+     * @param errorResponse the error response to send
+     */
     private void sendErrorJson(Session session, ErrorResponse errorResponse) {
         if (session != null && session.isOpen()) {
             try {
@@ -126,6 +174,11 @@ public class DashboardWebSocket {
         }
     }
 
+    /**
+     * Fetches the latest dashboard data, using the cache if valid.
+     *
+     * @return a {@link Uni} emitting the cached or fresh message
+     */
     private Uni<CachedMessage> fetchAndCacheMessage() {
         CachedMessage currentCache;
         synchronized (cacheLock) {
@@ -139,6 +192,11 @@ public class DashboardWebSocket {
         return getFreshMessage();
     }
 
+    /**
+     * Fetches a fresh dashboard message from the backend and updates the cache.
+     *
+     * @return a {@link Uni} emitting the fresh message
+     */
     private synchronized Uni<CachedMessage> getFreshMessage() {
         // Check if a request is already in flight
         if (inFlightRequest == null) {
@@ -189,6 +247,11 @@ public class DashboardWebSocket {
         return inFlightRequest;
     }
 
+    /**
+     * Broadcasts a message to all connected WebSocket sessions.
+     *
+     * @param message the message to broadcast
+     */
     private void broadcastMessage(String message) {
         sessions.removeIf(session -> {
             if (session == null || !session.isOpen()) {

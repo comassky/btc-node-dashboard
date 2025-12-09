@@ -11,8 +11,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 /**
- * REST API controller for Bitcoin node data.
- * Provides HTTP endpoints to retrieve dashboard information.
+ * REST API controller exposing endpoints to retrieve Bitcoin node and dashboard data.
+ * <p>
+ * Provides HTTP endpoints for dashboard, network, block, and blockchain information.
  */
 @Path("/data")
 @Produces(MediaType.APPLICATION_JSON)
@@ -26,7 +27,9 @@ public class BtcController {
     }
 
     /**
-     * Returns aggregated dashboard data.
+     * Retrieves aggregated dashboard data for the Bitcoin node.
+     *
+     * @return a {@link Uni} emitting the global dashboard response
      */
     @GET
     @Path("dashboard")
@@ -35,7 +38,9 @@ public class BtcController {
     }
 
     /**
-     * Returns node network information.
+     * Retrieves network information about the Bitcoin node.
+     *
+     * @return a {@link Uni} emitting the node network information
      */
     @GET
     @Path("getnetworkinfo")
@@ -44,8 +49,10 @@ public class BtcController {
     }
 
     /**
-     * Returns block information by hash.
-     * @param hash block hash (required)
+     * Retrieves block information for a given block hash.
+     *
+     * @param hash the block hash (must not be null or blank)
+     * @return a {@link Uni} emitting the block information, or a failed Uni if the hash is invalid
      */
     @GET
     @Path("getblock/{hash}")
@@ -57,7 +64,9 @@ public class BtcController {
     }
 
     /**
-     * Returns the hash of the best block (plain text).
+     * Retrieves the hash of the best (most recent) block as plain text.
+     *
+     * @return a {@link Uni} emitting the best block hash as a string
      */
     @GET
     @Path("getbestblockhash")
@@ -67,7 +76,9 @@ public class BtcController {
     }
 
     /**
-     * Returns blockchain information.
+     * Retrieves blockchain information for the Bitcoin node.
+     *
+     * @return a {@link Uni} emitting the blockchain information
      */
     @GET
     @Path("getBlockchainInfo")

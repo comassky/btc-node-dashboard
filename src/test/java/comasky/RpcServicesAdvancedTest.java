@@ -8,8 +8,8 @@ import comasky.rpcClass.BlockInfo;
 import comasky.rpcClass.BlockchainInfo;
 import comasky.rpcClass.GlobalResponse;
 import comasky.rpcClass.NodeInfo;
-import comasky.rpcClass.PeerInfo; // Import PeerInfo
-import comasky.rpcClass.RpcResponse; // Import RpcResponse
+import comasky.rpcClass.PeerInfo;
+import comasky.rpcClass.RpcResponse;
 import comasky.rpcClass.RpcServices;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -36,13 +36,13 @@ class RpcServicesAdvancedTest {
     RpcServices rpcServices;
 
     @Inject
-    ObjectMapper objectMapper; // Inject ObjectMapper to help with JSON creation
+    ObjectMapper objectMapper;
 
     // Helper to create a successful RpcResponse JSON string
     private <T> String createSuccessRpcResponseJson(T result) throws Exception {
         RpcResponse<T> response = new RpcResponse<>();
         response.setResult(result);
-        response.setId("1.0"); // Assuming a default ID
+        response.setId("1.0");
         return objectMapper.writeValueAsString(response);
     }
 
@@ -50,16 +50,16 @@ class RpcServicesAdvancedTest {
     private String createErrorRpcResponseJson(Object error) throws Exception {
         RpcResponse<Object> response = new RpcResponse<>();
         response.setError(error);
-        response.setId("1.0"); // Assuming a default ID
+        response.setId("1.0");
         return objectMapper.writeValueAsString(response);
     }
 
-    // Helper method to extract the RPC method name from the request object
+    // Helper to extract the RPC method name
     private String extractMethodName(RpcRequestDto request) {
         return request.method();
     }
 
-    // Helper method to set up common RPC client mocks
+    // Helper to set up common RPC client mocks
     private void setupRpcClientMock(Map<String, Object> responses) {
         when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenAnswer(new Answer<String>() {
             @Override
@@ -71,7 +71,7 @@ class RpcServicesAdvancedTest {
                 }
                 Object responseResult = responses.get(method);
                 if (responseResult != null) {
-                    // For uptime and getbestblockhash, return the expected simple type
+                    
                     if ("uptime".equals(method) && !(responseResult instanceof Long)) {
                         return createSuccessRpcResponseJson(Long.valueOf(responseResult.toString()));
                     }
@@ -85,38 +85,38 @@ class RpcServicesAdvancedTest {
         });
     }
 
-    // Helper method to create a PeerInfo instance with default values for less relevant fields
+    // Helper to create a PeerInfo instance
     private PeerInfo createPeerInfo(String id, String addr, boolean inbound, String subver, int version) {
         return new PeerInfo(
-                Integer.parseInt(id), // id
-                addr, // addr
-                "127.0.0.1:8333", // addrlocal
-                "00000001", // services
-                System.currentTimeMillis() / 1000 - 3600, // conntime (1 hour ago)
-                System.currentTimeMillis() / 1000, // lastsend
-                System.currentTimeMillis() / 1000, // lastrecv
-                1024 * 1024, // bytesrecv
-                512 * 1024, // bytessent
-                Collections.emptyMap(), // bytesRecvPerMsg
-                Collections.emptyMap(), // bytesSentPerMsg
-                0.1, // pingtime
-                0.05, // minping
-                0, // timeoffset
-                version, // version
-                subver, // subver
-                inbound, // inbound
-                "V2", // transportProtocol
-                0, // permission
-                "inbound", // connectionType
-                "mainnet", // network
-                0 // unshippedTxs
+                Integer.parseInt(id),
+                addr,
+                "127.0.0.1:8333",
+                "00000001",
+                System.currentTimeMillis() / 1000 - 3600,
+                System.currentTimeMillis() / 1000,
+                System.currentTimeMillis() / 1000,
+                1024 * 1024,
+                512 * 1024,
+                Collections.emptyMap(),
+                Collections.emptyMap(),
+                0.1,
+                0.05,
+                0,
+                version,
+                subver,
+                inbound,
+                "V2",
+                0,
+                "inbound",
+                "mainnet",
+                0
         );
     }
 
     @Test
     void testGetData_withMultiplePeers() throws Exception {
         Map<String, Object> mockResponses = Map.of(
-            "getpeerinfo", List.of( // Direct list of PeerInfo objects
+            "getpeerinfo", List.of(
                 createPeerInfo("1", "192.168.1.100:8333", true, "/Satoshi:27.0.0/", 270000),
                 createPeerInfo("2", "192.168.1.101:8333", false, "/Satoshi:26.0.0/", 260000),
                 createPeerInfo("3", "192.168.1.102:8333", true, "/Satoshi:27.0.0/", 270000)
@@ -147,7 +147,7 @@ class RpcServicesAdvancedTest {
     @Test
     void testGetData_emptyPeerList() throws Exception {
         Map<String, Object> mockResponses = Map.of(
-            "getpeerinfo", List.of(), // Empty list
+            "getpeerinfo", List.of(),
             "getblockchaininfo", new BlockchainInfo(870000, 870000, "main", 0.99, false),
             "getnetworkinfo", new NodeInfo(70016, 270000, "/Satoshi:27.0.0/", 10, true),
             "uptime", 432000L,
@@ -247,7 +247,14 @@ class RpcServicesAdvancedTest {
                 throw new RuntimeException(e);
             }
         });
-        assertThrows(RpcException.class, () -> rpcServices.getData().await().indefinitely());
+        GlobalResponse response = rpcServices.getData().await().indefinitely();
+        assertNotNull(response);
+        // Fallback: peers should be empty due to parsing error
+        assertEquals(0, response.generalStats().inboundCount());
+        assertEquals(0, response.generalStats().outboundCount());
+        assertEquals(0, response.generalStats().totalPeers());
+        assertTrue(response.inboundPeer().isEmpty());
+        assertTrue(response.outboundPeer().isEmpty());
     }
 
     @Test
@@ -270,13 +277,14 @@ class RpcServicesAdvancedTest {
                 throw new RuntimeException(e);
             }
         });
-        RpcException exception = assertThrows(RpcException.class, () -> rpcServices.getData().await().indefinitely());
-        System.out.println("[TEST] Exception message: " + exception.getMessage());
-        // More robust assertion: accept both possible formats
-        assertTrue(
-            exception.getMessage().contains("Peer info unavailable") ||
-            exception.getMessage().contains("RPC Error for method getpeerinfo")
-        );
+        GlobalResponse response = rpcServices.getData().await().indefinitely();
+        assertNotNull(response);
+        // Fallback: peers should be empty due to RPC error
+        assertEquals(0, response.generalStats().inboundCount());
+        assertEquals(0, response.generalStats().outboundCount());
+        assertEquals(0, response.generalStats().totalPeers());
+        assertTrue(response.inboundPeer().isEmpty());
+        assertTrue(response.outboundPeer().isEmpty());
     }
 
     @Test

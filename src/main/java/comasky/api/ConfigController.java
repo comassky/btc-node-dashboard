@@ -11,7 +11,8 @@ import jakarta.ws.rs.core.MediaType;
 
 /**
  * REST API controller for dashboard configuration.
- * Exposes runtime configuration values to the frontend.
+ * <p>
+ * Exposes runtime configuration values to the frontend for UI adaptation.
  */
 @Path("/api/config")
 public class ConfigController {
@@ -20,7 +21,9 @@ public class ConfigController {
     DashboardConfig config;
 
     /**
-     * Returns dashboard configuration values for the frontend.
+     * Retrieves dashboard configuration values for the frontend.
+     *
+     * @return a {@link Uni} emitting the dashboard configuration response
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -32,5 +35,9 @@ public class ConfigController {
         return Uni.createFrom().item(new DashboardConfigResponse(minPeers));
     }
 
+    /**
+     * DTO for dashboard configuration response.
+     * @param minOutboundPeers minimum number of outbound peers required
+     */
     public record DashboardConfigResponse(int minOutboundPeers) {}
 }
