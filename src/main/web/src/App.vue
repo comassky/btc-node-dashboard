@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Spinner from '@components/Spinner.vue';
-import { reactive, computed, onBeforeUnmount, ref, onMounted } from 'vue';
+import { reactive, computed, onBeforeUnmount, ref, onMounted, nextTick } from 'vue';
 import Status from '@components/Status.vue';
 import PeersCard from '@components/PeersCard.vue';
 import BlockCard from '@components/BlockCard.vue';
@@ -125,6 +125,13 @@ if (!MOCK_MODE.value) {
     disconnect();
   });
 }
+
+function handleCycleScenario() {
+  cycleMockScenario();
+  nextTick(() => {
+    Object.assign(dataState, generateMockData());
+  });
+}
 </script>
 
 <template>
@@ -141,7 +148,7 @@ if (!MOCK_MODE.value) {
                 <font-awesome-icon :icon="['fas', 'hard-hat']" /> MOCK MODE
             </div>
             <button 
-                @click="cycleMockScenario(); Object.assign(dataState, generateMockData())"
+                @click="handleCycleScenario"
                 class="px-3 py-1.5 bg-accent text-bg-app rounded hover:opacity-80 transition-all font-medium">
                 Cycle Scenario
             </button>
