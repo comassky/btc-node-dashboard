@@ -86,7 +86,7 @@ export RPC_PASS=your_password
 ./mvnw quarkus:dev  # → http://localhost:8080
 ```
 
-### Docker (Recommended)
+## 🐳 Docker (Recommended)
 ```bash
 # GraalVM Native (50ms startup, 30MB memory)
 docker run -d -p 8080:8080 \
@@ -99,7 +99,17 @@ docker run -d -p 8080:8080 \
   ghcr.io/comassky/btc-node-dashboard:native
 ```
 
-See [BUILD.md](BUILD.md) for detailed instructions.
+### Image Performance
+
+| Metric        | JVM         | Native      |
+|-------------- |------------|------------ |
+| **Startup**   | ~2-4s      | **~50-80ms**   |
+| **Memory**    | ~180-250MB | **~30-60MB**|
+| **Image Size**| ~400MB     | **~120MB**  |
+| **CPU (Idle)**| ~1%        | **<0.5%**   |
+
+
+See [DOCKER.md](DOCKER.md) for more details.
 
 ## 📊 API Endpoints
 
@@ -178,4 +188,4 @@ Built with [Quarkus](https://quarkus.io/), [Vue.js](https://vuejs.org/), [Tailwi
 ---
 
 **Built with ❤️ for the Bitcoin community**
-    
+

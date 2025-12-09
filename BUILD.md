@@ -53,46 +53,7 @@ export RPC_PASS=your_password
 
 ## 🐳 Docker
 
-**Pre-built images**: [GitHub Packages](https://github.com/comassky/btc-node-dashboard/pkgs/container/btc-node-dashboard)
-
-```bash
-# Native (recommended - 50ms startup, 30MB memory)
-docker run -d -p 8080:8080 \
-  -e RPC_HOST=<HOST> \
-  -e RPC_PORT=<PORT> \
-  -e RPC_USER=<USER> \
-  -e RPC_PASS=<PASSWORD> \
-  -e WS_POLLING_INTERVAL=5 \
-  -e MIN_OUTBOUND_PEERS=8 \
-  -e LOG_LEVEL=INFO \
-  -e DASHBOARD_CACHE_VALIDITY_BUFFER_MS=200 \
-  ghcr.io/comassky/btc-node-dashboard:native
-
-# JVM
-docker run -d -p 8080:8080 \
-  -e RPC_HOST=<HOST> \
-  -e RPC_PORT=<PORT> \
-  -e RPC_USER=<USER> \
-  -e RPC_PASS=<PASSWORD> \
-  -e WS_POLLING_INTERVAL=5 \
-  -e MIN_OUTBOUND_PEERS=8 \
-  -e LOG_LEVEL=INFO \
-  -e DASHBOARD_CACHE_VALIDITY_BUFFER_MS=200 \
-  ghcr.io/comassky/btc-node-dashboard:main
-```
-
-
-**Image Performance**:
-
-| Metric        | JVM         | Native      |
-|-------------- |------------|------------ |
-| **Startup**   | ~2-4s      | **~80ms**   |
-| **Memory**    | ~180-250MB | **~35-60MB**|
-| **Image Size**| ~400MB     | **~120MB**  |
-| **CPU (Idle)**| ~1%        | **<0.5%**   |
-
-
-**Docker Compose**: See [compose.yml](compose.yml) for full setup with Bitcoin Core.
+Docker build and run instructions are now in [DOCKER.md](DOCKER.md).
 
 
 ## 🔧 Configuration

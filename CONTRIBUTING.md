@@ -34,4 +34,27 @@ For more details, see the comments in `RpcServices`, `BtcController`, and `Dashb
 
 ---
 
+## 🧪 Mock/Test Mode for Frontend Development
+
+The dashboard includes a mock mode to help you develop and test the frontend without requiring a live Bitcoin node. This is especially useful for simulating error states, warnings, and demo scenarios.
+
+### How to Enable
+
+- Add `VITE_MOCK_MODE=true` to your frontend `.env` file.
+- Start the application as usual.
+
+### How to Use
+
+- A "MOCK MODE" panel will appear in the top left corner of the dashboard UI.
+- Use the "Cycle Scenario" button to switch between different simulated states:
+  - **normal**: healthy node, all systems operational
+  - **lowPeers**: low outbound peer count, triggers warning
+  - **outOfSync**: node is behind on block sync, triggers warning
+  - **disconnected**: simulates WebSocket/RPC connection loss
+- The dashboard components will automatically react to these scenarios, allowing you to visually verify warning and error handling.
+
+### Customization
+
+Mock logic and scenarios are managed in `src/main/web/src/composables/useMockData.ts`. You can extend or modify the mock data to fit your testing needs.
+
 Feel free to open issues or pull requests if you have questions or suggestions!
