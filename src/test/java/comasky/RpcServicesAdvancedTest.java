@@ -64,14 +64,14 @@ class RpcServicesAdvancedTest {
         GlobalResponse response = rpcServices.getData().await().indefinitely();
 
         assertNotNull(response);
-        assertEquals(2, response.getGeneralStats().inboundCount());
-        assertEquals(1, response.getGeneralStats().outboundCount());
-        assertEquals(3, response.getGeneralStats().totalPeers());
-        assertEquals(2, response.getInboundPeer().size());
-        assertEquals(1, response.getOutboundPeer().size());
-        assertNotNull(response.getSubverDistribution());
-        assertNotNull(response.getSubverDistribution().inbound());
-        assertNotNull(response.getSubverDistribution().outbound());
+        assertEquals(2, response.generalStats().inboundCount());
+        assertEquals(1, response.generalStats().outboundCount());
+        assertEquals(3, response.generalStats().totalPeers());
+        assertEquals(2, response.inboundPeer().size());
+        assertEquals(1, response.outboundPeer().size());
+        assertNotNull(response.subverDistribution());
+        assertNotNull(response.subverDistribution().inbound());
+        assertNotNull(response.subverDistribution().outbound());
     }
 
     @Test
@@ -107,11 +107,11 @@ class RpcServicesAdvancedTest {
         GlobalResponse response = rpcServices.getData().await().indefinitely();
 
         assertNotNull(response);
-        assertEquals(0, response.getGeneralStats().inboundCount());
-        assertEquals(0, response.getGeneralStats().outboundCount());
-        assertEquals(0, response.getGeneralStats().totalPeers());
-        assertTrue(response.getInboundPeer().isEmpty());
-        assertTrue(response.getOutboundPeer().isEmpty());
+        assertEquals(0, response.generalStats().inboundCount());
+        assertEquals(0, response.generalStats().outboundCount());
+        assertEquals(0, response.generalStats().totalPeers());
+        assertTrue(response.inboundPeer().isEmpty());
+        assertTrue(response.outboundPeer().isEmpty());
     }
 
     @Test

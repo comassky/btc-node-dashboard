@@ -87,18 +87,18 @@ class CachedMessageTest {
 
     private GlobalResponse createMockGlobalResponse() {
         NodeInfo nodeInfo = new NodeInfo(70016, 270000, "/Satoshi:27.0.0/", 10, true);
-        BlockchainInfo blockchainInfo = new BlockchainInfo();
-        blockchainInfo.setBlocks(870000);
-        blockchainInfo.setChain("main");
+        BlockchainInfo blockchainInfo = new BlockchainInfo(870000, 870000, "main", 0.99, false);
+        BlockInfo blockInfo = new BlockInfo(null, 0, 0, 0, 0, 0, 0, null, null, 0, 0, 0, null, 0, null, 0, null, null);
         
-        return GlobalResponse.builder()
-                .generalStats(new GeneralStats(2, 8, 10))
-                .nodeInfo(nodeInfo)
-                .blockchainInfo(blockchainInfo)
-                .inboundPeer(Collections.emptyList())
-                .outboundPeer(Collections.emptyList())
-                .subverDistribution(new SubverDistribution(Collections.emptyList(), Collections.emptyList()))
-                .upTime("5d, 03:00:00")
-                .build();
+        return new GlobalResponse(
+                new GeneralStats(2, 8, 10),
+                new SubverDistribution(Collections.emptyList(), Collections.emptyList()),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                blockchainInfo,
+                nodeInfo,
+                "5d, 03:00:00",
+                blockInfo
+        );
     }
 }

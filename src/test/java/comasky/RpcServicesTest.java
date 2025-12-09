@@ -90,10 +90,10 @@ class RpcServicesTest {
         BlockchainInfo blockchainInfo = rpcServices.getBlockchainInfo().await().indefinitely();
 
         assertNotNull(blockchainInfo);
-        assertEquals(870000, blockchainInfo.getBlocks());
-        assertEquals(870000, blockchainInfo.getHeaders());
-        assertEquals("main", blockchainInfo.getChain());
-        assertEquals(0.9999, blockchainInfo.getVerificationProgress(), 0.0001);
+        assertEquals(870000, blockchainInfo.blocks());
+        assertEquals(870000, blockchainInfo.headers());
+        assertEquals("main", blockchainInfo.chain());
+        assertEquals(0.9999, blockchainInfo.verificationProgress(), 0.0001);
     }
 
     @Test
@@ -131,8 +131,8 @@ class RpcServicesTest {
         BlockInfo blockInfo = rpcServices.getBlockInfo("00000000000000000001234567890abcdef").await().indefinitely();
 
         assertNotNull(blockInfo);
-        assertEquals(1733443200, blockInfo.getTime());
-        assertEquals(2500, blockInfo.getNtx());
+        assertEquals(1733443200, blockInfo.time());
+        assertEquals(2500, blockInfo.ntx());
     }
 
     @Test
