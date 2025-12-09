@@ -12,6 +12,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -41,6 +42,13 @@ class BtcControllerTest {
                 .body("outboundPeer", hasSize(8))
                 .body("subverDistribution.inbound", hasSize(greaterThanOrEqualTo(0)))
                 .body("subverDistribution.outbound", hasSize(greaterThanOrEqualTo(0)));
+    }
+
+    @Test
+    void testInstantiationWithMock() {
+        comasky.rpcClass.RpcServices rpcServices = org.mockito.Mockito.mock(comasky.rpcClass.RpcServices.class);
+        comasky.api.BtcController controller = new comasky.api.BtcController(rpcServices);
+        assertNotNull(controller);
     }
 
     private GlobalResponse createMockGlobalResponse() {

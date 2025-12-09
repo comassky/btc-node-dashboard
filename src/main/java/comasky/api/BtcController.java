@@ -1,6 +1,10 @@
+
 package comasky.api;
 
-import comasky.rpcClass.*;
+import comasky.rpcClass.BlockInfo;
+import comasky.rpcClass.GlobalResponse;
+import comasky.rpcClass.NodeInfo;
+import comasky.rpcClass.RpcServices;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;

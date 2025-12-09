@@ -69,12 +69,3 @@ bitcoin.rpc.password=your_rpc_password
 dashboard.polling.interval.seconds=5
 dashboard.cache.validity-buffer-ms=200
 ```
-
-### Image Performance
-
-| Metric        | JVM         | Native      |
-|-------------- |------------|------------ |
-| **Startup**   | ~2-4s      | **~80ms**   |
-| **Memory**    | ~180-250MB | **~35-60MB**|
-| **Image Size**| ~400MB     | **~120MB**  |
-| **CPU (Idle)**| ~1%        | **<0.5%**   |

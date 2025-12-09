@@ -1,3 +1,4 @@
+
 package comasky;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +12,7 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -171,5 +173,13 @@ class RpcServicesTest {
         assertTrue(exception.getMessage().contains("Connection failed"));
         assertNotNull(exception.getCause());
         assertTrue(exception.getCause().getMessage().contains("Connection refused"));
+    }
+
+    @Test
+    void testInstantiationWithMocks() {
+        final ObjectMapper objectMapper = Mockito.mock(com.fasterxml.jackson.databind.ObjectMapper.class);
+        RpcClient rpcClient = Mockito.mock(comasky.client.RpcClient.class);
+        RpcServices rpcServices = new RpcServices(objectMapper, rpcClient);
+        assertNotNull(rpcServices);
     }
 }

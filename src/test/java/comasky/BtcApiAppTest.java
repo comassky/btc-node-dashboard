@@ -101,4 +101,10 @@ class BtcApiAppTest {
         
         assertEquals("12****45", result);
     }
+
+    @Test
+    void testInstantiation() {
+        BtcApiApp app = new BtcApiApp();
+        assertNotNull(app);
+    }
 }

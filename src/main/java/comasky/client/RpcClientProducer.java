@@ -1,3 +1,4 @@
+
 package comasky.client;
 
 import jakarta.enterprise.context.ApplicationScoped;

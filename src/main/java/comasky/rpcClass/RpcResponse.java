@@ -1,3 +1,4 @@
+
 package comasky.rpcClass;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
