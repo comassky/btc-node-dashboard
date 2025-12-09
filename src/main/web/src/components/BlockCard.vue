@@ -10,7 +10,7 @@
         </div>
         <Tooltip :text="'Current height of the blockchain. This is the number of blocks in the chain. Click to view on mempool.org.'" position="bottom" horizontal="center">
             <a
-                :href="`https://mempool.org/block/${blockchain.blocks}`"
+                :href="`https://mempool.space/block/${blockchain.blocks}`"
                 target="_blank"
                 rel="noopener noreferrer"
                 :class="[
