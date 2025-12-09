@@ -136,13 +136,13 @@ public class RpcServices {
             return Collections.emptyList();
         }
         final double totalPeers = peers.size();
-        return peers.stream()
-                .filter(p -> p.subver() != null) // Use record accessor
-                .collect(Collectors.groupingBy(PeerInfo::subver, Collectors.counting())) // Use record accessor
+        // Utilise un stream parallèle pour accélérer le traitement sur de grandes listes
+        return peers.parallelStream()
+                .filter(p -> p.subver() != null)
+                .collect(Collectors.groupingBy(PeerInfo::subver, Collectors.counting()))
                 .entrySet().stream()
                 .map(entry -> {
                     double rawPercentage = (entry.getValue() / totalPeers) * 100.0;
-                    // Round to two decimal places
                     double roundedPercentage = Math.round(rawPercentage * 100.0) / 100.0;
                     return new SubverStats(entry.getKey(), roundedPercentage);
                 })

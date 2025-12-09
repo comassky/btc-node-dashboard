@@ -33,18 +33,16 @@ const statusClass = computed(() => ({
         class="status-bar is-mobile flex justify-center items-center gap-4 sm:gap-10 p-5 md:p-6 mb-10 rounded-xl font-medium shadow-2xl transition-all duration-300 ease-in-out"
         :class="statusClass"
     >
-        <span
-            :title="props.isConnected ? 'WebSocket link is active and open' : 'WebSocket disconnected. Retrying connection...'"
-            class="flex items-center"
-        >
-            <font-awesome-icon :icon="['fas', 'network-wired']" class="mr-2 text-xl" /> WebSocket: {{ props.isConnected ? 'CONNECTED' : 'DISCONNECTED' }}
-        </span>
-        <span
-            :title="props.rpcConnected ? 'Node is responding to RPC commands' : 'RPC connection lost or not yet established'"
-            class="flex items-center"
-        >
-            <font-awesome-icon :icon="['fas', 'server']" class="mr-2 text-xl" /> Node RPC: {{ props.rpcConnected ? 'ONLINE' : 'OFFLINE' }}
-        </span>
+        <Tooltip :text="'WebSocket: Connection between dashboard and backend. Shows if the dashboard is receiving live updates.'" position="bottom" horizontal="left">
+            <span class="flex items-center">
+                <font-awesome-icon :icon="['fas', 'network-wired']" class="mr-2 text-xl" /> WebSocket: {{ props.isConnected ? 'CONNECTED' : 'DISCONNECTED' }}
+            </span>
+        </Tooltip>
+        <Tooltip :text="'Node RPC: Connection between backend and Bitcoin node. Shows if the node is responding to commands.'" position="bottom" horizontal="left">
+            <span class="flex items-center">
+                <font-awesome-icon :icon="['fas', 'server']" class="mr-2 text-xl" /> Node RPC: {{ props.rpcConnected ? 'ONLINE' : 'OFFLINE' }}
+            </span>
+        </Tooltip>
         <p v-if="props.errorMessage" class="text-sm font-light mt-1 pt-1 sm:border-t-0 sm:pt-0">
             <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="mr-2" /> {{ props.errorMessage }}
         </p>

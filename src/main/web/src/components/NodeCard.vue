@@ -9,7 +9,7 @@
 
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mt-3 gap-3 sm:gap-0">
             <div class="min-w-0 w-full sm:w-auto">
-                <Tooltip :text="cleanedSubversion">
+                <Tooltip :text="'Node software version. This identifies the implementation and version your node is running.'" position="bottom" horizontal="left">
                     <div class="text-xl sm:text-2xl font-bold text-text-primary truncate">
                         {{ cleanedSubversion }}
                     </div>
@@ -18,19 +18,23 @@
             </div>
 
             <div class="w-full sm:w-auto">
-                <div class="text-xl sm:text-2xl font-bold text-text-primary" title="Time elapsed since node started">
-                    {{ upTime }}
-                </div>
+                <Tooltip :text="'Uptime: Time elapsed since the node started.'" position="bottom" horizontal="left">
+                    <div class="text-xl sm:text-2xl font-bold text-text-primary">
+                        {{ upTime }}
+                    </div>
+                </Tooltip>
                 <div class="text-xs sm:text-sm text-text-secondary">Uptime</div>
             </div>
         </div>
         
         <div class="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-border-strong text-xs sm:text-sm text-text-secondary">
-            <p class="flex flex-wrap items-center gap-1">
-                <font-awesome-icon :icon="['fas', 'shield-alt']" class="text-status-success" /> 
-                <span>Verification Progress:</span>
-                <span class="font-bold text-text-primary">{{ (blockchain.verificationprogress * 100).toFixed(4) }}%</span>
-            </p>
+            <Tooltip :text="'Verification progress: How much of the blockchain has been verified by your node.'" position="bottom" horizontal="left">
+                <p class="flex flex-wrap items-center gap-1">
+                    <font-awesome-icon :icon="['fas', 'shield-alt']" class="text-status-success" /> 
+                    <span>Verification Progress:</span>
+                    <span class="font-bold text-text-primary">{{ (blockchain.verificationprogress * 100).toFixed(4) }}%</span>
+                </p>
+            </Tooltip>
         </div>
     </div>
 </template>
