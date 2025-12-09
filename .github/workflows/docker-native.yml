@@ -14,19 +14,51 @@ env:
   GRAALVM_VERSION: '21'
 
 jobs:
-  build-and-test-native:
-    name: Test, Build & Push Native Image
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run backend tests
+        run: mvn test
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: src/main/web/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: src/main/web
+        run: npm ci
+
+      - name: Run frontend tests
+        working-directory: src/main/web
+        run: npm test -- --run
+
+  build-native:
+    name: Build Native Image
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
       id-token: write
+
     steps:
-      - name: Reusable build and test
-        uses: ./.github/workflows/reusable-build-test.yml
-        with:
-          java-version: '21'
-          node-version: '24'
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
@@ -116,7 +148,7 @@ jobs:
           platforms: linux/amd64
 
       - name: Sign the published Docker image
-        if: github.event_name != 'pull_request'
+        if: ${{ github.event_name != 'pull_request' }}
         env:
           TAGS: ${{ steps.meta.outputs.tags }}
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
