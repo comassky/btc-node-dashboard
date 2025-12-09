@@ -1,16 +1,15 @@
 package comasky.rpcClass;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import lombok.Data;
 
-@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 @RegisterForReflection
-public class BlockchainInfo {
-    private int blocks;
-    private int headers;
-    private String chain;
-    @JsonProperty("verificationprogress")
-    private double verificationProgress;
-    private boolean initialBlockDownload;
-}
+public record BlockchainInfo(
+    int blocks,
+    int headers,
+    String chain,
+    @JsonProperty("verificationprogress") double verificationProgress,
+    @JsonProperty("initialblockdownload") boolean initialBlockDownload
+) {}

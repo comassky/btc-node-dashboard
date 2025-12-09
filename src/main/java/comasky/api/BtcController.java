@@ -1,10 +1,11 @@
 package comasky.api;
 
 import comasky.rpcClass.*;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
-import jakarta.websocket.server.PathParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
@@ -25,32 +26,32 @@ public class BtcController {
 
     @GET
     @Path("dashboard")
-    public GlobalResponse getDashboardData() {
+    public Uni<GlobalResponse> getDashboardData() {
         return rpcServices.getData();
     }
 
     @GET
     @Path("getnetworkinfo")
-    public NodeInfo getNetworkInfo() {
+    public Uni<NodeInfo> getNetworkInfo() {
         return rpcServices.getNodeInfo();
     }
 
     @GET
     @Path("getblock/{hash}")
-    public BlockInfo getBlockkInfo(@PathParam("hash") String hash) {
+    public Uni<BlockInfo> getBlockkInfo(@PathParam("hash") String hash) {
         return rpcServices.getBlockInfo(hash);
     }
 
     @GET
     @Path("getbestblockhash")
     @Produces(MediaType.TEXT_PLAIN)
-    public String getBestBlockHash() {
+    public Uni<String> getBestBlockHash() {
         return rpcServices.getBestBlockHash();
     }
 
     @GET
     @Path("getBlockchainInfo")
-    public BlockchainInfo getBlockchainInfo() {
+    public Uni<BlockchainInfo> getBlockchainInfo() {
         return rpcServices.getBlockchainInfo();
     }
 }

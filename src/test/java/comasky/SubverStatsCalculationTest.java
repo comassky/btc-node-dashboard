@@ -23,7 +23,7 @@ class SubverStatsCalculationTest {
     RpcServices rpcServices;
 
     @Test
-    void testSubverDistribution_singleVersion() throws Exception {
+    void testSubverDistribution_singleVersion() {
         String mockPeerInfoResponse = """
             {
                 "result": [
@@ -50,18 +50,18 @@ class SubverStatsCalculationTest {
 
         mockAllRpcCalls(mockPeerInfoResponse);
 
-        GlobalResponse response = rpcServices.getData();
+        GlobalResponse response = rpcServices.getData().await().indefinitely(); // Await the Uni
 
-        assertNotNull(response.getSubverDistribution());
-        List<SubverStats> inboundStats = response.getSubverDistribution().inbound();
-        
+        assertNotNull(response.subverDistribution()); // Use record accessor
+        List<SubverStats> inboundStats = response.subverDistribution().inbound(); // Use record accessor
+
         assertEquals(1, inboundStats.size());
-        assertEquals("/Satoshi:27.0.0/", inboundStats.get(0).getServer());
-        assertEquals(100.0, inboundStats.get(0).getPercentage());
+        assertEquals("/Satoshi:27.0.0/", inboundStats.get(0).server()); // Use record accessor
+        assertEquals(100.0, inboundStats.get(0).percentage()); // Use record accessor
     }
 
     @Test
-    void testSubverDistribution_multipleVersions() throws Exception {
+    void testSubverDistribution_multipleVersions() {
         String mockPeerInfoResponse = """
             {
                 "result": [
@@ -93,22 +93,22 @@ class SubverStatsCalculationTest {
 
         mockAllRpcCalls(mockPeerInfoResponse);
 
-        GlobalResponse response = rpcServices.getData();
+        GlobalResponse response = rpcServices.getData().await().indefinitely(); // Await the Uni
 
-        List<SubverStats> inboundStats = response.getSubverDistribution().inbound();
-        
+        List<SubverStats> inboundStats = response.subverDistribution().inbound(); // Use record accessor
+
         assertEquals(3, inboundStats.size());
-        
+
         SubverStats v27Stats = inboundStats.stream()
-            .filter(s -> s.getServer().equals("/Satoshi:27.0.0/"))
-            .findFirst()
-            .orElseThrow();
-        
-        assertEquals(50.0, v27Stats.getPercentage());
+                .filter(s -> s.server().equals("/Satoshi:27.0.0/")) // Use record accessor
+                .findFirst()
+                .orElseThrow();
+
+        assertEquals(50.0, v27Stats.percentage()); // Use record accessor
     }
 
     @Test
-    void testSubverDistribution_withNullSubver() throws Exception {
+    void testSubverDistribution_withNullSubver() {
         String mockPeerInfoResponse = """
             {
                 "result": [
@@ -135,19 +135,19 @@ class SubverStatsCalculationTest {
 
         mockAllRpcCalls(mockPeerInfoResponse);
 
-        GlobalResponse response = rpcServices.getData();
+        GlobalResponse response = rpcServices.getData().await().indefinitely(); // Await the Uni
 
-        List<SubverStats> inboundStats = response.getSubverDistribution().inbound();
-        
+        List<SubverStats> inboundStats = response.subverDistribution().inbound(); // Use record accessor
+
         // Only 1 distinct subversion, but percentage is calculated on total peers (including null)
         // 2 peers with /Satoshi:27.0.0/ out of 3 total = 66.67%
         assertEquals(1, inboundStats.size());
-        assertEquals("/Satoshi:27.0.0/", inboundStats.get(0).getServer());
-        assertEquals(66.67, inboundStats.get(0).getPercentage(), 0.01);
+        assertEquals("/Satoshi:27.0.0/", inboundStats.get(0).server()); // Use record accessor
+        assertEquals(66.67, inboundStats.get(0).percentage(), 0.01); // Use record accessor
     }
 
     @Test
-    void testSubverDistribution_inboundVsOutbound() throws Exception {
+    void testSubverDistribution_inboundVsOutbound() {
         String mockPeerInfoResponse = """
             {
                 "result": [
@@ -179,23 +179,23 @@ class SubverStatsCalculationTest {
 
         mockAllRpcCalls(mockPeerInfoResponse);
 
-        GlobalResponse response = rpcServices.getData();
+        GlobalResponse response = rpcServices.getData().await().indefinitely(); // Await the Uni
 
-        List<SubverStats> inboundStats = response.getSubverDistribution().inbound();
-        List<SubverStats> outboundStats = response.getSubverDistribution().outbound();
-        
+        List<SubverStats> inboundStats = response.subverDistribution().inbound(); // Use record accessor
+        List<SubverStats> outboundStats = response.subverDistribution().outbound(); // Use record accessor
+
         assertEquals(1, inboundStats.size());
         assertEquals(1, outboundStats.size());
-        
-        assertEquals("/Satoshi:27.0.0/", inboundStats.get(0).getServer());
-        assertEquals(100.0, inboundStats.get(0).getPercentage());
-        
-        assertEquals("/Satoshi:26.0.0/", outboundStats.get(0).getServer());
-        assertEquals(100.0, outboundStats.get(0).getPercentage());
+
+        assertEquals("/Satoshi:27.0.0/", inboundStats.get(0).server()); // Use record accessor
+        assertEquals(100.0, inboundStats.get(0).percentage()); // Use record accessor
+
+        assertEquals("/Satoshi:26.0.0/", outboundStats.get(0).server()); // Use record accessor
+        assertEquals(100.0, outboundStats.get(0).percentage()); // Use record accessor
     }
 
     @Test
-    void testSubverDistribution_percentageCalculation() throws Exception {
+    void testSubverDistribution_percentageCalculation() {
         String mockPeerInfoResponse = """
             {
                 "result": [
@@ -227,19 +227,19 @@ class SubverStatsCalculationTest {
 
         mockAllRpcCalls(mockPeerInfoResponse);
 
-        GlobalResponse response = rpcServices.getData();
+        GlobalResponse response = rpcServices.getData().await().indefinitely(); // Await the Uni
 
-        List<SubverStats> inboundStats = response.getSubverDistribution().inbound();
-        
+        List<SubverStats> inboundStats = response.subverDistribution().inbound(); // Use record accessor
+
         double totalPercentage = inboundStats.stream()
-            .mapToDouble(SubverStats::getPercentage)
-            .sum();
-        
+                .mapToDouble(SubverStats::percentage) // Use record accessor
+                .sum();
+
         assertEquals(100.0, totalPercentage, 0.01);
     }
 
     @Test
-    void testSubverDistribution_emptyPeers() throws Exception {
+    void testSubverDistribution_emptyPeers() {
         String mockPeerInfoResponse = """
             {
                 "result": [],
@@ -250,14 +250,14 @@ class SubverStatsCalculationTest {
 
         mockAllRpcCalls(mockPeerInfoResponse);
 
-        GlobalResponse response = rpcServices.getData();
+        GlobalResponse response = rpcServices.getData().await().indefinitely(); // Await the Uni
 
-        assertTrue(response.getSubverDistribution().inbound().isEmpty());
-        assertTrue(response.getSubverDistribution().outbound().isEmpty());
+        assertTrue(response.subverDistribution().inbound().isEmpty()); // Use record accessor
+        assertTrue(response.subverDistribution().outbound().isEmpty()); // Use record accessor
     }
 
     @Test
-    void testSubverDistribution_roundingPrecision() throws Exception {
+    void testSubverDistribution_roundingPrecision() {
         String mockPeerInfoResponse = """
             {
                 "result": [
@@ -284,23 +284,23 @@ class SubverStatsCalculationTest {
 
         mockAllRpcCalls(mockPeerInfoResponse);
 
-        GlobalResponse response = rpcServices.getData();
+        GlobalResponse response = rpcServices.getData().await().indefinitely(); // Await the Uni
 
-        List<SubverStats> inboundStats = response.getSubverDistribution().inbound();
-        
+        List<SubverStats> inboundStats = response.subverDistribution().inbound(); // Use record accessor
+
         SubverStats v27 = inboundStats.stream()
-            .filter(s -> s.getServer().equals("/Satoshi:27.0.0/"))
-            .findFirst()
-            .orElseThrow();
-        
-        assertEquals(33.33, v27.getPercentage(), 0.01);
+                .filter(s -> s.server().equals("/Satoshi:27.0.0/")) // Use record accessor
+                .findFirst()
+                .orElseThrow();
+
+        assertEquals(33.33, v27.percentage(), 0.01); // Use record accessor
     }
 
     @SuppressWarnings("unchecked")
     private void mockAllRpcCalls(String peerInfoResponse) {
         String mockBlockchainResponse = """
             {
-                "result": {"blocks": 870000, "chain": "main"},
+                "result": {"blocks": 870000, "chain": "main", "verificationprogress": 0.99, "initialblockdownload": false},
                 "error": null,
                 "id": "quarkus-getblockchaininfo"
             }
@@ -308,7 +308,7 @@ class SubverStatsCalculationTest {
 
         String mockNodeInfoResponse = """
             {
-                "result": {"version": 270000, "subversion": "/Satoshi:27.0.0/"},
+                "result": {"version": 270000, "subversion": "/Satoshi:27.0.0/", "protocolversion": 70016, "connections": 10, "networkactive": true},
                 "error": null,
                 "id": "quarkus-getnetworkinfo"
             }
@@ -332,7 +332,7 @@ class SubverStatsCalculationTest {
 
         String mockBlockInfoResponse = """
             {
-                "result": {"time": 1733443200, "nTx": 2500},
+                "result": {"hash": "00000000000000000001abc", "time": 1733443200, "nTx": 2500},
                 "error": null,
                 "id": "quarkus-getblock"
             }
@@ -341,7 +341,7 @@ class SubverStatsCalculationTest {
         when(rpcClient.executeRpcCall(any())).thenAnswer(invocation -> {
             var request = (java.util.Map<String, Object>) invocation.getArgument(0);
             String method = (String) request.get("method");
-            
+
             return switch (method) {
                 case "getpeerinfo" -> peerInfoResponse;
                 case "getblockchaininfo" -> mockBlockchainResponse;

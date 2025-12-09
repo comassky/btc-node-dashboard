@@ -8,6 +8,8 @@ public interface DashboardConfig {
     Polling polling();
     
     Health health();
+
+    Cache cache(); // Add this line
     
     interface Polling {
         Interval interval();
@@ -27,5 +29,9 @@ public interface DashboardConfig {
                 int peers();
             }
         }
+    }
+
+    interface Cache { // Add this interface
+        int validityBufferMs();
     }
 }

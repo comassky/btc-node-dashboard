@@ -20,7 +20,7 @@ export RPC_PORT=8332
 export RPC_USER=your_username
 export RPC_PASS=your_password
 
-# Run
+# Run with hot reload
 ./mvnw quarkus:dev  # → http://localhost:8080
 ```
 
@@ -52,6 +52,7 @@ docker run -d -p 8080:8080 \
   -e WS_POLLING_INTERVAL=5 \
   -e MIN_OUTBOUND_PEERS=8 \
   -e LOG_LEVEL=INFO \
+  -e DASHBOARD_CACHE_VALIDITY_BUFFER_MS=200 \
   ghcr.io/comassky/btc-node-dashboard:native
 
 # JVM
@@ -63,6 +64,7 @@ docker run -d -p 8080:8080 \
   -e WS_POLLING_INTERVAL=5 \
   -e MIN_OUTBOUND_PEERS=8 \
   -e LOG_LEVEL=INFO \
+  -e DASHBOARD_CACHE_VALIDITY_BUFFER_MS=200 \
   ghcr.io/comassky/btc-node-dashboard:main
 ```
 
@@ -90,6 +92,7 @@ docker run -d -p 8080:8080 \
 | `BITCOIN_RPC_SCHEME` | `http` | RPC protocol (`http` or `https`) |
 | `WS_POLLING_INTERVAL` | `5` | Dashboard refresh interval in seconds |
 | `LOG_LEVEL` | `INFO` | Application log level (`TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`). Use `DEBUG` to see detailed startup configuration |
+| `DASHBOARD_CACHE_VALIDITY_BUFFER_MS` | `200` | Time in milliseconds to subtract from the cache entry's expiry to ensure data freshness. Useful for preventing stale data in highly dynamic environments. |
 
 ### Application Properties
 
@@ -102,6 +105,7 @@ bitcoin.rpc.port=8332
 bitcoin.rpc.user=your_rpc_username
 bitcoin.rpc.password=your_rpc_password
 dashboard.polling.interval.seconds=5
+dashboard.cache.validity-buffer-ms=200
 ```
 
 ### Profiles
@@ -157,61 +161,6 @@ npm run build
 ```
 
 The Maven build automatically runs `npm install` and `npm run build` to bundle the frontend into `target/classes/META-INF/resources/`.
-
-### Frontend Commands
-
-```bash
-# Install dependencies (production)
-npm ci --prefer-offline --no-audit
-
-# Install dependencies (development)
-npm install
-
-# Development server
-npm run dev
-
-# Development server with mock mode
-VITE_MOCK_MODE=true npm run dev
-
-# Production build
-npm run build
-
-## 🔧 Configuration
-
-**Environment Variables**:
-- `RPC_HOST` or `BITCOIN_RPC_HOST` (default: `127.0.0.1`)
-- `RPC_PORT` or `BITCOIN_RPC_PORT` (default: `8332`)
-- `RPC_USER` or `BITCOIN_RPC_USER` (required)
-- `RPC_PASS` or `BITCOIN_RPC_PASSWORD` (required)
-- `BITCOIN_RPC_SCHEME` (default: `http`)
-- `WS_POLLING_INTERVAL` (default: `5` seconds, interval for dashboard updates)
-- `MIN_OUTBOUND_PEERS` (default: `8`, minimum peers before warning)
-- `LOG_LEVEL` (default: `INFO`, options: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`)
-
-**Or use** `application-local.properties` in `src/main/resources/`.
-
-## 📊 API Endpoints
-
-### REST API
-
-- **GET** `/data/dashboard` — Dashboard data (GlobalResponse)
-- **GET** `/data/getnetworkinfo` — Node info (NodeInfo)
-- **GET** `/data/getblock/{hash}` — Block info by hash (BlockInfo)
-- **GET** `/data/getbestblockhash` — Best block hash (plain text)
-- **GET** `/data/getBlockchainInfo` — Blockchain info (BlockchainInfo)
-
-## 🔍 Verification
-
-```bash
-# Health
-curl http://localhost:8080/q/health
-
-# Metrics
-curl http://localhost:8080/q/metrics
-
-# Dev UI (quarkus:dev only)
-http://localhost:8080/q/dev
-```
 
 ## 🚧 Troubleshooting
 

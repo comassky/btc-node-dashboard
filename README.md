@@ -3,10 +3,9 @@
 Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
-![Java](https://img.shields.io/badge/Java-25-orange.svg)
-![Quarkus](https://img.shields.io/badge/Quarkus-3.18.1-blue.svg)
+![Java](https://img.shields.io/badge/Java-21-orange.svg)
+![Quarkus](https://img.shields.io/badge/Quarkus-3.30.2-blue.svg)
 ![Vue](https://img.shields.io/badge/Vue.js-3.5.25-green.svg)
-![Tests](https://img.shields.io/badge/tests-144%20passing-brightgreen.svg)
 
 ## 📸 Screenshots
 
@@ -14,6 +13,8 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ## ✨ Features
 
+- **Reactive Architecture (Mutiny)**: Built with Mutiny for an event-driven, non-blocking backend, ensuring high responsiveness and efficient resource utilization.
+- **Optimized Caching with `inFlightRequest`**: Prevents redundant RPC calls by caching ongoing requests, improving performance and reducing load on the Bitcoin node. Configurable via `dashboard.cache.validity-buffer-ms`.
 - **Live Peer Statistics**: Real-time display of inbound/outbound connections, peer details, version and geographic distribution.
 - **Blockchain Status**: Track block height, sync progress, node uptime, and network health.
 - **Modern UI/UX**: Dark/light mode, responsive design, interactive charts, smooth animations, icon support.
@@ -22,7 +23,6 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 - **Mock/Test Mode**: Simulate errors, low peer count, disconnected mode for testing and demos.
 - **Comprehensive Error Handling**: Clear user messages, automatic recovery and reconnection.
 - **Performance Optimized**: GraalVM Native (<50ms startup, ~30MB RAM), tree-shaking, code splitting, gzip compression.
-- **Full Test Suite**: 144 automated tests (backend + frontend) for reliability.
 - **Docker & CI/CD Ready**: Easy deployment, optimized images, automated builds and tests.
 
 ## 🛠️ Tech Stack
@@ -32,6 +32,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 |------------|---------|-------------|
 | **Java** | 21 | Programming language |
 | **Quarkus** | 3.30.2 | Supersonic Subatomic Java Framework |
+| **Mutiny** | 2.x | Reactive programming library |
 | **Jakarta WebSocket** | - | Real-time communication |
 | **MicroProfile REST Client** | - | HTTP client for Bitcoin RPC |
 | **Jackson** | - | JSON processing |
@@ -45,7 +46,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | **Vite** | 7.2.6 | Next-generation frontend tooling |
 | **Tailwind CSS** | 3.4.18 | Utility-first CSS framework |
 | **Chart.js** | 4.5.1 | Interactive charts |
-| **Font Awesome** | 7.1 | Icon library |
+| **Font Awesome** | 7.1.0 | Icon library |
 
 ### Build & Deploy
 - **Maven** 3.9.11 (Backend build and dependency management)
@@ -58,19 +59,10 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 - **GitHub Actions** (CI/CD with automated testing and native image builds)
 - **GraalVM Native Image** (AOT compilation for ultra-fast startup)
 
-### Testing
-| Technology | Version | Description |
-|------------|---------|-------------|
-| **JUnit** | 5.10.5 | Backend unit & integration tests |
-| **Mockito** | 5.15.2 | Java mocking framework |
-| **Vitest** | 2.1.9 | Frontend unit test framework |
-| **Vue Test Utils** | 2.4.6 | Vue component testing |
-| **Happy DOM** | 15.11.7 | Lightweight DOM implementation |
-
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Java 25+, Maven 3.9+, Bitcoin Core with RPC enabled
+- Java 21+, Maven 3.9+, Bitcoin Core with RPC enabled
 - Node.js 24+ (optional, for frontend dev)
 
 ### Development
@@ -97,6 +89,7 @@ docker run -d -p 8080:8080 \
   -e WS_POLLING_INTERVAL=5 \
   -e MIN_OUTBOUND_PEERS=8 \
   -e LOG_LEVEL=INFO \
+  -e DASHBOARD_CACHE_VALIDITY_BUFFER_MS=200 \
   ghcr.io/comassky/btc-node-dashboard:native
 ```
 
@@ -106,41 +99,29 @@ See [BUILD.md](BUILD.md) for detailed instructions.
 
 ### REST API
 
-- **GET** `/api/config` — Dashboard config (minOutboundPeers)
-- **GET** `/data/dashboard` — Get dashboard data (GlobalResponse)
-- **GET** `/data/getnetworkinfo` — Get node info (NodeInfo)
-- **GET** `/data/getblock/{hash}` — Get block info by hash (BlockInfo)
-- **GET** `/data/getbestblockhash` — Get best block hash (plain text)
-- **GET** `/data/getblockchainInfo` — Get blockchain info (BlockchainInfo)
+- **GET** `/api/config` — Dashboard configuration (minOutboundPeers)
+- **GET** `/data/dashboard` — Get aggregated dashboard data (GlobalResponse)
+- **GET** `/data/getnetworkinfo` — Get node network information (NodeInfo)
+- **GET** `/data/getblock/{hash}` — Get block information by hash (BlockInfo)
+- **GET** `/data/getbestblockhash` — Get the hash of the best block (plain text)
+- **GET** `/data/getblockchainInfo` — Get blockchain information (BlockchainInfo)
 
 ### WebSocket
 
 - **WS** `/ws/dashboard` - Real-time dashboard updates
 
-## 🧪 Testing
+## 🔧 Configuration
 
-![Tests](https://img.shields.io/badge/tests-144%20passing-brightgreen.svg)
+See [BUILD.md](BUILD.md) for detailed configuration options, including environment variables and application properties.
 
-The project includes a comprehensive test suite with **144 tests** covering both backend and frontend.
+## 🎨 Frontend Development
 
-**For detailed testing documentation, see [TESTING.md](TESTING.md)**
+See [BUILD.md](BUILD.md) for detailed instructions on setting up and running the frontend development server, as well as building the frontend.
 
-## 📊 API
+## 🤝 Contributing
 
-**REST**: `/api/config`, `/data/peers`  
-**WebSocket**: `/ws/dashboard` (real-time updates)
+Contributions welcome! Fork, branch, commit, push, PR.
 
-## 🧪 Testing
-
-**144 tests** (78 backend + 66 frontend)
-
-```bash
-./mvnw clean test           # All tests
-./mvnw test                 # Backend only
-cd src/main/web && npm test # Frontend only
-```
-
-See [TESTING.md](TESTING.md) for details.
 <div align="center">
 
 ### Cryptocurrency Donations
@@ -171,6 +152,3 @@ Built with [Quarkus](https://quarkus.io/), [Vue.js](https://vuejs.org/), [Tailwi
 
 **Built with ❤️ for the Bitcoin community**
     
-## 🤝 Contributing
-
-Contributions welcome! Fork, branch, commit, push, PR.

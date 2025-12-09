@@ -1,13 +1,15 @@
 # Testing Guide
 
-**144 automated tests** covering backend and frontend for reliability and stability.
+**146 automated tests** covering backend and frontend for reliability and stability.
 
 ## 📊 Overview
 
 | Component   | Tests | Technologies                        |
 |------------ |-------|-------------------------------------|
-| Backend     | 78    | JUnit 5, Mockito, Quarkus Test      |
-| Frontend    | 66    | Vitest, Vue Test Utils, Happy DOM   |
+| Backend     | 79    | JUnit 5, Mockito, Quarkus Test      |
+| Frontend    | 67    | Vitest, Vue Test Utils, Happy DOM   |
+
+**Test execution**: ~25s total (Backend: ~20s, Frontend: ~3s)
 
 ## 🧪 Running Tests
 
@@ -25,7 +27,7 @@ cd src/main/web && npm test
 cd src/main/web && npm run coverage
 ```
 
-## 🔍 Backend Tests (78)
+## 🔍 Backend Tests (79)
 
 **Test Classes**:
 - `BtcControllerTest` - REST API endpoints
@@ -39,7 +41,7 @@ cd src/main/web && npm run coverage
 - `ToolsTest` - Utility functions
 - `BtcApiAppTest` - Application lifecycle
 
-## 🎨 Frontend Tests (66)
+## 🎨 Frontend Tests (67)
 
 **Test Files**:
 - `useWebSocket.test.ts` (9) - Connection, messaging, reconnection
@@ -48,43 +50,7 @@ cd src/main/web && npm run coverage
 - `Status.test.ts` (6) - Component rendering, states
 - `types.test.ts` (15) - Interfaces, data validation
 - `formatters.test.ts` (12) - Number/date formatting
-- `logic.test.ts` (15) - Business logic, calculations
-
-## 🔄 Continuous Integration
-
-### GitHub Actions Workflows
-
-#### 1. Tests Workflow (`.github/workflows/tests.yml`)
-
-Runs on every push to `main` and `develop`:
-
-```yaml
-jobs:
-  backend-tests:
-    - Setup JDK 21
-    - Run backend tests
-    - Upload test results
-
-  frontend-tests:
-    - Setup Node.js 20
-    - Install dependencies
-    - Run frontend tests
-    - Run coverage
-    - Upload coverage reports
-
-  integration-tests:
-    - Full Maven build
-    - Upload artifacts
-```
-
-#### 2. Docker Workflows
-
-**Before** building Docker images:
-- ✅ Run backend tests
-- ✅ Run frontend tests
-- ❌ Abort if any test fails
-
-This ensures only tested code is deployed.
+- `logic.test.ts` (16) - Business logic, calculations
 
 ## 📝 Writing New Tests
 
@@ -145,47 +111,30 @@ describe('MyComponent', () => {
 ./mvnw test -Dtest=MyTest -Dmaven.surefire.debug
 ```
 
-## 🔄 CI/CD
-
-GitHub Actions runs all tests on every push. Docker images are only built if tests pass.
-
-## 📝 Test Templates
-
-**Backend**:
-```java
-@QuarkusTest
-class MyTest {
-    @InjectMock MyDep dep;
-    @Inject MyService svc;
-    
-    @Test void shouldWork() {
-        when(dep.method()).thenReturn(value);
-        assertEquals(expected, svc.doSomething());
-    }
-}
-```
-
-**Frontend**:
-```typescript
-import { mount } from '@vue/test-utils';
-describe('MyComponent', () => {
-  it('renders', () => {
-    const wrapper = mount(MyComponent, { props: { val: 'test' } });
-    expect(wrapper.text()).toContain('test');
-  });
-});
-```
-
-## 🐛 Debugging
+### Frontend
 
 ```bash
-# Backend verbose
-./mvnw test -X
-
 # Frontend UI mode
 cd src/main/web && npm run test:ui
 ```
 
----
+## 🔄 Continuous Integration
 
-**Test execution**: ~25s total (Backend: ~20s, Frontend: ~3s)
+### GitHub Actions Workflows
+
+#### 1. Tests Workflow (`.github/workflows/tests.yml`)
+
+Runs on every push to `main` and `develop`:
+
+- Setup JDK 21 and run backend tests
+- Setup Node.js 20, install dependencies, run frontend tests and coverage
+- Perform a full Maven build for integration tests
+
+#### 2. Docker Workflows
+
+**Before** building Docker images:
+- ✅ Run backend tests
+- ✅ Run frontend tests
+- ❌ Abort if any test fails
+
+This ensures only tested code is deployed.

@@ -2,10 +2,9 @@ name: Docker Native (GraalVM)
 
 on:
   push:
-    branches: [ "main" ]
-    tags: [ '*.*.*' ]
+    branches: [ "develop" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "develop" ]
   workflow_dispatch:
 
 env:
@@ -119,7 +118,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            # type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
@@ -138,7 +138,7 @@ jobs:
           platforms: linux/amd64
 
       - name: Sign the published Docker image
-        if: github.event_name != 'pull_request'
+        if: ${{ github.event_name != 'pull_request' }}
         env:
           TAGS: ${{ steps.meta.outputs.tags }}
           DIGEST: ${{ steps.build-and-push.outputs.digest }}

@@ -1,6 +1,7 @@
 package comasky.api;
 
 import comasky.shared.DashboardConfig;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -19,10 +20,10 @@ public class ConfigController {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public DashboardConfigResponse getConfig() {
-        return new DashboardConfigResponse(
+    public Uni<DashboardConfigResponse> getConfig() {
+        return Uni.createFrom().item(new DashboardConfigResponse(
             config.health().min().outbound().peers()
-        );
+        ));
     }
 
     public record DashboardConfigResponse(int minOutboundPeers) {}
