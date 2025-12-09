@@ -85,7 +85,6 @@ public class RpcServices {
         Uni<NodeInfo> nodeInfoUni = getNodeInfo();
         Uni<Long> uptimeUni = getUptimeSeconds();
 
-        // Chain block hash and block info calls
         Uni<BlockInfo> blockInfoUni = getBestBlockHash()
                 .onItem().transformToUni(this::getBlockInfo);
 
@@ -136,7 +135,6 @@ public class RpcServices {
             return Collections.emptyList();
         }
         final double totalPeers = peers.size();
-        // Utilise un stream parallèle pour accélérer le traitement sur de grandes listes
         return peers.parallelStream()
                 .filter(p -> p.subver() != null)
                 .collect(Collectors.groupingBy(PeerInfo::subver, Collectors.counting()))
@@ -151,7 +149,7 @@ public class RpcServices {
 
     // Refactored to centralize deserialization and error handling
     private <T> Uni<T> callRpcTyped(String method, List<Object> params, Object type) {
-        var rpcRequest = new RpcRequestDto(
+        final var rpcRequest = new RpcRequestDto(
             "1.0",
             "quarkus-" + method,
             method,
@@ -160,11 +158,7 @@ public class RpcServices {
         return Uni.createFrom().item(() -> {
             long start = System.nanoTime();
             try {
-                // Execute RPC call to get raw JSON string
-                String jsonResponse = rpcClient.executeRpcCall(rpcRequest);
-
-                // Determine the actual type for deserialization (Class<T> or TypeReference<T>)
-                JavaType resultType;
+                final JavaType resultType;
                 if (type instanceof Class<?> clazz) {
                     resultType = objectMapper.getTypeFactory().constructType(clazz);
                 } else if (type instanceof TypeReference<?> typeRef) {
@@ -173,26 +167,22 @@ public class RpcServices {
                     throw new IllegalArgumentException("Type must be Class<T> or TypeReference<T>");
                 }
 
-                // Construct the RpcResponse<T> type and deserialize
-                JavaType rpcResponseType = objectMapper.getTypeFactory().constructParametricType(RpcResponse.class, resultType);
-                RpcResponse<T> rpcResponse = objectMapper.readValue(jsonResponse, rpcResponseType);
+                final var rpcResponseType = objectMapper.getTypeFactory().constructParametricType(RpcResponse.class, resultType);
+                RpcResponse<T> rpcResponse = objectMapper.readValue(rpcClient.executeRpcCall(rpcRequest), rpcResponseType);
 
                 // Check for RPC errors
                 if (rpcResponse.getError() != null) {
                     throw new RpcException("RPC Error for method " + method + ": " + rpcResponse.getError());
                 }
 
-                T result = rpcResponse.getResult();
-
                 if (LOG.isDebugEnabled()) {
                     long durationMs = (System.nanoTime() - start) / 1_000_000;
                     LOG.debugf("RPC '%s' executed in %d ms", method, durationMs);
                 }
-                return result;
+                return rpcResponse.getResult();
             } catch (Exception e) {
                 long durationMs = (System.nanoTime() - start) / 1_000_000;
                 LOG.debugf("RPC '%s' failed after %d ms: %s", method, durationMs, e.getMessage());
-                // Wrap any exception in RpcException for consistent error handling
                 throw new RpcException("Connection failed for method " + method + ": " + e.getMessage(), e);
             }
         }).runSubscriptionOn(Infrastructure.getDefaultWorkerPool());

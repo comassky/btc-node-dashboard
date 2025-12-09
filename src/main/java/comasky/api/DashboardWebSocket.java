@@ -136,7 +136,6 @@ public class DashboardWebSocket {
             return Uni.createFrom().item(currentCache);
         }
 
-        // Cache is stale or absent, get a fresh message, ensuring only one fetch happens at a time.
         return getFreshMessage();
     }
 
@@ -199,7 +198,7 @@ public class DashboardWebSocket {
                 session.getAsyncRemote().sendText(message);
                 return false;
             } catch (Exception e) {
-                LOG.warnf(e, "Failed to send message to session %s", session != null ? session.getId() : "null");
+                LOG.warnf(e, "Failed to send message to session %s", session.getId());
                 return true;
             }
         });

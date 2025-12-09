@@ -4,11 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
 import comasky.client.RpcRequestDto;
 import comasky.exceptions.RpcException;
-import comasky.rpcClass.BlockInfo;
-import comasky.rpcClass.BlockchainInfo;
-import comasky.rpcClass.NodeInfo;
-import comasky.rpcClass.RpcResponse; // Import RpcResponse
-import comasky.rpcClass.RpcServices;
+import comasky.rpcClass.*;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;

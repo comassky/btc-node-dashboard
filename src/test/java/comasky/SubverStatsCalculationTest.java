@@ -3,25 +3,14 @@ package comasky;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
 import comasky.client.RpcRequestDto;
-import comasky.exceptions.RpcException;
-import comasky.rpcClass.BlockInfo;
-import comasky.rpcClass.BlockchainInfo;
-import comasky.rpcClass.GlobalResponse;
-import comasky.rpcClass.NodeInfo;
-import comasky.rpcClass.PeerInfo;
-import comasky.rpcClass.RpcResponse;
-import comasky.rpcClass.RpcServices;
-import comasky.rpcClass.SubverStats;
+import comasky.rpcClass.*;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
