@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
+import { ref, onUnmounted, watch, nextTick } from 'vue';
 
 const props = withDefaults(
   defineProps<{
@@ -81,7 +81,7 @@ function updateTooltipPosition() {
   };
 }
 
-function handleMouseEnter(e: MouseEvent) {
+function handleMouseEnter() {
   isHovered.value = true;
   nextTick(updateTooltipPosition);
 }
