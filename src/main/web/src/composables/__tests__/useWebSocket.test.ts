@@ -9,23 +9,23 @@ describe('useWebSocket', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     wsInstances = [];
-    
-    mockWebSocket = vi.fn().mockImplementation((url: string) => {
-      const ws = {
-        url,
-        readyState: WebSocket.CONNECTING,
-        onopen: null as ((event: Event) => void) | null,
-        onclose: null as ((event: CloseEvent) => void) | null,
-        onerror: null as ((event: Event) => void) | null,
-        onmessage: null as ((event: MessageEvent) => void) | null,
-        close: vi.fn(),
-        send: vi.fn(),
-      };
-      
-      wsInstances.push(ws);
-      return ws;
-    });
 
+    class MockWebSocket {
+      url: string;
+      readyState: number = 0;
+      onopen: ((event: Event) => void) | null = null;
+      onclose: ((event: CloseEvent) => void) | null = null;
+      onerror: ((event: Event) => void) | null = null;
+      onmessage: ((event: MessageEvent) => void) | null = null;
+      close = vi.fn();
+      send = vi.fn();
+      constructor(url: string) {
+        this.url = url;
+        wsInstances.push(this);
+      }
+    }
+
+    mockWebSocket = MockWebSocket;
     global.WebSocket = mockWebSocket as any;
   });
 
@@ -54,7 +54,7 @@ describe('useWebSocket', () => {
     ws.onopen?.(new Event('open'));
 
     expect(isConnected.value).toBe(true);
-    expect(mockWebSocket).toHaveBeenCalledWith('ws://test');
+    expect(wsInstances[0].url).toBe('ws://test');
   });
 
   it('should handle incoming dashboard data', async () => {
