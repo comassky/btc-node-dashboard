@@ -124,6 +124,15 @@ docker run -d -p 8080:8080 \
 
 See [DOCKER.md](DOCKER.md) for more details.
 
+### Available Image Tags
+
+A short summary of the Docker image tags produced by the GitHub Actions workflows (full list in `DOCKER.md`):
+
+- `jvm` and `jvm-<version>`: JVM-based images (examples: `jvm`, `jvm-1.4.0`).
+- `latest` and semantic version tags (`<version>`, `<major>.<minor>`, `<major>`): native (GraalVM) images built from `main` and from git tags.
+- `develop`: images built from the `develop` branch.
+
+
 ## 📊 API Endpoints
 
 ### REST API

@@ -29,8 +29,12 @@ export function useWebSocket(wsUrl: string, onDataReceived: (data: Partial<Dashb
             reconnectTimeout = null;
         }
 
-        // Fixed retry interval: attempt reconnection every WS_RECONNECT_BASE_DELAY milliseconds
-        const delay = WS_RECONNECT_BASE_DELAY;
+        // Exponential backoff with a maximum cap.
+        // Start with `WS_RECONNECT_BASE_DELAY` for the first attempt, then multiply.
+        const delay = Math.min(
+            WS_RECONNECT_BASE_DELAY * Math.pow(WS_RECONNECT_MULTIPLIER, reconnectAttempts),
+            WS_RECONNECT_MAX_DELAY,
+        );
         reconnectAttempts++;
         isRetrying.value = true;
         reconnectTimeout = setTimeout(connect, delay);
