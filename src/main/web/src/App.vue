@@ -62,6 +62,9 @@ const {
   startAutoCycle 
 } = useMockData();
 
+// Auto-cycle interval id for mock mode (cleared on unmount)
+const autoCycleId = ref<number | null>(null);
+
 // Load configuration from backend
 const loadConfig = async () => {
   try {
@@ -84,7 +87,7 @@ onMounted(async () => {
   if (MOCK_MODE.value) {
     Object.assign(dataState, generateMockData());
     // Auto-cycle scenarios every 8 seconds for demo
-    startAutoCycle(8000);
+    autoCycleId.value = startAutoCycle(8000);
   }
 });
 
@@ -116,15 +119,20 @@ const normalizeData = (rawData: Partial<DashboardData>) => {
   });
 };
 
-const { isConnected, rpcConnected, errorMessage, connect, disconnect } = useWebSocket(WS_URL, normalizeData);
+const { isConnected, rpcConnected, errorMessage, isRetrying, connect, disconnect } = useWebSocket(WS_URL, normalizeData);
 
 if (!MOCK_MODE.value) {
   connect();
-  
-  onBeforeUnmount(() => {
-    disconnect();
-  });
 }
+
+// Always clean resources on unmount: disconnect websocket and clear mock interval
+onBeforeUnmount(() => {
+  try { disconnect(); } catch (e) {}
+  if (autoCycleId.value) {
+    clearInterval(autoCycleId.value);
+    autoCycleId.value = null;
+  }
+});
 
 function handleCycleScenario() {
   cycleMockScenario();
@@ -137,9 +145,11 @@ function handleCycleScenario() {
 <template>
     <div class="p-3 sm:p-4 md:p-6 bg-bg-app min-h-screen">
         <button @click="toggleDarkMode"
-            class="fixed top-3 right-3 sm:top-4 sm:right-4 z-50 p-2.5 sm:p-3 rounded-full bg-bg-card border border-border-strong shadow-lg hover:bg-border-strong/50 transition-all"
-            title="Toggle Dark/Light Mode">
-            <font-awesome-icon :icon="isDarkMode ? ['fas', 'sun'] : ['fas', 'moon']" />
+          class="fixed top-3 right-3 sm:top-4 sm:right-4 z-50 p-2.5 sm:p-3 rounded-full bg-bg-card border border-border-strong shadow-lg hover:bg-border-strong/50 transition-all"
+          title="Toggle Dark/Light Mode"
+          aria-label="Toggle dark mode"
+          :aria-pressed="isDarkMode">
+          <font-awesome-icon :icon="isDarkMode ? ['fas', 'sun'] : ['fas', 'moon']" />
         </button>
 
         <!-- 🧪 DEV MOCK CONTROLS -->
@@ -169,19 +179,21 @@ function handleCycleScenario() {
 
         <transition name="fade" mode="out-in">
           <Status
+            v-if="MOCK_MODE || isConnected || isRetrying"
             :isConnected="MOCK_MODE ? getMockConnectionState().isConnected : isConnected"
             :rpcConnected="MOCK_MODE ? getMockConnectionState().rpcConnected : rpcConnected"
             :errorMessage="MOCK_MODE ? getMockConnectionState().errorMessage : errorMessage"
             :outboundPeers="dataState.generalStats.outboundCount"
             :blockchain="dataState.blockchainInfo"
             :block="dataState.block"
+            :isRetrying="MOCK_MODE ? false : isRetrying"
             key="status"
           />
         </transition>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
           <transition name="fade" mode="out-in">
-            <template v-if="MOCK_MODE ? dataState.rpcConnected : rpcConnected">
+            <template v-if="(MOCK_MODE && dataState.rpcConnected) || rpcConnected">
               <div class="lg:col-span-2 mb-3 sm:mb-5" key="cards">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                   <PeersCard :stats="dataState.generalStats" />
@@ -208,7 +220,7 @@ function handleCycleScenario() {
           </transition>
 
           <transition name="fade" mode="out-in">
-            <div class="bg-bg-card p-4 sm:p-6 rounded-xl shadow-2xl lg:col-span-2" v-if="rpcConnected" key="charts">
+            <div class="bg-bg-card p-4 sm:p-6 rounded-xl shadow-2xl lg:col-span-2" v-if="(MOCK_MODE && dataState.rpcConnected) || rpcConnected" key="charts">
               <h2 class="text-xl sm:text-2xl font-medium mb-4 sm:mb-6">
                 <font-awesome-icon :icon="['fas', 'chart-pie']" class="mr-2 text-accent" /> 
                 <span class="hidden sm:inline">Peer Software Distribution</span>
@@ -232,7 +244,7 @@ function handleCycleScenario() {
           </transition>
 
           <transition name="fade" mode="out-in">
-            <div class="bg-bg-card p-4 sm:p-6 rounded-xl shadow-2xl lg:col-span-2" v-if="rpcConnected" key="table">
+            <div class="bg-bg-card p-4 sm:p-6 rounded-xl shadow-2xl lg:col-span-2" v-if="(MOCK_MODE && dataState.rpcConnected) || rpcConnected" key="table">
               <h2 class="text-xl sm:text-2xl font-medium mb-4 sm:mb-6">
                 <font-awesome-icon :icon="['fas', 'table']" class="mr-2 text-accent" /> Connection Details
               </h2>

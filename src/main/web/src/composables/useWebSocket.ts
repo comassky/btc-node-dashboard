@@ -24,14 +24,15 @@ export function useWebSocket(wsUrl: string, onDataReceived: (data: Partial<Dashb
     let reconnectAttempts = 0;
 
     const scheduleReconnect = () => {
-        if (reconnectTimeout) clearTimeout(reconnectTimeout);
-        
-        const delay = Math.min(
-            WS_RECONNECT_BASE_DELAY * Math.pow(WS_RECONNECT_MULTIPLIER, reconnectAttempts),
-            WS_RECONNECT_MAX_DELAY
-        );
-        
+        if (reconnectTimeout) {
+            clearTimeout(reconnectTimeout);
+            reconnectTimeout = null;
+        }
+
+        // Fixed retry interval: attempt reconnection every WS_RECONNECT_BASE_DELAY milliseconds
+        const delay = WS_RECONNECT_BASE_DELAY;
         reconnectAttempts++;
+        isRetrying.value = true;
         reconnectTimeout = setTimeout(connect, delay);
     };
 
@@ -47,6 +48,7 @@ export function useWebSocket(wsUrl: string, onDataReceived: (data: Partial<Dashb
             isConnected.value = true;
             errorMessage.value = null;
             reconnectAttempts = 0;
+            isRetrying.value = false;
         };
 
         ws.onmessage = (event) => {
@@ -61,7 +63,9 @@ export function useWebSocket(wsUrl: string, onDataReceived: (data: Partial<Dashb
                     errorMessage.value = null;
                     onDataReceived(json);
                 }
-            } catch {}
+            } catch (e) {
+                console.warn('WebSocket message parse error', e, event.data);
+            }
         };
 
         ws.onclose = () => {
@@ -79,17 +83,27 @@ export function useWebSocket(wsUrl: string, onDataReceived: (data: Partial<Dashb
     };
 
     const disconnect = () => {
-        if (reconnectTimeout) clearTimeout(reconnectTimeout);
+        if (reconnectTimeout) {
+            clearTimeout(reconnectTimeout);
+            reconnectTimeout = null;
+        }
         if (ws) {
             ws.onclose = null;
             ws.close();
+            ws = null;
         }
+        // Reset retry state on manual disconnect
+        isRetrying.value = false;
+        reconnectAttempts = 0;
     };
+
+    const isRetrying = ref(false);
 
     return {
         isConnected,
         rpcConnected,
         errorMessage,
+        isRetrying,
         connect,
         disconnect,
     };
