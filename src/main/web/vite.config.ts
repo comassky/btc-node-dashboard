@@ -158,7 +158,7 @@ export default defineConfig(({ mode }) => ({
         ws: true,
         changeOrigin: true,
       },
-      '/data': {
+      '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
       },
