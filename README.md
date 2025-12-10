@@ -43,10 +43,29 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 |------------|---------|-------------|
 | **Vue.js** | 3.5.25 | Progressive JavaScript framework |
 | **TypeScript** | 5.9.3 | Type-safe JavaScript |
-| **Vite** | 7.2.6 | Next-generation frontend tooling |
+| **Vite** | 7.2.7 | Next-generation frontend tooling |
 | **Tailwind CSS** | 3.4.18 | Utility-first CSS framework |
 | **Chart.js** | 4.5.1 | Interactive charts |
 | **Font Awesome** | 7.1.0 | Icon library |
+| **@fortawesome/vue-fontawesome** | 3.1.2 | Font Awesome Vue component |
+| **@fortawesome/fontawesome-svg-core** | 7.1.0 | Font Awesome core |
+| **@fortawesome/free-brands-svg-icons** | 7.1.0 | Font Awesome brands icons |
+| **@fortawesome/free-regular-svg-icons** | 7.1.0 | Font Awesome regular icons |
+| **@fortawesome/free-solid-svg-icons** | 7.1.0 | Font Awesome solid icons |
+| **@vue/test-utils** | 2.4.6 | Vue test utilities |
+| **vitest** | 4.0.15 | Unit testing framework |
+| **@vitest/ui** | 4.0.15 | Vitest UI |
+| **@vitest/coverage-v8** | 4.0.15 | Coverage provider |
+| **happy-dom** | 20.0.11 | DOM environment for tests |
+| **workbox-window** | 7.4.0 | Service worker helper |
+| **vite-plugin-pwa** | 1.2.0 | PWA plugin |
+| **vite-plugin-compression** | 0.5.1 | Compression plugin |
+| **rollup-plugin-visualizer** | 6.0.5 | Bundle visualizer |
+| **sirv-cli** | 3.0.1 | Static server |
+| **autoprefixer** | 10.4.22 | CSS vendor prefixer |
+| **postcss** | 8.5.6 | CSS processor |
+| **vue-tsc** | 3.1.8 | TypeScript type checker for Vue |
+| **@types/node** | 24.10.2 | Node.js types |
 
 ### Build & Deploy
 - **Maven** 3.9.11 (Backend build and dependency management)

@@ -12,7 +12,7 @@
 | Component   | Tests | Technologies                        |
 |------------ |-------|-------------------------------------|
 | Backend     | 79    | JUnit 5, Mockito, Quarkus Test      |
-| Frontend    | 67    | Vitest, Vue Test Utils, Happy DOM   |
+| Frontend    | 67    | Vitest (4.0.15), Vue Test Utils (2.4.6), Happy DOM (20.0.11)   |
 
 **Test execution**: ~25s total (Backend: ~20s, Frontend: ~3s)
 
