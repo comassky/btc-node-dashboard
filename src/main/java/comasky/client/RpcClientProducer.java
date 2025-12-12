@@ -31,7 +31,10 @@ public class RpcClientProducer {
 
     /**
      * Creates and configures the RpcClient REST client.
-     * @return configured RpcClient
+     *
+     * @return configured RpcClient instance
+     * @throws IllegalStateException if any required configuration property is missing or invalid
+     * @throws IllegalArgumentException if the port is out of range
      */
     @Produces
     @ApplicationScoped
@@ -50,6 +53,11 @@ public class RpcClientProducer {
                 .build(RpcClient.class);
     }
 
+    /**
+     * Validates the RPC user and password for illegal characters.
+     *
+     * @throws IllegalArgumentException if user or password contains invalid characters
+     */
     private void validateCredentials() {
         if (user != null && (user.contains(":") || user.contains("@"))) {
             throw new IllegalArgumentException("bitcoin.rpc.user contains invalid characters (: or @)");
@@ -59,6 +67,12 @@ public class RpcClientProducer {
         }
     }
 
+    /**
+     * Checks if a string is null or blank.
+     *
+     * @param s the string to check
+     * @return true if the string is null or blank, false otherwise
+     */
     private boolean isNullOrBlank(String s) {
         return s == null || s.isBlank();
     }

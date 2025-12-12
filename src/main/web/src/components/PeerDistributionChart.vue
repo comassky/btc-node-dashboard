@@ -7,7 +7,7 @@ import { type SubverDistribution } from '@types';
 Chart.register(ArcElement, Tooltip, Legend, PieController);
 Chart.defaults.animation = false;
 
-// --- Utilitaires couleurs ---
+// --- Color utilities ---
 
 const cssVarCache = new Map<string, string>();
 const getCssVar = (name: string): string => {
@@ -82,7 +82,7 @@ const getChartOptions = (): ChartOptions<'doughnut'> => {
     };
 };
 
-// --- Props & Réactivité ---
+// --- Props & Reactivity ---
 const props = defineProps<{ peers: SubverDistribution[]; type: 'inbound' | 'outbound'; count: number; isDarkMode: boolean }>();
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 let chartInstance: Chart | null = null;
@@ -124,7 +124,7 @@ const updateChartData = (chart: Chart, data: SubverDistribution[]) => {
     chart.update('none');
 };
 
-// --- Légende interactive ---
+// --- Interactive legend ---
 const handleLegendEnter = (idx: number) => {
     hoveredIndex.value = idx;
     if (chartInstance) {
