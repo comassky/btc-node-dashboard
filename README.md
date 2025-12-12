@@ -71,7 +71,6 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | **postcss** | 8.5.6 | CSS processor |
 | **vue-tsc** | 3.1.8 | TypeScript type checker for Vue |
 | **@types/node** | 24.10.3 | Node.js types |
-| **pretty-bytes** | 7.1.0 | Bytes formatting |
 | **reconnecting-websocket** | 4.4.0 | WebSocket reconnect |
 
 ### Build & Deploy

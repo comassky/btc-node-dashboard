@@ -18,14 +18,17 @@ export const formatConnectionTime = (seconds?: number | null): string => {
   }
   return `${s}s`;
 };
-import prettyBytes from 'pretty-bytes';
+
 
 /**
  * Formats bytes into human-readable units using pretty-bytes.
  */
-export const formatBytes = (bytes: number, decimals = 2): string => {
   if (!bytes || bytes === 0) return '0 B';
-  return prettyBytes(bytes, { maximumFractionDigits: decimals });
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const value = bytes / Math.pow(k, i);
+  return `${parseFloat(value.toFixed(decimals))} ${sizes[i]}`;
 };
 
 /**
