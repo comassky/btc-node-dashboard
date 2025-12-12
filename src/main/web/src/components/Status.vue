@@ -22,7 +22,7 @@ const isOutOfSync = computed(() => isNodeOutOfSync(props.blockchain, props.block
 const hasWarnings = computed(() => hasLowOutbound.value || isOutOfSync.value);
 
 const isHealthy = computed(() => props.isConnected && props.rpcConnected && !hasWarnings.value);
-const hasIssue = computed(() => !props.isConnected || !props.rpcConnected);
+// Removed unused variable hasIssue
 
 const statusClass = computed(() =>
     isHealthy.value

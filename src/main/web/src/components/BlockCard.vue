@@ -30,9 +30,9 @@
                             <font-awesome-icon :icon="['fas', 'list-ol']" class="mr-1" />
                         </Tooltip>
                         Headers: 
-                        <span class="font-bold text-text-primary" :class="isSyncing ? 'text-status-warning' : ''">
+                        <span class="font-bold text-text-primary" :class="isSyncingComputed ? 'text-status-warning' : ''">
                             {{ blockchain.headers }}
-                            <span v-if="isSyncing && headerBlockDiff !== 0" class="text-status-warning"> (+{{ headerBlockDiff }})</span>
+                            <span v-if="isSyncingComputed && headerBlockDiff !== 0" class="text-status-warning"> (+{{ headerBlockDiff }})</span>
                         </span>
                     </p>
                     <p class="mb-0.5 sm:mb-1">
@@ -40,7 +40,7 @@
                             <font-awesome-icon :icon="['far', 'clock']" class="mr-1" />
                         </Tooltip>
                         Time: 
-                        <span class="font-bold text-text-primary" :class="isBlockTooOld ? 'text-status-error' : ''">
+                        <span class="font-bold text-text-primary">
                             {{ formatTimeSince(block.time).replace(/ ago$/, '') }} ago
                         </span>
                     </p>
@@ -68,7 +68,7 @@
 import { computed } from 'vue';
 import { formatTimeSince } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
-import { getHeaderBlockDiff, isBlockTooOld, isSyncing, isNodeOutOfSync, getSyncWarningMessage } from '@utils/nodeHealth';
+import { getHeaderBlockDiff, isSyncing, getSyncWarningMessage } from '@utils/nodeHealth';
 
 const props = withDefaults(defineProps<{
   blockchain: any;
@@ -77,8 +77,8 @@ const props = withDefaults(defineProps<{
 }>(), { forceOutOfSync: false });
 
 const headerBlockDiff = computed(() => getHeaderBlockDiff(props.blockchain));
-const blockTooOld = computed(() => isBlockTooOld(props.block.time));
-const syncing = computed(() => isSyncing(props.blockchain));
-const outOfSync = computed(() => props.forceOutOfSync || isNodeOutOfSync(props.blockchain, props.block));
+const isSyncingComputed = computed(() => isSyncing(props.blockchain));
+const isOutOfSync = computed(() => props.forceOutOfSync || (typeof props.blockchain === 'object' && typeof props.block === 'object' &&
+    (props.blockchain.headers - props.blockchain.blocks > 2 || (props.blockchain.blocks !== props.block.height))));
 const syncWarningMessage = computed(() => getSyncWarningMessage(props.blockchain, props.block, formatTimeSince));
 </script>

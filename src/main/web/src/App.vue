@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { DashboardData, DashboardConfig, NodeInfo, BlockChainInfo, Peer } from '@types';
 import Spinner from '@components/Spinner.vue';
 import { reactive, computed, onBeforeUnmount, ref, onMounted, nextTick } from 'vue';
 import Status from '@components/Status.vue';

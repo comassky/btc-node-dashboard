@@ -87,7 +87,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { type Peer } from '@types';
+// Removed unused import: Peer type
 import { formatBytes, formatTimeOffset, formatPing, formatConnectionTime } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
 
