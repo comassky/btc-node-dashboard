@@ -51,8 +51,15 @@
                         class="border-b border-border-strong/70 hover:bg-bg-card/70 transition duration-150 whitespace-nowrap">
                         <td class="p-4 font-light">{{ peer.id }}</td>
                         <td class="p-4 font-light overflow-visible">
-                            <Tooltip :text="peer.addr" position="bottom" horizontal="left">
-                                <span class="max-w-[150px] truncate inline-block">{{ peer.addr }}</span>
+                            <Tooltip :text="`Show Bitnodes page for this node: ${peer.addr}`" position="bottom" horizontal="left">
+                                <a
+                                    class="max-w-[150px] truncate inline-block text-white hover:text-orange-500 transition-colors"
+                                    :href="`https://bitnodes.io/nodes/${peer.addr.replace(':', '-')}/`"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    {{ peer.addr }}
+                                </a>
                             </Tooltip>
                         </td>
                         <td class="p-4 font-light">
@@ -62,7 +69,7 @@
                         </td>
                         <td class="p-4 font-light">{{ peer.version }}</td>
                         <td class="p-4 font-light">{{ formatTimeOffset(peer.timeoffset) }}</td>
-                        <td class="p-4 font-light">{{ formatTimeSince(peer.conntime) }} ago</td>
+                        <td class="p-4 font-light">{{ formatConnectionTime(peer.conntime) }}</td>
                         <td class="p-4 font-light">{{ peer.network || 'N/A' }}</td>
                         <td class="p-4 font-medium" :class="[`text-${type === 'inbound' ? 'status-success' : 'accent'}`]"
                             :title="'Connection type: ' + peer.connection_type">{{ peer.connection_type }}</td>
@@ -80,21 +87,18 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { type Peer } from '@types';
-import { formatBytes, formatTimeOffset, formatTimeSince, formatPing } from '@utils/formatting';
+// Removed unused import: Peer type
+import { formatBytes, formatTimeOffset, formatPing, formatConnectionTime } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
 
-const props = defineProps<{
-        peers: Peer[];
-        type: 'inbound' | 'outbound';
-}>();
+const props = defineProps<{ peers: any[]; type: 'inbound' | 'outbound' }>();
 
 const headerColor = props.type === 'inbound' ? 'status-success' : 'accent';
 
-const sortKey = ref<'id'|'addr'|'subver'|'version'|'timeoffset'|'conntime'|'network'|'connection_type'|'minping'|'bytesrecv'|'bytessent'>('id');
+const sortKey = ref('id');
 const sortOrder = ref<'asc' | 'desc'>('asc');
 
-function setSort(key: typeof sortKey.value) {
+function setSort(key: string) {
     if (sortKey.value === key) {
         sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
     } else {

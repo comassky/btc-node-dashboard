@@ -41,14 +41,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { type NodeInfo, type BlockChainInfo } from '@types';
 import Tooltip from '@components/Tooltip.vue';
 
-const props = defineProps<{
-    node: NodeInfo;
-    blockchain: BlockChainInfo;
-    upTime: string;
-}>();
+const props = defineProps<{ node: any; blockchain: any; upTime: string }>();
 
 const cleanedSubversion = computed(() => {
     const subver = props.node.subversion;

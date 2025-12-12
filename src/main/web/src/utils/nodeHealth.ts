@@ -10,7 +10,7 @@ export const MAX_BLOCK_AGE_SECONDS = 3600; // 1 hour
 export const MAX_HEADER_BLOCK_DIFF = 2;
 export const MIN_VERIFICATION_PROGRESS = 0.9999;
 
-const SECONDS_TO_MS = 1000;
+
 
 export function setMinOutboundPeers(value: number): void {
     MIN_OUTBOUND_PEERS = value;
@@ -25,8 +25,13 @@ export function getHeaderBlockDiff(blockchain: BlockChainInfo): number {
 }
 
 export function isBlockTooOld(blockTime: number): boolean {
-    return ((Date.now() / SECONDS_TO_MS) - blockTime) > MAX_BLOCK_AGE_SECONDS;
+    // blockTime is in seconds (Unix timestamp)
+    const now = Date.now();
+    const then = blockTime * 1000;
+    const diffSeconds = Math.floor((now - then) / 1000);
+    return diffSeconds > MAX_BLOCK_AGE_SECONDS;
 }
+
 
 export function isSyncing(blockchain: BlockChainInfo): boolean {
     return getHeaderBlockDiff(blockchain) > MAX_HEADER_BLOCK_DIFF;

@@ -1,9 +1,3 @@
-# 🚦 Build & Continuous Integration
-
-- The Maven build (`mvn package`) runs all tests and produces the final artifact (backend + frontend bundled).
-- Docker and native workflows use this artifact: no build or tests are repeated in those steps.
-- CI (GitHub Actions) blocks any deployment if a test fails.
-- See [BUILD.md](BUILD.md) and [TESTING.md](TESTING.md) for more details.
 # Bitcoin Node Dashboard ₿
 
 Monitor your Bitcoin Core node in real-time with a modern web interface.
@@ -38,28 +32,54 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | Technology | Version | Description |
 |------------|---------|-------------|
 | **Java** | 21 | Programming language |
-| **Quarkus** | 3.30.2 | Supersonic Subatomic Java Framework |
+| **Quarkus** | 3.30.3 | Supersonic Subatomic Java Framework |
 | **Mutiny** | 2.x | Reactive programming library |
 | **Jakarta WebSocket** | - | Real-time communication |
 | **MicroProfile REST Client** | - | HTTP client for Bitcoin RPC |
 | **Jackson** | - | JSON processing |
+| **Maven Compiler Plugin** | 3.14.1 | Java compilation |
+| **Maven Surefire Plugin** | 3.5.4 | Unit testing |
+| **Frontend Maven Plugin** | 1.15.4 | Frontend build integration |
+| **Node.js** | v24.11.1 | Frontend build (via Maven) |
+| **npm** | 11.6.2 | Frontend build (via Maven) |
 
 ### Frontend
 | Technology | Version | Description |
 |------------|---------|-------------|
 | **Vue.js** | 3.5.25 | Progressive JavaScript framework |
 | **TypeScript** | 5.9.3 | Type-safe JavaScript |
-| **Vite** | 7.2.6 | Next-generation frontend tooling |
-| **Tailwind CSS** | 3.4.18 | Utility-first CSS framework |
+| **Vite** | 7.2.7 | Next-generation frontend tooling |
+| **Tailwind CSS** | 3.4.19 | Utility-first CSS framework |
 | **Chart.js** | 4.5.1 | Interactive charts |
 | **Font Awesome** | 7.1.0 | Icon library |
+| **@fortawesome/vue-fontawesome** | 3.1.2 | Font Awesome Vue component |
+| **@fortawesome/fontawesome-svg-core** | 7.1.0 | Font Awesome core |
+| **@fortawesome/free-brands-svg-icons** | 7.1.0 | Font Awesome brands icons |
+| **@fortawesome/free-regular-svg-icons** | 7.1.0 | Font Awesome regular icons |
+| **@fortawesome/free-solid-svg-icons** | 7.1.0 | Font Awesome solid icons |
+| **@vue/test-utils** | 2.4.6 | Vue test utilities |
+| **vitest** | 4.0.15 | Unit testing framework |
+| **@vitest/ui** | 4.0.15 | Vitest UI |
+| **@vitest/coverage-v8** | 4.0.15 | Coverage provider |
+| **happy-dom** | 20.0.11 | DOM environment for tests |
+| **workbox-window** | 7.4.0 | Service worker helper |
+| **vite-plugin-pwa** | 1.2.0 | PWA plugin |
+| **vite-plugin-compression** | 0.5.1 | Compression plugin |
+| **rollup-plugin-visualizer** | 6.0.5 | Bundle visualizer |
+| **sirv-cli** | 3.0.1 | Static server |
+| **autoprefixer** | 10.4.22 | CSS vendor prefixer |
+| **postcss** | 8.5.6 | CSS processor |
+| **vue-tsc** | 3.1.8 | TypeScript type checker for Vue |
+| **@types/node** | 24.10.3 | Node.js types |
+| **reconnecting-websocket** | 4.4.0 | WebSocket reconnect |
 
 ### Build & Deploy
 - **Maven** 3.9.11 (Backend build and dependency management)
 - **Maven Compiler Plugin** 3.14.1
 - **Maven Surefire Plugin** 3.5.4
 - **Frontend Maven Plugin** 1.15.4
-- **npm** 11.6.2 (with Node.js v24.11.1)
+- **Node.js** v24.11.1 (via Maven)
+- **npm** 11.6.2 (via Maven)
 - **npm ci** (Optimized frontend dependency installation with --prefer-offline)
 - **Docker** (JVM & GraalVM Native images)
 - **GitHub Actions** (CI/CD with automated testing and native image builds)
@@ -111,6 +131,15 @@ docker run -d -p 8080:8080 \
 
 See [DOCKER.md](DOCKER.md) for more details.
 
+### Available Image Tags
+
+A short summary of the Docker image tags produced by the GitHub Actions workflows (full list in `DOCKER.md`):
+
+- `jvm` and `jvm-<version>`: JVM-based images (examples: `jvm`, `jvm-1.4.0`).
+- `latest` and semantic version tags (`<version>`, `<major>.<minor>`, `<major>`): native (GraalVM) images built from `main` and from git tags.
+- `develop`: images built from the `develop` branch.
+
+
 ## 📊 API Endpoints
 
 ### REST API
@@ -150,6 +179,13 @@ bitcoin.rpc.password=your_password
 dashboard.polling.interval.seconds=5
 dashboard.cache.validity-buffer-ms=200
 ```
+
+# 🚦 Build & Continuous Integration
+
+- The Maven build (`mvn package`) runs all tests and produces the final artifact (backend + frontend bundled).
+- Docker and native workflows use this artifact: no build or tests are repeated in those steps.
+- CI (GitHub Actions) blocks any deployment if a test fails.
+- See [BUILD.md](BUILD.md) and [TESTING.md](TESTING.md) for more details.
 
 ## 🎨 Frontend Development
 

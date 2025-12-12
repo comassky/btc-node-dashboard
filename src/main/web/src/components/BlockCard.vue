@@ -1,6 +1,6 @@
 <template>
-    <div class="dashboard-card-interactive"
-         :class="isOutOfSync ? 'border-status-error hover:border-status-error hover:shadow-2xl' : 'border-status-success hover:border-status-success hover:shadow-2xl'">
+        <div class="dashboard-card-interactive"
+            :class="isOutOfSync ? 'border-status-error hover:border-status-error hover:shadow-2xl' : 'border-status-success hover:border-status-success hover:shadow-2xl'">
         <div class="flex justify-between items-center">
             <div class="text-2xl sm:text-3xl"
                  :class="isOutOfSync ? 'text-status-error' : 'text-status-success'">
@@ -10,7 +10,7 @@
         </div>
         <Tooltip :text="'Current height of the blockchain. This is the number of blocks in the chain. Click to view on mempool.org.'" position="bottom" horizontal="center">
             <a
-                :href="`https://mempool.org/block/${blockchain.blocks}`"
+                :href="`https://mempool.space/block/${blockchain.blocks}`"
                 target="_blank"
                 rel="noopener noreferrer"
                 :class="[
@@ -30,9 +30,9 @@
                             <font-awesome-icon :icon="['fas', 'list-ol']" class="mr-1" />
                         </Tooltip>
                         Headers: 
-                        <span class="font-bold text-text-primary" :class="isSyncing ? 'text-status-warning' : ''">
+                        <span class="font-bold text-text-primary" :class="isSyncingComputed ? 'text-status-warning' : ''">
                             {{ blockchain.headers }}
-                            <span v-if="isSyncing" class="text-status-warning"> (+{{ headerBlockDiff }})</span>
+                            <span v-if="isSyncingComputed && headerBlockDiff !== 0" class="text-status-warning"> (+{{ headerBlockDiff }})</span>
                         </span>
                     </p>
                     <p class="mb-0.5 sm:mb-1">
@@ -40,8 +40,8 @@
                             <font-awesome-icon :icon="['far', 'clock']" class="mr-1" />
                         </Tooltip>
                         Time: 
-                        <span class="font-bold text-text-primary" :class="isBlockTooOld ? 'text-status-error' : ''">
-                            {{ formatTimeSince(block.time) }} ago
+                        <span class="font-bold text-text-primary">
+                            {{ formatTimeSince(block.time).replace(/ ago$/, '') }} ago
                         </span>
                     </p>
                     <p>
@@ -66,33 +66,19 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { BlockChainInfo, BlockInfo } from '@types';
 import { formatTimeSince } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
-import { 
-    getHeaderBlockDiff, 
-    isBlockTooOld as checkBlockTooOld, 
-    isSyncing as checkSyncing,
-    isNodeOutOfSync,
-    getSyncWarningMessage
-} from '@utils/nodeHealth';
+import { getHeaderBlockDiff, isSyncing, getSyncWarningMessage } from '@utils/nodeHealth';
 
 const props = withDefaults(defineProps<{
-    blockchain: BlockChainInfo;
-    block: BlockInfo;
-    forceOutOfSync?: boolean;
-}>(), {
-    forceOutOfSync: false
-});
-
+  blockchain: any;
+  block: any;
+  forceOutOfSync?: boolean;
+}>(), { forceOutOfSync: false });
 
 const headerBlockDiff = computed(() => getHeaderBlockDiff(props.blockchain));
-
-const isBlockTooOld = computed(() => checkBlockTooOld(props.block.time));
-
-const isSyncing = computed(() => checkSyncing(props.blockchain));
-
-const isOutOfSync = computed(() => props.forceOutOfSync || isNodeOutOfSync(props.blockchain, props.block));
-
+const isSyncingComputed = computed(() => isSyncing(props.blockchain));
+const isOutOfSync = computed(() => props.forceOutOfSync || (typeof props.blockchain === 'object' && typeof props.block === 'object' &&
+    (props.blockchain.headers - props.blockchain.blocks > 2 || (props.blockchain.blocks !== props.block.height))));
 const syncWarningMessage = computed(() => getSyncWarningMessage(props.blockchain, props.block, formatTimeSince));
 </script>

@@ -1,3 +1,4 @@
+/* Scroll vertical pour la légende Chart.js si trop longue */
 /* --- web/src/assets/dashboard.css --- */
 
 @tailwind base;
@@ -101,22 +102,33 @@ body {
 }
 
 /* Chart Styling */
+
 .chart-container {
     width: 100%;
-    max-width: 450px;
-    height: 350px;
+    height: 470px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
+    justify-content: center;
+    gap: 0;
 }
 
+
 .chart-container canvas {
-    flex-grow: 1;
+    flex: 1 1 0%;
+    min-width: 0;
+    min-height: 0;
     width: 100% !important;
     height: 100% !important;
     background-color: transparent !important;
+    max-width: 90%;
+    max-height: 90%;
 }
 
+/* Décale la légende à droite du pie */
+.chartjs-render-monitor + .chartjs-legend {
+    margin-left: 36px !important;
+}
 /* Table Styling */
 .peer-table-wrapper {
     overflow-x: auto;

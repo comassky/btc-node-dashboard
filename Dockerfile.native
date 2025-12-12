@@ -1,7 +1,3 @@
-###
-# Image de base ultra-légère pour le runtime natif GraalVM
-# UBI9 has GLIBC 2.34+ required by the native executable built on Ubuntu
-###
 FROM quay.io/quarkus/ubi9-quarkus-micro-image:2.0
 
 # Set working directory

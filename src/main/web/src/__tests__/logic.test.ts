@@ -79,24 +79,15 @@ describe('Peer Filtering Logic', () => {
     subver?: string;
   }
 
-  const filterInboundPeers = (peers: TestPeer[]): TestPeer[] => {
-    return peers.filter(p => p.inbound);
-  };
-
-  const filterOutboundPeers = (peers: TestPeer[]): TestPeer[] => {
-    return peers.filter(p => !p.inbound);
-  };
-
-  const groupBySubversion = (peers: TestPeer[]): Map<string, TestPeer[]> => {
-    const groups = new Map<string, TestPeer[]>();
-    peers.forEach(peer => {
-      const subver = peer.subver || 'Unknown';
-      if (!groups.has(subver)) {
-        groups.set(subver, []);
-      }
-      groups.get(subver)!.push(peer);
-    });
-    return groups;
+  const filterInboundPeers = (peers: TestPeer[]): TestPeer[] => peers.filter(p => p.inbound === true);
+  const filterOutboundPeers = (peers: TestPeer[]): TestPeer[] => peers.filter(p => p.inbound === false);
+  const groupBySubversion = (peers: TestPeer[]): Record<string, TestPeer[]> => {
+    return peers.reduce((acc: Record<string, TestPeer[]>, p: TestPeer) => {
+      const key = p.subver || 'Unknown';
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(p);
+      return acc;
+    }, {});
   };
 
   it('should filter inbound peers correctly', () => {
@@ -131,9 +122,9 @@ describe('Peer Filtering Logic', () => {
     ];
 
     const groups = groupBySubversion(peers);
-    expect(groups.size).toBe(2);
-    expect(groups.get('/Satoshi:27.0.0/')).toHaveLength(2);
-    expect(groups.get('/Satoshi:26.0.0/')).toHaveLength(1);
+    expect(Object.keys(groups).length).toBe(2);
+    expect(groups['/Satoshi:27.0.0/']).toHaveLength(2);
+    expect(groups['/Satoshi:26.0.0/']).toHaveLength(1);
   });
 
   it('should handle peers without subversion', () => {
@@ -143,8 +134,8 @@ describe('Peer Filtering Logic', () => {
     ];
 
     const groups = groupBySubversion(peers);
-    expect(groups.has('Unknown')).toBe(true);
-    expect(groups.get('Unknown')).toHaveLength(1);
+    expect(Object.prototype.hasOwnProperty.call(groups, 'Unknown')).toBe(true);
+    expect(groups['Unknown']).toHaveLength(1);
   });
 });
 
@@ -156,16 +147,16 @@ describe('Chart Data Preparation', () => {
 
   const prepareChartData = (stats: SubverStats[]) => {
     return {
-      labels: stats.map(s => s.server),
-      data: stats.map(s => s.percentage),
+      labels: stats.map((s: SubverStats) => s.server),
+      data: stats.map((s: SubverStats) => s.percentage),
     };
   };
 
   const calculatePercentages = (counts: Map<string, number>): SubverStats[] => {
-    const total = Array.from(counts.values()).reduce((sum, count) => sum + count, 0);
+    const total = Array.from(counts.values()).reduce((sum: number, count: number) => sum + count, 0);
     if (total === 0) return [];
 
-    return Array.from(counts.entries()).map(([server, count]) => ({
+    return Array.from(counts.entries()).map(([server, count]: [string, number]) => ({
       server,
       percentage: Math.round((count / total) * 10000) / 100,
     }));
@@ -209,7 +200,7 @@ describe('Chart Data Preparation', () => {
     ]);
 
     const percentages = calculatePercentages(counts);
-    const total = percentages.reduce((sum, p) => sum + p.percentage, 0);
+    const total = percentages.reduce((sum: number, p: { percentage: number }) => sum + p.percentage, 0);
     expect(total).toBeCloseTo(100, 1);
   });
 });

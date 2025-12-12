@@ -33,11 +33,22 @@ public class BtcApiApp implements QuarkusApplication {
     @ConfigProperty(name = "dashboard.polling.interval.seconds")
     int pollingInterval;
 
+    /**
+     * Main entry point for the Quarkus application.
+     *
+     * @param args command-line arguments
+     */
     public static void main(String[] args) {
         Quarkus.run(BtcApiApp.class, args);
     }
 
     @Override
+    /**
+     * Runs the application, validating configuration and starting Quarkus.
+     *
+     * @param args command-line arguments
+     * @return 0 if successful, 1 if startup failed
+     */
     public int run(String... args) {
         try {
             validateConfiguration();
@@ -50,6 +61,11 @@ public class BtcApiApp implements QuarkusApplication {
         }
     }
 
+    /**
+     * Validates application configuration properties.
+     *
+     * @throws IllegalStateException if any required property is missing or invalid
+     */
     private void validateConfiguration() {
         if (isNullOrBlank(rpcScheme) || (!"http".equals(rpcScheme) && !"https".equals(rpcScheme))) {
             throw new IllegalStateException("bitcoin.rpc.scheme is required and must be 'http' or 'https'");
@@ -68,6 +84,9 @@ public class BtcApiApp implements QuarkusApplication {
         }
     }
 
+    /**
+     * Logs the current application configuration for debugging purposes.
+     */
     private void logConfiguration() {
         LOG.debugf("=== Application Configuration ===");
         LOG.debugf("Bitcoin RPC: %s://%s:%d", rpcScheme, rpcHost, rpcPort);
@@ -80,10 +99,22 @@ public class BtcApiApp implements QuarkusApplication {
         LOG.debugf("=================================");
     }
 
+    /**
+     * Checks if a string is null or blank.
+     *
+     * @param s the string to check
+     * @return true if the string is null or blank, false otherwise
+     */
     private boolean isNullOrBlank(String s) {
         return s == null || s.isBlank();
     }
 
+    /**
+     * Masks a password for logging, showing only the first and last two characters.
+     *
+     * @param password the password to mask
+     * @return the masked password string
+     */
     private String maskPassword(String password) {
         if (password == null || password.isEmpty()) {
             return "[NOT SET]";

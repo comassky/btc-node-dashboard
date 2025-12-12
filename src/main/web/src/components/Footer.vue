@@ -31,8 +31,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-
 const version = __APP_VERSION__;
-const currentYear = computed(() => new Date().getFullYear());
+const currentYear = new Date().getFullYear();
 </script>
