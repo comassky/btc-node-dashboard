@@ -1,6 +1,6 @@
 <template>
-    <div class="dashboard-card-interactive"
-         :class="isOutOfSync ? 'border-status-error hover:border-status-error hover:shadow-2xl' : 'border-status-success hover:border-status-success hover:shadow-2xl'">
+        <div class="dashboard-card-interactive"
+            :class="isOutOfSync ? 'border-status-error hover:border-status-error hover:shadow-2xl' : 'border-status-success hover:border-status-success hover:shadow-2xl'">
         <div class="flex justify-between items-center">
             <div class="text-2xl sm:text-3xl"
                  :class="isOutOfSync ? 'text-status-error' : 'text-status-success'">

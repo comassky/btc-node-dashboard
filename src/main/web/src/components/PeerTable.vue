@@ -51,8 +51,15 @@
                         class="border-b border-border-strong/70 hover:bg-bg-card/70 transition duration-150 whitespace-nowrap">
                         <td class="p-4 font-light">{{ peer.id }}</td>
                         <td class="p-4 font-light overflow-visible">
-                            <Tooltip :text="peer.addr" position="bottom" horizontal="left">
-                                <span class="max-w-[150px] truncate inline-block">{{ peer.addr }}</span>
+                            <Tooltip :text="`Show Bitnodes page for this node: ${peer.addr}`" position="bottom" horizontal="left">
+                                <a
+                                    class="max-w-[150px] truncate inline-block text-white hover:text-orange-500 transition-colors"
+                                    :href="`https://bitnodes.io/nodes/${peer.addr.replace(':', '-')}/`"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    {{ peer.addr }}
+                                </a>
                             </Tooltip>
                         </td>
                         <td class="p-4 font-light">
