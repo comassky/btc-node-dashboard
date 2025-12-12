@@ -14,14 +14,19 @@ Chart.register(ArcElement, Tooltip, Legend, PieController);
 Chart.defaults.animation = false;
 
 
-// Génère une palette HSL bien répartie pour éviter les couleurs trop proches
+// Génère une palette HSL optimisée pour le contraste et la différenciation
 const generatePalette = (numColors: number): string[] => {
     const palette: string[] = [];
-    const saturation = 65;
-    const lightness = 55;
+    // Pour beaucoup de couleurs, alterne la luminosité et la saturation pour éviter les teintes trop proches
+    const baseSaturation = 70;
+    const baseLightness = 50;
     for (let i = 0; i < numColors; i++) {
-        const hue = Math.round((360 / numColors) * i);
-        palette.push(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
+        // Décale la teinte pour maximiser l'écart entre couleurs voisines
+        const hue = Math.round((360 / numColors) * i + (i % 2 === 0 ? 0 : 180 / numColors));
+        // Alterne la luminosité et la saturation pour plus de contraste
+        const sat = baseSaturation + (i % 3 === 0 ? 10 : i % 3 === 1 ? -10 : 0);
+        const light = baseLightness + (i % 2 === 0 ? 8 : -8);
+        palette.push(`hsl(${hue}, ${sat}%, ${light}%)`);
     }
     return palette;
 };
@@ -65,7 +70,7 @@ const updateChartDefaults = () => {
     Chart.defaults.plugins.tooltip.titleColor = getCssVar('--text-secondary');
 };
 
-const getChartOptions = (): ChartOptions<'pie'> => {
+const getChartOptions = (): ChartOptions<'doughnut'> => {
     return {
         responsive: true,
         maintainAspectRatio: false,
@@ -75,19 +80,7 @@ const getChartOptions = (): ChartOptions<'pie'> => {
         },
         plugins: {
             legend: {
-                position: 'bottom',
-                labels: {
-                    boxWidth: 12,
-                    color: getCssVar('--text-primary'),
-                    font: {
-                        family: 'Roboto, sans-serif',
-                        size: 15,
-                        weight: 'normal',
-                    },
-                    padding: 16,
-                    usePointStyle: true,
-                    pointStyle: 'circle',
-                }
+                display: false // Désactive la légende native
             },
             tooltip: {
                 mode: 'point',
@@ -114,6 +107,35 @@ const getChartOptions = (): ChartOptions<'pie'> => {
             }
         }
     };
+};
+// Pour la légende custom et le hover
+import { computed } from 'vue';
+const hoveredIndex = ref<number|null>(null);
+
+const chartLabels = computed(() => props.peers.map(p => p.server || '[Unknown]'));
+const chartColors = computed(() => generateColors(props.peers.length));
+
+const handleLegendEnter = (idx: number) => {
+    hoveredIndex.value = idx;
+    if (pieChartInstance) {
+        // Simule le hover sur le segment
+        pieChartInstance.setActiveElements([
+            { datasetIndex: 0, index: idx }
+        ]);
+        pieChartInstance.tooltip.setActiveElements([
+            { datasetIndex: 0, index: idx }
+        ], {x: 0, y: 0});
+        pieChartInstance.update();
+    }
+};
+
+const handleLegendLeave = () => {
+    hoveredIndex.value = null;
+    if (pieChartInstance) {
+        pieChartInstance.setActiveElements([]);
+        pieChartInstance.tooltip.setActiveElements([], {x: 0, y: 0});
+        pieChartInstance.update();
+    }
 };
 
 const props = defineProps<{
@@ -156,7 +178,7 @@ const initPieChart = (chartData: SubverDistribution[]): Chart | null => {
     if (!ctx) return null;
 
     return new Chart(ctx, {
-        type: 'pie',
+        type: 'doughnut',
         data: {
             labels,
             datasets: [{
@@ -222,10 +244,22 @@ const headerIcon = props.type === 'inbound' ? 'fas fa-arrow-alt-circle-down' : '
             <i :class="headerIcon" class="mr-1"></i>
             {{ type === 'inbound' ? 'Inbound Peers' : 'Outbound Peers' }} ({{ count }})
         </h4>
-        <div class="flex flex-col items-center justify-center h-full">
-            <div class="chart-container">
-                <canvas :ref="(el) => { canvasRef = el as HTMLCanvasElement }" :id="`${type}-chart`"></canvas>
+        <div class="flex flex-col items-center justify-center h-full w-full">
+            <div class="chart-container" style="width:300px; height:300px; max-width:100%; margin:auto;">
+                <canvas :ref="(el) => { canvasRef = el as HTMLCanvasElement }" :id="`${type}-chart`" width="300" height="300"></canvas>
             </div>
+            <!-- Légende custom -->
+            <ul class="mt-2 w-full flex flex-row flex-wrap gap-x-4 gap-y-2 items-center justify-center p-0">
+                <li v-for="(label, idx) in chartLabels" :key="label"
+                    class="flex items-center gap-1 cursor-pointer text-sm select-none min-w-0"
+                    style="padding: 0; margin: 0;"
+                    @mouseenter="() => handleLegendEnter(idx)"
+                    @mouseleave="handleLegendLeave"
+                >
+                    <span :style="{ background: chartColors[idx], width: '12px', height: '12px', borderRadius: '50%', display: 'inline-block', marginRight: '0.4em', flexShrink: 0 }"></span>
+                    <span>{{ label }}</span>
+                </li>
+            </ul>
         </div>
     </div>
 </template>
