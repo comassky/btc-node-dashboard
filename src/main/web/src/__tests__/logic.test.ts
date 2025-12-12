@@ -116,9 +116,9 @@ describe('Peer Filtering Logic', () => {
     ];
 
     const groups = groupBySubversion(peers);
-    expect(groups.size).toBe(2);
-    expect(groups.get('/Satoshi:27.0.0/')).toHaveLength(2);
-    expect(groups.get('/Satoshi:26.0.0/')).toHaveLength(1);
+    expect(Object.keys(groups).length).toBe(2);
+    expect(groups['/Satoshi:27.0.0/']).toHaveLength(2);
+    expect(groups['/Satoshi:26.0.0/']).toHaveLength(1);
   });
 
   it('should handle peers without subversion', () => {
@@ -128,8 +128,8 @@ describe('Peer Filtering Logic', () => {
     ];
 
     const groups = groupBySubversion(peers);
-    expect(groups.has('Unknown')).toBe(true);
-    expect(groups.get('Unknown')).toHaveLength(1);
+    expect(Object.prototype.hasOwnProperty.call(groups, 'Unknown')).toBe(true);
+    expect(groups['Unknown']).toHaveLength(1);
   });
 });
 

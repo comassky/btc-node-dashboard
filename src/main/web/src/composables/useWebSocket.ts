@@ -14,7 +14,8 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
  */
 export function useWebSocket(
     wsUrl: string,
-    onDataReceived: (data: Partial<DashboardData>) => void
+    onDataReceived: (data: Partial<DashboardData>) => void,
+    wsClass: any = ReconnectingWebSocket
 ) {
     const isConnected = ref(false);
     const rpcConnected = ref(false);
@@ -27,7 +28,7 @@ export function useWebSocket(
             ws.close();
             ws = null;
         }
-        ws = new ReconnectingWebSocket(wsUrl);
+        ws = new wsClass(wsUrl);
 
         ws.addEventListener('open', () => {
             isConnected.value = true;

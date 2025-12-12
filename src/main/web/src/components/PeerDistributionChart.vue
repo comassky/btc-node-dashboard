@@ -13,10 +13,18 @@ Chart.register(ArcElement, Tooltip, Legend, PieController);
 
 Chart.defaults.animation = false;
 
-const BASE_COLORS = [
-    '#06d6a0', '#ff9900', '#ef476f', '#118ab2', '#ffd166', '#00bcd4', '#4caf50', '#9c27b0',
-    '#ff9800', '#03a9f4', '#8bc34a', '#e91e63', '#607d8b', '#009688', '#cddc39', '#795548'
-];
+
+// Génère une palette HSL bien répartie pour éviter les couleurs trop proches
+const generatePalette = (numColors: number): string[] => {
+    const palette: string[] = [];
+    const saturation = 65;
+    const lightness = 55;
+    for (let i = 0; i < numColors; i++) {
+        const hue = Math.round((360 / numColors) * i);
+        palette.push(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
+    }
+    return palette;
+};
 
 let cssVarCache: Map<string, string> | null = null;
 
@@ -35,15 +43,26 @@ const invalidateCssCache = () => {
 };
 
 const generateColors = (numColors: number): string[] => {
-    if (numColors <= BASE_COLORS.length) {
-        return BASE_COLORS.slice(0, numColors);
+    // Accentue les 4 premières couleurs avec le thème, puis palette HSL pour le reste
+    const accent = getCssVar('--accent') || '#ff9900';
+    const success = getCssVar('--status-success') || '#06d6a0';
+    const warning = getCssVar('--status-warning') || '#ffd166';
+    const error = getCssVar('--status-error') || '#ef476f';
+    const base = [accent, success, warning, error];
+    if (numColors <= base.length) {
+        return base.slice(0, numColors);
     }
-    return Array.from({ length: numColors }, (_, i) => BASE_COLORS[i % BASE_COLORS.length]);
+    return [...base, ...generatePalette(numColors - base.length)];
 };
 
 const updateChartDefaults = () => {
     Chart.defaults.color = getCssVar('--text-primary');
     Chart.defaults.borderColor = getCssVar('--border-strong');
+    Chart.defaults.backgroundColor = getCssVar('--bg-card');
+    Chart.defaults.plugins.legend.labels.color = getCssVar('--text-primary');
+    Chart.defaults.plugins.tooltip.backgroundColor = getCssVar('--bg-card');
+    Chart.defaults.plugins.tooltip.bodyColor = getCssVar('--text-primary');
+    Chart.defaults.plugins.tooltip.titleColor = getCssVar('--text-secondary');
 };
 
 const getChartOptions = (): ChartOptions<'pie'> => {
@@ -51,12 +70,23 @@ const getChartOptions = (): ChartOptions<'pie'> => {
         responsive: true,
         maintainAspectRatio: false,
         animation: false,
+        layout: {
+            padding: 0
+        },
         plugins: {
             legend: {
-                position: 'right',
+                position: 'bottom',
                 labels: {
-                    boxWidth: 10,
+                    boxWidth: 12,
                     color: getCssVar('--text-primary'),
+                    font: {
+                        family: 'Roboto, sans-serif',
+                        size: 15,
+                        weight: 'normal',
+                    },
+                    padding: 16,
+                    usePointStyle: true,
+                    pointStyle: 'circle',
                 }
             },
             tooltip: {
@@ -65,7 +95,11 @@ const getChartOptions = (): ChartOptions<'pie'> => {
                 backgroundColor: getCssVar('--bg-card'),
                 bodyColor: getCssVar('--text-primary'),
                 titleColor: getCssVar('--text-secondary'),
+                borderColor: getCssVar('--border-strong'),
+                borderWidth: 1,
                 cornerRadius: 6,
+                caretSize: 6,
+                padding: 8,
                 animation: false,
                 callbacks: {
                     label: (context: TooltipItem<'pie'>) => {
@@ -130,6 +164,7 @@ const initPieChart = (chartData: SubverDistribution[]): Chart | null => {
                 backgroundColor: backgroundColors,
                 hoverOffset: 8,
                 borderColor: 'transparent',
+                borderWidth: 0
             }]
         },
         options: getChartOptions()
@@ -179,7 +214,7 @@ const headerIcon = props.type === 'inbound' ? 'fas fa-arrow-alt-circle-down' : '
 </script>
 
 <template>
-    <div class="sub-card flex-1 p-0 flex flex-col gap-4 border border-border-strong rounded-lg p-4">
+    <div class="sub-card flex-1 p-0 flex flex-col gap-4 rounded-lg p-4">
         <h4
             class="text-lg font-bold uppercase text-center pb-2 border-b-2 tracking-wider"
             :class="[`border-${headerColor}`, `text-${headerColor}`]"
