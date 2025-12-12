@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import { range } from 'lodash-es';
 import type { DashboardData } from '@types';
 
 export type MockScenario = 'normal' | 'disconnected' | 'lowPeers' | 'outOfSync';
@@ -56,7 +57,7 @@ export function useMockData() {
         subversion: '/Satoshi:27.0.0/' 
       },
       upTime: '15d 7h 23m',
-      inboundPeer: Array(mockScenario.value === 'lowPeers' ? 5 : 45).fill(null).map((_, i) => ({
+      inboundPeer: range(mockScenario.value === 'lowPeers' ? 5 : 45).map((i: number) => ({
         id: i,
         addr: `192.168.1.${i + 10}:8333`,
         subver: i % 3 === 0 ? '/Satoshi:27.0.0/' : i % 3 === 1 ? '/Satoshi:26.0.0/' : '/Satoshi:25.0.0/',
@@ -69,7 +70,7 @@ export function useMockData() {
         bytesrecv: 1024000 + (i * 5000),
         bytessent: 512000 + (i * 2500),
       })),
-      outboundPeer: Array(mockScenario.value === 'lowPeers' ? 3 : 8).fill(null).map((_, i) => ({
+      outboundPeer: range(mockScenario.value === 'lowPeers' ? 3 : 8).map((i: number) => ({
         id: i + 100,
         addr: `172.16.0.${i + 10}:8333`,
         subver: '/Satoshi:27.0.0/',

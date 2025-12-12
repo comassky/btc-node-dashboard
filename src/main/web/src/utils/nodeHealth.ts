@@ -1,4 +1,5 @@
 import { BlockChainInfo, BlockInfo } from '@types';
+import { differenceInSeconds, fromUnixTime } from 'date-fns';
 
 /**
  * Node health monitoring utilities.
@@ -10,7 +11,7 @@ export const MAX_BLOCK_AGE_SECONDS = 3600; // 1 hour
 export const MAX_HEADER_BLOCK_DIFF = 2;
 export const MIN_VERIFICATION_PROGRESS = 0.9999;
 
-const SECONDS_TO_MS = 1000;
+
 
 export function setMinOutboundPeers(value: number): void {
     MIN_OUTBOUND_PEERS = value;
@@ -25,7 +26,8 @@ export function getHeaderBlockDiff(blockchain: BlockChainInfo): number {
 }
 
 export function isBlockTooOld(blockTime: number): boolean {
-    return ((Date.now() / SECONDS_TO_MS) - blockTime) > MAX_BLOCK_AGE_SECONDS;
+    // blockTime is in seconds (Unix timestamp)
+    return differenceInSeconds(new Date(), fromUnixTime(blockTime)) > MAX_BLOCK_AGE_SECONDS;
 }
 
 export function isSyncing(blockchain: BlockChainInfo): boolean {

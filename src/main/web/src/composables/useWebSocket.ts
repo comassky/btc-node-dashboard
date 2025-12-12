@@ -1,9 +1,7 @@
+
 import { ref } from 'vue';
 import type { DashboardData } from '@types';
-
-const WS_RECONNECT_BASE_DELAY = 1000;
-const WS_RECONNECT_MAX_DELAY = 30000;
-const WS_RECONNECT_MULTIPLIER = 2;
+import ReconnectingWebSocket from 'reconnecting-websocket';
 
 /**
  * WebSocket composable for real-time dashboard updates.
@@ -14,51 +12,32 @@ const WS_RECONNECT_MULTIPLIER = 2;
  * @param onDataReceived - Callback invoked when dashboard data is received
  * @returns Reactive connection state and control functions
  */
-export function useWebSocket(wsUrl: string, onDataReceived: (data: Partial<DashboardData>) => void) {
+export function useWebSocket(
+    wsUrl: string,
+    onDataReceived: (data: Partial<DashboardData>) => void
+) {
     const isConnected = ref(false);
     const rpcConnected = ref(false);
     const errorMessage = ref<string | null>(null);
-
-    let ws: WebSocket | null = null;
-    let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
-    let reconnectAttempts = 0;
-
-    const scheduleReconnect = () => {
-        if (reconnectTimeout) {
-            clearTimeout(reconnectTimeout);
-            reconnectTimeout = null;
-        }
-
-        // Exponential backoff with a maximum cap.
-        // Start with `WS_RECONNECT_BASE_DELAY` for the first attempt, then multiply.
-        const delay = Math.min(
-            WS_RECONNECT_BASE_DELAY * Math.pow(WS_RECONNECT_MULTIPLIER, reconnectAttempts),
-            WS_RECONNECT_MAX_DELAY,
-        );
-        reconnectAttempts++;
-        isRetrying.value = true;
-        reconnectTimeout = setTimeout(connect, delay);
-    };
+    const isRetrying = ref(false);
+    let ws: ReconnectingWebSocket | null = null;
 
     const connect = () => {
         if (ws) {
-            ws.onclose = null;
             ws.close();
+            ws = null;
         }
+        ws = new ReconnectingWebSocket(wsUrl);
 
-        ws = new WebSocket(wsUrl);
-
-        ws.onopen = () => {
+        ws.addEventListener('open', () => {
             isConnected.value = true;
             errorMessage.value = null;
-            reconnectAttempts = 0;
             isRetrying.value = false;
-        };
+        });
 
-        ws.onmessage = (event) => {
+        ws.addEventListener('message', (event: MessageEvent) => {
             try {
                 const json = JSON.parse(event.data) as Partial<DashboardData>;
-
                 if ('rpcConnected' in json) {
                     rpcConnected.value = json.rpcConnected ?? false;
                     errorMessage.value = json.errorMessage || null;
@@ -70,38 +49,29 @@ export function useWebSocket(wsUrl: string, onDataReceived: (data: Partial<Dashb
             } catch (e) {
                 console.warn('WebSocket message parse error', e, event.data);
             }
-        };
+        });
 
-        ws.onclose = () => {
+        ws.addEventListener('close', () => {
             isConnected.value = false;
             rpcConnected.value = false;
             errorMessage.value = 'WebSocket disconnected. Retrying...';
-            scheduleReconnect();
-        };
+            isRetrying.value = true;
+        });
 
-        ws.onerror = () => {
+        ws.addEventListener('error', () => {
             isConnected.value = false;
             rpcConnected.value = false;
             errorMessage.value = 'WebSocket connection error.';
-        };
+        });
     };
 
     const disconnect = () => {
-        if (reconnectTimeout) {
-            clearTimeout(reconnectTimeout);
-            reconnectTimeout = null;
-        }
         if (ws) {
-            ws.onclose = null;
             ws.close();
             ws = null;
         }
-        // Reset retry state on manual disconnect
         isRetrying.value = false;
-        reconnectAttempts = 0;
     };
-
-    const isRetrying = ref(false);
 
     return {
         isConnected,

@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { filter, map, reduce, groupBy } from 'lodash-es';
 
 describe('WebSocket Reconnection Logic', () => {
   const WS_RECONNECT_BASE_DELAY = 1000;
@@ -28,7 +29,7 @@ describe('WebSocket Reconnection Logic', () => {
   });
 
   it('should use exponential backoff', () => {
-    const delays = [0, 1, 2, 3, 4].map(calculateReconnectDelay);
+    const delays = map([0, 1, 2, 3, 4], calculateReconnectDelay);
     
     for (let i = 1; i < delays.length; i++) {
       expect(delays[i]).toBeGreaterThanOrEqual(delays[i - 1]);
@@ -79,25 +80,9 @@ describe('Peer Filtering Logic', () => {
     subver?: string;
   }
 
-  const filterInboundPeers = (peers: TestPeer[]): TestPeer[] => {
-    return peers.filter(p => p.inbound);
-  };
-
-  const filterOutboundPeers = (peers: TestPeer[]): TestPeer[] => {
-    return peers.filter(p => !p.inbound);
-  };
-
-  const groupBySubversion = (peers: TestPeer[]): Map<string, TestPeer[]> => {
-    const groups = new Map<string, TestPeer[]>();
-    peers.forEach(peer => {
-      const subver = peer.subver || 'Unknown';
-      if (!groups.has(subver)) {
-        groups.set(subver, []);
-      }
-      groups.get(subver)!.push(peer);
-    });
-    return groups;
-  };
+  const filterInboundPeers = (peers: TestPeer[]): TestPeer[] => filter(peers, { inbound: true });
+  const filterOutboundPeers = (peers: TestPeer[]): TestPeer[] => filter(peers, { inbound: false });
+  const groupBySubversion = (peers: TestPeer[]): Record<string, TestPeer[]> => groupBy(peers, p => p.subver || 'Unknown');
 
   it('should filter inbound peers correctly', () => {
     const peers: TestPeer[] = [
@@ -156,16 +141,16 @@ describe('Chart Data Preparation', () => {
 
   const prepareChartData = (stats: SubverStats[]) => {
     return {
-      labels: stats.map(s => s.server),
-      data: stats.map(s => s.percentage),
+      labels: map(stats, s => s.server),
+      data: map(stats, s => s.percentage),
     };
   };
 
   const calculatePercentages = (counts: Map<string, number>): SubverStats[] => {
-    const total = Array.from(counts.values()).reduce((sum, count) => sum + count, 0);
+    const total = reduce(Array.from(counts.values()), (sum, count) => sum + count, 0);
     if (total === 0) return [];
 
-    return Array.from(counts.entries()).map(([server, count]) => ({
+    return map(Array.from(counts.entries()), ([server, count]) => ({
       server,
       percentage: Math.round((count / total) * 10000) / 100,
     }));
@@ -209,7 +194,7 @@ describe('Chart Data Preparation', () => {
     ]);
 
     const percentages = calculatePercentages(counts);
-    const total = percentages.reduce((sum, p) => sum + p.percentage, 0);
+    const total = reduce(percentages, (sum: number, p: { percentage: number }) => sum + p.percentage, 0);
     expect(total).toBeCloseTo(100, 1);
   });
 });
