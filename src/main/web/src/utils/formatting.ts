@@ -20,9 +20,11 @@ export const formatConnectionTime = (seconds?: number | null): string => {
 };
 
 
+
 /**
- * Formats bytes into human-readable units using pretty-bytes.
+ * Formats bytes into human-readable units (B, KB, MB, ...).
  */
+export const formatBytes = (bytes: number, decimals = 2): string => {
   if (!bytes || bytes === 0) return '0 B';
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
