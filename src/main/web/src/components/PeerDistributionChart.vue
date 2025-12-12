@@ -68,7 +68,7 @@ const getChartOptions = (): ChartOptions<'doughnut'> => ({
             padding: 8,
             animation: false,
             callbacks: {
-                label: (context: TooltipItem<'pie'>) => {
+                label: (context: TooltipItem<'doughnut'>) => {
                     const label = context.label || '';
                     const value = context.parsed || 0;
                     return `${label}: ${value}%`;
@@ -120,7 +120,7 @@ const handleLegendEnter = (idx: number) => {
     hoveredIndex.value = idx;
     if (chartInstance) {
         chartInstance.setActiveElements([{ datasetIndex: 0, index: idx }]);
-        chartInstance.tooltip.setActiveElements([{ datasetIndex: 0, index: idx }], {x: 0, y: 0});
+        chartInstance.tooltip?.setActiveElements([{ datasetIndex: 0, index: idx }], {x: 0, y: 0});
         chartInstance.update();
     }
 };
@@ -128,7 +128,7 @@ const handleLegendLeave = () => {
     hoveredIndex.value = null;
     if (chartInstance) {
         chartInstance.setActiveElements([]);
-        chartInstance.tooltip.setActiveElements([], {x: 0, y: 0});
+        chartInstance.tooltip?.setActiveElements([], {x: 0, y: 0});
         chartInstance.update();
     }
 };

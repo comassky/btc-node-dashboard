@@ -30,40 +30,42 @@ export function useWebSocket(
         }
         ws = new wsClass(wsUrl);
 
-        ws.addEventListener('open', () => {
-            isConnected.value = true;
-            errorMessage.value = null;
-            isRetrying.value = false;
-        });
+        if (ws) {
+            ws.addEventListener('open', () => {
+                isConnected.value = true;
+                errorMessage.value = null;
+                isRetrying.value = false;
+            });
 
-        ws.addEventListener('message', (event: MessageEvent) => {
-            try {
-                const json = JSON.parse(event.data) as Partial<DashboardData>;
-                if ('rpcConnected' in json) {
-                    rpcConnected.value = json.rpcConnected ?? false;
-                    errorMessage.value = json.errorMessage || null;
-                } else if ('generalStats' in json) {
-                    rpcConnected.value = true;
-                    errorMessage.value = null;
-                    onDataReceived(json);
+            ws.addEventListener('message', (event: MessageEvent) => {
+                try {
+                    const json = JSON.parse(event.data) as Partial<DashboardData>;
+                    if ('rpcConnected' in json) {
+                        rpcConnected.value = json.rpcConnected ?? false;
+                        errorMessage.value = json.errorMessage || null;
+                    } else if ('generalStats' in json) {
+                        rpcConnected.value = true;
+                        errorMessage.value = null;
+                        onDataReceived(json);
+                    }
+                } catch (e) {
+                    console.warn('WebSocket message parse error', e, event.data);
                 }
-            } catch (e) {
-                console.warn('WebSocket message parse error', e, event.data);
-            }
-        });
+            });
 
-        ws.addEventListener('close', () => {
-            isConnected.value = false;
-            rpcConnected.value = false;
-            errorMessage.value = 'WebSocket disconnected. Retrying...';
-            isRetrying.value = true;
-        });
+            ws.addEventListener('close', () => {
+                isConnected.value = false;
+                rpcConnected.value = false;
+                errorMessage.value = 'WebSocket disconnected. Retrying...';
+                isRetrying.value = true;
+            });
 
-        ws.addEventListener('error', () => {
-            isConnected.value = false;
-            rpcConnected.value = false;
-            errorMessage.value = 'WebSocket connection error.';
-        });
+            ws.addEventListener('error', () => {
+                isConnected.value = false;
+                rpcConnected.value = false;
+                errorMessage.value = 'WebSocket connection error.';
+            });
+        }
     };
 
     const disconnect = () => {
