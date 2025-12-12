@@ -1,5 +1,4 @@
 import { BlockChainInfo, BlockInfo } from '@types';
-import { differenceInSeconds, fromUnixTime } from 'date-fns';
 
 /**
  * Node health monitoring utilities.
@@ -27,8 +26,12 @@ export function getHeaderBlockDiff(blockchain: BlockChainInfo): number {
 
 export function isBlockTooOld(blockTime: number): boolean {
     // blockTime is in seconds (Unix timestamp)
-    return differenceInSeconds(new Date(), fromUnixTime(blockTime)) > MAX_BLOCK_AGE_SECONDS;
+    const now = Date.now();
+    const then = blockTime * 1000;
+    const diffSeconds = Math.floor((now - then) / 1000);
+    return diffSeconds > MAX_BLOCK_AGE_SECONDS;
 }
+
 
 export function isSyncing(blockchain: BlockChainInfo): boolean {
     return getHeaderBlockDiff(blockchain) > MAX_HEADER_BLOCK_DIFF;
