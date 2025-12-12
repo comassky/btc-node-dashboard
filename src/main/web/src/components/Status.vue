@@ -3,6 +3,8 @@ import { computed } from 'vue';
 import { BlockChainInfo, BlockInfo } from '@types';
 import { hasLowOutboundPeers, isNodeOutOfSync } from '@utils/nodeHealth';
 
+import Tooltip from '@components/Tooltip.vue';
+
 const props = defineProps<{
     isConnected: boolean;
     rpcConnected: boolean;
