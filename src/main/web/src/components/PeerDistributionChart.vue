@@ -8,76 +8,79 @@ Chart.register(ArcElement, Tooltip, Legend, PieController);
 Chart.defaults.animation = false;
 
 // --- Utilitaires couleurs ---
-let cssVarCache: Map<string, string> | null = null;
+
+const cssVarCache = new Map<string, string>();
 const getCssVar = (name: string): string => {
-    if (!cssVarCache) cssVarCache = new Map();
     if (!cssVarCache.has(name)) {
         cssVarCache.set(name, getComputedStyle(document.documentElement).getPropertyValue(name).trim());
     }
-    return cssVarCache.get(name)!;
+    return cssVarCache.get(name) || '';
 };
-const invalidateCssCache = () => { cssVarCache = null; };
+const invalidateCssCache = () => { cssVarCache.clear(); };
 
-const generatePalette = (num: number): string[] => {
-    const palette: string[] = [];
+const generatePalette = (num: number): string[] => Array.from({ length: num }, (_, i) => {
     const baseS = 70, baseL = 50;
-    for (let i = 0; i < num; i++) {
-        const hue = Math.round((360 / num) * i + (i % 2 === 0 ? 0 : 180 / num));
-        const sat = baseS + (i % 3 === 0 ? 10 : i % 3 === 1 ? -10 : 0);
-        const light = baseL + (i % 2 === 0 ? 8 : -8);
-        palette.push(`hsl(${hue}, ${sat}%, ${light}%)`);
-    }
-    return palette;
-};
+    const hue = Math.round((360 / num) * i + (i % 2 === 0 ? 0 : 180 / num));
+    const sat = baseS + (i % 3 === 0 ? 10 : i % 3 === 1 ? -10 : 0);
+    const light = baseL + (i % 2 === 0 ? 8 : -8);
+    return `hsl(${hue}, ${sat}%, ${light}%)`;
+});
 const generateColors = (num: number): string[] => {
-    const accent = getCssVar('--accent') || '#ff9900';
-    const success = getCssVar('--status-success') || '#06d6a0';
-    const warning = getCssVar('--status-warning') || '#ffd166';
-    const error = getCssVar('--status-error') || '#ef476f';
-    const base = [accent, success, warning, error];
-    return num <= base.length ? base.slice(0, num) : [...base, ...generatePalette(num - base.length)];
+    const base = [
+        getCssVar('--accent') || '#ff9900',
+        getCssVar('--status-success') || '#06d6a0',
+        getCssVar('--status-warning') || '#ffd166',
+        getCssVar('--status-error') || '#ef476f'
+    ];
+    return num <= base.length ? base.slice(0, num) : base.concat(generatePalette(num - base.length));
 };
 
 // --- Chart.js config ---
 const updateChartDefaults = () => {
-    Chart.defaults.color = getCssVar('--text-primary');
-    Chart.defaults.borderColor = getCssVar('--border-strong');
-    Chart.defaults.backgroundColor = getCssVar('--bg-card');
-    Chart.defaults.plugins.legend.labels.color = getCssVar('--text-primary');
-    Chart.defaults.plugins.tooltip.backgroundColor = getCssVar('--bg-card');
-    Chart.defaults.plugins.tooltip.bodyColor = getCssVar('--text-primary');
-    Chart.defaults.plugins.tooltip.titleColor = getCssVar('--text-secondary');
+    const textPrimary = getCssVar('--text-primary');
+    const borderStrong = getCssVar('--border-strong');
+    const bgCard = getCssVar('--bg-card');
+    const textSecondary = getCssVar('--text-secondary');
+    Chart.defaults.color = textPrimary;
+    Chart.defaults.borderColor = borderStrong;
+    Chart.defaults.backgroundColor = bgCard;
+    Chart.defaults.plugins.legend.labels.color = textPrimary;
+    Chart.defaults.plugins.tooltip.backgroundColor = bgCard;
+    Chart.defaults.plugins.tooltip.bodyColor = textPrimary;
+    Chart.defaults.plugins.tooltip.titleColor = textSecondary;
 };
-const getChartOptions = (): ChartOptions<'doughnut'> => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: false,
-    layout: { padding: 0 },
-    plugins: {
-        legend: { display: false },
-        tooltip: {
-            mode: 'point',
-            intersect: true,
-            backgroundColor: getCssVar('--bg-card'),
-            bodyColor: getCssVar('--text-primary'),
-            titleColor: getCssVar('--text-secondary'),
-            borderColor: getCssVar('--border-strong'),
-            borderWidth: 1,
-            cornerRadius: 6,
-            caretSize: 6,
-            padding: 8,
-            animation: false,
-            callbacks: {
-                label: (context: TooltipItem<'doughnut'>) => {
-                    const label = context.label || '';
-                    const value = context.parsed || 0;
-                    return `${label}: ${value}%`;
+const getChartOptions = (): ChartOptions<'doughnut'> => {
+    const bgCard = getCssVar('--bg-card');
+    const textPrimary = getCssVar('--text-primary');
+    const textSecondary = getCssVar('--text-secondary');
+    const borderStrong = getCssVar('--border-strong');
+    return {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        layout: { padding: 0 },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                mode: 'point',
+                intersect: true,
+                backgroundColor: bgCard,
+                bodyColor: textPrimary,
+                titleColor: textSecondary,
+                borderColor: borderStrong,
+                borderWidth: 1,
+                cornerRadius: 6,
+                caretSize: 6,
+                padding: 8,
+                animation: false,
+                callbacks: {
+                    label: (context: TooltipItem<'doughnut'>) => `${context.label || ''}: ${context.parsed || 0}%`
                 }
-            }
-        },
-        title: { display: false }
-    }
-});
+            },
+            title: { display: false }
+        }
+    };
+};
 
 // --- Props & Réactivité ---
 const props = defineProps<{ peers: SubverDistribution[]; type: 'inbound' | 'outbound'; count: number; isDarkMode: boolean }>();
@@ -88,12 +91,15 @@ const chartLabels = computed(() => props.peers.map(p => p.server || '[Unknown]')
 const chartColors = computed(() => generateColors(props.peers.length));
 
 // --- Chart.js helpers ---
-const extractChartData = (data: SubverDistribution[]) => {
-    const labels = data.map(d => d.server || '[Unknown]');
-    const percentages = data.map(d => d.percentage);
-    return { labels, percentages, backgroundColors: generateColors(data.length) };
+const extractChartData = (data: SubverDistribution[]) => ({
+    labels: data.map(d => d.server || '[Unknown]'),
+    percentages: data.map(d => d.percentage),
+    backgroundColors: generateColors(data.length)
+});
+const destroyChart = () => {
+    chartInstance?.destroy();
+    chartInstance = null;
 };
-const destroyChart = () => { if (chartInstance) { chartInstance.destroy(); chartInstance = null; } };
 const initChart = (data: SubverDistribution[]): Chart | null => {
     if (!canvasRef.value) return null;
     updateChartDefaults();
@@ -102,7 +108,10 @@ const initChart = (data: SubverDistribution[]): Chart | null => {
     if (!ctx) return null;
     return new Chart(ctx, {
         type: 'doughnut',
-        data: { labels, datasets: [{ data: percentages, backgroundColor: backgroundColors, hoverOffset: 8, borderColor: 'transparent', borderWidth: 0 }] },
+        data: {
+            labels,
+            datasets: [{ data: percentages, backgroundColor: backgroundColors, hoverOffset: 8, borderColor: 'transparent', borderWidth: 0 }]
+        },
         options: getChartOptions()
     });
 };
@@ -119,8 +128,9 @@ const updateChartData = (chart: Chart, data: SubverDistribution[]) => {
 const handleLegendEnter = (idx: number) => {
     hoveredIndex.value = idx;
     if (chartInstance) {
-        chartInstance.setActiveElements([{ datasetIndex: 0, index: idx }]);
-        chartInstance.tooltip?.setActiveElements([{ datasetIndex: 0, index: idx }], {x: 0, y: 0});
+        const el = { datasetIndex: 0, index: idx };
+        chartInstance.setActiveElements([el]);
+        chartInstance.tooltip?.setActiveElements([el], { x: 0, y: 0 });
         chartInstance.update();
     }
 };
@@ -128,22 +138,30 @@ const handleLegendLeave = () => {
     hoveredIndex.value = null;
     if (chartInstance) {
         chartInstance.setActiveElements([]);
-        chartInstance.tooltip?.setActiveElements([], {x: 0, y: 0});
+        chartInstance.tooltip?.setActiveElements([], { x: 0, y: 0 });
         chartInstance.update();
     }
 };
 
 // --- Watchers & Lifecycle ---
-watch(() => props.peers, (val) => {
-    if (chartInstance) updateChartData(chartInstance, val);
-    else nextTick(() => { if (!chartInstance) chartInstance = initChart(val); });
-}, { deep: true, immediate: true });
-watch(() => props.isDarkMode, () => {
-    invalidateCssCache();
-    destroyChart();
-    nextTick(() => { chartInstance = initChart(props.peers); });
-});
-onBeforeUnmount(() => destroyChart());
+
+watch(
+    () => props.peers,
+    (val) => {
+        if (chartInstance) updateChartData(chartInstance, val);
+        else nextTick(() => { if (!chartInstance) chartInstance = initChart(val); });
+    },
+    { deep: true, immediate: true }
+);
+watch(
+    () => props.isDarkMode,
+    () => {
+        invalidateCssCache();
+        destroyChart();
+        nextTick(() => { chartInstance = initChart(props.peers); });
+    }
+);
+onBeforeUnmount(destroyChart);
 
 const headerColor = props.type === 'inbound' ? 'status-success' : 'accent';
 const headerIcon = props.type === 'inbound' ? 'fas fa-arrow-alt-circle-down' : 'fas fa-arrow-alt-circle-up';

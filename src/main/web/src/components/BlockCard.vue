@@ -32,7 +32,7 @@
                         Headers: 
                         <span class="font-bold text-text-primary" :class="isSyncing ? 'text-status-warning' : ''">
                             {{ blockchain.headers }}
-                            <span v-if="isSyncing" class="text-status-warning"> (+{{ headerBlockDiff }})</span>
+                            <span v-if="isSyncing && headerBlockDiff !== 0" class="text-status-warning"> (+{{ headerBlockDiff }})</span>
                         </span>
                     </p>
                     <p class="mb-0.5 sm:mb-1">
@@ -41,7 +41,7 @@
                         </Tooltip>
                         Time: 
                         <span class="font-bold text-text-primary" :class="isBlockTooOld ? 'text-status-error' : ''">
-                            {{ formatTimeSince(block.time) }} ago
+                            {{ formatTimeSince(block.time).replace(/ ago$/, '') }} ago
                         </span>
                     </p>
                     <p>
@@ -66,33 +66,19 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { BlockChainInfo, BlockInfo } from '@types';
 import { formatTimeSince } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
-import { 
-    getHeaderBlockDiff, 
-    isBlockTooOld as checkBlockTooOld, 
-    isSyncing as checkSyncing,
-    isNodeOutOfSync,
-    getSyncWarningMessage
-} from '@utils/nodeHealth';
+import { getHeaderBlockDiff, isBlockTooOld, isSyncing, isNodeOutOfSync, getSyncWarningMessage } from '@utils/nodeHealth';
 
 const props = withDefaults(defineProps<{
-    blockchain: BlockChainInfo;
-    block: BlockInfo;
-    forceOutOfSync?: boolean;
-}>(), {
-    forceOutOfSync: false
-});
-
+  blockchain: any;
+  block: any;
+  forceOutOfSync?: boolean;
+}>(), { forceOutOfSync: false });
 
 const headerBlockDiff = computed(() => getHeaderBlockDiff(props.blockchain));
-
-const isBlockTooOld = computed(() => checkBlockTooOld(props.block.time));
-
-const isSyncing = computed(() => checkSyncing(props.blockchain));
-
-const isOutOfSync = computed(() => props.forceOutOfSync || isNodeOutOfSync(props.blockchain, props.block));
-
+const blockTooOld = computed(() => isBlockTooOld(props.block.time));
+const syncing = computed(() => isSyncing(props.blockchain));
+const outOfSync = computed(() => props.forceOutOfSync || isNodeOutOfSync(props.blockchain, props.block));
 const syncWarningMessage = computed(() => getSyncWarningMessage(props.blockchain, props.block, formatTimeSince));
 </script>

@@ -8,7 +8,6 @@ import NodeCard from '@components/NodeCard.vue';
 import PeerDistributionChart from '@components/PeerDistributionChart.vue';
 import PeerTable from '@components/PeerTable.vue';
 import Footer from '@components/Footer.vue';
-import { BlockChainInfo, NodeInfo, Peer, type DashboardData, type DashboardConfig } from '@types';
 import { useWebSocket } from '@composables/useWebSocket';
 import { useTheme } from '@composables/useTheme';
 import { useMockData } from '@composables/useMockData';
@@ -42,6 +41,7 @@ const DEFAULT_DATA: DashboardData = {
 
 const dataState = reactive<DashboardData>(DEFAULT_DATA);
 const configLoaded = ref(false);
+
 
 const inboundPeers = computed(() => dataState.inboundPeer);
 const outboundPeers = computed(() => dataState.outboundPeer);

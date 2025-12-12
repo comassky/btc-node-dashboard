@@ -24,17 +24,21 @@ const hasWarnings = computed(() => hasLowOutbound.value || isOutOfSync.value);
 const isHealthy = computed(() => props.isConnected && props.rpcConnected && !hasWarnings.value);
 const hasIssue = computed(() => !props.isConnected || !props.rpcConnected);
 
-const statusClass = computed(() => ({
-    'bg-status-success/10 border border-status-success text-status-success': isHealthy.value,
-    'bg-status-warning/10 border border-status-warning text-status-warning': props.isConnected && props.rpcConnected && hasWarnings.value,
-    'bg-status-error/10 border border-status-error text-status-error pulse-error': hasIssue.value
-}));
+const statusClass = computed(() =>
+    isHealthy.value
+        ? 'bg-status-success/10 border border-status-success text-status-success'
+        : props.isConnected && props.rpcConnected && hasWarnings.value
+            ? 'bg-status-warning/10 border border-status-warning text-status-warning'
+            : 'bg-status-error/10 border border-status-error text-status-error pulse-error'
+);
 
-const badgeTextClass = computed(() => {
-    if (isHealthy.value) return 'text-status-success';
-    if (props.isConnected && props.rpcConnected && hasWarnings.value) return 'text-status-warning';
-    return 'text-status-error';
-});
+const badgeTextClass = computed(() =>
+    isHealthy.value
+        ? 'text-status-success'
+        : props.isConnected && props.rpcConnected && hasWarnings.value
+            ? 'text-status-warning'
+            : 'text-status-error'
+);
 </script>
 
 <template>

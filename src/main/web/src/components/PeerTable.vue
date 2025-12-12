@@ -91,17 +91,14 @@ import { type Peer } from '@types';
 import { formatBytes, formatTimeOffset, formatPing, formatConnectionTime } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
 
-const props = defineProps<{
-        peers: Peer[];
-        type: 'inbound' | 'outbound';
-}>();
+const props = defineProps<{ peers: any[]; type: 'inbound' | 'outbound' }>();
 
 const headerColor = props.type === 'inbound' ? 'status-success' : 'accent';
 
-const sortKey = ref<'id'|'addr'|'subver'|'version'|'timeoffset'|'conntime'|'network'|'connection_type'|'minping'|'bytesrecv'|'bytessent'>('id');
+const sortKey = ref('id');
 const sortOrder = ref<'asc' | 'desc'>('asc');
 
-function setSort(key: typeof sortKey.value) {
+function setSort(key: string) {
     if (sortKey.value === key) {
         sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
     } else {

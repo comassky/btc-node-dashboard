@@ -37,16 +37,13 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { GeneralStats } from '@types';
 import Tooltip from '@components/Tooltip.vue';
 import { hasLowOutboundPeers } from '@utils/nodeHealth';
 
 const props = withDefaults(defineProps<{
-    stats: GeneralStats;
+    stats: any;
     forceLowPeers?: boolean;
-}>(), {
-    forceLowPeers: false
-});
+}>(), { forceLowPeers: false });
 
 const hasLowOutbound = computed(() => props.forceLowPeers || hasLowOutboundPeers(props.stats.outboundCount));
 </script>

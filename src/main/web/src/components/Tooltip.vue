@@ -33,15 +33,11 @@
 import { ref, onUnmounted, watch, nextTick } from 'vue';
 
 
-const props = withDefaults(
-  defineProps<{
-    text: string;
-    position?: 'top' | 'bottom' | 'left' | 'right';
-  }>(),
-  {
-    position: 'top',
-  }
-);
+
+const props = withDefaults(defineProps<{
+  text: string;
+  position?: 'top' | 'bottom' | 'left' | 'right';
+}>(), { position: 'top' });
 
 
 
@@ -51,33 +47,21 @@ const tooltipEl = ref<HTMLElement | null>(null);
 const tooltipStyle = ref<{ top: string; left: string; maxWidth: string }>({ top: '0px', left: '0px', maxWidth: '100vw' });
 
 
+
 function getTooltipCoords(position: string, triggerRect: DOMRect, tooltipRect: DOMRect, padding: number) {
+  const centerX = triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2;
+  const centerY = triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2;
   switch (position) {
     case 'bottom':
-      return {
-        top: triggerRect.bottom + padding,
-        left: triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2
-      };
+      return { top: triggerRect.bottom + padding, left: centerX };
     case 'top':
-      return {
-        top: triggerRect.top - tooltipRect.height - padding,
-        left: triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2
-      };
+      return { top: triggerRect.top - tooltipRect.height - padding, left: centerX };
     case 'left':
-      return {
-        top: triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2,
-        left: triggerRect.left - tooltipRect.width - padding
-      };
+      return { top: centerY, left: triggerRect.left - tooltipRect.width - padding };
     case 'right':
-      return {
-        top: triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2,
-        left: triggerRect.right + padding
-      };
+      return { top: centerY, left: triggerRect.right + padding };
     default:
-      return {
-        top: triggerRect.bottom + padding,
-        left: triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2
-      };
+      return { top: triggerRect.bottom + padding, left: centerX };
   }
 }
 
