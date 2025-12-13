@@ -66,9 +66,9 @@ describe('Type Definitions', () => {
         localaddresses: []
       };
 
-      expect(nodeInfo.version).toBe('270000');
+      expect(nodeInfo.version).toBe(270000);
       expect(nodeInfo.subversion).toContain('Satoshi');
-      expect(nodeInfo.protocolversion).toBe('70016');
+      expect(nodeInfo.protocolversion).toBe(70016);
     });
   });
 
