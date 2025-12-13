@@ -1,7 +1,12 @@
 package comasky;
 
 import comasky.api.CachedMessage;
-import comasky.rpcClass.*;
+import comasky.rpcClass.dto.GeneralStats;
+import comasky.rpcClass.dto.GlobalResponse;
+import comasky.rpcClass.dto.SubverDistribution;
+import comasky.rpcClass.responses.BlockInfoResponse;
+import comasky.rpcClass.responses.BlockchainInfoResponse;
+import comasky.rpcClass.responses.MempoolInfoResponse;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -86,19 +91,35 @@ class CachedMessageTest {
     }
 
     private GlobalResponse createMockGlobalResponse() {
-        NodeInfo nodeInfo = new NodeInfo(70016, 270000, "/Satoshi:27.0.0/", 10, true);
-        BlockchainInfo blockchainInfo = new BlockchainInfo(870000, 870000, "main", 0.99, false);
-        BlockInfo blockInfo = new BlockInfo(null, 0, 0, 0, 0, 0, 0, null, null, 0, 0, 0, null, 0, null, 0, null, null);
-        
+        comasky.rpcClass.responses.NetworkInfoResponse nodeInfo = new comasky.rpcClass.responses.NetworkInfoResponse(
+            70016, // version
+            "/Satoshi:27.0.0/", // subversion
+            70016, // protocolversion
+            "", // localservices
+            Collections.emptyList(), // localservicesnames
+            true, // localrelay
+            0, // timeoffset
+            0, // connections
+            true, // networkactive
+            Collections.emptyList(), // networks
+            Collections.emptyList() // localaddresses
+        );
+        BlockchainInfoResponse blockchainInfoResponse = new BlockchainInfoResponse(
+            "main", 870000, 870000, "", 0.99, 0L, 0L, 0.99, false, "", 0L, false, null
+        );
+        BlockInfoResponse blockInfoResponse = new BlockInfoResponse(null, 0, 0, 0, 0, 0, 0, null, null, 0, 0, 0, null, 0, null, 0, null, null);
         return new GlobalResponse(
-                new GeneralStats(2, 8, 10),
-                new SubverDistribution(Collections.emptyList(), Collections.emptyList()),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                blockchainInfo,
-                nodeInfo,
-                "5d, 03:00:00",
-                blockInfo
+            new GeneralStats(2, 8, 10),
+            new SubverDistribution(Collections.emptyList(), Collections.emptyList()),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            blockchainInfoResponse,
+            nodeInfo,
+            "5d, 03:00:00",
+            blockInfoResponse,
+            new MempoolInfoResponse(
+                true, 0, 0L, 0L, 0L, 0.0, 0.0, 0, 0.0
+            )
         );
     }
 }

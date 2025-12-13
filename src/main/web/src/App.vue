@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DashboardData, DashboardConfig, NodeInfo, BlockChainInfo, Peer } from '@types';
+import type { DashboardData, DashboardConfig, NetworkInfoResponse, BlockChainInfo, Peer } from '@types';
 import Spinner from '@components/Spinner.vue';
 import { reactive, computed, onBeforeUnmount, ref, onMounted, nextTick } from 'vue';
 import Status from '@components/Status.vue';
@@ -7,6 +7,7 @@ import PeersCard from '@components/PeersCard.vue';
 import BlockCard from '@components/BlockCard.vue';
 import NodeCard from '@components/NodeCard.vue';
 import PeerDistributionChart from '@components/PeerDistributionChart.vue';
+import MempoolInfoCard from '@components/MempoolInfoCard.vue';
 import PeerTable from '@components/PeerTable.vue';
 import Footer from '@components/Footer.vue';
 import { useWebSocket } from '@composables/useWebSocket';
@@ -23,21 +24,51 @@ const WS_URL = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.h
 
 const DEFAULT_DATA: DashboardData = {
   generalStats: { inboundCount: 0, outboundCount: 0, totalPeers: 0 },
-  blockchainInfo: {
+  blockchainInfoResponse: {
     blocks: 0,
     headers: 0,
     chain: 'Loading...',
     verificationprogress: 0,
     difficulty: 0,
-    medianBlockSize: 0,
+    bestblockhash: '',
+    time: 0,
+    mediantime: 0,
+    initialblockdownload: false,
+    chainwork: '',
+    size_on_disk: 0,
+    pruned: false,
+    pruneheight: null,
   },
-  nodeInfo: { version: 'N/A', protocolversion: 'N/A', subversion: 'N/A' },
+  nodeInfo: {
+    version: 0,
+    protocolversion: 0,
+    subversion: 'N/A',
+    localservices: '',
+    localservicesnames: [],
+    localrelay: false,
+    timeoffset: 0,
+    connections: 0,
+    networkactive: false,
+    networks: [],
+    localaddresses: []
+  },
   upTime: 'N/A',
   inboundPeer: [],
   outboundPeer: [],
   subverDistribution: { inbound: [], outbound: [] },
   block: { time: 0, nTx: 0 },
   rpcConnected: false,
+  mempoolInfo: {
+    loaded: false,
+    size: 0,
+    bytes: 0,
+    usage: 0,
+    maxmempool: 0,
+    mempoolminfee: 0,
+    minrelaytxfee: 0,
+    unbroadcastcount: 0,
+    total_fee: 0
+  },
 };
 
 const dataState = reactive<DashboardData>(DEFAULT_DATA);
@@ -94,29 +125,45 @@ onMounted(async () => {
 
 // Normalizes incoming WebSocket data and updates reactive state
 const normalizeData = (rawData: Partial<DashboardData>) => {
-  const nodeInfo = rawData.nodeInfo as NodeInfo || {};
-  const blockchainInfo = rawData.blockchainInfo as BlockChainInfo || {};
+  const nodeInfo = rawData.nodeInfo as NetworkInfoResponse || {};
+  const blockchainInfoResponse = rawData.blockchainInfoResponse as BlockChainInfo || {};
 
   Object.assign(dataState, {
     generalStats: rawData.generalStats || dataState.generalStats,
-    blockchainInfo: {
-      blocks: blockchainInfo.blocks ?? 0,
-      headers: blockchainInfo.headers ?? 0,
-      chain: blockchainInfo.chain || 'N/A',
-      verificationprogress: blockchainInfo.verificationprogress ?? 0,
-      difficulty: blockchainInfo.difficulty ?? 0,
-      medianBlockSize: blockchainInfo.medianBlockSize ?? 0,
+    blockchainInfoResponse: {
+      blocks: blockchainInfoResponse.blocks ?? 0,
+      headers: blockchainInfoResponse.headers ?? 0,
+      chain: blockchainInfoResponse.chain || 'N/A',
+      verificationprogress: blockchainInfoResponse.verificationprogress ?? 0,
+      difficulty: blockchainInfoResponse.difficulty ?? 0,
+      bestblockhash: blockchainInfoResponse.bestblockhash || '',
+      time: blockchainInfoResponse.time ?? 0,
+      mediantime: blockchainInfoResponse.mediantime ?? 0,
+      initialblockdownload: blockchainInfoResponse.initialblockdownload ?? false,
+      chainwork: blockchainInfoResponse.chainwork || '',
+      size_on_disk: blockchainInfoResponse.size_on_disk ?? 0,
+      pruned: blockchainInfoResponse.pruned ?? false,
+      pruneheight: blockchainInfoResponse.pruneheight ?? null,
     },
     nodeInfo: {
-      version: nodeInfo.version || 'N/A',
-      protocolversion: nodeInfo.protocolversion || 'N/A',
+      version: nodeInfo.version ?? 0,
+      protocolversion: nodeInfo.protocolversion ?? 0,
       subversion: nodeInfo.subversion || 'N/A',
+      localservices: nodeInfo.localservices || '',
+      localservicesnames: nodeInfo.localservicesnames || [],
+      localrelay: nodeInfo.localrelay ?? false,
+      timeoffset: nodeInfo.timeoffset ?? 0,
+      connections: nodeInfo.connections ?? 0,
+      networkactive: nodeInfo.networkactive ?? false,
+      networks: nodeInfo.networks || [],
+      localaddresses: nodeInfo.localaddresses || [],
     },
     upTime: rawData.upTime || 'N/A',
     inboundPeer: rawData.inboundPeer || [],
     outboundPeer: rawData.outboundPeer || [],
     subverDistribution: rawData.subverDistribution || { inbound: [], outbound: [] },
     block: rawData.block || { time: 0, nTx: 0 },
+    mempoolInfo: rawData.mempoolInfo || dataState.mempoolInfo,
   });
 };
 
@@ -153,7 +200,6 @@ function handleCycleScenario() {
           <font-awesome-icon :icon="isDarkMode ? ['fas', 'sun'] : ['fas', 'moon']" />
         </button>
 
-        <!-- 🧪 DEV MOCK CONTROLS -->
         <div v-if="MOCK_MODE" class="fixed top-3 left-3 sm:top-4 sm:left-4 z-50 bg-bg-card border border-accent shadow-lg rounded-lg p-3 text-xs">
             <div class="font-bold text-accent mb-2 flex items-center gap-2">
                 <font-awesome-icon :icon="['fas', 'hard-hat']" /> MOCK MODE
@@ -185,26 +231,26 @@ function handleCycleScenario() {
             :rpcConnected="MOCK_MODE ? getMockConnectionState().rpcConnected : rpcConnected"
             :errorMessage="MOCK_MODE ? getMockConnectionState().errorMessage : errorMessage"
             :outboundPeers="dataState.generalStats.outboundCount"
-            :blockchain="dataState.blockchainInfo"
+            :blockchain="dataState.blockchainInfoResponse"
             :block="dataState.block"
             :isRetrying="MOCK_MODE ? false : isRetrying"
             key="status"
           />
         </transition>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-6 md:gap-8">
           <transition name="fade" mode="out-in">
             <template v-if="(MOCK_MODE && dataState.rpcConnected) || rpcConnected">
-              <div class="lg:col-span-2 mb-3 sm:mb-5" key="cards">
+              <div class="lg:col-span-2" key="cards">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                   <PeersCard :stats="dataState.generalStats" />
                   <BlockCard 
-                    :blockchain="dataState.blockchainInfo"
+                    :blockchain="dataState.blockchainInfoResponse"
                     :block="dataState.block"
                   />
                   <NodeCard 
                     :node="dataState.nodeInfo"
-                    :blockchain="dataState.blockchainInfo"
+                    :blockchain="dataState.blockchainInfoResponse"
                     :upTime="dataState.upTime"
                   />
                 </div>
@@ -221,25 +267,28 @@ function handleCycleScenario() {
           </transition>
 
           <transition name="fade" mode="out-in">
-            <div class="bg-bg-card p-4 sm:p-6 rounded-xl shadow-2xl lg:col-span-2" v-if="(MOCK_MODE && dataState.rpcConnected) || rpcConnected" key="charts">
-              <h2 class="text-xl sm:text-2xl font-medium mb-4 sm:mb-6">
-                <font-awesome-icon :icon="['fas', 'chart-pie']" class="mr-2 text-accent" /> 
-                <span class="hidden sm:inline">Peer Software Distribution</span>
-                <span class="sm:hidden">Peers Distribution</span>
-              </h2>
-              <div class="flex flex-col md:flex-row gap-6 sm:gap-8 mt-3 sm:mt-4">
-                <PeerDistributionChart
-                  :peers="subverInbound"
-                  type="inbound"
-                  :count="inboundCount"
-                  :isDarkMode="isDarkMode"
-                />
-                <PeerDistributionChart
-                  :peers="subverOutbound"
-                  type="outbound"
-                  :count="outboundCount"
-                  :isDarkMode="isDarkMode"
-                />
+            <div v-if="(MOCK_MODE && dataState.rpcConnected) || rpcConnected" class="lg:col-span-2">
+              <MempoolInfoCard :mempool-info="dataState.mempoolInfo" class="mt-0" />
+              <div class="bg-bg-card p-4 sm:p-6 rounded-xl shadow-2xl mt-6">
+                <h2 class="text-xl sm:text-2xl font-medium mb-4 sm:mb-6">
+                  <font-awesome-icon :icon="['fas', 'chart-pie']" class="mr-2 text-accent" /> 
+                  <span class="hidden sm:inline">Peer Software Distribution</span>
+                  <span class="sm:hidden">Peers Distribution</span>
+                </h2>
+                <div class="flex flex-col md:flex-row gap-6 sm:gap-8 mt-3 sm:mt-4">
+                  <PeerDistributionChart
+                    :peers="subverInbound"
+                    type="inbound"
+                    :count="inboundCount"
+                    :isDarkMode="isDarkMode"
+                  />
+                  <PeerDistributionChart
+                    :peers="subverOutbound"
+                    type="outbound"
+                    :count="outboundCount"
+                    :isDarkMode="isDarkMode"
+                  />
+                </div>
               </div>
             </div>
           </transition>

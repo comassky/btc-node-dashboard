@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { GeneralStats, BlockChainInfo, NodeInfo, BlockInfo, Peer, SubverDistribution } from '@types';
+import type { GeneralStats, BlockChainInfo, NetworkInfoResponse, BlockInfoResponse, Peer, SubverDistribution } from '@types';
 
 describe('Type Definitions', () => {
   describe('GeneralStats', () => {
@@ -34,7 +34,14 @@ describe('Type Definitions', () => {
         chain: 'main',
         verificationprogress: 0.9999,
         difficulty: 75000000000000,
-        medianBlockSize: 1500000,
+        bestblockhash: '',
+        time: 0,
+        mediantime: 0,
+        initialblockdownload: false,
+        chainwork: '',
+        size_on_disk: 0,
+        pruned: false,
+        pruneheight: null,
       };
 
       expect(blockchain.blocks).toBe(850000);
@@ -43,12 +50,20 @@ describe('Type Definitions', () => {
     });
   });
 
-  describe('NodeInfo', () => {
+  describe('NetworkInfoResponse', () => {
     it('should have all node info properties', () => {
-      const nodeInfo: NodeInfo = {
-        version: '270000',
+      const nodeInfo: NetworkInfoResponse = {
+        version: 270000,
         subversion: '/Satoshi:27.0.0/',
-        protocolversion: '70016',
+        protocolversion: 70016,
+        localservices: '',
+        localservicesnames: [],
+        localrelay: false,
+        timeoffset: 0,
+        connections: 0,
+        networkactive: false,
+        networks: [],
+        localaddresses: []
       };
 
       expect(nodeInfo.version).toBe('270000');
@@ -57,27 +72,27 @@ describe('Type Definitions', () => {
     });
   });
 
-  describe('BlockInfo', () => {
+  describe('BlockInfoResponse', () => {
     it('should have all block info properties', () => {
-      const blockInfo: BlockInfo = {
+      const blockInfoResponse: BlockInfoResponse = {
         time: 1733443200,
         nTx: 2500,
         hash: '00000000000000000001a7b38faa4bdaa47a06fc0f12345abcdef1234567890a',
       };
 
-      expect(blockInfo.hash).toMatch(/^[0-9a-f]{64}$/);
-      expect(blockInfo.time).toBeGreaterThan(0);
-      expect(blockInfo.nTx).toBeGreaterThan(0);
+      expect(blockInfoResponse.hash).toMatch(/^[0-9a-f]{64}$/);
+      expect(blockInfoResponse.time).toBeGreaterThan(0);
+      expect(blockInfoResponse.nTx).toBeGreaterThan(0);
     });
 
     it('should handle block without hash', () => {
-      const blockInfo: BlockInfo = {
+      const blockInfoResponse: BlockInfoResponse = {
         time: 1733443200,
         nTx: 2500,
       };
 
-      expect(blockInfo.hash).toBeUndefined();
-      expect(blockInfo.nTx).toBe(2500);
+      expect(blockInfoResponse.hash).toBeUndefined();
+      expect(blockInfoResponse.nTx).toBe(2500);
     });
   });
 
@@ -197,12 +212,18 @@ describe('Data Normalization', () => {
       chain: 'main',
       verificationprogress: 1.0,
       difficulty: 100000000000000,
-      medianBlockSize: 2000000,
+      bestblockhash: '',
+      time: 0,
+      mediantime: 0,
+      initialblockdownload: false,
+      chainwork: '',
+      size_on_disk: 0,
+      pruned: false,
+      pruneheight: null
     };
 
     expect(blockchain.blocks).toBeGreaterThan(0);
     expect(blockchain.difficulty).toBeGreaterThan(0);
-    expect(blockchain.medianBlockSize).toBeGreaterThan(0);
   });
 
   it('should handle edge cases for peer data', () => {

@@ -4,6 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
 import comasky.client.RpcRequestDto;
 import comasky.rpcClass.*;
+import comasky.rpcClass.dto.GlobalResponse;
+import comasky.rpcClass.dto.SubverStats;
+import comasky.rpcClass.responses.BlockInfoResponse;
+import comasky.rpcClass.responses.BlockchainInfoResponse;
+import comasky.rpcClass.responses.NetworkInfoResponse;
+import comasky.rpcClass.responses.PeerInfoResponse;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -42,8 +48,8 @@ class SubverStatsCalculationTest {
         return objectMapper.writeValueAsString(response);
     }
 
-    private PeerInfo createPeerInfo(String id, String addr, boolean inbound, String subver, int version) {
-        return new PeerInfo(
+    private PeerInfoResponse createPeerInfo(String id, String addr, boolean inbound, String subver, int version) {
+        return new PeerInfoResponse(
             Integer.parseInt(id),
             addr,
             "127.0.0.1:8333",
@@ -71,7 +77,7 @@ class SubverStatsCalculationTest {
 
     @Test
     void testSubverDistribution_singleVersion() throws Exception {
-        List<PeerInfo> mockPeers = List.of(
+        List<PeerInfoResponse> mockPeers = List.of(
                 createPeerInfo("1", "192.168.1.100:8333", true, "/Satoshi:27.0.0/", 270000),
                 createPeerInfo("2", "192.168.1.101:8333", true, "/Satoshi:27.0.0/", 270000),
                 createPeerInfo("3", "192.168.1.102:8333", true, "/Satoshi:27.0.0/", 270000)
@@ -90,7 +96,7 @@ class SubverStatsCalculationTest {
 
     @Test
     void testSubverDistribution_multipleVersions() throws Exception {
-        List<PeerInfo> mockPeers = List.of(
+        List<PeerInfoResponse> mockPeers = List.of(
                 createPeerInfo("1", "192.168.1.100:8333", true, "/Satoshi:27.0.0/", 270000),
                 createPeerInfo("2", "192.168.1.101:8333", true, "/Satoshi:27.0.0/", 270000),
                 createPeerInfo("3", "192.168.1.102:8333", true, "/Satoshi:26.0.0/", 260000),
@@ -114,7 +120,7 @@ class SubverStatsCalculationTest {
 
     @Test
     void testSubverDistribution_withNullSubver() throws Exception {
-        List<PeerInfo> mockPeers = List.of(
+        List<PeerInfoResponse> mockPeers = List.of(
                 createPeerInfo("1", "192.168.1.100:8333", true, "/Satoshi:27.0.0/", 270000),
                 createPeerInfo("2", "192.168.1.101:8333", true, null, 0), // Null subver
                 createPeerInfo("3", "192.168.1.102:8333", true, "/Satoshi:27.0.0/", 270000)
@@ -133,7 +139,7 @@ class SubverStatsCalculationTest {
 
     @Test
     void testSubverDistribution_inboundVsOutbound() throws Exception {
-        List<PeerInfo> mockPeers = List.of(
+        List<PeerInfoResponse> mockPeers = List.of(
                 createPeerInfo("1", "192.168.1.100:8333", true, "/Satoshi:27.0.0/", 270000),
                 createPeerInfo("2", "192.168.1.101:8333", false, "/Satoshi:26.0.0/", 260000),
                 createPeerInfo("3", "192.168.1.102:8333", true, "/Satoshi:27.0.0/", 270000),
@@ -158,7 +164,7 @@ class SubverStatsCalculationTest {
 
     @Test
     void testSubverDistribution_percentageCalculation() throws Exception {
-        List<PeerInfo> mockPeers = List.of(
+        List<PeerInfoResponse> mockPeers = List.of(
                 createPeerInfo("1", "192.168.1.100:8333", true, "/Satoshi:27.0.0/", 270000),
                 createPeerInfo("2", "192.168.1.101:8333", true, "/Satoshi:27.0.0/", 270000),
                 createPeerInfo("3", "192.168.1.102:8333", true, "/Satoshi:27.0.0/", 270000),
@@ -191,7 +197,7 @@ class SubverStatsCalculationTest {
 
     @Test
     void testSubverDistribution_roundingPrecision() throws Exception {
-        List<PeerInfo> mockPeers = List.of(
+        List<PeerInfoResponse> mockPeers = List.of(
                 createPeerInfo("1", "192.168.1.100:8333", true, "/Satoshi:27.0.0/", 270000),
                 createPeerInfo("2", "192.168.1.101:8333", true, "/Satoshi:26.0.0/", 260000),
                 createPeerInfo("3", "192.168.1.102:8333", true, "/Satoshi:26.0.0/", 260000)
@@ -212,11 +218,37 @@ class SubverStatsCalculationTest {
 
     @SuppressWarnings("unchecked")
     private void mockAllRpcCalls(String peerInfoResponse) throws Exception {
-        String mockBlockchainResponse = createSuccessRpcResponseJson(new BlockchainInfo(870000, 870000, "main", 0.99, false));
-        String mockNodeInfoResponse = createSuccessRpcResponseJson(new NodeInfo(70016, 270000, "/Satoshi:27.0.0/", 10, true));
+        String mockBlockchainResponse = createSuccessRpcResponseJson(new BlockchainInfoResponse(
+            "main", // chain
+            870000,  // blocks
+            870000,  // headers
+            "0000000000000000000dummyhash", // bestblockhash
+            0.99,    // difficulty
+            1700000000L, // time
+            1700000000L, // mediantime
+            0.99,    // verificationprogress
+            false,   // initialblockdownload
+            "0000000000000000000000000000000000000000000000000000000000000000", // chainwork
+            1000000000L, // size_on_disk
+            false,   // pruned
+            null     // pruneheight
+        ));
+        String mockNodeInfoResponse = createSuccessRpcResponseJson(new NetworkInfoResponse(
+            70016, // version
+            "/Satoshi:27.0.0/", // subversion
+            270000, // protocolversion
+            "0000000000000000", // localservices
+            java.util.Collections.emptyList(), // localservicesnames
+            true, // localrelay
+            0, // timeoffset
+            10, // connections
+            true, // networkactive
+            java.util.Collections.emptyList(), // networks
+            java.util.Collections.emptyList() // localaddresses
+        ));
         String mockUptimeResponse = createSuccessRpcResponseJson(432000L);
         String mockBestBlockHashResponse = createSuccessRpcResponseJson("00000000000000000001abc");
-        String mockBlockInfoResponse = createSuccessRpcResponseJson(new BlockInfo(
+        String mockBlockInfoResponse = createSuccessRpcResponseJson(new BlockInfoResponse(
                 "00000000000000000001abc", 1, 0, 0, 0, 870000, 1, "", "", 1733443200L, 0L, 0L, "", 1.0, "", 2500, "", ""
         ));
 

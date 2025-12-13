@@ -1,4 +1,4 @@
-import { BlockChainInfo, BlockInfo } from '@types';
+import { BlockChainInfo, BlockInfoResponse } from '@types';
 
 /**
  * Node health monitoring utilities.
@@ -41,11 +41,11 @@ export function isNotFullySynced(blockchain: BlockChainInfo): boolean {
     return blockchain.verificationprogress < MIN_VERIFICATION_PROGRESS;
 }
 
-export function isNodeOutOfSync(blockchain: BlockChainInfo, block: BlockInfo): boolean {
+export function isNodeOutOfSync(blockchain: BlockChainInfo, block: BlockInfoResponse): boolean {
     return isBlockTooOld(block.time) || isSyncing(blockchain) || isNotFullySynced(blockchain);
 }
 
-export function getSyncWarningMessage(blockchain: BlockChainInfo, block: BlockInfo, formatTimeSince: (timestamp: number) => string): string {
+export function getSyncWarningMessage(blockchain: BlockChainInfo, block: BlockInfoResponse, formatTimeSince: (timestamp: number) => string): string {
     const progress = (blockchain.verificationprogress * 100).toFixed(2);
     
     if (isBlockTooOld(block.time)) {

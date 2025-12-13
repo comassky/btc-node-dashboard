@@ -1,18 +1,25 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import Status from '@components/Status.vue';
-import type { BlockChainInfo, BlockInfo } from '@types';
+import type { BlockChainInfo, BlockInfoResponse } from '@types';
 
 const mockBlockchain: BlockChainInfo = {
-  blocks: 800000,
-  headers: 800000,
+  blocks: 100,
+  headers: 100,
   chain: 'main',
-  verificationprogress: 0.9999,
-  difficulty: 50000000000000,
-  medianBlockSize: 1000000,
+  verificationprogress: 1,
+  difficulty: 1,
+  bestblockhash: '',
+  time: 0,
+  mediantime: 0,
+  initialblockdownload: false,
+  chainwork: '',
+  size_on_disk: 0,
+  pruned: false,
+  pruneheight: null,
 };
 
-const mockBlock: BlockInfo = {
+const mockBlock: BlockInfoResponse = {
   time: Math.floor(Date.now() / 1000) - 300, // 5 minutes ago
   nTx: 2500,
   hash: '00000000000000000001234567890abcdef',

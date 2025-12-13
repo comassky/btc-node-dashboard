@@ -1,7 +1,7 @@
 
 package comasky.api;
 
-import comasky.rpcClass.GlobalResponse;
+import comasky.rpcClass.dto.GlobalResponse;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 /**

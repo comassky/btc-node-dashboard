@@ -1,8 +1,15 @@
 export interface BlockChainInfo {
+  chain: string;
   blocks: number;
   headers: number;
-  chain: string;
-  verificationprogress: number;
+  bestblockhash: string;
   difficulty: number;
-  medianBlockSize: number;
+  time: number;
+  mediantime: number;
+  verificationprogress: number;
+  initialblockdownload: boolean;
+  chainwork: string;
+  size_on_disk: number;
+  pruned: boolean;
+  pruneheight: number | null;
 }

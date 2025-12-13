@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { BlockChainInfo, BlockInfo } from '@types';
+import { BlockChainInfo, BlockInfoResponse } from '@types';
 import { hasLowOutboundPeers, isNodeOutOfSync } from '@utils/nodeHealth';
 
 import Tooltip from '@components/Tooltip.vue';
@@ -12,7 +12,7 @@ const props = defineProps<{
     isRetrying?: boolean;
     outboundPeers: number;
     blockchain: BlockChainInfo;
-    block: BlockInfo;
+    block: BlockInfoResponse;
 }>();
 
 const hasLowOutbound = computed(() => hasLowOutboundPeers(props.outboundPeers));

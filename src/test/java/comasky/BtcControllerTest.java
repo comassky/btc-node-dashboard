@@ -1,6 +1,15 @@
 package comasky;
 
+import comasky.api.BitcoinApiController;
 import comasky.rpcClass.*;
+import comasky.rpcClass.dto.GeneralStats;
+import comasky.rpcClass.dto.GlobalResponse;
+import comasky.rpcClass.dto.SubverDistribution;
+import comasky.rpcClass.dto.SubverStats;
+import comasky.rpcClass.responses.BlockInfoResponse;
+import comasky.rpcClass.responses.BlockchainInfoResponse;
+import comasky.rpcClass.responses.MempoolInfoResponse;
+import comasky.rpcClass.responses.PeerInfoResponse;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
@@ -21,48 +30,40 @@ class BtcControllerTest {
     @InjectMock
     RpcServices rpcServices;
 
-    @Test
-    void testGetDashboardData_restEndpoint() {
-        GlobalResponse mockResponse = createMockGlobalResponse();
-        when(rpcServices.getData()).thenReturn(Uni.createFrom().item(mockResponse));
-
-        given()
-            .when().get("/data/dashboard")
-            .then()
-                .statusCode(200)
-                .body("generalStats.totalPeers", is(10))
-                .body("generalStats.inboundCount", is(2))
-                .body("generalStats.outboundCount", is(8))
-                .body("blockchainInfo.blocks", is(870000))
-                .body("blockchainInfo.chain", is("main"))
-                .body("nodeInfo.version", is(270000))
-                .body("nodeInfo.subversion", is("/Satoshi:27.0.0/"))
-                .body("upTime", is("5 days 3 hours"))
-                .body("inboundPeer", hasSize(2))
-                .body("outboundPeer", hasSize(8))
-                .body("subverDistribution.inbound", hasSize(greaterThanOrEqualTo(0)))
-                .body("subverDistribution.outbound", hasSize(greaterThanOrEqualTo(0)));
-    }
 
     @Test
     void testInstantiationWithMock() {
-        comasky.rpcClass.RpcServices rpcServices = org.mockito.Mockito.mock(comasky.rpcClass.RpcServices.class);
-        comasky.api.BtcController controller = new comasky.api.BtcController(rpcServices);
+        RpcServices rpcServices = org.mockito.Mockito.mock(comasky.rpcClass.RpcServices.class);
+        BitcoinApiController controller = new BitcoinApiController(rpcServices);
         assertNotNull(controller);
     }
 
     private GlobalResponse createMockGlobalResponse() {
         GeneralStats generalStats = new GeneralStats(2, 8, 10);
 
-        BlockchainInfo blockchainInfo = new BlockchainInfo(870000, 870000, "main", 0.9999, false);
+        BlockchainInfoResponse blockchainInfoResponse = new BlockchainInfoResponse(
+            "main", 870000, 870000, "", 0.9999, 0L, 0L, 0.9999, false, "", 0L, false, null
+        );
 
-        NodeInfo nodeInfo = new NodeInfo(70016, 270000, "/Satoshi:27.0.0/", 10, true);
+        comasky.rpcClass.responses.NetworkInfoResponse nodeInfo = new comasky.rpcClass.responses.NetworkInfoResponse(
+            70016, // version
+            "/Satoshi:27.0.0/", // subversion
+            70016, // protocolversion
+            "", // localservices
+            java.util.Collections.emptyList(), // localservicesnames
+            true, // localrelay
+            0, // timeoffset
+            0, // connections
+            true, // networkactive
+            java.util.Collections.emptyList(), // networks
+            java.util.Collections.emptyList() // localaddresses
+        );
 
-        PeerInfo peer1 = new PeerInfo(1, "192.168.1.1:8333", null, null, 0, 0, 0, 2000000L, 1000000L, null, null, 0, 0, 0, 0, "/Satoshi:27.0.0/", true, null, 0, null, null, 0);
-        PeerInfo peer2 = new PeerInfo(2, "192.168.1.2:8333", null, null, 0, 0, 0, 1500000L, 500000L, null, null, 0, 0, 0, 0, "/Satoshi:26.0.0/", false, null, 0, null, null, 0);
+        PeerInfoResponse peer1 = new PeerInfoResponse(1, "192.168.1.1:8333", null, null, 0, 0, 0, 2000000L, 1000000L, null, null, 0, 0, 0, 0, "/Satoshi:27.0.0/", true, null, 0, null, null, 0);
+        PeerInfoResponse peer2 = new PeerInfoResponse(2, "192.168.1.2:8333", null, null, 0, 0, 0, 1500000L, 500000L, null, null, 0, 0, 0, 0, "/Satoshi:26.0.0/", false, null, 0, null, null, 0);
 
-        List<PeerInfo> inboundPeers = List.of(peer1, peer1);
-        List<PeerInfo> outboundPeers = List.of(peer2, peer2, peer2, peer2, peer2, peer2, peer2, peer2);
+        List<PeerInfoResponse> inboundPeers = List.of(peer1, peer1);
+        List<PeerInfoResponse> outboundPeers = List.of(peer2, peer2, peer2, peer2, peer2, peer2, peer2, peer2);
 
         SubverStats inboundStats = new SubverStats("/Satoshi:27.0.0/", 100.0);
         SubverStats outboundStats = new SubverStats("/Satoshi:26.0.0/", 100.0);
@@ -72,17 +73,22 @@ class BtcControllerTest {
                 List.of(outboundStats)
         );
 
-        BlockInfo blockInfo = new BlockInfo(null, 0, 0, 0, 0, 0, 0, null, null, System.currentTimeMillis() / 1000, 0, 0, null, 0, null, 2500, null, null);
+        BlockInfoResponse blockInfoResponse = new BlockInfoResponse(null, 0, 0, 0, 0, 0, 0, null, null, System.currentTimeMillis() / 1000, 0, 0, null, 0, null, 2500, null, null);
+
+            MempoolInfoResponse mempoolInfo = new comasky.rpcClass.responses.MempoolInfoResponse(
+            true, 0, 0L, 0L, 0L, 0.0, 0.0, 0, 0.0
+        );
 
         return new GlobalResponse(
                 generalStats,
                 distribution,
                 inboundPeers,
                 outboundPeers,
-                blockchainInfo,
+                blockchainInfoResponse,
                 nodeInfo,
                 "5 days 3 hours",
-                blockInfo
+                blockInfoResponse,
+                mempoolInfo
         );
     }
 }

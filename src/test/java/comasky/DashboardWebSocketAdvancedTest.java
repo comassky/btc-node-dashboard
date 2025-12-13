@@ -2,6 +2,12 @@ package comasky;
 
 import comasky.api.DashboardWebSocket;
 import comasky.rpcClass.*;
+import comasky.rpcClass.dto.GeneralStats;
+import comasky.rpcClass.dto.GlobalResponse;
+import comasky.rpcClass.dto.SubverDistribution;
+import comasky.rpcClass.responses.BlockInfoResponse;
+import comasky.rpcClass.responses.BlockchainInfoResponse;
+import comasky.rpcClass.responses.MempoolInfoResponse;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
@@ -60,14 +66,43 @@ class DashboardWebSocketAdvancedTest {
 
     private GlobalResponse createMockGlobalResponse() {
         return new GlobalResponse(
-                new GeneralStats(0, 0, 0),
-                new SubverDistribution(Collections.emptyList(), Collections.emptyList()),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                new BlockchainInfo(0, 0, "", 0.0, false),
-                new NodeInfo(0, 0, "", 0, false),
-                "0s",
-                new BlockInfo(null, 0, 0, 0, 0, 0, 0, null, null, 0, 0, 0, null, 0, null, 0, null, null)
+            new GeneralStats(0, 0, 0),
+            new SubverDistribution(Collections.emptyList(), Collections.emptyList()),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            new BlockchainInfoResponse(
+                "", // chain
+                0,  // blocks
+                0,  // headers
+                "", // bestblockhash
+                0.0, // difficulty
+                0L, // time
+                0L, // mediantime
+                0.0, // verificationprogress
+                false, // initialblockdownload
+                "", // chainwork
+                0L, // size_on_disk
+                false, // pruned
+                null // pruneheight
+            ),
+            new comasky.rpcClass.responses.NetworkInfoResponse(
+                0, // version
+                "", // subversion
+                0, // protocolversion
+                "", // localservices
+                Collections.emptyList(), // localservicesnames
+                false, // localrelay
+                0, // timeoffset
+                0, // connections
+                false, // networkactive
+                Collections.emptyList(), // networks
+                Collections.emptyList() // localaddresses
+            ),
+            "0s",
+            new BlockInfoResponse(null, 0, 0, 0, 0, 0, 0, null, null, 0, 0, 0, null, 0, null, 0, null, null),
+            new MempoolInfoResponse(
+                true, 0, 0L, 0L, 0L, 0.0, 0.0, 0, 0.0
+            )
         );
     }
 }

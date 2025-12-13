@@ -44,7 +44,7 @@
                             {{ formatTimeSince(block.time).replace(/ ago$/, '') }} ago
                         </span>
                     </p>
-                    <p>
+                    <p class="mb-0.5 sm:mb-1">
                         <Tooltip :text="'Number of transactions in the current block.'" position="bottom" horizontal="left">
                             <font-awesome-icon :icon="['fas', 'exchange-alt']" class="mr-1" />
                         </Tooltip>
@@ -60,25 +60,30 @@
                     </div>
                 </Tooltip>
             </div>
+
+        <!-- Affichage de la taille sur disque -->
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+
 import { computed } from 'vue';
 import { formatTimeSince } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
 import { getHeaderBlockDiff, isSyncing, getSyncWarningMessage } from '@utils/nodeHealth';
+import type { BlockChainInfo, BlockInfoResponse } from '@types';
 
 const props = withDefaults(defineProps<{
-  blockchain: any;
-  block: any;
-  forceOutOfSync?: boolean;
+    blockchain: BlockChainInfo;
+    block: BlockInfoResponse;
+    forceOutOfSync?: boolean;
 }>(), { forceOutOfSync: false });
 
 const headerBlockDiff = computed(() => getHeaderBlockDiff(props.blockchain));
 const isSyncingComputed = computed(() => isSyncing(props.blockchain));
 const isOutOfSync = computed(() => props.forceOutOfSync || (typeof props.blockchain === 'object' && typeof props.block === 'object' &&
-    (props.blockchain.headers - props.blockchain.blocks > 2 || (props.blockchain.blocks !== props.block.height))));
+        (props.blockchain.headers - props.blockchain.blocks > 2)));
 const syncWarningMessage = computed(() => getSyncWarningMessage(props.blockchain, props.block, formatTimeSince));
+
 </script>

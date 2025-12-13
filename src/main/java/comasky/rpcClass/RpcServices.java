@@ -6,9 +6,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
 import comasky.client.RpcRequestDto;
 import comasky.exceptions.RpcException;
+import comasky.rpcClass.dto.GeneralStats;
+import comasky.rpcClass.dto.GlobalResponse;
+import comasky.rpcClass.dto.SubverDistribution;
+import comasky.rpcClass.dto.SubverStats;
+import comasky.rpcClass.responses.*;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
 import io.smallrye.mutiny.tuples.Tuple5;
+import io.smallrye.mutiny.tuples.Tuple6;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
@@ -37,9 +43,10 @@ public class RpcServices {
     private static final String GET_BLOCKCHAIN_INFO = "getblockchaininfo";
     private static final String UPTIME = "uptime";
     private static final String GET_PEER_INFO = "getpeerinfo";
+    private static final String GET_MEMPOOL_INFO = "getmempoolinfo";
 
     
-    private static final TypeReference<List<PeerInfo>> PEER_INFO_TYPE_REF = new TypeReference<>() {};
+    private static final TypeReference<List<PeerInfoResponse>> PEER_INFO_TYPE_REF = new TypeReference<>() {};
 
     private final ObjectMapper objectMapper;
     private final RpcClient rpcClient;
@@ -55,8 +62,8 @@ public class RpcServices {
      *
      * @return a {@link Uni} emitting the node network information
      */
-    public Uni<NodeInfo> getNodeInfo() {
-        return callRpcTyped(GET_NETWORK_INFO, Collections.emptyList(), NodeInfo.class);
+    public Uni<NetworkInfoResponse> getNetworkInfo() {
+        return callRpcTyped(GET_NETWORK_INFO, Collections.emptyList(), NetworkInfoResponse.class);
     }
 
     /**
@@ -75,9 +82,9 @@ public class RpcServices {
      * @param blockHash the block hash
      * @return a {@link Uni} emitting the block information
      */
-    public Uni<BlockInfo> getBlockInfo(String blockHash) {
+    public Uni<BlockInfoResponse> getBlockInfo(String blockHash) {
         List<Object> params = List.of(blockHash, 1);
-        return callRpcTyped(GET_BLOCK, params, BlockInfo.class);
+        return callRpcTyped(GET_BLOCK, params, BlockInfoResponse.class);
     }
 
     /**
@@ -85,8 +92,17 @@ public class RpcServices {
      *
      * @return a {@link Uni} emitting the blockchain information
      */
-    public Uni<BlockchainInfo> getBlockchainInfo() {
-        return callRpcTyped(GET_BLOCKCHAIN_INFO, Collections.emptyList(), BlockchainInfo.class);
+    public Uni<BlockchainInfoResponse> getBlockchainInfo() {
+        return callRpcTyped(GET_BLOCKCHAIN_INFO, Collections.emptyList(), BlockchainInfoResponse.class);
+    }
+
+    /**
+     * Retrieves mempool information from the Bitcoin node.
+     *
+     * @return a {@link Uni} emitting the mempool information
+     */
+    public Uni<comasky.rpcClass.responses.MempoolInfoResponse> getMempoolInfo() {
+        return callRpcTyped(GET_MEMPOOL_INFO, Collections.emptyList(), comasky.rpcClass.responses.MempoolInfoResponse.class);
     }
 
     /**
@@ -106,34 +122,37 @@ public class RpcServices {
      */
     public Uni<GlobalResponse> getData() {
         
-        Uni<List<PeerInfo>> peerInfoUni = executePeerInfoRpcCall()
+        Uni<List<PeerInfoResponse>> peerInfoUni = executePeerInfoRpcCall()
             .onFailure().invoke(e -> LOG.warnf("PeerInfo RPC failed: %s", e.getMessage()))
             .onFailure().recoverWithItem(Collections.emptyList());
 
-        Uni<BlockchainInfo> blockchainInfoUni = getBlockchainInfo()
+        Uni<BlockchainInfoResponse> blockchainInfoUni = getBlockchainInfo()
             .onFailure().invoke(e -> LOG.warnf("BlockchainInfo RPC failed: %s", e.getMessage()))
             .onFailure().recoverWithItem(() -> null);
 
-        Uni<NodeInfo> nodeInfoUni = getNodeInfo()
-            .onFailure().invoke(e -> LOG.warnf("NodeInfo RPC failed: %s", e.getMessage()))
+        Uni<NetworkInfoResponse> nodeInfoUni = getNetworkInfo()
+            .onFailure().invoke(e -> LOG.warnf("Network info RPC failed: %s", e.getMessage()))
             .onFailure().recoverWithItem(() -> null);
 
         Uni<Long> uptimeUni = getUptimeSeconds()
             .onFailure().invoke(e -> LOG.warnf("Uptime RPC failed: %s", e.getMessage()))
             .onFailure().recoverWithItem(() -> 0L);
 
-        Uni<BlockInfo> blockInfoUni = getBestBlockHash()
+        Uni<BlockInfoResponse> blockInfoUni = getBestBlockHash()
             .onFailure().invoke(e -> LOG.warnf("BestBlockHash RPC failed: %s", e.getMessage()))
             .onFailure().recoverWithItem(() -> null)
             .onItem().transformToUni(hash -> {
-                if (hash == null) return Uni.createFrom().item((BlockInfo) null);
+                if (hash == null) return Uni.createFrom().item((BlockInfoResponse) null);
                 return getBlockInfo(hash)
                 .onFailure().invoke(e -> LOG.warnf("BlockInfo RPC failed: %s", e.getMessage()))
                 .onFailure().recoverWithItem(() -> null);
             });
 
+        Uni<MempoolInfoResponse> mempoolInfoResponse = getMempoolInfo()
+            .onFailure().invoke(e -> LOG.warnf("MempoolInfo RPC failed: %s", e.getMessage()))
+            .onFailure().recoverWithItem(() -> null);
         
-        return Uni.combine().all().unis(peerInfoUni, blockchainInfoUni, nodeInfoUni, uptimeUni, blockInfoUni)
+        return Uni.combine().all().unis(peerInfoUni, blockchainInfoUni, nodeInfoUni, uptimeUni, blockInfoUni, mempoolInfoResponse)
             .asTuple()
             .onItem().transform(this::buildGlobalResponseFromTuple);
     }
@@ -144,17 +163,19 @@ public class RpcServices {
      * @param tuple a tuple containing all required data
      * @return the aggregated {@link GlobalResponse}
      */
-    private GlobalResponse buildGlobalResponseFromTuple(Tuple5<List<PeerInfo>, BlockchainInfo, NodeInfo, Long, BlockInfo> tuple) {
-        List<PeerInfo> allPeers = tuple.getItem1();
-        BlockchainInfo blockchainInfo = tuple.getItem2();
-        NodeInfo nodeInfo = tuple.getItem3();
+    private GlobalResponse buildGlobalResponseFromTuple(Tuple6<List<PeerInfoResponse>, BlockchainInfoResponse, NetworkInfoResponse, Long, BlockInfoResponse, MempoolInfoResponse> tuple) {
+        List<PeerInfoResponse> allPeers = tuple.getItem1();
+        BlockchainInfoResponse blockchainInfoResponse = tuple.getItem2();
+        NetworkInfoResponse nodeInfo = tuple.getItem3();
         long uptime = tuple.getItem4();
-        BlockInfo blockInfo = tuple.getItem5();
+        BlockInfoResponse blockInfoResponse = tuple.getItem5();
+        MempoolInfoResponse mempoolInfoResponse = tuple.getItem6();
 
         var peersByType = allPeers.stream()
-                .collect(Collectors.partitioningBy(PeerInfo::isInbound));
-        List<PeerInfo> inboundPeers = peersByType.get(true);
-        List<PeerInfo> outboundPeers = peersByType.get(false);
+                .map(e -> e)
+                .collect(Collectors.partitioningBy(PeerInfoResponse::inbound));
+        List<PeerInfoResponse> inboundPeers = peersByType.get(true);
+        List<PeerInfoResponse> outboundPeers = peersByType.get(false);
 
         var stats = new SubverDistribution(calculateSubverStats(inboundPeers), calculateSubverStats(outboundPeers));
         var generalStat = new GeneralStats(inboundPeers.size(), outboundPeers.size(), inboundPeers.size() + outboundPeers.size());
@@ -164,10 +185,11 @@ public class RpcServices {
                 stats,
                 inboundPeers,
                 outboundPeers,
-                blockchainInfo,
+                blockchainInfoResponse,
                 nodeInfo,
                 formatUptime(uptime),
-                blockInfo
+                blockInfoResponse,
+                mempoolInfoResponse
         );
     }
 
@@ -177,7 +199,7 @@ public class RpcServices {
      *
      * @return a {@link Uni} emitting the list of peers
      */
-    private Uni<List<PeerInfo>> executePeerInfoRpcCall() {
+    private Uni<List<PeerInfoResponse>> executePeerInfoRpcCall() {
         return callRpcTyped(GET_PEER_INFO, Collections.emptyList(), PEER_INFO_TYPE_REF);
     }
     
@@ -188,15 +210,15 @@ public class RpcServices {
      * @param peers the list of peers
      * @return a list of {@link SubverStats} representing the subversion distribution
      */
-    private List<SubverStats> calculateSubverStats(List<PeerInfo> peers) {
+    private List<SubverStats> calculateSubverStats(List<PeerInfoResponse> peers) {
         if (peers.isEmpty()) {
             return Collections.emptyList();
         }
         final double totalPeers = peers.size();
-        Stream<PeerInfo> stream = peers.size() > 1000 ? peers.parallelStream() : peers.stream();
+        Stream<PeerInfoResponse> stream = peers.size() > 1000 ? peers.parallelStream() : peers.stream();
         return stream
                 .filter(p -> p.subver() != null)
-                .collect(Collectors.groupingBy(PeerInfo::subver, Collectors.counting()))
+                .collect(Collectors.groupingBy(PeerInfoResponse::subver, Collectors.counting()))
                 .entrySet().stream()
                 .map(entry -> {
                     double rawPercentage = (entry.getValue() / totalPeers) * 100.0;

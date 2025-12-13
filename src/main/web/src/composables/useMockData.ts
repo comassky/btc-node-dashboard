@@ -43,18 +43,33 @@ export function useMockData() {
         outboundCount: mockScenario.value === 'lowPeers' ? 3 : 8,
         totalPeers: mockScenario.value === 'lowPeers' ? 8 : 53
       },
-      blockchainInfo: {
+      blockchainInfoResponse: {
         blocks: 875432,
         headers: mockScenario.value === 'outOfSync' ? 875532 : 875432,
         chain: 'main',
         verificationprogress: mockScenario.value === 'outOfSync' ? 0.9987 : 0.999998,
         difficulty: 103919634711492.2,
-        medianBlockSize: 0,
+        bestblockhash: '',
+        time: 0,
+        mediantime: 0,
+        initialblockdownload: false,
+        chainwork: '',
+        size_on_disk: 0,
+        pruned: false,
+        pruneheight: null
       },
       nodeInfo: { 
-        version: '270000', 
-        protocolversion: '70016', 
-        subversion: '/Satoshi:27.0.0/' 
+        version: 270000, 
+        protocolversion: 70016, 
+        subversion: '/Satoshi:27.0.0/',
+        localservices: '',
+        localservicesnames: [],
+        localrelay: false,
+        timeoffset: 0,
+        connections: 0,
+        networkactive: false,
+        networks: [],
+        localaddresses: []
       },
       upTime: '15d 7h 23m',
       inboundPeer: Array.from({ length: mockScenario.value === 'lowPeers' ? 5 : 45 }, (_, i) => ({
@@ -99,6 +114,17 @@ export function useMockData() {
         hash: '00000000000000000002a7c4c1e48d76c5a37902165a270156b7a8d72728a054'
       },
       rpcConnected: mockScenario.value !== 'disconnected',
+      mempoolInfo: {
+        loaded: true,
+        size: 1234,
+        bytes: 567890,
+        usage: 234567,
+        maxmempool: 300000000,
+        mempoolminfee: 0.00001,
+        minrelaytxfee: 0.00001,
+        unbroadcastcount: 2,
+        total_fee: 0.123456
+      },
     };
   };
 
