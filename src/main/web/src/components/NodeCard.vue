@@ -94,7 +94,7 @@ function netLabel(net: { name: string; reachable: boolean }) {
     if (net.name === 'onion' && net.reachable && Array.isArray(props.node.localaddresses)) {
         const onionAddr = props.node.localaddresses.find(addr => addr.address.endsWith('.onion'));
         if (onionAddr) {
-            tooltip = `${label} ${net.reachable ? 'enabled' : 'disabled'}\nLocal address: ${onionAddr.address}:${onionAddr.port}`;
+            tooltip = `${label} ${net.reachable ? 'enabled' : 'disabled'} : ${onionAddr.address}:${onionAddr.port}`;
         }
     }
     return tooltip;
