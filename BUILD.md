@@ -27,14 +27,32 @@ Complete guide for building and deploying the Bitcoin Node Dashboard.
 git clone https://github.com/comassky/btc-node-dashboard.git
 cd btc-node-dashboard
 
+```bash
+
+# 🏗️ Build & Run Guide
+
+This guide explains how to build and deploy the Bitcoin Node Dashboard.
+
+## Prerequisites
+
+**Required:** Java 21+, Maven 3.9+, Bitcoin Core with RPC enabled  
+**Optional:** Node.js 24+ (for frontend development), Docker
+
+## 🚀 Quick Start
+
+```bash
+# Clone repository
+```
+cd btc-node-dashboard
+
 # Configure RPC
 export RPC_HOST=localhost
 export RPC_PORT=8332
 export RPC_USER=your_username
 export RPC_PASS=your_password
 
-# Run with hot reload
-./mvnw quarkus:dev  # → http://localhost:8080
+# Start backend with hot reload
+./mvnw quarkus:dev  # http://localhost:8080
 ```
 
 ## 🔨 Build Options
@@ -46,44 +64,14 @@ export RPC_PASS=your_password
 # Skip tests
 ./mvnw clean package -DskipTests
 
-# GraalVM Native (50ms startup, 30MB memory)
+# GraalVM Native (fast startup, low memory)
 ./mvnw clean package -Pnative
 ./target/btc-node-dashboard-*-runner
 ```
 
 ## 🐳 Docker
 
-Docker build and run instructions are now in [DOCKER.md](DOCKER.md).
-
-
-## 🔧 Configuration
-
-### Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `BITCOIN_RPC_HOST` | `127.0.0.1` | Bitcoin node hostname or IP address |
-| `BITCOIN_RPC_PORT` | `8332` | Bitcoin RPC port |
-| `BITCOIN_RPC_USER` | - | RPC username for authentication |
-| `BITCOIN_RPC_PASSWORD` | - | RPC password for authentication |
-| `BITCOIN_RPC_SCHEME` | `http` | RPC protocol (`http` or `https`) |
-| `WS_POLLING_INTERVAL` | `5` | Dashboard refresh interval in seconds |
-| `LOG_LEVEL` | `INFO` | Application log level (`TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`). Use `DEBUG` to see detailed startup configuration |
-| `DASHBOARD_CACHE_VALIDITY_BUFFER_MS` | `200` | Time in milliseconds to subtract from the cache entry's expiry to ensure data freshness. Useful for preventing stale data in highly dynamic environments. |
-
-### Application Properties
-
-As an alternative to environment variables, create `src/main/resources/application-local.properties`:
-
-```properties
-bitcoin.rpc.scheme=http
-bitcoin.rpc.host=localhost
-bitcoin.rpc.port=8332
-bitcoin.rpc.user=your_rpc_username
-bitcoin.rpc.password=your_rpc_password
-dashboard.polling.interval.seconds=5
-dashboard.cache.validity-buffer-ms=200
-```
+See [DOCKER.md](DOCKER.md) for Docker build and run instructions.
 
 ### Profiles
 

@@ -85,33 +85,38 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 - **GitHub Actions** (CI/CD with automated testing and native image builds)
 - **GraalVM Native Image** (AOT compilation for ultra-fast startup)
 
+
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Java 21+, Maven 3.9+, Bitcoin Core with RPC enabled
-- Node.js 24+ (optional, for frontend dev)
+- Java 21+ and Maven 3.9+
+- Bitcoin Core with RPC enabled
+- Node.js 24+ (optional, for frontend development)
 
 ### Development
 ```bash
 git clone https://github.com/comassky/btc-node-dashboard.git
 cd btc-node-dashboard
 
-# Configure RPC (env vars or application-local.properties)
+# Configure RPC (environment variables or application-local.properties)
 export RPC_HOST=localhost
 export RPC_PORT=8332
 export RPC_USER=your_user
 export RPC_PASS=your_password
 
-# Run with hot reload
-./mvnw quarkus:dev  # → http://localhost:8080
+# Start backend with hot reload
+./mvnw quarkus:dev  # http://localhost:8080
 ```
+
 
 ## 🐳 Docker (Recommended)
 ```bash
-# GraalVM Native (50ms startup, 30MB memory)
+# Run GraalVM Native image (fast startup, low memory)
 docker run -d -p 8080:8080 \
-  -e RPC_HOST=<HOST> -e RPC_PORT=<PORT> \
-  -e RPC_USER=<USER> -e RPC_PASS=<PASSWORD> \
+  -e RPC_HOST=<HOST> \
+  -e RPC_PORT=<PORT> \
+  -e RPC_USER=<USER> \
+  -e RPC_PASS=<PASSWORD> \
   -e WS_POLLING_INTERVAL=5 \
   -e MIN_OUTBOUND_PEERS=8 \
   -e LOG_LEVEL=INFO \
@@ -140,20 +145,21 @@ A short summary of the Docker image tags produced by the GitHub Actions workflow
 - `develop`: images built from the `develop` branch.
 
 
+
 ## 📊 API Endpoints
 
 ### REST API
 
-- **GET** `/api/config` — Dashboard configuration (minOutboundPeers)
-- **GET** `/data/dashboard` — Get aggregated dashboard data (GlobalResponse)
-- **GET** `/data/getnetworkinfo` — Get node network information (NodeInfo)
-- **GET** `/data/getblock/{hash}` — Get block information by hash (BlockInfo)
-- **GET** `/data/getbestblockhash` — Get the hash of the best block (plain text)
-- **GET** `/data/getblockchainInfo` — Get blockchain information (BlockchainInfo)
+- **GET** `/api/config` — Get dashboard configuration (e.g., minOutboundPeers)
+- **GET** `/api/dashboard` — Get aggregated dashboard data (GlobalResponse)
+- **GET** `/api/networkinfo` — Get node network information (NodeInfo)
+- **GET** `/api/block/{hash}` — Get block information by hash (BlockInfo)
+- **GET** `/api/bestblockhash` — Get the hash of the best block (plain text)
+- **GET** `/api/blockchaininfo` — Get blockchain information (BlockchainInfo)
 
 ### WebSocket
 
-- **WS** `/ws/dashboard` - Real-time dashboard updates
+- **WS** `/ws/dashboard` — Real-time dashboard updates
 
 ## 🔧 Configuration
 
@@ -191,11 +197,12 @@ dashboard.cache.validity-buffer-ms=200
 
 See [BUILD.md](BUILD.md) for detailed instructions on setting up and running the frontend development server, as well as building the frontend.
 
+
 ## 🤝 Contributing
 
-Contributions welcome! Fork, branch, commit, push, PR.
+Contributions are welcome! Fork, branch, commit, push, and open a pull request.
 
-<div align="center">
+---
 
 ### Cryptocurrency Donations
 
@@ -205,17 +212,13 @@ Contributions welcome! Fork, branch, commit, push, PR.
 | **Ethereum / BSC (ETH)** | `0x0f26B8Bdc028F6bd0F79FF4959306065C36d5EAa` |
 | **Solana (SOL)** | `FH7HPraEeSva72g5Cv2WTbP65tPxQiZc1GNCSk2ML7eN` |
 
-### Lightning Network ⚡
+#### Lightning Network ⚡
 
 <img width="320" height="312" alt="Lightning Network QR Code" src="https://github.com/user-attachments/assets/6cfd0bfa-fb41-48eb-b429-3420e5cf63de" />
 
-<br>
-
-**Every satoshi helps keep this project maintained and growing!** 🚀
+**Every satoshi helps keep this project maintained and growing!**
 
 *Your support enables continuous improvements, new features, and better documentation.*
-
-</div>
 
 ## 🙏 Acknowledgments
 

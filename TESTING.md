@@ -33,19 +33,20 @@ cd src/main/web && npm run coverage
 ```
 
 
+
 ## 🔍 Backend Tests (79)
 
-**Test Classes**:
+**Test Classes:**
 - `BtcControllerTest` - REST API endpoints
 - `DashboardWebSocketTest` - WebSocket lifecycle
-- `DashboardWebSocketAdvancedTest` - Connexions concurrentes, cache
-- `RpcServicesTest` - Appels RPC Bitcoin, logs et latence
-- `RpcServicesAdvancedTest` - Agrégation multi-peer, erreurs
-- `RpcServicesParallelTest` - Exécution parallèle, CompletableFuture
-- `CachedMessageTest` - Validation du cache, thread-safety
-- `SubverStatsCalculationTest` - Distribution des versions
-- `ToolsTest` - Fonctions utilitaires
-- `BtcApiAppTest` - Cycle de vie de l'application
+- `DashboardWebSocketAdvancedTest` - Concurrent connections, cache
+- `RpcServicesTest` - Bitcoin RPC calls, logs, and latency
+- `RpcServicesAdvancedTest` - Multi-peer aggregation, error handling
+- `RpcServicesParallelTest` - Parallel execution, CompletableFuture
+- `CachedMessageTest` - Cache validation, thread-safety
+- `SubverStatsCalculationTest` - Version distribution
+- `ToolsTest` - Utility functions
+- `BtcApiAppTest` - Application lifecycle
 
 ## 🎨 Frontend Tests (67)
 

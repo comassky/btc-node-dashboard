@@ -1,12 +1,12 @@
-# 🚦 CI & Quality
+
+# 🛠️ CI & Quality
 
 - Every Pull Request must pass all tests to be merged.
 - CI workflows ensure that no untested code is deployed.
+
 # Contributing to btc-node-dashboard
 
 Thank you for considering contributing to this project! Please read the following guidelines to help us maintain a robust, reactive, and high-quality codebase.
-
-
 
 ## ⚡ Reactive Programming & Non-Blocking Guarantees
 
