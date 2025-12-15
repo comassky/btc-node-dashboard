@@ -30,19 +30,19 @@ public class ConfigController {
 
     public Uni<DashboardConfigResponse> getConfig() {
         int minPeers = 0;
-        boolean disableMempoolInfo = false;
+        boolean disableMempool = false;
         if (config != null) {
             if (config.health() != null && config.health().min() != null && config.health().min().outbound() != null) {
                 minPeers = config.health().min().outbound().peers();
             }
-            disableMempoolInfo = config.disableMempool();
+            disableMempool = config.disableMempool();
         }
-        return Uni.createFrom().item(new DashboardConfigResponse(minPeers, disableMempoolInfo));
+        return Uni.createFrom().item(new DashboardConfigResponse(minPeers, disableMempool));
     }
 
     /**
      * DTO for dashboard configuration response.
      * @param minOutboundPeers minimum number of outbound peers required
      */
-    public record DashboardConfigResponse(int minOutboundPeers, boolean disableMempoolInfo) {}
+    public record DashboardConfigResponse(int minOutboundPeers, boolean disableMempool) {}
 }

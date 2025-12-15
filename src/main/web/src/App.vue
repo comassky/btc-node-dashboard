@@ -242,75 +242,63 @@ function handleCycleScenario() {
           />
         </transition>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-6 md:gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 sm:gap-4 md:gap-6 lg:gap-8 gap-y-4 md:gap-y-6">
+          <!-- Cartes principales -->
           <transition name="fade" mode="out-in">
             <template v-if="(MOCK_MODE && dataState.rpcConnected) || rpcConnected">
               <div class="lg:col-span-2" key="cards">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 xs:gap-3 sm:gap-4 md:gap-6">
                   <PeersCard :stats="dataState.generalStats" />
-                  <BlockCard 
-                    :blockchain="dataState.blockchainInfoResponse"
-                    :block="dataState.block"
-                  />
-                  <NodeCard 
-                    :node="dataState.nodeInfo"
-                    :blockchain="dataState.blockchainInfoResponse"
-                    :upTime="dataState.upTime"
-                  />
+                  <BlockCard :blockchain="dataState.blockchainInfoResponse" :block="dataState.block" />
+                  <NodeCard :node="dataState.nodeInfo" :blockchain="dataState.blockchainInfoResponse" :upTime="dataState.upTime" />
                 </div>
               </div>
             </template>
             <template v-else-if="isConnected && !rpcConnected">
               <div class="bg-bg-card p-6 rounded-xl shadow-2xl lg:col-span-2 flex flex-col items-center justify-center min-h-[120px]" key="spinner">
                 <Spinner />
-                <p class="text-center text-text-secondary mt-2">
-                  Connecting to node RPC...
-                </p>
+                <p class="text-center text-text-secondary mt-2">Connecting to node RPC...</p>
               </div>
             </template>
           </transition>
 
+          <!-- Mempool Info -->
           <transition name="fade" mode="out-in">
-            <div v-if="(MOCK_MODE && dataState.rpcConnected) || rpcConnected" class="lg:col-span-2">
-              <MempoolInfoCard v-if="!disableMempool" :mempool-info="dataState.mempoolInfo" class="mt-4 sm:mt-0" />
-              <div class="bg-bg-card p-4 sm:p-6 rounded-xl shadow-2xl mt-6">
-                <h2 class="text-xl sm:text-2xl font-medium mb-4 sm:mb-6">
-                  <font-awesome-icon :icon="['fas', 'chart-pie']" class="mr-2 text-accent" /> 
+            <MempoolInfoCard
+              v-if="((MOCK_MODE && dataState.rpcConnected) || rpcConnected) && !disableMempool"
+              :mempool-info="dataState.mempoolInfo"
+              class="lg:col-span-2"
+            />
+          </transition>
+
+          <!-- Peer Software Distribution -->
+          <transition name="fade" mode="out-in">
+            <template v-if="(MOCK_MODE && dataState.rpcConnected) || rpcConnected">
+              <div class="bg-bg-card p-2 xs:p-3 sm:p-4 md:p-6 rounded-xl shadow-2xl lg:col-span-2">
+                <h2 class="text-lg xs:text-xl sm:text-2xl font-medium mb-3 sm:mb-4 md:mb-6 break-words">
+                  <font-awesome-icon :icon="['fas', 'chart-pie']" class="mr-2 text-accent" />
                   <span class="hidden sm:inline">Peer Software Distribution</span>
                   <span class="sm:hidden">Peers Distribution</span>
                 </h2>
-                <div class="flex flex-col md:flex-row gap-6 sm:gap-8 mt-3 sm:mt-4">
-                  <PeerDistributionChart
-                    :peers="subverInbound"
-                    type="inbound"
-                    :count="inboundCount"
-                    :isDarkMode="isDarkMode"
-                  />
-                  <PeerDistributionChart
-                    :peers="subverOutbound"
-                    type="outbound"
-                    :count="outboundCount"
-                    :isDarkMode="isDarkMode"
-                  />
+                <div class="flex flex-col md:flex-row gap-4 sm:gap-6 md:gap-8 mt-2 sm:mt-3 md:mt-4">
+                  <PeerDistributionChart :peers="subverInbound" type="inbound" :count="inboundCount" :isDarkMode="isDarkMode" />
+                  <PeerDistributionChart :peers="subverOutbound" type="outbound" :count="outboundCount" :isDarkMode="isDarkMode" />
                 </div>
               </div>
-            </div>
+            </template>
           </transition>
 
+          <!-- Peer Table -->
           <transition name="fade" mode="out-in">
-            <div class="bg-bg-card p-4 sm:p-6 rounded-xl shadow-2xl lg:col-span-2" v-if="(MOCK_MODE && dataState.rpcConnected) || rpcConnected" key="table">
-              <h2 class="text-xl sm:text-2xl font-medium mb-4 sm:mb-6">
-                <font-awesome-icon :icon="['fas', 'table']" class="mr-2 text-accent" /> Connection Details
-              </h2>
-              <PeerTable
-                :peers="inboundPeers as Peer[]"
-                type="inbound"
-              />
-              <PeerTable
-                :peers="outboundPeers as Peer[]"
-                type="outbound"
-              />
-            </div>
+            <template v-if="(MOCK_MODE && dataState.rpcConnected) || rpcConnected">
+              <div class="bg-bg-card p-2 xs:p-3 sm:p-4 md:p-6 rounded-xl shadow-2xl lg:col-span-2 overflow-x-auto" key="table">
+                <h2 class="text-lg xs:text-xl sm:text-2xl font-medium mb-3 sm:mb-4 md:mb-6 break-words">
+                  <font-awesome-icon :icon="['fas', 'table']" class="mr-2 text-accent" /> Connection Details
+                </h2>
+                <PeerTable :peers="inboundPeers as Peer[]" type="inbound" />
+                <PeerTable :peers="outboundPeers as Peer[]" type="outbound" />
+              </div>
+            </template>
           </transition>
         </div>
 
