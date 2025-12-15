@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Java record representing the response of the RPC command 'getmempoolinfo'.
- * Provides statistics on the current state of the mempool of unconfirmed transactions of the node.
+ * Provides statistics about the current state of the node's mempool (unconfirmed transactions).
  */
 public record MempoolInfoResponse(
         // Information about transactions in the mempool
@@ -25,7 +25,7 @@ public record MempoolInfoResponse(
         long maxmempool, // Maximum configured size of the mempool (in bytes)
 
         @JsonProperty("mempoolminfee")
-        double mempoolminfee, // Minimum fee rate (in BTC/kB) for transactions to be accepted in the mempool
+        double mempoolminfee, // Minimum fee rate (in BTC/kB) for transactions to be accepted into the mempool
 
         @JsonProperty("minrelaytxfee")
         double minrelaytxfee, // Minimum fee rate to relay a transaction (in BTC/kB)

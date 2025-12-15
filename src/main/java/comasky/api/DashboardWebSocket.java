@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * WebSocket endpoint for real-time dashboard updates.
@@ -35,8 +36,7 @@ public class DashboardWebSocket {
     private final Set<Session> sessions = ConcurrentHashMap.<Session>newKeySet();
 
     // Cache for RPC data
-    private final Object cacheLock = new Object();
-    private volatile CachedMessage cachedMessage;
+    private final AtomicReference<CachedMessage> cachedMessage = new AtomicReference<>();
     private volatile Uni<CachedMessage> inFlightRequest;
 
     @Inject
@@ -180,15 +180,10 @@ public class DashboardWebSocket {
      * @return a {@link Uni} emitting the cached or fresh message
      */
     private Uni<CachedMessage> fetchAndCacheMessage() {
-        CachedMessage currentCache;
-        synchronized (cacheLock) {
-            currentCache = this.cachedMessage;
-        }
-
+        CachedMessage currentCache = cachedMessage.get();
         if (currentCache != null && currentCache.isValid(cacheValidityMs)) {
             return Uni.createFrom().item(currentCache);
         }
-
         return getFreshMessage();
     }
 
@@ -197,54 +192,47 @@ public class DashboardWebSocket {
      *
      * @return a {@link Uni} emitting the fresh message
      */
-    private synchronized Uni<CachedMessage> getFreshMessage() {
-        // Check if a request is already in flight
-        if (inFlightRequest == null) {
-            // No request in flight, create a new one.
+    private Uni<CachedMessage> getFreshMessage() {
+        synchronized (this) {
+            if (inFlightRequest != null) {
+                return inFlightRequest;
+            }
             inFlightRequest = rpcServices.getData()
-                    .onItem().transform(data -> {
-                        try {
-                            String json = objectMapper.writeValueAsString(data);
-                            return CachedMessage.success(data, json);
-                        } catch (Exception e) {
-                            // This will be caught by onFailure and transformed into an error message
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .onFailure().recoverWithItem(e -> {
-                        LOG.warnf("RPC call failed: %s", e.getMessage());
-                        String msg = (e.getCause() != null && e.getCause().getMessage() != null) ? e.getCause().getMessage() : e.getMessage();
-                        if (msg == null) msg = "Unknown error";
-
-                        // Construct the specific error JSON for the client
-                        Map<String, Object> errorMap = new HashMap<>();
-                        errorMap.put("rpcConnected", false);
-                        errorMap.put("errorMessage", msg);
-                        String errorJson;
-                        try {
-                            errorJson = objectMapper.writeValueAsString(errorMap);
-                        } catch (Exception jsonEx) {
-                            LOG.errorf(jsonEx, "Failed to serialize error map to JSON for WebSocket client");
-                            errorJson = "{\"rpcConnected\": false, \"errorMessage\": \"Internal server error during error serialization\"}";
-                        }
-                        return CachedMessage.error(msg, errorJson);
-                    })
-                    .onItem().invoke(message -> {
-                        // Cache the new result
-                        synchronized (cacheLock) {
-                            cachedMessage = message;
-                        }
-                    })
-                    // When the Uni completes (on item or failure), clear the in-flight request.
-                    .onTermination().invoke(() -> {
-                        synchronized (this) {
-                            inFlightRequest = null;
-                        }
-                    })
-                    // Cache the Uni's result so that concurrent subscribers get the same result without re-triggering the RPC call.
-                    .memoize().indefinitely();
+                .onItem().transform(data -> {
+                    try {
+                        String json = objectMapper.writeValueAsString(data);
+                        return CachedMessage.success(data, json);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .onFailure().recoverWithItem(e -> {
+                    LOG.warnf("RPC call failed: %s", e.getMessage());
+                    String msg = (e.getCause() != null && e.getCause().getMessage() != null) ? e.getCause().getMessage() : e.getMessage();
+                    if (msg == null) msg = "Unknown error";
+                    Map<String, Object> errorMap = new HashMap<>();
+                    errorMap.put("rpcConnected", false);
+                    errorMap.put("errorMessage", msg);
+                    String errorJson;
+                    try {
+                        errorJson = objectMapper.writeValueAsString(errorMap);
+                    } catch (Exception jsonEx) {
+                        LOG.errorf(jsonEx, "Failed to serialize error map to JSON for WebSocket client");
+                        errorJson = "{\"rpcConnected\": false, \"errorMessage\": \"Internal server error during error serialization\"}";
+                    }
+                    return CachedMessage.error(msg, errorJson);
+                })
+                .onItem().invoke(message -> {
+                    cachedMessage.set(message);
+                })
+                .onTermination().invoke(() -> {
+                    synchronized (this) {
+                        inFlightRequest = null;
+                    }
+                })
+                .memoize().indefinitely();
+            return inFlightRequest;
         }
-        return inFlightRequest;
     }
 
     /**

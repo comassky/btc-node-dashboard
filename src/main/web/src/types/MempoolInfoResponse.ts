@@ -1,14 +1,24 @@
-// Interface TypeScript correspondant à la classe Java MempoolInfoResponse
-// Fournit des statistiques sur l'état actuel de la mempool des transactions non confirmées du nœud.
 
+/**
+ * Provides statistics about the current state of the node's mempool (unconfirmed transactions).
+ */
 export interface MempoolInfoResponse {
-  loaded: boolean;           // True si la mempool est complètement chargée après le démarrage/redémarrage
-  size: number;              // Le nombre total de transactions dans la mempool
-  bytes: number;             // Taille totale (en bytes) de toutes les transactions dans la mempool
-  usage: number;             // Mémoire (en bytes) utilisée par la mempool (y compris les index)
-  maxmempool: number;        // Taille maximale de la mempool configurée (en bytes)
-  mempoolminfee: number;     // Taux de frais minimum (en BTC/kB) pour que les transactions soient acceptées dans la mempool
-  minrelaytxfee: number;     // Le taux de frais minimum pour relayer une transaction (en BTC/kB)
-  unbroadcastcount: number;  // Nombre de transactions dans la mempool qui n'ont pas encore été diffusées aux pairs
-  total_fee: number;         // Les frais totaux (en BTC) de toutes les transactions dans la mempool
+  /** True if the mempool is fully loaded after startup/restart */
+  loaded: boolean;
+  /** Total number of transactions in the mempool */
+  size: number;
+  /** Total size (in bytes) of all transactions in the mempool */
+  bytes: number;
+  /** Memory (in bytes) used by the mempool (including indexes) */
+  usage: number;
+  /** Configured maximum mempool size (in bytes) */
+  maxmempool: number;
+  /** Minimum fee rate (in BTC/kB) for transactions to be accepted into the mempool */
+  mempoolminfee: number;
+  /** Minimum fee rate for relaying a transaction (in BTC/kB) */
+  minrelaytxfee: number;
+  /** Number of transactions in the mempool not yet broadcast to peers */
+  unbroadcastcount: number;
+  /** Total fees (in BTC) of all transactions in the mempool */
+  total_fee: number;
 }

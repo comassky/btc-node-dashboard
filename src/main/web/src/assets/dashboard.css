@@ -1,43 +1,11 @@
-/* Scroll vertical pour la légende Chart.js si trop longue */
+
+/* Vertical scroll for Chart.js legend if too long */
 /* --- web/src/assets/dashboard.css --- */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* --- Light Mode (Default) Variables --- */
-:root {
-    /* Backgrounds */
-    --bg-app: #f7f7f7;
-    /* ... autres variables ... */
-    --bg-card: #ffffff;
-    --text-primary: #1f2937;
-    --text-secondary: #6b7280;
-    --border-strong: #e5e7eb;
-    --accent: #ff9900;
-    --status-success: #10b981;
-    --status-error: #ef4444;
-    --status-warning: #f59e0b;
-    --status-error-rgb: 239, 68, 68;
-}
-
-/* --- Dark Mode Variables --- */
-.dark {
-    /* Backgrounds */
-    --bg-app: #0d0d0d; /* Couleur sombre */
-    /* ... autres variables ... */
-    --bg-card: #1a1a1a;
-    --text-primary: #f0f0f0;
-    --text-secondary: #b0b0b0;
-    --border-strong: #383838;
-    --accent: #ff9900;
-    --status-success: #06d6a0;
-    --status-error: #ef476f;
-    --status-warning: #ffd166;
-    --status-error-rgb: 239, 71, 111;
-}
-
-/* ... (Reste des styles) ... */
 /* --- Light Mode (Default) Variables --- */
 :root {
     /* Backgrounds */
@@ -54,7 +22,7 @@
     --status-error: #ef4444;
     --status-warning: #f59e0b;
 
-    /* Couleur RGB pour l'animation pulse */
+    /* RGB color for pulse animation */
     --status-error-rgb: 239, 68, 68;
 }
 
@@ -74,7 +42,7 @@
     --status-error: #ef476f;
     --status-warning: #ffd166;
 
-    /* Couleur RGB pour l'animation pulse */
+    /* RGB color for pulse animation */
     --status-error-rgb: 239, 71, 111;
 }
 
@@ -98,6 +66,28 @@ body {
 
     100% {
         box-shadow: 0 0 0 0 rgba(var(--status-error-rgb), 0);
+    }
+}
+
+/* Utilitaires personnalisés */
+@layer components {
+    .btn {
+        @apply px-3 py-1.5 rounded font-medium transition-all focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 shadow hover:opacity-80;
+    }
+    .btn-accent {
+        @apply btn bg-accent text-bg-app;
+    }
+    .btn-secondary {
+        @apply btn bg-bg-card text-text-primary border border-border-strong;
+    }
+    .card-title {
+        @apply text-lg sm:text-xl sm:text-2xl font-medium mb-3 sm:mb-4 md:mb-6 break-words;
+    }
+    .dashboard-card {
+        @apply bg-bg-card p-4 sm:p-6 rounded-xl shadow-lg border-l-4 transition;
+    }
+    .dashboard-card-interactive {
+        @apply dashboard-card overflow-visible relative z-10;
     }
 }
 

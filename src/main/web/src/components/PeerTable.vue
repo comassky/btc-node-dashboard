@@ -91,7 +91,8 @@ import { ref, computed } from 'vue';
 import { formatBytes, formatTimeOffset, formatPing, formatConnectionTime } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
 
-const props = defineProps<{ peers: any[]; type: 'inbound' | 'outbound' }>();
+import type { Peer } from '../types';
+const props = defineProps<{ peers: Peer[]; type: 'inbound' | 'outbound' }>();
 
 const headerColor = props.type === 'inbound' ? 'status-success' : 'accent';
 
@@ -110,8 +111,8 @@ function setSort(key: string) {
 const sortedPeers = computed(() => {
     const key = sortKey.value;
     return [...props.peers].sort((a, b) => {
-        const aVal = a[key];
-        const bVal = b[key];
+        const aVal = (a as unknown as Record<string, unknown>)[key];
+        const bVal = (b as unknown as Record<string, unknown>)[key];
         if (aVal == null && bVal == null) return 0;
         if (aVal == null) return 1;
         if (bVal == null) return -1;

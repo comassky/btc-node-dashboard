@@ -1,5 +1,8 @@
 /**
- * Formats a duration in seconds as "X days, Y hours" or "Y minutes, Z seconds" if < 1 day.
+ * Formats a duration in seconds as a human-readable string (e.g., "X days Y hours", "Y minutes Z seconds").
+ * If input is a timestamp, converts to duration from now.
+ * @param input Duration in seconds or timestamp
+ * @returns Formatted duration string
  */
 export const formatConnectionTime = (input?: number | null): string => {
   if (!input || input < 1) return '<1s';
@@ -32,6 +35,9 @@ export const formatConnectionTime = (input?: number | null): string => {
 
 /**
  * Formats bytes into human-readable units (B, KB, MB, ...).
+ * @param bytes Number of bytes
+ * @param decimals Number of decimal places (default: 2)
+ * @returns Formatted string with appropriate unit
  */
 export const formatBytes = (bytes: number, decimals = 2): string => {
   if (!bytes || bytes === 0) return '0 B';
@@ -43,7 +49,9 @@ export const formatBytes = (bytes: number, decimals = 2): string => {
 };
 
 /**
- * Formats a time offset in seconds.
+ * Formats a time offset in seconds as a string with 's' suffix.
+ * @param timeoffset Time offset in seconds
+ * @returns Formatted string (e.g., '0.0 s')
  */
 export const formatTimeOffset = (timeoffset?: number | null): string =>
   `${(timeoffset ?? 0).toFixed(1)} s`;
@@ -51,6 +59,8 @@ export const formatTimeOffset = (timeoffset?: number | null): string =>
 /**
  * Formats a timestamp or duration in seconds to a human-readable relative time using native JS.
  * If input is a timestamp (Unix seconds), returns distance to now. If duration, formats as duration.
+ * @param timestampOrTotalSeconds Timestamp or duration in seconds
+ * @returns Formatted relative time string
  */
 export const formatTimeSince = (timestampOrTotalSeconds?: number | null): string => {
   if (!timestampOrTotalSeconds) return 'N/A';

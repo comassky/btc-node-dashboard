@@ -39,9 +39,10 @@
 import { computed } from 'vue';
 import Tooltip from '@components/Tooltip.vue';
 import { hasLowOutboundPeers } from '@utils/nodeHealth';
+import type { GeneralStats } from '../types';
 
 const props = withDefaults(defineProps<{
-    stats: any;
+    stats: GeneralStats;
     forceLowPeers?: boolean;
 }>(), { forceLowPeers: false });
 

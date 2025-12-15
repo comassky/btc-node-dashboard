@@ -1,25 +1,47 @@
+
 import { ref } from 'vue';
 
 import type { DashboardData } from '@types';
 
-export type MockScenario = 'normal' | 'disconnected' | 'lowPeers' | 'outOfSync';
 
 /**
- * Mock data generator for testing error and warning states in development.
- * Provides simulated dashboard data for different scenarios without requiring a live Bitcoin node.
- * 
+ * Represents the available mock scenarios for dashboard simulation.
+ * - 'normal': Healthy node
+ * - 'disconnected': Simulates lost connection
+ * - 'lowPeers': Simulates low peer count
+ * - 'outOfSync': Simulates node out of sync
+ */
+
+/**
+ * Composable for generating mock dashboard data and simulating node states for development/testing.
+ * Provides utilities to cycle scenarios, generate mock data, and simulate connection states.
+ *
  * Enable mock mode via:
  * - Setting VITE_MOCK_MODE=true in .env file
  * - Or modify MOCK_MODE.value directly in code
+ *
+ * @returns {Object} Mock data utilities and state
  */
 export function useMockData() {
+
+  /**
+   * Indicates if mock mode is enabled (from VITE_MOCK_MODE env variable or manually).
+   */
   const MOCK_MODE = ref(import.meta.env.VITE_MOCK_MODE === 'true' || false);
+
+  /**
+   * Current mock scenario in use.
+   */
   const mockScenario = ref<MockScenario>('normal');
+
 
   /**
    * Cycles through available mock scenarios in sequence.
+   * Useful for quickly testing all dashboard states.
+   *
+   * @returns {void}
    */
-  const cycleMockScenario = () => {
+  const cycleMockScenario = (): void => {
     const scenarios: MockScenario[] = ['normal', 'disconnected', 'lowPeers', 'outOfSync'];
     const currentIndex = scenarios.indexOf(mockScenario.value);
     mockScenario.value = scenarios[(currentIndex + 1) % scenarios.length];
@@ -27,12 +49,14 @@ export function useMockData() {
 
   /**
    * Generates mock dashboard data based on the current scenario.
-   * 
+   *
    * Scenarios:
-   * - normal: Healthy node with good peer count and sync status
-   * - disconnected: Simulates WebSocket/RPC connection loss
-   * - lowPeers: Low outbound peer count (triggers warning)
-   * - outOfSync: Node out of sync with network (old block, headers ahead)
+   * - 'normal': Healthy node with good peer count and sync status
+   * - 'disconnected': Simulates WebSocket/RPC connection loss
+   * - 'lowPeers': Low outbound peer count (triggers warning)
+   * - 'outOfSync': Node out of sync with network (old block, headers ahead)
+   *
+   * @returns {DashboardData} Simulated dashboard data for the current scenario
    */
   const generateMockData = (): DashboardData => {
     const now = Math.floor(Date.now() / 1000);
@@ -128,8 +152,11 @@ export function useMockData() {
     };
   };
 
+
   /**
    * Gets mock connection state based on current scenario.
+   *
+   * @returns {Object} Connection state with isConnected, rpcConnected, and errorMessage fields
    */
   const getMockConnectionState = () => ({
     isConnected: mockScenario.value !== 'disconnected',
@@ -139,20 +166,41 @@ export function useMockData() {
       : null
   });
 
+
   /**
-   * Starts auto-cycling through scenarios at specified interval.
-   * @param intervalMs - Milliseconds between scenario changes (default: 8000)
+   * Starts auto-cycling through scenarios at a specified interval.
+   *
+   * @param intervalMs Milliseconds between scenario changes (default: 8000)
+   * @returns {number} Interval ID (can be used to clearInterval)
    */
   const startAutoCycle = (intervalMs = 8000): number => {
     return window.setInterval(cycleMockScenario, intervalMs);
   };
 
   return {
+    /**
+     * Reactive ref indicating if mock mode is enabled.
+     */
     MOCK_MODE,
+    /**
+     * Reactive ref for the current mock scenario.
+     */
     mockScenario,
+    /**
+     * Function to cycle through mock scenarios.
+     */
     cycleMockScenario,
+    /**
+     * Function to generate mock dashboard data for the current scenario.
+     */
     generateMockData,
+    /**
+     * Function to get mock connection state for the current scenario.
+     */
     getMockConnectionState,
+    /**
+     * Function to start auto-cycling scenarios at a given interval.
+     */
     startAutoCycle,
   };
 }
