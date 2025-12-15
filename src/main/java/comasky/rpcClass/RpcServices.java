@@ -11,12 +11,13 @@ import comasky.rpcClass.dto.GlobalResponse;
 import comasky.rpcClass.dto.SubverDistribution;
 import comasky.rpcClass.dto.SubverStats;
 import comasky.rpcClass.responses.*;
+import comasky.shared.DashboardConfig;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
-import io.smallrye.mutiny.tuples.Tuple5;
 import io.smallrye.mutiny.tuples.Tuple6;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import java.util.Collections;
@@ -47,6 +48,10 @@ public class RpcServices {
 
     
     private static final TypeReference<List<PeerInfoResponse>> PEER_INFO_TYPE_REF = new TypeReference<>() {};
+
+
+    @Inject
+    DashboardConfig dashboardConfig;
 
     private final ObjectMapper objectMapper;
     private final RpcClient rpcClient;
@@ -121,7 +126,6 @@ public class RpcServices {
      * @return a {@link Uni} emitting the aggregated global dashboard response
      */
     public Uni<GlobalResponse> getData() {
-        
         Uni<List<PeerInfoResponse>> peerInfoUni = executePeerInfoRpcCall()
             .onFailure().invoke(e -> LOG.warnf("PeerInfo RPC failed: %s", e.getMessage()))
             .onFailure().recoverWithItem(Collections.emptyList());
@@ -148,10 +152,15 @@ public class RpcServices {
                 .onFailure().recoverWithItem(() -> null);
             });
 
-        Uni<MempoolInfoResponse> mempoolInfoResponse = getMempoolInfo()
-            .onFailure().invoke(e -> LOG.warnf("MempoolInfo RPC failed: %s", e.getMessage()))
-            .onFailure().recoverWithItem(() -> null);
-        
+        Uni<MempoolInfoResponse> mempoolInfoResponse;
+        if (dashboardConfig != null && dashboardConfig.disableMempool()) {
+            mempoolInfoResponse = Uni.createFrom().item((MempoolInfoResponse) null);
+        } else {
+            mempoolInfoResponse = getMempoolInfo()
+                .onFailure().invoke(e -> LOG.warnf("MempoolInfo RPC failed: %s", e.getMessage()))
+                .onFailure().recoverWithItem(() -> null);
+        }
+
         return Uni.combine().all().unis(peerInfoUni, blockchainInfoUni, nodeInfoUni, uptimeUni, blockInfoUni, mempoolInfoResponse)
             .asTuple()
             .onItem().transform(this::buildGlobalResponseFromTuple);

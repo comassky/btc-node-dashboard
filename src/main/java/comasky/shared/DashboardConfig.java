@@ -11,6 +11,10 @@ public interface DashboardConfig {
     Health health();
     Cache cache();
     int sessionsMax();
+    /**
+     * If true, disables mempool info retrieval in the backend.
+     */
+    boolean disableMempool();
 
     interface Polling {
         Interval interval();

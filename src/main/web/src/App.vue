@@ -72,7 +72,9 @@ const DEFAULT_DATA: DashboardData = {
 };
 
 const dataState = reactive<DashboardData>(DEFAULT_DATA);
+
 const configLoaded = ref(false);
+const disableMempool = ref(false);
 
 
 const inboundPeers = computed(() => dataState.inboundPeer);
@@ -98,12 +100,14 @@ const {
 const autoCycleId = ref<number | null>(null);
 
 // Load configuration from backend
+
 const loadConfig = async () => {
   try {
     const response = await fetch('/api/config');
     if (response.ok) {
       const config: DashboardConfig = await response.json();
       setMinOutboundPeers(config.minOutboundPeers);
+      disableMempool.value = !!config.disableMempool;
       configLoaded.value = true;
     }
   } catch (error) {
@@ -268,7 +272,7 @@ function handleCycleScenario() {
 
           <transition name="fade" mode="out-in">
             <div v-if="(MOCK_MODE && dataState.rpcConnected) || rpcConnected" class="lg:col-span-2">
-              <MempoolInfoCard :mempool-info="dataState.mempoolInfo" class="mt-0" />
+              <MempoolInfoCard v-if="!disableMempool" :mempool-info="dataState.mempoolInfo" class="mt-4 sm:mt-0" />
               <div class="bg-bg-card p-4 sm:p-6 rounded-xl shadow-2xl mt-6">
                 <h2 class="text-xl sm:text-2xl font-medium mb-4 sm:mb-6">
                   <font-awesome-icon :icon="['fas', 'chart-pie']" class="mr-2 text-accent" /> 

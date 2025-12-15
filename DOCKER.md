@@ -55,6 +55,7 @@ See [compose.yml](compose.yml) for a full setup with Bitcoin Core.
 | `WS_POLLING_INTERVAL` | `5` | Dashboard refresh interval in seconds |
 | `LOG_LEVEL` | `INFO` | Application log level (`TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`). Use `DEBUG` to see detailed startup configuration |
 | `DASHBOARD_CACHE_VALIDITY_BUFFER_MS` | `200` | Time in milliseconds to subtract from the cache entry's expiry to ensure data freshness. Useful for preventing stale data in highly dynamic environments. |
+| `DASHBOARD_DISABLE_MEMPOOL` | `false` | Set to `true` to disable mempool info retrieval in the dashboard |
 
 ### Application Properties
 

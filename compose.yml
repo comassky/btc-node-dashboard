@@ -12,3 +12,4 @@ services:
       WS_POLLING_INTERVAL: 1 # WebSocket polling interval in seconds (default: 5)
       MIN_OUTBOUND_PEERS: 8 # Minimum number of outbound peers before warning (default: 8)
       LOG_LEVEL: WARN # Logging level: TRACE, DEBUG, INFO, WARN, ERROR (default: INFO)
+      DASHBOARD_DISABLE_MEMPOOL: false # Set to true to disable mempool info retrieval
