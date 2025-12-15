@@ -1,5 +1,11 @@
 
+
 import { ref } from 'vue';
+
+/**
+ * Type representing the available mock scenarios for dashboard simulation.
+ */
+export type MockScenario = 'normal' | 'disconnected' | 'lowPeers' | 'outOfSync';
 
 import type { DashboardData } from '@types';
 
