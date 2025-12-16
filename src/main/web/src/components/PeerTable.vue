@@ -7,7 +7,7 @@
             {{ type === 'inbound' ? 'Inbound Peers' : 'Outbound Peers' }} ({{ peers.length }})
         </h4>
 
-        <div class="peer-table-wrapper border border-border-strong rounded-lg mt-4 shadow-inner">
+        <div class="peer-table-wrapper border border-border-strong rounded-lg mt-4">
             <table class="peer-table w-full text-sm">
                 <thead>
                     <tr class="bg-border-strong/50 whitespace-nowrap">

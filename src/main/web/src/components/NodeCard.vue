@@ -1,5 +1,5 @@
 <template>
-    <div class="dashboard-card border-accent hover:shadow-2xl hover:border-accent lg:col-span-2">
+    <div class="dashboard-card border-accent hover:shadow-2xl hover:border-accent">
         <div class="flex justify-between items-center">
             <div class="text-2xl sm:text-3xl text-accent">
                 <font-awesome-icon :icon="['fas', 'hard-hat']" />
@@ -73,7 +73,7 @@ function networkIcon(name: string) {
     switch (name) {
         case 'ipv4': return ['fas', 'network-wired'];
         case 'ipv6': return ['fas', 'project-diagram'];
-        case 'onion': return ['fas', 'mask']; // ou ['fas', 'user-secret']
+        case 'onion': return ['fas', 'mask'];
         case 'i2p': return ['fas', 'layer-group'];
         case 'cloud': return ['fas', 'cloud'];
         default: return ['fas', 'question-circle'];

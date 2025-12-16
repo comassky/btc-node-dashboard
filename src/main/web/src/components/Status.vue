@@ -43,7 +43,7 @@ const badgeTextClass = computed(() =>
 
 <template>
     <div
-        class="status-bar is-mobile flex justify-center items-center gap-4 sm:gap-10 p-5 md:p-6 mb-10 rounded-xl font-medium shadow-2xl transition-all duration-300 ease-in-out"
+        class="flex justify-center items-center gap-4 sm:gap-10 p-5 md:p-6 mb-10 rounded-xl font-medium shadow-2xl transition-all duration-300 ease-in-out"
         :class="statusClass"
     >
         <Tooltip :text="'WebSocket: Connection between dashboard and backend. Shows if the dashboard is receiving live updates.'" position="bottom" horizontal="left">
@@ -59,7 +59,7 @@ const badgeTextClass = computed(() =>
                 <font-awesome-icon :icon="['fas', 'server']" class="mr-2 text-xl" /> Node RPC: {{ props.rpcConnected ? 'ONLINE' : 'OFFLINE' }}
             </span>
         </Tooltip>
-        <p v-if="props.errorMessage && !props.isRetrying" class="text-sm font-light mt-1 pt-1 sm:border-t-0 sm:pt-0">
+        <p v-if="props.errorMessage && !props.isRetrying" class="text-sm font-light mt-1 pt-1">
             <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="mr-2" /> {{ props.errorMessage }}
         </p>
         <div v-if="props.rpcConnected && hasWarnings" class="flex flex-wrap items-center gap-3 text-sm">

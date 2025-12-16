@@ -87,6 +87,13 @@ export default defineConfig(({ mode }) => ({
         ext: '.gz',
         threshold: 1024,
         deleteOriginFile: false
+      }),
+      // Compression brotli
+      viteCompression({
+        algorithm: 'brotliCompress',
+        ext: '.br',
+        threshold: 1024,
+        deleteOriginFile: false
       })
     ] : [])
   ],

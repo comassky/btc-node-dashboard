@@ -1,6 +1,6 @@
 <template>
-  <div class="bg-bg-card p-4 sm:p-6 rounded-xl shadow-2xl lg:col-span-2">
-    <h2 class="text-xl sm:text-2xl font-medium mb-4 sm:mb-6">
+  <div class="bg-bg-card p-4 sm:p-6 rounded-xl shadow-2xl">
+    <h2 class="text-xl sm:text-2xl font-medium mb-4">
       <font-awesome-icon :icon="['fas', 'layer-group']" class="mr-2 text-accent" />
       Mempool Info
     </h2>

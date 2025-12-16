@@ -2,8 +2,7 @@
         <div class="dashboard-card-interactive"
             :class="isOutOfSync ? 'border-status-error hover:border-status-error hover:shadow-2xl' : 'border-status-success hover:border-status-success hover:shadow-2xl'">
         <div class="flex justify-between items-center">
-            <div class="text-2xl sm:text-3xl"
-                 :class="isOutOfSync ? 'text-status-error' : 'text-status-success'">
+              <div :class="['text-2xl', 'sm:text-3xl', isOutOfSync ? 'text-status-error' : 'text-status-success']">
                 <font-awesome-icon :icon="['fas', 'cubes']" />
             </div>
             <div class="text-xs uppercase text-text-secondary font-medium">Current Block</div>
@@ -13,10 +12,7 @@
                 :href="`https://mempool.space/block/${blockchain.blocks}`"
                 target="_blank"
                 rel="noopener noreferrer"
-                :class="[
-                                'text-4xl sm:text-5xl font-light mt-2 sm:mt-3 block focus:text-status-warning transition-colors duration-150 outline-none',
-                                    isOutOfSync ? 'text-status-error hover:text-accent' : 'text-status-success hover:text-accent'
-                ]"
+                :class="['text-4xl', 'sm:text-5xl', 'font-light', 'mt-2', 'sm:mt-3', 'block', 'focus:text-status-warning', 'transition-colors', 'duration-150', 'outline-none', isOutOfSync ? 'text-status-error hover:text-accent' : 'text-status-success hover:text-accent']"
             >
                 {{ blockchain.blocks }}
             </a>
