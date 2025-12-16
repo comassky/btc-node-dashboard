@@ -2,8 +2,7 @@
         <div class="dashboard-card-interactive"
             :class="isOutOfSync ? 'border-status-error hover:border-status-error hover:shadow-2xl' : 'border-status-success hover:border-status-success hover:shadow-2xl'">
         <div class="flex justify-between items-center">
-            <div class="text-2xl sm:text-3xl"
-                 :class="isOutOfSync ? 'text-status-error' : 'text-status-success'">
+              <div :class="['text-2xl', 'sm:text-3xl', isOutOfSync ? 'text-status-error' : 'text-status-success']">
                 <font-awesome-icon :icon="['fas', 'cubes']" />
             </div>
             <div class="text-xs uppercase text-text-secondary font-medium">Current Block</div>
@@ -13,10 +12,7 @@
                 :href="`https://mempool.space/block/${blockchain.blocks}`"
                 target="_blank"
                 rel="noopener noreferrer"
-                :class="[
-                                'text-4xl sm:text-5xl font-light mt-2 sm:mt-3 block focus:text-status-warning transition-colors duration-150 outline-none',
-                                    isOutOfSync ? 'text-status-error hover:text-accent' : 'text-status-success hover:text-accent'
-                ]"
+                :class="['text-4xl', 'sm:text-5xl', 'font-light', 'mt-2', 'sm:mt-3', 'block', 'focus:text-status-warning', 'transition-colors', 'duration-150', 'outline-none', isOutOfSync ? 'text-status-error hover:text-accent' : 'text-status-success hover:text-accent']"
             >
                 {{ blockchain.blocks }}
             </a>
@@ -44,7 +40,7 @@
                             {{ formatTimeSince(block.time).replace(/ ago$/, '') }} ago
                         </span>
                     </p>
-                    <p>
+                    <p class="mb-0.5 sm:mb-1">
                         <Tooltip :text="'Number of transactions in the current block.'" position="bottom" horizontal="left">
                             <font-awesome-icon :icon="['fas', 'exchange-alt']" class="mr-1" />
                         </Tooltip>
@@ -60,25 +56,30 @@
                     </div>
                 </Tooltip>
             </div>
+
+        <!-- Affichage de la taille sur disque -->
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+
 import { computed } from 'vue';
 import { formatTimeSince } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
 import { getHeaderBlockDiff, isSyncing, getSyncWarningMessage } from '@utils/nodeHealth';
+import type { BlockChainInfo, BlockInfoResponse } from '@types';
 
 const props = withDefaults(defineProps<{
-  blockchain: any;
-  block: any;
-  forceOutOfSync?: boolean;
+    blockchain: BlockChainInfo;
+    block: BlockInfoResponse;
+    forceOutOfSync?: boolean;
 }>(), { forceOutOfSync: false });
 
 const headerBlockDiff = computed(() => getHeaderBlockDiff(props.blockchain));
 const isSyncingComputed = computed(() => isSyncing(props.blockchain));
 const isOutOfSync = computed(() => props.forceOutOfSync || (typeof props.blockchain === 'object' && typeof props.block === 'object' &&
-    (props.blockchain.headers - props.blockchain.blocks > 2 || (props.blockchain.blocks !== props.block.height))));
+        (props.blockchain.headers - props.blockchain.blocks > 2)));
 const syncWarningMessage = computed(() => getSyncWarningMessage(props.blockchain, props.block, formatTimeSince));
+
 </script>

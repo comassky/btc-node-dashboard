@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
 import comasky.client.RpcRequestDto;
 import comasky.exceptions.RpcException;
-import comasky.rpcClass.*;
+import comasky.rpcClass.RpcResponse;
+import comasky.rpcClass.RpcServices;
+import comasky.rpcClass.responses.BlockInfoResponse;
+import comasky.rpcClass.responses.BlockchainInfoResponse;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -44,21 +47,25 @@ class RpcServicesTest {
 
     @Test
     void testGetNodeInfo_success() throws Exception {
-        NodeInfo expectedNodeInfo = new NodeInfo(
-            70016,
-            270000,
-            "/Satoshi:27.0.0/",
-            10,
-            true
+        comasky.rpcClass.responses.NetworkInfoResponse expectedNodeInfo = new comasky.rpcClass.responses.NetworkInfoResponse(
+            70016, // version
+            "/Satoshi:27.0.0/", // subversion
+            70016, // protocolversion
+            "", // localservices
+            java.util.Collections.emptyList(), // localservicesnames
+            true, // localrelay
+            0, // timeoffset
+            0, // connections
+            true, // networkactive
+            java.util.Collections.emptyList(), // networks
+            java.util.Collections.emptyList() // localaddresses
         );
-        
         when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createSuccessRpcResponseJson(expectedNodeInfo));
 
-        NodeInfo nodeInfo = rpcServices.getNodeInfo().await().indefinitely();
+        comasky.rpcClass.responses.NetworkInfoResponse nodeInfo = rpcServices.getNetworkInfo().await().indefinitely();
 
         assertNotNull(nodeInfo);
-        assertEquals(270000, nodeInfo.version());
-        assertEquals(70016, nodeInfo.protocolVersion());
+        assertEquals(70016, nodeInfo.version());
         assertEquals("/Satoshi:27.0.0/", nodeInfo.subversion());
     }
 
@@ -75,22 +82,18 @@ class RpcServicesTest {
 
     @Test
     void testGetBlockchainInfo_success() throws Exception {
-        BlockchainInfo expectedBlockchainInfo = new BlockchainInfo(
-            870000,
-            870000,
-            "main",
-            0.9999,
-            false
+        BlockchainInfoResponse expectedBlockchainInfoResponse = new BlockchainInfoResponse(
+            "main", 870000, 870000, "", 0.9999, 0L, 0L, 0.9999, false, "", 0L, false, null
         );
-        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createSuccessRpcResponseJson(expectedBlockchainInfo));
+        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createSuccessRpcResponseJson(expectedBlockchainInfoResponse));
 
-        BlockchainInfo blockchainInfo = rpcServices.getBlockchainInfo().await().indefinitely();
+        BlockchainInfoResponse blockchainInfoResponse = rpcServices.getBlockchainInfo().await().indefinitely();
 
-        assertNotNull(blockchainInfo);
-        assertEquals(870000, blockchainInfo.blocks());
-        assertEquals(870000, blockchainInfo.headers());
-        assertEquals("main", blockchainInfo.chain());
-        assertEquals(0.9999, blockchainInfo.verificationProgress(), 0.0001);
+        assertNotNull(blockchainInfoResponse);
+        assertEquals(870000, blockchainInfoResponse.blocks());
+        assertEquals(870000, blockchainInfoResponse.headers());
+        assertEquals("main", blockchainInfoResponse.chain());
+        assertEquals(0.9999, blockchainInfoResponse.verificationprogress(), 0.0001);
     }
 
     @Test
@@ -105,7 +108,7 @@ class RpcServicesTest {
 
     @Test
     void testGetBlockInfo_success() throws Exception {
-            BlockInfo expectedBlockInfo = new BlockInfo(
+            BlockInfoResponse expectedBlockInfoResponse = new BlockInfoResponse(
                 "00000000000000000001234567890abcdef",
                 1,
                 0,
@@ -125,13 +128,13 @@ class RpcServicesTest {
                 "",
                 ""
             );
-            when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createSuccessRpcResponseJson(expectedBlockInfo));
+            when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createSuccessRpcResponseJson(expectedBlockInfoResponse));
 
-            BlockInfo blockInfo = rpcServices.getBlockInfo("00000000000000000001234567890abcdef").await().indefinitely();
+            BlockInfoResponse blockInfoResponse = rpcServices.getBlockInfo("00000000000000000001234567890abcdef").await().indefinitely();
 
-            assertNotNull(blockInfo);
-            assertEquals(1733443200, blockInfo.time());
-            assertEquals(2500, blockInfo.ntx());
+            assertNotNull(blockInfoResponse);
+            assertEquals(1733443200, blockInfoResponse.time());
+            assertEquals(2500, blockInfoResponse.ntx());
     }
 
     @Test
@@ -152,7 +155,7 @@ class RpcServicesTest {
         when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenThrow(new RuntimeException("Connection refused"));
 
         RpcException exception = assertThrows(RpcException.class,
-            () -> rpcServices.getNodeInfo().await().indefinitely());
+            () -> rpcServices.getNetworkInfo().await().indefinitely());
         
         assertTrue(exception.getMessage().contains("Connection failed"));
         assertNotNull(exception.getCause());

@@ -27,6 +27,14 @@ import {
     faTable,
     faArrowDown,
     faArrowUp,
+    faHdd,
+    faCoins,
+    faProjectDiagram,
+    faMask,
+    faLayerGroup,
+    faQuestionCircle,
+    faUserSecret,
+    faCloud
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -42,7 +50,9 @@ library.add(
     faSun, faMoon, faUserFriends, faSignInAlt, faSignOutAlt, faCubes, faListOl, 
     faExchangeAlt, faHardHat, faShieldAlt, faNetworkWired, faServer, 
     faExclamationCircle, faSpinner, faChartPie, faTable, faArrowDown, faArrowUp,
-    faClock,
+    faHdd, faCoins, faProjectDiagram, faMask,
+    faQuestionCircle, faUserSecret, faCloud,
+    faClock, faLayerGroup,
     faBitcoin, faGithub,
 );
 

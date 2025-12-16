@@ -1,7 +1,11 @@
-
 package comasky.api;
 
-import comasky.rpcClass.*;
+import comasky.rpcClass.RpcServices;
+import comasky.rpcClass.dto.GlobalResponse;
+import comasky.rpcClass.responses.BlockInfoResponse;
+import comasky.rpcClass.responses.BlockchainInfoResponse;
+import comasky.rpcClass.responses.MempoolInfoResponse;
+import comasky.rpcClass.responses.NetworkInfoResponse;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -15,28 +19,22 @@ import jakarta.ws.rs.core.MediaType;
  * <p>
  * Provides HTTP endpoints for dashboard, network, block, and blockchain information.
  */
-@Path("/data")
+@Path("/api")
 @Produces(MediaType.APPLICATION_JSON)
-public class BtcController {
+public class BitcoinApiController {
 
     private final RpcServices rpcServices;
 
     @Inject
-    public BtcController(RpcServices rpcServices) {
+    public BitcoinApiController(RpcServices rpcServices) {
         this.rpcServices = rpcServices;
     }
 
-    /**
-     * Retrieves aggregated dashboard data for the Bitcoin node.
-     *
-     * @return a {@link Uni} emitting the global dashboard response
-     */
     @GET
     @Path("dashboard")
     public Uni<GlobalResponse> getDashboardData() {
         return rpcServices.getData();
     }
-
     /**
      * Retrieves network information about the Bitcoin node.
      *
@@ -44,8 +42,8 @@ public class BtcController {
      */
     @GET
     @Path("getnetworkinfo")
-    public Uni<NodeInfo> getNetworkInfo() {
-        return rpcServices.getNodeInfo();
+    public Uni<NetworkInfoResponse> getNetworkInfo() {
+        return rpcServices.getNetworkInfo();
     }
 
     /**
@@ -56,7 +54,7 @@ public class BtcController {
      */
     @GET
     @Path("getblock/{hash}")
-    public Uni<BlockInfo> getBlockInfo(@PathParam("hash") String hash) {
+    public Uni<BlockInfoResponse> getBlockInfo(@PathParam("hash") String hash) {
         if (hash == null || hash.isBlank()) {
             return Uni.createFrom().failure(new IllegalArgumentException("Block hash must not be null or blank"));
         }
@@ -82,7 +80,19 @@ public class BtcController {
      */
     @GET
     @Path("getBlockchainInfo")
-    public Uni<BlockchainInfo> getBlockchainInfo() {
+    public Uni<BlockchainInfoResponse> getBlockchainInfo() {
         return rpcServices.getBlockchainInfo();
+    }
+
+
+    /**
+     * Retrieves mempool information for the Bitcoin node.
+     *
+     * @return a {@link Uni} emitting the mempool information
+     */
+    @GET
+    @Path("getmempoolinfo")
+    public Uni<MempoolInfoResponse> getMempoolInfo() {
+        return rpcServices.getMempoolInfo();
     }
 }

@@ -1,4 +1,4 @@
-package comasky.rpcClass;
+package comasky.rpcClass.dto;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 

@@ -1,5 +1,6 @@
-package comasky.rpcClass;
+package comasky.rpcClass.dto;
 
+import comasky.rpcClass.responses.*;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 import java.util.List;
@@ -12,10 +13,11 @@ import java.util.List;
 public record GlobalResponse(
     GeneralStats generalStats,
     SubverDistribution subverDistribution,
-    List<PeerInfo> inboundPeer,
-    List<PeerInfo> outboundPeer,
-    BlockchainInfo blockchainInfo,
-    NodeInfo nodeInfo,
+    List<PeerInfoResponse> inboundPeer,
+    List<PeerInfoResponse> outboundPeer,
+    BlockchainInfoResponse blockchainInfoResponse,
+    NetworkInfoResponse nodeInfo,
     String upTime,
-    BlockInfo block
+    BlockInfoResponse block,
+    MempoolInfoResponse mempoolInfo
 ) {}

@@ -12,7 +12,7 @@
         ref="tooltipEl"
         :style="tooltipStyle"
         :class="[
-          'fixed px-3 py-2 bg-bg-card text-text-primary text-sm rounded-lg opacity-100 visible whitespace-nowrap z-[99999] pointer-events-auto shadow-xl border border-border-strong backdrop-blur-sm',
+          'fixed px-3 py-2 bg-bg-card text-text-primary text-sm rounded-lg opacity-100 visible whitespace-nowrap z-[99999] pointer-events-auto shadow-xl border border-border-strong',
         ]"
       >
         {{ text }}

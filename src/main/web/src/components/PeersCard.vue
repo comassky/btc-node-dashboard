@@ -1,9 +1,8 @@
 <template>
-    <div class="dashboard-card-interactive"
-         :class="hasLowOutbound ? 'border-status-warning hover:border-status-warning hover:shadow-2xl' : 'border-status-success hover:border-status-success hover:shadow-2xl'">
+        <div class="dashboard-card-interactive"
+            :class="hasLowOutbound ? 'border-status-warning hover:border-status-warning hover:shadow-2xl' : 'border-status-success hover:border-status-success hover:shadow-2xl'">
         <div class="flex justify-between items-center">
-            <div class="text-2xl sm:text-3xl"
-                 :class="hasLowOutbound ? 'text-status-warning' : 'text-status-success'">
+              <div :class="['text-2xl', 'sm:text-3xl', hasLowOutbound ? 'text-status-warning' : 'text-status-success']">
                 <font-awesome-icon :icon="['fas', 'user-friends']" />
             </div>
             <div class="text-xs uppercase text-text-secondary font-medium">Total Peers</div>
@@ -39,9 +38,10 @@
 import { computed } from 'vue';
 import Tooltip from '@components/Tooltip.vue';
 import { hasLowOutboundPeers } from '@utils/nodeHealth';
+import type { GeneralStats } from '../types';
 
 const props = withDefaults(defineProps<{
-    stats: any;
+    stats: GeneralStats;
     forceLowPeers?: boolean;
 }>(), { forceLowPeers: false });
 

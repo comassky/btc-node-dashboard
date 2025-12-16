@@ -4,13 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
 import comasky.client.RpcRequestDto;
 import comasky.exceptions.RpcException;
-import comasky.rpcClass.BlockInfo;
-import comasky.rpcClass.BlockchainInfo;
-import comasky.rpcClass.GlobalResponse;
-import comasky.rpcClass.NodeInfo;
-import comasky.rpcClass.PeerInfo;
 import comasky.rpcClass.RpcResponse;
 import comasky.rpcClass.RpcServices;
+import comasky.rpcClass.dto.GlobalResponse;
+import comasky.rpcClass.responses.BlockInfoResponse;
+import comasky.rpcClass.responses.BlockchainInfoResponse;
+import comasky.rpcClass.responses.PeerInfoResponse;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -86,8 +85,8 @@ class RpcServicesAdvancedTest {
     }
 
     // Helper to create a PeerInfo instance
-    private PeerInfo createPeerInfo(String id, String addr, boolean inbound, String subver, int version) {
-        return new PeerInfo(
+    private PeerInfoResponse createPeerInfo(String id, String addr, boolean inbound, String subver, int version) {
+        return new PeerInfoResponse(
                 Integer.parseInt(id),
                 addr,
                 "127.0.0.1:8333",
@@ -121,11 +120,23 @@ class RpcServicesAdvancedTest {
                 createPeerInfo("2", "192.168.1.101:8333", false, "/Satoshi:26.0.0/", 260000),
                 createPeerInfo("3", "192.168.1.102:8333", true, "/Satoshi:27.0.0/", 270000)
             ),
-            "getblockchaininfo", new BlockchainInfo(870000, 870000, "main", 0.99, false),
-            "getnetworkinfo", new NodeInfo(70016, 270000, "/Satoshi:27.0.0/", 10, true),
+            "getblockchaininfo", new BlockchainInfoResponse("main", 870000, 870000, "", 0.99, 0L, 0L, 0.99, false, "", 0L, false, null),
+            "getnetworkinfo", new comasky.rpcClass.responses.NetworkInfoResponse(
+                70016, // version
+                "/Satoshi:27.0.0/", // subversion
+                70016, // protocolversion
+                "", // localservices
+                java.util.Collections.emptyList(), // localservicesnames
+                true, // localrelay
+                0, // timeoffset
+                0, // connections
+                true, // networkactive
+                java.util.Collections.emptyList(), // networks
+                java.util.Collections.emptyList() // localaddresses
+            ),
             "uptime", 432000L,
             "getbestblockhash", "00000000000000000001abc", // This is a String object, will be wrapped
-            "getblock", new BlockInfo(
+            "getblock", new BlockInfoResponse(
                 "00000000000000000001abc", 1, 0, 0, 0, 870000, 1, "", "", 1733443200L, 0L, 0L, "", 1.0, "", 2500, "", ""
             )
         );
@@ -148,11 +159,23 @@ class RpcServicesAdvancedTest {
     void testGetData_emptyPeerList() throws Exception {
         Map<String, Object> mockResponses = Map.of(
             "getpeerinfo", List.of(),
-            "getblockchaininfo", new BlockchainInfo(870000, 870000, "main", 0.99, false),
-            "getnetworkinfo", new NodeInfo(70016, 270000, "/Satoshi:27.0.0/", 10, true),
+            "getblockchaininfo", new BlockchainInfoResponse("main", 870000, 870000, "", 0.99, 0L, 0L, 0.99, false, "", 0L, false, null),
+            "getnetworkinfo", new comasky.rpcClass.responses.NetworkInfoResponse(
+                70016, // version
+                "/Satoshi:27.0.0/", // subversion
+                70016, // protocolversion
+                "", // localservices
+                java.util.Collections.emptyList(), // localservicesnames
+                true, // localrelay
+                0, // timeoffset
+                0, // connections
+                true, // networkactive
+                java.util.Collections.emptyList(), // networks
+                java.util.Collections.emptyList() // localaddresses
+            ),
             "uptime", 432000L,
             "getbestblockhash", "00000000000000000001abc",
-            "getblock", new BlockInfo(
+            "getblock", new BlockInfoResponse(
                 "00000000000000000001abc", 1, 0, 0, 0, 870000, 1, "", "", 1733443200L, 0L, 0L, "", 1.0, "", 2500, "", ""
             )
         );
@@ -170,7 +193,7 @@ class RpcServicesAdvancedTest {
 
     @Test
     void testGetBlockInfo_withVerbosity() throws Exception {
-        BlockInfo expectedBlockInfo = new BlockInfo(
+        BlockInfoResponse expectedBlockInfoResponse = new BlockInfoResponse(
               "00000000000000000001abc", // hash
               1, // confirmations
               0, // strippedsize
@@ -190,13 +213,13 @@ class RpcServicesAdvancedTest {
               "", // previousblockhash
               "" // nextblockhash
         );
-        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createSuccessRpcResponseJson(expectedBlockInfo));
+        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createSuccessRpcResponseJson(expectedBlockInfoResponse));
 
-        BlockInfo blockInfo = rpcServices.getBlockInfo("00000000000000000001abc").await().indefinitely();
+        BlockInfoResponse blockInfoResponse = rpcServices.getBlockInfo("00000000000000000001abc").await().indefinitely();
 
-        assertNotNull(blockInfo);
-        assertEquals(1733443200, blockInfo.time());
-        assertEquals(2500, blockInfo.ntx());
+        assertNotNull(blockInfoResponse);
+        assertEquals(1733443200, blockInfoResponse.time());
+        assertEquals(2500, blockInfoResponse.ntx());
     }
 
     @Test
@@ -213,7 +236,7 @@ class RpcServicesAdvancedTest {
         // Simulate an RPC error by returning an error JSON response
         when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createErrorRpcResponseJson("Null result error"));
 
-        RpcException exception = assertThrows(RpcException.class, () -> rpcServices.getNodeInfo().await().indefinitely());
+        RpcException exception = assertThrows(RpcException.class, () -> rpcServices.getNetworkInfo().await().indefinitely());
         assertTrue(exception.getMessage().contains("RPC Error for method getnetworkinfo: Null result error"));
     }
 
@@ -221,7 +244,7 @@ class RpcServicesAdvancedTest {
     void testJsonParsingError_invalidResponse() {
         // Simulate a parsing error by returning an invalid JSON string
         when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn("this is not valid json");
-        RpcException exception = assertThrows(RpcException.class, () -> rpcServices.getNodeInfo().await().indefinitely());
+        RpcException exception = assertThrows(RpcException.class, () -> rpcServices.getNetworkInfo().await().indefinitely());
         assertTrue(exception.getMessage().contains("Connection failed for method getnetworkinfo: Unrecognized token 'this'"));
     }
 
