@@ -1,7 +1,7 @@
 package comasky;
 
 import comasky.api.DashboardWebSocket;
-import comasky.rpcClass.*;
+import comasky.rpcClass.RpcServices;
 import comasky.rpcClass.dto.GeneralStats;
 import comasky.rpcClass.dto.GlobalResponse;
 import comasky.rpcClass.dto.SubverDistribution;

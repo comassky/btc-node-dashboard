@@ -1,7 +1,7 @@
 package comasky;
 
 import comasky.api.BitcoinApiController;
-import comasky.rpcClass.*;
+import comasky.rpcClass.RpcServices;
 import comasky.rpcClass.dto.GeneralStats;
 import comasky.rpcClass.dto.GlobalResponse;
 import comasky.rpcClass.dto.SubverDistribution;
@@ -12,17 +12,11 @@ import comasky.rpcClass.responses.MempoolInfoResponse;
 import comasky.rpcClass.responses.PeerInfoResponse;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.smallrye.mutiny.Uni;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.when;
 
 @QuarkusTest
 class BtcControllerTest {

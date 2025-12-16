@@ -1,6 +1,6 @@
 package comasky.api;
 
-import comasky.rpcClass.*;
+import comasky.rpcClass.RpcServices;
 import comasky.rpcClass.dto.GlobalResponse;
 import comasky.rpcClass.responses.BlockInfoResponse;
 import comasky.rpcClass.responses.BlockchainInfoResponse;
