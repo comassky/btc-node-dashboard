@@ -248,9 +248,9 @@ function handleCycleScenario() {
             <template v-if="(MOCK_MODE && dataState.rpcConnected) || rpcConnected">
               <div class="lg:col-span-2" key="cards">
                 <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 xs:gap-3 sm:gap-4 md:gap-6">
-                  <PeersCard :stats="dataState.generalStats" />
-                  <BlockCard :blockchain="dataState.blockchainInfoResponse" :block="dataState.block" />
-                  <NodeCard :node="dataState.nodeInfo" :blockchain="dataState.blockchainInfoResponse" :upTime="dataState.upTime" />
+                  <PeersCard :stats="dataState.generalStats" class="col-span-1" />
+                  <BlockCard :blockchain="dataState.blockchainInfoResponse" :block="dataState.block" class="col-span-1" />
+                  <NodeCard :node="dataState.nodeInfo" :blockchain="dataState.blockchainInfoResponse" :upTime="dataState.upTime" class="col-span-1 lg:col-span-2 w-full max-w-full" />
                 </div>
               </div>
             </template>
