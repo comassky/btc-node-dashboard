@@ -72,9 +72,18 @@ export default defineConfig(({ mode }) => ({
             }
           },
           {
-            urlPattern: /\/oidc\/callback/,
-            handler: 'NetworkOnly',
-            method: 'GET',
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'image-cache',
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
           }
         ]
       }
