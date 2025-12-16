@@ -23,52 +23,73 @@ export function useWebSocket(
     const errorMessage = ref<string | null>(null);
     const isRetrying = ref(false);
     let ws: ReconnectingWebSocket | null = null;
+    let listenersAttached = false;
 
     /**
      * Establishes a new WebSocket connection and sets up event listeners.
      */
+    const attachListeners = (socket: ReconnectingWebSocket) => {
+        if (listenersAttached) return;
+        listenersAttached = true;
+
+        socket.addEventListener('open', () => {
+            isConnected.value = true;
+            errorMessage.value = null;
+            isRetrying.value = false;
+        });
+
+        socket.addEventListener('message', (event: MessageEvent) => {
+            try {
+                const json = JSON.parse(event.data) as Partial<DashboardData>;
+                if ('rpcConnected' in json && !('generalStats' in json)) {
+                    rpcConnected.value = json.rpcConnected ?? false;
+                    errorMessage.value = json.errorMessage || null;
+                } else if ('generalStats' in json) {
+                    rpcConnected.value = true;
+                    errorMessage.value = null;
+                    onDataReceived(json);
+                }
+            } catch (e) {
+                try {
+                    const preview = typeof event.data === 'string' ? event.data.slice(0, 200) : '';
+                    console.warn('WebSocket message parse error', e, preview);
+                } catch (ignore) {}
+            }
+        });
+
+        socket.addEventListener('close', () => {
+            isConnected.value = false;
+            rpcConnected.value = false;
+            errorMessage.value = 'WebSocket disconnected. Retrying...';
+            isRetrying.value = true;
+        });
+
+        socket.addEventListener('error', () => {
+            isConnected.value = false;
+            rpcConnected.value = false;
+            errorMessage.value = 'WebSocket connection error.';
+        });
+    };
+
     const connect = () => {
         if (ws) {
-            ws.close();
+            try {
+                // readyState constants may not be on the wrapper, defensively check
+                const ready = (ws as any).readyState;
+                const OPEN = (ws as any).OPEN ?? WebSocket.OPEN;
+                const CONNECTING = (ws as any).CONNECTING ?? WebSocket.CONNECTING;
+                if (ready === OPEN || ready === CONNECTING) {
+                    attachListeners(ws as ReconnectingWebSocket);
+                    return;
+                }
+            } catch (e) {}
+            try { ws.close(); } catch (e) {}
             ws = null;
         }
+
         ws = new wsClass(wsUrl);
-
         if (ws) {
-            ws.addEventListener('open', () => {
-                isConnected.value = true;
-                errorMessage.value = null;
-                isRetrying.value = false;
-            });
-
-            ws.addEventListener('message', (event: MessageEvent) => {
-                try {
-                    const json = JSON.parse(event.data) as Partial<DashboardData>;
-                    if ('rpcConnected' in json) {
-                        rpcConnected.value = json.rpcConnected ?? false;
-                        errorMessage.value = json.errorMessage || null;
-                    } else if ('generalStats' in json) {
-                        rpcConnected.value = true;
-                        errorMessage.value = null;
-                        onDataReceived(json);
-                    }
-                } catch (e) {
-                    console.warn('WebSocket message parse error', e, event.data);
-                }
-            });
-
-            ws.addEventListener('close', () => {
-                isConnected.value = false;
-                rpcConnected.value = false;
-                errorMessage.value = 'WebSocket disconnected. Retrying...';
-                isRetrying.value = true;
-            });
-
-            ws.addEventListener('error', () => {
-                isConnected.value = false;
-                rpcConnected.value = false;
-                errorMessage.value = 'WebSocket connection error.';
-            });
+            attachListeners(ws as ReconnectingWebSocket);
         }
     };
 

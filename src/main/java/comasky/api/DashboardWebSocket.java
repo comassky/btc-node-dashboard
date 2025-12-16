@@ -1,7 +1,7 @@
 package comasky.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import comasky.rpcClass.RpcServices;
+import comasky.rpcClass.DashboardDataProvider;
 import io.quarkus.scheduler.Scheduled;
 import io.smallrye.mutiny.Uni;
 import jakarta.annotation.PostConstruct;
@@ -40,7 +40,7 @@ public class DashboardWebSocket {
     private volatile Uni<CachedMessage> inFlightRequest;
 
     @Inject
-    RpcServices rpcServices;
+    DashboardDataProvider rpcServices;
 
     @Inject
     ObjectMapper objectMapper;
@@ -241,17 +241,24 @@ public class DashboardWebSocket {
      * @param message the message to broadcast
      */
     private void broadcastMessage(String message) {
-        sessions.removeIf(session -> {
+        // Iterate over a snapshot to avoid ConcurrentModification and keep predicate side-effect free
+        var snapshot = Set.copyOf(sessions);
+        for (Session session : snapshot) {
             if (session == null || !session.isOpen()) {
-                return true;
+                sessions.remove(session);
+                continue;
             }
             try {
-                session.getAsyncRemote().sendText(message);
-                return false;
+                session.getAsyncRemote().sendText(message, result -> {
+                    if (result == null || !result.isOK()) {
+                        LOG.warnf("Failed to send message to session %s: %s", session.getId(), result == null ? "unknown" : result.getException());
+                        sessions.remove(session);
+                    }
+                });
             } catch (Exception e) {
                 LOG.warnf(e, "Failed to send message to session %s", session.getId());
-                return true;
+                sessions.remove(session);
             }
-        });
+        }
     }
 }

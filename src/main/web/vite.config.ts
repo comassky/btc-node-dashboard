@@ -70,6 +70,11 @@ export default defineConfig(({ mode }) => ({
                 statuses: [0, 200]
               }
             }
+          },
+          {
+            urlPattern: /\/oidc\/callback/,
+            handler: 'NetworkOnly',
+            method: 'GET',
           }
         ]
       }
@@ -81,14 +86,14 @@ export default defineConfig(({ mode }) => ({
         gzipSize: true,
         brotliSize: false
       }),
-      // Compression gzip
+      //Gzip
       viteCompression({
         algorithm: 'gzip',
         ext: '.gz',
         threshold: 1024,
         deleteOriginFile: false
       }),
-      // Compression brotli
+      // Brotli
       viteCompression({
         algorithm: 'brotliCompress',
         ext: '.br',
