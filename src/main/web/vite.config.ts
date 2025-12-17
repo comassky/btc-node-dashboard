@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { VitePWA } from 'vite-plugin-pwa';
+// import { VitePWA } from 'vite-plugin-pwa';
 import { visualizer } from 'rollup-plugin-visualizer';
 import viteCompression from 'vite-plugin-compression';
 import path from 'path';
@@ -21,73 +21,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     vue(),
-    VitePWA({
-      disable: mode === 'development',
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
-      manifest: {
-        name: 'Bitcoin Node Dashboard',
-        short_name: 'BTC Dashboard',
-        description: 'Real-time Bitcoin network monitoring dashboard',
-        theme_color: '#f7931a',
-        background_color: '#0f172a',
-        display: 'standalone',
-        scope: '/',
-        start_url: '/',
-        orientation: 'portrait-primary',
-        icons: [
-          {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
-          }
-        ]
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)$/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'image-cache',
-              expiration: {
-                maxEntries: 60,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          }
-        ]
-      }
-    }),
+    // VitePWA désactivé
     ...(mode === 'production' ? [
       visualizer({
         filename: '../../stats.html',
@@ -127,57 +61,35 @@ export default defineConfig(({ mode }) => ({
         drop_console: mode === 'production',
         drop_debugger: mode === 'production',
         pure_funcs: mode === 'production' ? ['console.log', 'console.info', 'console.debug'] : [],
-        passes: 3,
+        passes: 5, // plus de passes pour une meilleure minification
         toplevel: true,
         module: true,
         ecma: 2020,
       },
-      mangle: {
-        safari10: true,
-        toplevel: true,
-        keep_classnames: false,
-        keep_fnames: false,
-      },
+      mangle: true,
       format: {
         comments: false,
       },
     },
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vue': ['vue'],
-          'chart': ['chart.js'],
-          'fontawesome': [
-            '@fortawesome/fontawesome-svg-core',
-            '@fortawesome/free-solid-svg-icons',
-            '@fortawesome/free-brands-svg-icons',
-            '@fortawesome/free-regular-svg-icons',
-            '@fortawesome/vue-fontawesome'
-          ],
+        entryFileNames: 'assets/js/[hash].js',
+        chunkFileNames: 'assets/js/[hash].js',
+        assetFileNames: ({name}) => {
+          if (/\.css$/i.test(name ?? '')) {
+            return 'assets/css/[hash][extname]';
+          }
+          if (/\.(png|jpe?g|svg|gif|webp|avif)$/i.test(name ?? '')) {
+            return 'assets/img/[hash][extname]';
+          }
+          if (/\.(woff2?|ttf|otf|eot)$/i.test(name ?? '')) {
+            return 'assets/fonts/[hash][extname]';
+          }
+          return 'assets/[hash][extname]';
         },
-        chunkFileNames: 'assets/js/[name]-[hash].js',
-        entryFileNames: 'assets/js/[name]-[hash].js',
-        assetFileNames: (assetInfo) => {
-          const info = assetInfo.name || '';
-          if (/\.css$/i.test(info)) {
-            return 'assets/css/[name]-[hash][extname]';
-          }
-          if (/\.(woff2?|ttf|eot)$/i.test(info)) {
-            return 'assets/fonts/[name]-[hash][extname]';
-          }
-          if (/\.(png|jpe?g|svg|gif|webp|avif)$/i.test(info)) {
-            return 'assets/img/[name]-[hash][extname]';
-          }
-          return 'assets/[name]-[hash][extname]';
-        },
-      },
-      treeshake: {
-        moduleSideEffects: false,
-        propertyReadSideEffects: false,
       },
     },
   },
-
   server: {
     proxy: {
       '/ws': {
