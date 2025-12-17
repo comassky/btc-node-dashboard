@@ -21,7 +21,7 @@
     "chart.js": "4.5.1",
     "reconnecting-websocket": "4.4.0",
     "vue": "3.5.25",
-    "ky": "1.0.0"
+    "ky": "1.14.1"
   },
   "devDependencies": {
     "@types/node": "24.10.4",
