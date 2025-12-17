@@ -1,6 +1,5 @@
 import { createApp } from 'vue';
 import App from '@/App.vue';
-//import { registerServiceWorker } from '@/registerServiceWorker';
 
 import './assets/dashboard.css';
 import './assets/animations.css';

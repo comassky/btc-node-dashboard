@@ -87,15 +87,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-// Removed unused import: Peer type
 import { formatBytes, formatTimeOffset, formatPing, formatConnectionTime } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
-
 import type { Peer } from '../types';
+
 const props = defineProps<{ peers: Peer[]; type: 'inbound' | 'outbound' }>();
-
 const headerColor = props.type === 'inbound' ? 'status-success' : 'accent';
-
 const sortKey = ref('id');
 const sortOrder = ref<'asc' | 'desc'>('asc');
 
@@ -111,8 +108,8 @@ function setSort(key: string) {
 const sortedPeers = computed(() => {
     const key = sortKey.value;
     return [...props.peers].sort((a, b) => {
-        const aVal = (a as unknown as Record<string, unknown>)[key];
-        const bVal = (b as unknown as Record<string, unknown>)[key];
+        const aVal = (a as any)[key];
+        const bVal = (b as any)[key];
         if (aVal == null && bVal == null) return 0;
         if (aVal == null) return 1;
         if (bVal == null) return -1;

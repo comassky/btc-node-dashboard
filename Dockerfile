@@ -25,8 +25,12 @@ RUN mvn package -DskipTests
 # Utilise une image JRE/JDK minimaliste pour l'exécution (plus petite que le JDK complet)
 FROM eclipse-temurin:21-jre-alpine AS runner
 
+
 # Définit le port que l'application expose
 EXPOSE 8080
+
+# Options JVM modernes pour de meilleures performances (G1GC, heap size, tuning)
+ENV JAVA_OPTS="-XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitialRAMPercentage=50.0 -XX:MaxRAMPercentage=80.0 -XX:+ExitOnOutOfMemoryError -Dfile.encoding=UTF-8"
 
 # Crée un répertoire non-root pour l'exécution
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
@@ -35,9 +39,13 @@ USER appuser
 # Définit le répertoire de travail
 WORKDIR /app
 
+
 # Copie les artefacts du builder (le fast-jar)
 # Le dossier 'quarkus-app' contient le jar principal et les bibliothèques
 COPY --from=builder /build/target/quarkus-app /app
+
+# Commande d'exécution avec options JVM
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/quarkus-app/quarkus-run.jar"]
 
 # Démarre l'application Quarkus.
 # L'option -Dquarkus.http.host=0.0.0.0 est nécessaire pour que l'application écoute toutes les interfaces réseau dans Docker.

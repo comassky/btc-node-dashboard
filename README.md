@@ -86,6 +86,27 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 - **GraalVM Native Image** (AOT compilation for ultra-fast startup)
 
 
+
+
+## 🏎️ Recommended Native Build (GraalVM)
+
+For maximum performance (startup <50ms, RAM ~30MB), use the Quarkus native build:
+
+```bash
+mvn package -Pnative -DskipTests
+# or with Docker
+mvn package -Pnative -Dquarkus.native.container-build=true -DskipTests
+```
+
+The native Docker image is generated with `Dockerfile.native`:
+
+```bash
+docker build -f Dockerfile.native -t btc-node-dashboard-native .
+docker run -p 8080:8080 btc-node-dashboard-native
+```
+
+The native binary starts instantly and uses very little memory, making it ideal for production.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -166,7 +187,10 @@ A short summary of the Docker image tags produced by the GitHub Actions workflow
 For details on reactive programming, non-blocking guarantees, and contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 
+
 Main user-configurable environment variables:
+
+- `QUARKUS_IO_THREADS`: Number of IO threads for the backend (recommended: 2 × number of CPU cores). Set this environment variable to control backend concurrency. Example: `QUARKUS_IO_THREADS=16 java -jar ...`. Defaults to 8 if not set.
 
 - `RPC_HOST`, `RPC_PORT`, `RPC_USER`, `RPC_PASS`: Bitcoin node connection
 - `WS_POLLING_INTERVAL`: dashboard refresh interval (seconds)
