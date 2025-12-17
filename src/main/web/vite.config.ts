@@ -124,10 +124,10 @@ export default defineConfig(({ mode }) => ({
     reportCompressedSize: true,
     terserOptions: {
       compress: {
-        drop_console: mode === 'production',
-        drop_debugger: mode === 'production',
-        pure_funcs: mode === 'production' ? ['console.log', 'console.info', 'console.debug'] : [],
-        passes: 3,
+        drop_console: true,
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info', 'console.debug'],
+        passes: 5,
         unsafe: true,
         unsafe_arrows: true,
         unsafe_comps: true,
@@ -140,16 +140,43 @@ export default defineConfig(({ mode }) => ({
         toplevel: true,
         module: true,
         ecma: 2020,
+        booleans_as_integers: true,
+        keep_fargs: false,
+        keep_infinity: false,
+        sequences: true,
+        side_effects: true,
+        conditionals: true,
+        dead_code: true,
+        evaluate: true,
+        if_return: true,
+        join_vars: true,
+        reduce_funcs: true,
+        reduce_vars: true,
+        switches: true,
+        typeofs: true,
+        unused: true,
       },
       mangle: {
         safari10: true,
         toplevel: true,
         keep_classnames: false,
         keep_fnames: false,
+        properties: {
+          regex: /^(_|\$|[a-zA-Z])/,
+          keep_quoted: false,
+        },
+        module: true,
+        reserved: [],
+        eval: true,
       },
       format: {
         comments: false,
+        beautify: false,
       },
+      keep_classnames: false,
+      keep_fnames: false,
+      module: true,
+      toplevel: true,
     },
     rollupOptions: {
       output: {
@@ -164,20 +191,20 @@ export default defineConfig(({ mode }) => ({
             '@fortawesome/vue-fontawesome'
           ],
         },
-        chunkFileNames: 'assets/js/[name]-[hash].js',
-        entryFileNames: 'assets/js/[name]-[hash].js',
+        chunkFileNames: 'assets/js/[hash].js',
+        entryFileNames: 'assets/js/[hash].js',
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name || '';
           if (/\.css$/i.test(info)) {
-            return 'assets/css/[name]-[hash][extname]';
+            return 'assets/css/[hash][extname]';
           }
           if (/\.(woff2?|ttf|eot)$/i.test(info)) {
-            return 'assets/fonts/[name]-[hash][extname]';
+            return 'assets/fonts/[hash][extname]';
           }
           if (/\.(png|jpe?g|svg|gif|webp|avif)$/i.test(info)) {
-            return 'assets/img/[name]-[hash][extname]';
+            return 'assets/img/[hash][extname]';
           }
-          return 'assets/[name]-[hash][extname]';
+          return 'assets/[hash][extname]';
         },
       },
       treeshake: {
