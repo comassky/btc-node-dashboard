@@ -43,6 +43,7 @@ replay_pid*
 *.iws
 *.ipr
 out/
+stats.html
 
 # Eclipse
 .classpath

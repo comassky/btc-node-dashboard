@@ -90,7 +90,7 @@ export default defineConfig(({ mode }) => ({
     }),
     ...(mode === 'production' ? [
       visualizer({
-        filename: 'dist/stats.html',
+        filename: '../../stats.html',
         open: false,
         gzipSize: true,
         brotliSize: false
