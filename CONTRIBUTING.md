@@ -1,4 +1,13 @@
 
+# Versions used
+
+- Java 21
+- Quarkus 3.30.3
+- Node.js v24.11.1
+- npm 11.6.2
+
+
+
 # 🛠️ CI & Quality
 
 - Every Pull Request must pass all tests to be merged.

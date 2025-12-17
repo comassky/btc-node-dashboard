@@ -4,7 +4,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
 ![Java](https://img.shields.io/badge/Java-21-orange.svg)
-![Quarkus](https://img.shields.io/badge/Quarkus-3.30.2-blue.svg)
+![Quarkus](https://img.shields.io/badge/Quarkus-3.30.3-blue.svg)
 ![Vue](https://img.shields.io/badge/Vue.js-3.5.25-green.svg)
 
 ## 📸 Screenshots
@@ -48,7 +48,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 |------------|---------|-------------|
 | **Vue.js** | 3.5.25 | Progressive JavaScript framework |
 | **TypeScript** | 5.9.3 | Type-safe JavaScript |
-| **Vite** | 7.2.7 | Next-generation frontend tooling |
+| **Vite** | 7.3.0 | Next-generation frontend tooling |
 | **Tailwind CSS** | 3.4.19 | Utility-first CSS framework |
 | **Chart.js** | 4.5.1 | Interactive charts |
 | **Font Awesome** | 7.1.0 | Icon library |
