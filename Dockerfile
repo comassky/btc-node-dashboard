@@ -46,7 +46,3 @@ COPY --from=builder /build/target/quarkus-app /app
 
 # Commande d'exécution avec options JVM
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/quarkus-app/quarkus-run.jar"]
-
-# Démarre l'application Quarkus.
-# L'option -Dquarkus.http.host=0.0.0.0 est nécessaire pour que l'application écoute toutes les interfaces réseau dans Docker.
-CMD ["java", "-jar", "quarkus-run.jar"]
