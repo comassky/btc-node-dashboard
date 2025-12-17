@@ -73,19 +73,19 @@ export default defineConfig(({ mode }) => ({
     },
     rollupOptions: {
       output: {
-        entryFileNames: 'assets/js/[hash].js',
-        chunkFileNames: 'assets/js/[hash].js',
+        entryFileNames: 'assets/js/[hash:16].js',
+        chunkFileNames: 'assets/js/[hash:16].js',
         assetFileNames: ({name}) => {
           if (/\.css$/i.test(name ?? '')) {
-            return 'assets/css/[hash][extname]';
+            return 'assets/css/[hash:16][extname]';
           }
           if (/\.(png|jpe?g|svg|gif|webp|avif)$/i.test(name ?? '')) {
-            return 'assets/img/[hash][extname]';
+            return 'assets/img/[hash:16][extname]';
           }
           if (/\.(woff2?|ttf|otf|eot)$/i.test(name ?? '')) {
-            return 'assets/fonts/[hash][extname]';
+            return 'assets/fonts/[hash:16][extname]';
           }
-          return 'assets/[hash][extname]';
+          return 'assets/[hash:16][extname]';
         },
       },
     },

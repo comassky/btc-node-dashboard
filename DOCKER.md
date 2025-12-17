@@ -86,8 +86,8 @@ The project publishes pre-built images to GitHub Container Registry. The followi
 Examples:
 
 ```bash
-docker pull ghcr.io/comassky/btc-node-dashboard:jvm-1.4.0
-docker pull ghcr.io/comassky/btc-node-dashboard:1.4.0
+docker pull ghcr.io/comassky/btc-node-dashboard:jvm-1.4.0-SNAPSHOT
+docker pull ghcr.io/comassky/btc-node-dashboard:1.4.0-SNAPSHOT
 docker pull ghcr.io/comassky/btc-node-dashboard:develop
 ```
 

@@ -4,7 +4,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
 ![Java](https://img.shields.io/badge/Java-21-orange.svg)
-![Quarkus](https://img.shields.io/badge/Quarkus-3.30.3-blue.svg)
+![Quarkus](https://img.shields.io/badge/Quarkus-3.30.4-blue.svg)
 ![Vue](https://img.shields.io/badge/Vue.js-3.5.25-green.svg)
 
 ## 📸 Screenshots
@@ -32,7 +32,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | Technology | Version | Description |
 |------------|---------|-------------|
 | **Java** | 21 | Programming language |
-| **Quarkus** | 3.30.3 | Supersonic Subatomic Java Framework |
+| **Quarkus** | 3.30.4 | Supersonic Subatomic Java Framework |
 | **Mutiny** | 2.x | Reactive programming library |
 | **Jakarta WebSocket** | - | Real-time communication |
 | **MicroProfile REST Client** | - | HTTP client for Bitcoin RPC |
@@ -40,7 +40,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | **Maven Compiler Plugin** | 3.14.1 | Java compilation |
 | **Maven Surefire Plugin** | 3.5.4 | Unit testing |
 | **Frontend Maven Plugin** | 1.15.4 | Frontend build integration |
-| **Node.js** | v24.11.1 | Frontend build (via Maven) |
+| **Node.js** | v24.12.0 | Frontend build (via Maven) |
 | **npm** | 11.6.2 | Frontend build (via Maven) |
 
 ### Frontend
