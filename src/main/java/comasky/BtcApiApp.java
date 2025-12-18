@@ -89,6 +89,7 @@ public class BtcApiApp implements QuarkusApplication {
      */
     private void logConfiguration() {
         LOG.debugf("=== Application Configuration ===");
+        LOG.debugf("Java Version: %s", System.getProperty("java.version"));
         LOG.debugf("Bitcoin RPC Scheme: %s (bitcoin.rpc.scheme)", rpcScheme);
         LOG.debugf("Bitcoin RPC Host: %s (bitcoin.rpc.host)", rpcHost);
         LOG.debugf("Bitcoin RPC Port: %d (bitcoin.rpc.port)", rpcPort);
