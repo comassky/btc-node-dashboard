@@ -9,23 +9,24 @@ Chart.defaults.animation = false;
 
 // --- Color utilities ---
 
+
 const cssVarCache = new Map<string, string>();
-const getCssVar = (name: string): string => {
+const getCssVar = (name: string) => {
     if (!cssVarCache.has(name)) {
         cssVarCache.set(name, getComputedStyle(document.documentElement).getPropertyValue(name).trim());
     }
     return cssVarCache.get(name) || '';
 };
-const invalidateCssCache = () => { cssVarCache.clear(); };
+const invalidateCssCache = () => cssVarCache.clear();
 
-const generatePalette = (num: number): string[] => Array.from({ length: num }, (_, i) => {
+const generatePalette = (num: number) => Array.from({ length: num }, (_, i) => {
     const baseS = 70, baseL = 50;
     const hue = Math.round((360 / num) * i + (i % 2 === 0 ? 0 : 180 / num));
     const sat = baseS + (i % 3 === 0 ? 10 : i % 3 === 1 ? -10 : 0);
     const light = baseL + (i % 2 === 0 ? 8 : -8);
     return `hsl(${hue}, ${sat}%, ${light}%)`;
 });
-const generateColors = (num: number): string[] => {
+const generateColors = (num: number) => {
     const base = [
         getCssVar('--accent') || '#ff9900',
         getCssVar('--status-success') || '#06d6a0',
@@ -91,11 +92,12 @@ const chartLabels = computed(() => props.peers.map(p => p.server || '[Unknown]')
 const chartColors = computed(() => generateColors(props.peers.length));
 
 // --- Chart.js helpers ---
-const extractChartData = (data: SubverDistribution[]) => ({
-    labels: data.map(d => d.server || '[Unknown]'),
-    percentages: data.map(d => d.percentage),
-    backgroundColors: generateColors(data.length)
-});
+const extractChartData = (data: SubverDistribution[]) => {
+    const labels = data.map(d => d.server || '[Unknown]');
+    const percentages = data.map(d => d.percentage);
+    const backgroundColors = generateColors(data.length);
+    return { labels, percentages, backgroundColors };
+};
 const destroyChart = () => {
     chartInstance?.destroy();
     chartInstance = null;

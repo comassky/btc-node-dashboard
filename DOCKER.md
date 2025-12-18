@@ -48,6 +48,7 @@ See [compose.yml](compose.yml) for a full setup with Bitcoin Core.
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `BITCOIN_RPC_HOST` | `127.0.0.1` | Bitcoin node hostname or IP address |
+| `QUARKUS_IO_THREADS` | `8` | Number of IO threads for backend concurrency (recommended: 2 × number of CPU cores). Example: `QUARKUS_IO_THREADS=16` |
 | `BITCOIN_RPC_PORT` | `8332` | Bitcoin RPC port |
 | `BITCOIN_RPC_USER` | - | RPC username for authentication |
 | `BITCOIN_RPC_PASSWORD` | - | RPC password for authentication |
@@ -85,8 +86,8 @@ The project publishes pre-built images to GitHub Container Registry. The followi
 Examples:
 
 ```bash
-docker pull ghcr.io/comassky/btc-node-dashboard:jvm-1.4.0
-docker pull ghcr.io/comassky/btc-node-dashboard:1.4.0
+docker pull ghcr.io/comassky/btc-node-dashboard:jvm-1.4.0-SNAPSHOT
+docker pull ghcr.io/comassky/btc-node-dashboard:1.4.0-SNAPSHOT
 docker pull ghcr.io/comassky/btc-node-dashboard:develop
 ```
 

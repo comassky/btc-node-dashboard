@@ -3,14 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>comasky</groupId>
     <artifactId>btc-node-dashboard</artifactId>
-    <version>1.3.0</version>
+    <version>1.4.0-SNAPSHOT</version>
 
     <properties>
         <!-- Version Properties -->
-        <maven.compiler.release>21</maven.compiler.release>
-        <quarkus.platform.version>3.30.3</quarkus.platform.version>
+        <maven.compiler.release>25</maven.compiler.release>
+        <quarkus.platform.version>3.30.4</quarkus.platform.version>
         <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
-        <node.lts.version>v24.11.1</node.lts.version>
+        <node.lts.version>v24.12.0</node.lts.version>
         <npm.lts.version>11.6.2</npm.lts.version>
         <compiler-plugin.version>3.14.1</compiler-plugin.version>
         <surefire-plugin.version>3.5.4</surefire-plugin.version>

@@ -81,35 +81,27 @@ function networkIcon(name: string) {
 }
 
 function netLabel(net: { name: string; reachable: boolean }) {
-    let label = '';
-    switch (net.name) {
-        case 'ipv4': label = 'IPv4'; break;
-        case 'ipv6': label = 'IPv6'; break;
-        case 'onion': label = 'Tor'; break;
-        case 'i2p': label = 'I2P'; break;
-        default: label = net.name;
-    }
-    let tooltip = `${label} ${net.reachable ? 'enabled' : 'disabled'}`;
-    // If Tor is enabled, show the local onion address if available, on a new line
+    const labelMap: Record<string, string> = { ipv4: 'IPv4', ipv6: 'IPv6', onion: 'Tor', i2p: 'I2P' };
+    const label = labelMap[net.name] || net.name;
     if (net.name === 'onion' && net.reachable && Array.isArray(props.node.localaddresses)) {
         const onionAddr = props.node.localaddresses.find(addr => addr.address.endsWith('.onion'));
         if (onionAddr) {
-            tooltip = `${label} ${net.reachable ? 'enabled' : 'disabled'} : ${onionAddr.address}:${onionAddr.port}`;
+            return `${label} enabled : ${onionAddr.address}:${onionAddr.port}`;
         }
     }
-    return tooltip;
+    return `${label} ${net.reachable ? 'enabled' : 'disabled'}`;
 }
 
 const cleanedSubversion = computed(() => {
     const subver = props.node.subversion;
     return (!subver || subver === 'N/A') ? 'N/A' : subver.replace(/^\/|\/$/g, '').trim();
 });
-function formatSizeOnDisk(size: number): string {
-    if (size === undefined || size === null) return 'N/A';
-    if (size > 1e12) return (size / 1e12).toFixed(2) + ' TB';
-    if (size > 1e9) return (size / 1e9).toFixed(2) + ' GB';
-    if (size > 1e6) return (size / 1e6).toFixed(2) + ' MB';
-    if (size > 1e3) return (size / 1e3).toFixed(2) + ' KB';
+function formatSizeOnDisk(size?: number): string {
+    if (!size && size !== 0) return 'N/A';
+    if (size >= 1e12) return (size / 1e12).toFixed(2) + ' TB';
+    if (size >= 1e9) return (size / 1e9).toFixed(2) + ' GB';
+    if (size >= 1e6) return (size / 1e6).toFixed(2) + ' MB';
+    if (size >= 1e3) return (size / 1e3).toFixed(2) + ' KB';
     return size + ' B';
 }
 </script>

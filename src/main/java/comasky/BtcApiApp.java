@@ -89,13 +89,26 @@ public class BtcApiApp implements QuarkusApplication {
      */
     private void logConfiguration() {
         LOG.debugf("=== Application Configuration ===");
-        LOG.debugf("Bitcoin RPC: %s://%s:%d", rpcScheme, rpcHost, rpcPort);
-        LOG.debugf("RPC User: %s", rpcUser);
-        LOG.debugf("RPC Password: %s", maskPassword(rpcPassword));
-        LOG.debugf("WebSocket Polling Interval: %d seconds (WS_POLLING_INTERVAL)", pollingInterval);
+        LOG.debugf("Java Version: %s", System.getProperty("java.version"));
+        LOG.debugf("Bitcoin RPC Scheme: %s (bitcoin.rpc.scheme)", rpcScheme);
+        LOG.debugf("Bitcoin RPC Host: %s (bitcoin.rpc.host)", rpcHost);
+        LOG.debugf("Bitcoin RPC Port: %d (bitcoin.rpc.port)", rpcPort);
+        LOG.debugf("Bitcoin RPC User: %s (bitcoin.rpc.user)", rpcUser);
+        LOG.debugf("Bitcoin RPC Password: %s (bitcoin.rpc.password)", maskPassword(rpcPassword));
+        LOG.debugf("Dashboard Polling Interval (seconds): %d (dashboard.polling.interval.seconds)", pollingInterval);
         LOG.debugf("Min Outbound Peers: %s (MIN_OUTBOUND_PEERS)", System.getenv().getOrDefault("MIN_OUTBOUND_PEERS", "8"));
         LOG.debugf("Cache Validity Buffer (ms): %s (DASHBOARD_CACHE_VALIDITY_BUFFER_MS)", System.getenv().getOrDefault("DASHBOARD_CACHE_VALIDITY_BUFFER_MS", "200"));
         LOG.debugf("Log Level: %s (LOG_LEVEL)", System.getenv().getOrDefault("LOG_LEVEL", "INFO"));
+        LOG.debugf("WebSocket Port: %s (WS_PORT)", System.getenv().getOrDefault("WS_PORT", "8080"));
+        LOG.debugf("WebSocket Host: %s (WS_HOST)", System.getenv().getOrDefault("WS_HOST", "localhost"));
+        LOG.debugf("WebSocket Path: %s (WS_PATH)", System.getenv().getOrDefault("WS_PATH", "/ws"));
+        LOG.debugf("WebSocket Polling Interval: %s (WS_POLLING_INTERVAL)", System.getenv().getOrDefault("WS_POLLING_INTERVAL", String.valueOf(pollingInterval)));
+        LOG.debugf("Dashboard Cache Validity (ms): %s (DASHBOARD_CACHE_VALIDITY_MS)", System.getenv().getOrDefault("DASHBOARD_CACHE_VALIDITY_MS", "1000"));
+        LOG.debugf("Dashboard Cache Validity Buffer (ms): %s (DASHBOARD_CACHE_VALIDITY_BUFFER_MS)", System.getenv().getOrDefault("DASHBOARD_CACHE_VALIDITY_BUFFER_MS", "200"));
+        LOG.debugf("Dashboard Max Cache Size: %s (DASHBOARD_MAX_CACHE_SIZE)", System.getenv().getOrDefault("DASHBOARD_MAX_CACHE_SIZE", "1000"));
+        LOG.debugf("Dashboard Max Message Size: %s (DASHBOARD_MAX_MESSAGE_SIZE)", System.getenv().getOrDefault("DASHBOARD_MAX_MESSAGE_SIZE", "1048576"));
+        LOG.debugf("Dashboard Max Connections: %s (DASHBOARD_MAX_CONNECTIONS)", System.getenv().getOrDefault("DASHBOARD_MAX_CONNECTIONS", "100"));
+        LOG.debugf("Dashboard Max Subscriptions: %s (DASHBOARD_MAX_SUBSCRIPTIONS)", System.getenv().getOrDefault("DASHBOARD_MAX_SUBSCRIPTIONS", "10"));
         LOG.debugf("=================================");
     }
 

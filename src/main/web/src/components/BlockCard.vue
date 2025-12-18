@@ -78,8 +78,7 @@ const props = withDefaults(defineProps<{
 
 const headerBlockDiff = computed(() => getHeaderBlockDiff(props.blockchain));
 const isSyncingComputed = computed(() => isSyncing(props.blockchain));
-const isOutOfSync = computed(() => props.forceOutOfSync || (typeof props.blockchain === 'object' && typeof props.block === 'object' &&
-        (props.blockchain.headers - props.blockchain.blocks > 2)));
+const isOutOfSync = computed(() => props.forceOutOfSync || (props.blockchain.headers - props.blockchain.blocks > 2));
 const syncWarningMessage = computed(() => getSyncWarningMessage(props.blockchain, props.block, formatTimeSince));
 
 </script>

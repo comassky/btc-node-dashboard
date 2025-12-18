@@ -33,7 +33,7 @@ import static comasky.shared.Tools.formatUptime;
  * It provides methods to fetch node, block, peer, and blockchain information.
  */
 @ApplicationScoped
-public class RpcServices {
+public class RpcServices implements DashboardDataProvider {
     private static final Logger LOG = Logger.getLogger(RpcServices.class);
 
     

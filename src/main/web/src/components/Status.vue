@@ -16,14 +16,9 @@ const props = defineProps<{
 }>();
 
 const hasLowOutbound = computed(() => hasLowOutboundPeers(props.outboundPeers));
-
 const isOutOfSync = computed(() => isNodeOutOfSync(props.blockchain, props.block));
-
 const hasWarnings = computed(() => hasLowOutbound.value || isOutOfSync.value);
-
 const isHealthy = computed(() => props.isConnected && props.rpcConnected && !hasWarnings.value);
-// Removed unused variable hasIssue
-
 const statusClass = computed(() =>
     isHealthy.value
         ? 'bg-status-success/10 border border-status-success text-status-success'
@@ -31,7 +26,6 @@ const statusClass = computed(() =>
             ? 'bg-status-warning/10 border border-status-warning text-status-warning'
             : 'bg-status-error/10 border border-status-error text-status-error pulse-error'
 );
-
 const badgeTextClass = computed(() =>
     isHealthy.value
         ? 'text-status-success'

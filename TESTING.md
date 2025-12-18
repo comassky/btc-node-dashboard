@@ -12,7 +12,7 @@
 | Component   | Tests | Technologies                        |
 |------------ |-------|-------------------------------------|
 | Backend     | 79    | JUnit 5, Mockito, Quarkus Test      |
-| Frontend    | 67    | Vitest (4.0.15), Vue Test Utils (2.4.6), Happy DOM (20.0.11)   |
+| Frontend    | 67    | Vitest (4.0.16), Vue Test Utils (2.4.6), Happy DOM (20.0.11)   |
 
 **Test execution**: ~25s total (Backend: ~20s, Frontend: ~3s)
 
@@ -133,7 +133,7 @@ cd src/main/web && npm run test:ui
 
 Runs on every push to `main` and `develop`:
 
-- Setup JDK 21 and run backend tests
+- Setup JDK 25 and run backend tests
 - Setup Node.js 20, install dependencies, run frontend tests and coverage
 - Perform a full Maven build for integration tests
 

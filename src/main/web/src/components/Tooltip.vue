@@ -42,9 +42,9 @@ const props = withDefaults(defineProps<{
 
 
 const isHovered = ref(false);
-const triggerEl = ref<HTMLElement | null>(null);
-const tooltipEl = ref<HTMLElement | null>(null);
-const tooltipStyle = ref<{ top: string; left: string; maxWidth: string }>({ top: '0px', left: '0px', maxWidth: '100vw' });
+const triggerEl = ref<HTMLElement>();
+const tooltipEl = ref<HTMLElement>();
+const tooltipStyle = ref({ top: '0px', left: '0px', maxWidth: '100vw' });
 
 
 
@@ -96,22 +96,23 @@ function updateTooltipPosition() {
 }
 
 
-function handleMouseEnter() {
+
+const handleMouseEnter = () => {
   isHovered.value = true;
   nextTick(updateTooltipPosition);
-}
-function handleMouseLeave() {
+};
+const handleMouseLeave = () => {
   isHovered.value = false;
-}
+};
 
 
-watch(isHovered, (val) => {
-  if (val) nextTick(updateTooltipPosition);
-});
+
+watch(isHovered, val => { if (val) nextTick(updateTooltipPosition); });
+
 
 
 onUnmounted(() => {
-  triggerEl.value = null;
-  tooltipEl.value = null;
+  triggerEl.value = undefined;
+  tooltipEl.value = undefined;
 });
 </script>

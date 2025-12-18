@@ -3,8 +3,8 @@
 Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
-![Java](https://img.shields.io/badge/Java-21-orange.svg)
-![Quarkus](https://img.shields.io/badge/Quarkus-3.30.2-blue.svg)
+![Java](https://img.shields.io/badge/Java-25-orange.svg)
+![Quarkus](https://img.shields.io/badge/Quarkus-3.30.4-blue.svg)
 ![Vue](https://img.shields.io/badge/Vue.js-3.5.25-green.svg)
 
 ## 📸 Screenshots
@@ -31,8 +31,8 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 ### Backend
 | Technology | Version | Description |
 |------------|---------|-------------|
-| **Java** | 21 | Programming language |
-| **Quarkus** | 3.30.3 | Supersonic Subatomic Java Framework |
+| **Java** | 25 | Programming language |
+| **Quarkus** | 3.30.4 | Supersonic Subatomic Java Framework |
 | **Mutiny** | 2.x | Reactive programming library |
 | **Jakarta WebSocket** | - | Real-time communication |
 | **MicroProfile REST Client** | - | HTTP client for Bitcoin RPC |
@@ -40,7 +40,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | **Maven Compiler Plugin** | 3.14.1 | Java compilation |
 | **Maven Surefire Plugin** | 3.5.4 | Unit testing |
 | **Frontend Maven Plugin** | 1.15.4 | Frontend build integration |
-| **Node.js** | v24.11.1 | Frontend build (via Maven) |
+| **Node.js** | v24.12.0 | Frontend build (via Maven) |
 | **npm** | 11.6.2 | Frontend build (via Maven) |
 
 ### Frontend
@@ -48,7 +48,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 |------------|---------|-------------|
 | **Vue.js** | 3.5.25 | Progressive JavaScript framework |
 | **TypeScript** | 5.9.3 | Type-safe JavaScript |
-| **Vite** | 7.2.7 | Next-generation frontend tooling |
+| **Vite** | 7.3.0 | Next-generation frontend tooling |
 | **Tailwind CSS** | 3.4.19 | Utility-first CSS framework |
 | **Chart.js** | 4.5.1 | Interactive charts |
 | **Font Awesome** | 7.1.0 | Icon library |
@@ -86,10 +86,31 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 - **GraalVM Native Image** (AOT compilation for ultra-fast startup)
 
 
+
+
+## 🏎️ Recommended Native Build (GraalVM)
+
+For maximum performance (startup <50ms, RAM ~30MB), use the Quarkus native build:
+
+```bash
+mvn package -Pnative -DskipTests
+# or with Docker
+mvn package -Pnative -Dquarkus.native.container-build=true -DskipTests
+```
+
+The native Docker image is generated with `Dockerfile.native`:
+
+```bash
+docker build -f Dockerfile.native -t btc-node-dashboard-native .
+docker run -p 8080:8080 btc-node-dashboard-native
+```
+
+The native binary starts instantly and uses very little memory, making it ideal for production.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Java 21+ and Maven 3.9+
+- Java 25+ and Maven 3.9+
 - Bitcoin Core with RPC enabled
 - Node.js 24+ (optional, for frontend development)
 
@@ -166,7 +187,10 @@ A short summary of the Docker image tags produced by the GitHub Actions workflow
 For details on reactive programming, non-blocking guarantees, and contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 
+
 Main user-configurable environment variables:
+
+- `QUARKUS_IO_THREADS`: Number of IO threads for the backend (recommended: 2 × number of CPU cores). Set this environment variable to control backend concurrency. Example: `QUARKUS_IO_THREADS=16 java -jar ...`. Defaults to 8 if not set.
 
 - `RPC_HOST`, `RPC_PORT`, `RPC_USER`, `RPC_PASS`: Bitcoin node connection
 - `WS_POLLING_INTERVAL`: dashboard refresh interval (seconds)

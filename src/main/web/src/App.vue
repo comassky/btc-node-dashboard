@@ -101,15 +101,14 @@ const autoCycleId = ref<number | null>(null);
 
 // Load configuration from backend
 
+import ky from 'ky';
+
 const loadConfig = async () => {
   try {
-    const response = await fetch('/api/config');
-    if (response.ok) {
-      const config: DashboardConfig = await response.json();
-      setMinOutboundPeers(config.minOutboundPeers);
-      disableMempool.value = !!config.disableMempool;
-      configLoaded.value = true;
-    }
+    const config: DashboardConfig = await ky.get('/api/config').json();
+    setMinOutboundPeers(config.minOutboundPeers);
+    disableMempool.value = !!config.disableMempool;
+    configLoaded.value = true;
   } catch (error) {
     console.error('Failed to load dashboard configuration:', error);
     configLoaded.value = true; // Continue with default values
