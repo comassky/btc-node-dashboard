@@ -3,7 +3,7 @@
 Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
-![Java](https://img.shields.io/badge/Java-21-orange.svg)
+![Java](https://img.shields.io/badge/Java-25-orange.svg)
 ![Quarkus](https://img.shields.io/badge/Quarkus-3.30.4-blue.svg)
 ![Vue](https://img.shields.io/badge/Vue.js-3.5.25-green.svg)
 
@@ -31,7 +31,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 ### Backend
 | Technology | Version | Description |
 |------------|---------|-------------|
-| **Java** | 21 | Programming language |
+| **Java** | 25 | Programming language |
 | **Quarkus** | 3.30.4 | Supersonic Subatomic Java Framework |
 | **Mutiny** | 2.x | Reactive programming library |
 | **Jakarta WebSocket** | - | Real-time communication |
@@ -110,7 +110,7 @@ The native binary starts instantly and uses very little memory, making it ideal 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Java 21+ and Maven 3.9+
+- Java 25+ and Maven 3.9+
 - Bitcoin Core with RPC enabled
 - Node.js 24+ (optional, for frontend development)
 

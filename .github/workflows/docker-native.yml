@@ -71,7 +71,7 @@ jobs:
       - name: Set up Maven
         uses: stCarolas/setup-maven@v5
         with:
-          maven-version: '3.9.6'
+          maven-version: '3.9.12'
 
       - name: Cache Maven packages
         uses: actions/cache@v4
@@ -110,7 +110,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@v3.5.0
         with:
-          cosign-release: 'v2.2.4'
+          cosign-release: 'v3.0.3'
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

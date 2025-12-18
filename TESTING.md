@@ -133,7 +133,7 @@ cd src/main/web && npm run test:ui
 
 Runs on every push to `main` and `develop`:
 
-- Setup JDK 21 and run backend tests
+- Setup JDK 25 and run backend tests
 - Setup Node.js 20, install dependencies, run frontend tests and coverage
 - Perform a full Maven build for integration tests
 
