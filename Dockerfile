@@ -2,7 +2,7 @@
 # Étape 1: Builder - pour compiler et créer l'archive fast-jar Quarkus
 # ----------------------------------------------------------------------
 # Utilise une image Java/Maven complète pour le build. C'est l'image qui contient 'mvn'.
-FROM maven:3-eclipse-temurin-21-alpine AS builder
+FROM maven:3-eclipse-temurin-25-alpine AS builder
 
 # Définit le répertoire de travail dans le conteneur
 WORKDIR /build
@@ -23,7 +23,7 @@ RUN mvn package -DskipTests
 # Étape 2: Runner - pour exécuter l'application (image JRE minimale)
 # ----------------------------------------------------------------------
 # Utilise une image JRE/JDK minimaliste pour l'exécution (plus petite que le JDK complet)
-FROM eclipse-temurin:21-jre-alpine AS runner
+FROM eclipse-temurin:25-jre-alpine AS runner
 
 
 # Définit le port que l'application expose
