@@ -88,28 +88,27 @@ public class BtcApiApp implements QuarkusApplication {
      * Logs the current application configuration for debugging purposes.
      */
     private void logConfiguration() {
-        LOG.debugf("=== Application Configuration ===");
-        LOG.debugf("Java Version: %s", System.getProperty("java.version"));
-        LOG.debugf("Bitcoin RPC Scheme: %s (bitcoin.rpc.scheme)", rpcScheme);
-        LOG.debugf("Bitcoin RPC Host: %s (bitcoin.rpc.host)", rpcHost);
-        LOG.debugf("Bitcoin RPC Port: %d (bitcoin.rpc.port)", rpcPort);
-        LOG.debugf("Bitcoin RPC User: %s (bitcoin.rpc.user)", rpcUser);
-        LOG.debugf("Bitcoin RPC Password: %s (bitcoin.rpc.password)", maskPassword(rpcPassword));
-        LOG.debugf("Dashboard Polling Interval (seconds): %d (dashboard.polling.interval.seconds)", pollingInterval);
-        LOG.debugf("Min Outbound Peers: %s (MIN_OUTBOUND_PEERS)", System.getenv().getOrDefault("MIN_OUTBOUND_PEERS", "8"));
-        LOG.debugf("Cache Validity Buffer (ms): %s (DASHBOARD_CACHE_VALIDITY_BUFFER_MS)", System.getenv().getOrDefault("DASHBOARD_CACHE_VALIDITY_BUFFER_MS", "200"));
-        LOG.debugf("Log Level: %s (LOG_LEVEL)", System.getenv().getOrDefault("LOG_LEVEL", "INFO"));
-        LOG.debugf("WebSocket Port: %s (WS_PORT)", System.getenv().getOrDefault("WS_PORT", "8080"));
-        LOG.debugf("WebSocket Host: %s (WS_HOST)", System.getenv().getOrDefault("WS_HOST", "localhost"));
-        LOG.debugf("WebSocket Path: %s (WS_PATH)", System.getenv().getOrDefault("WS_PATH", "/ws"));
-        LOG.debugf("WebSocket Polling Interval: %s (WS_POLLING_INTERVAL)", System.getenv().getOrDefault("WS_POLLING_INTERVAL", String.valueOf(pollingInterval)));
-        LOG.debugf("Dashboard Cache Validity (ms): %s (DASHBOARD_CACHE_VALIDITY_MS)", System.getenv().getOrDefault("DASHBOARD_CACHE_VALIDITY_MS", "1000"));
-        LOG.debugf("Dashboard Cache Validity Buffer (ms): %s (DASHBOARD_CACHE_VALIDITY_BUFFER_MS)", System.getenv().getOrDefault("DASHBOARD_CACHE_VALIDITY_BUFFER_MS", "200"));
-        LOG.debugf("Dashboard Max Cache Size: %s (DASHBOARD_MAX_CACHE_SIZE)", System.getenv().getOrDefault("DASHBOARD_MAX_CACHE_SIZE", "1000"));
-        LOG.debugf("Dashboard Max Message Size: %s (DASHBOARD_MAX_MESSAGE_SIZE)", System.getenv().getOrDefault("DASHBOARD_MAX_MESSAGE_SIZE", "1048576"));
-        LOG.debugf("Dashboard Max Connections: %s (DASHBOARD_MAX_CONNECTIONS)", System.getenv().getOrDefault("DASHBOARD_MAX_CONNECTIONS", "100"));
-        LOG.debugf("Dashboard Max Subscriptions: %s (DASHBOARD_MAX_SUBSCRIPTIONS)", System.getenv().getOrDefault("DASHBOARD_MAX_SUBSCRIPTIONS", "10"));
-        LOG.debugf("=================================");
+        LOG.info("\n=================  \uD83D\uDCBB Bitcoin Node Dashboard Configuration  =================");
+        LOG.infof("|   Java Version         : %-30s|", System.getProperty("java.version"));
+        LOG.infof("|   Log Level            : %-30s|", System.getenv().getOrDefault("LOG_LEVEL", "INFO"));
+        LOG.info("| ---------------------------------------------------------------------- |");
+        LOG.infof("|   Bitcoin RPC Scheme   : %-30s|", rpcScheme);
+        LOG.infof("|   Bitcoin RPC Host     : %-30s|", rpcHost);
+        LOG.infof("|   Bitcoin RPC Port     : %-30d|", rpcPort);
+        LOG.infof("|   Bitcoin RPC User     : %-30s|", rpcUser);
+        LOG.infof("|   Bitcoin RPC Password : %-30s|", maskPassword(rpcPassword));
+        LOG.info("| ---------------------------------------------------------------------- |");
+        LOG.infof("|   Dashboard Polling Interval (s) : %-18d|", pollingInterval);
+        LOG.infof("|   Min Outbound Peers            : %-18s|", System.getenv().getOrDefault("MIN_OUTBOUND_PEERS", "8"));
+        LOG.infof("|   Cache Validity Buffer (ms)     : %-18s|", System.getenv().getOrDefault("DASHBOARD_CACHE_VALIDITY_BUFFER_MS", "200"));
+        LOG.infof("|   Dashboard Cache Validity (ms)  : %-18s|", System.getenv().getOrDefault("DASHBOARD_CACHE_VALIDITY_MS", "1000"));
+        LOG.infof("|   Dashboard Max Cache Size       : %-18s|", System.getenv().getOrDefault("DASHBOARD_MAX_CACHE_SIZE", "1000"));
+        LOG.infof("|   Dashboard Max Message Size     : %-18s|", System.getenv().getOrDefault("DASHBOARD_MAX_MESSAGE_SIZE", "1048576"));
+        LOG.infof("|   Dashboard Max Connections      : %-18s|", System.getenv().getOrDefault("DASHBOARD_MAX_CONNECTIONS", "100"));
+        LOG.infof("|   Dashboard Max Subscriptions    : %-18s|", System.getenv().getOrDefault("DASHBOARD_MAX_SUBSCRIPTIONS", "10"));
+        LOG.info("| ---------------------------------------------------------------------- |");
+        LOG.infof("|   WebSocket Polling Int : %-30s|", System.getenv().getOrDefault("WS_POLLING_INTERVAL", String.valueOf(pollingInterval)));
+        LOG.info("====================================================================================\n");
     }
 
     /**
