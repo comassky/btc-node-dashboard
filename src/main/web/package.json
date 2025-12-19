@@ -20,7 +20,7 @@
     "@fortawesome/vue-fontawesome": "3.1.2",
     "chart.js": "4.5.1",
     "reconnecting-websocket": "4.4.0",
-    "vue": "3.5.25",
+    "vue": "3.5.26",
     "ky": "1.14.1"
   },
   "devDependencies": {
