@@ -72,10 +72,16 @@ export function useTheme() {
         loadTheme();
     });
 
+    // For backward compatibility with tests expecting toggleDarkMode
+    function toggleDarkMode() {
+        cycleTheme();
+    }
+
     return {
         theme,
         isDarkMode,
         isGrayMode,
         cycleTheme,
+        toggleDarkMode,
     };
 }

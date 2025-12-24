@@ -42,8 +42,8 @@
 </template>
 
 <script setup lang="ts">
-import type { MempoolInfoResponse } from '../types/MempoolInfoResponse';
-import { formatBytes } from '../utils/formatting';
+import type { MempoolInfoResponse } from '../../types/MempoolInfoResponse';
+import { formatBytes } from '../../utils/formatting';
 import BaseCard from '@components/BaseCard.vue';
 const props = defineProps<{ mempoolInfo: MempoolInfoResponse }>();
 </script>

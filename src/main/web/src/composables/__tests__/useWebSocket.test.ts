@@ -2,9 +2,11 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { useWebSocket } from '@composables/useWebSocket';
 import type { DashboardData } from '@types';
 
+let wsInstances: any[] = [];
+let mockWebSocket: any;
+
 describe('useWebSocket', () => {
-  let wsInstances: any[] = [];
-  let mockWebSocket: any;
+
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -149,4 +151,45 @@ describe('useWebSocket', () => {
     expect(onDataReceived).not.toHaveBeenCalled();
   });
 
+
+  it('should handle WebSocket close and set isRetrying', async () => {
+    const onDataReceived = vi.fn();
+    const { isConnected, rpcConnected, errorMessage, isRetrying, connect } = useWebSocket('ws://test', onDataReceived, mockWebSocket);
+    connect();
+    await vi.runAllTimersAsync();
+    const ws = wsInstances[0];
+    ws.onclose?.(new CloseEvent('close'));
+    expect(isConnected.value).toBe(false);
+    expect(rpcConnected.value).toBe(false);
+    expect(isRetrying.value).toBe(true);
+    expect(errorMessage.value).toBe('WebSocket disconnected. Retrying...');
+  });
+
+  it('should reset isRetrying on disconnect', async () => {
+    const onDataReceived = vi.fn();
+    const { connect, disconnect, isRetrying } = useWebSocket('ws://test', onDataReceived, mockWebSocket);
+    connect();
+    await vi.runAllTimersAsync();
+    const ws = wsInstances[0];
+    ws.onclose?.(new CloseEvent('close'));
+    expect(isRetrying.value).toBe(true);
+    disconnect();
+    expect(isRetrying.value).toBe(false);
+  });
+
+  it('should close previous ws if already open on connect', async () => {
+    const onDataReceived = vi.fn();
+    const { connect } = useWebSocket('ws://test', onDataReceived, mockWebSocket);
+    connect();
+    await vi.runAllTimersAsync();
+    const ws = wsInstances[0];
+    ws.readyState = 1; // OPEN
+    ws.onopen?.(new Event('open'));
+    connect();
+    // Simulate a closed ws, connect should close the old one and create a new one
+    ws.readyState = 3; // CLOSED
+    connect();
+    expect(ws.close).toHaveBeenCalled();
+    expect(wsInstances.length).toBeGreaterThan(1);
+  })
 });

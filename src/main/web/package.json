@@ -19,9 +19,9 @@
     "@fortawesome/free-solid-svg-icons": "7.1.0",
     "@fortawesome/vue-fontawesome": "3.1.2",
     "chart.js": "4.5.1",
+    "ky": "1.14.1",
     "reconnecting-websocket": "4.4.0",
-    "vue": "3.5.26",
-    "ky": "1.14.1"
+    "vue": "3.5.26"
   },
   "devDependencies": {
     "@types/node": "24.10.4",

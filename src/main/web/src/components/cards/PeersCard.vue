@@ -40,7 +40,7 @@ import { computed } from 'vue';
 import Tooltip from '@components/Tooltip.vue';
 import BaseCard from '@components/BaseCard.vue';
 import { hasLowOutboundPeers } from '@utils/nodeHealth';
-import type { GeneralStats } from '../types';
+import type { GeneralStats } from '../../types';
 
 const props = withDefaults(defineProps<{
     stats: GeneralStats;

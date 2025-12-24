@@ -3,11 +3,11 @@ import type { DashboardData, DashboardConfig, NetworkInfoResponse, BlockChainInf
 import { defineAsyncComponent, reactive, computed, onBeforeUnmount, ref, onMounted, nextTick } from 'vue';
 const Spinner = defineAsyncComponent(() => import('@components/Spinner.vue'));
 const Status = defineAsyncComponent(() => import('@components/Status.vue'));
-const PeersCard = defineAsyncComponent(() => import('@components/PeersCard.vue'));
-const BlockCard = defineAsyncComponent(() => import('@components/BlockCard.vue'));
-const NodeCard = defineAsyncComponent(() => import('@components/NodeCard.vue'));
+const PeersCard = defineAsyncComponent(() => import('@components/cards/PeersCard.vue'));
+const BlockCard = defineAsyncComponent(() => import('@components/cards/BlockCard.vue'));
+const NodeCard = defineAsyncComponent(() => import('@components/cards/NodeCard.vue'));
 const PeerDistributionChart = defineAsyncComponent(() => import('@components/PeerDistributionChart.vue'));
-const MempoolInfoCard = defineAsyncComponent(() => import('@components/MempoolInfoCard.vue'));
+const MempoolInfoCard = defineAsyncComponent(() => import('@components/cards/MempoolInfoCard.vue'));
 const PeerTable = defineAsyncComponent(() => import('@components/PeerTable.vue'));
 const Footer = defineAsyncComponent(() => import('@components/Footer.vue'));
 import { useWebSocket } from '@composables/useWebSocket';
