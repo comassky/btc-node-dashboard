@@ -2,11 +2,27 @@ import { mount } from '@vue/test-utils';
 import BlockCard from '../BlockCard.vue';
 import { describe, it, expect } from 'vitest';
 
+describe('BlockCard.vue', () => {
+
 const slotStub = { template: '<slot />' };
 
-describe('BlockCard.vue', () => {
-  const blockchain = { blocks: 123456, headers: 123460 };
-  const block = { time: Math.floor(Date.now() / 1000), nTx: 2000 };
+// Mock complet pour BlockChainInfo
+const blockchain = {
+  chain: 'main',
+  blocks: 123456,
+  headers: 123460,
+  bestblockhash: '0000000000000000000',
+  difficulty: 1,
+  time: Math.floor(Date.now() / 1000),
+  mediantime: Math.floor(Date.now() / 1000),
+  verificationprogress: 1,
+  initialblockdownload: false,
+  chainwork: '00',
+  size_on_disk: 0,
+  pruned: false,
+  pruneheight: null,
+} as import('../../../types/BlockChainInfo').BlockChainInfo;
+const block = { time: Math.floor(Date.now() / 1000), nTx: 2000 };
 
   it('renders block count and headers', () => {
     const wrapper = mount(BlockCard, {

@@ -6,6 +6,7 @@ const slotStub = { template: '<slot />' };
 
 describe('MempoolInfoCard.vue', () => {
   const mempoolInfo = {
+    loaded: true,
     size: 1000,
     bytes: 500000,
     usage: 400000,

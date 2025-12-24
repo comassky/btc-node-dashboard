@@ -16,10 +16,12 @@ describe('Tooltip.vue', () => {
       props: { text: 'info' },
       slots: { default: '<button>Hover me</button>' }
     });
+    // Trigger mouseenter and check if tooltip is rendered
     await wrapper.trigger('mouseenter');
-    expect(wrapper.vm.isHovered).toBe(true);
+    expect(document.body.innerHTML).toContain('info');
+    // Trigger mouseleave and check if tooltip is removed
     await wrapper.trigger('mouseleave');
-    expect(wrapper.vm.isHovered).toBe(false);
+    expect(document.body.innerHTML).not.toContain('info');
   });
 
   it('positions tooltip according to prop', async () => {
