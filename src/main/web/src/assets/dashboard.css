@@ -46,6 +46,26 @@
     --status-error-rgb: 239, 71, 111;
 }
 
+/* --- Gray (Soft Dark) Mode Variables --- */
+.gray {
+    /* Backgrounds */
+    --bg-app: #23272f;
+    --bg-card: #2d323b;
+    /* Text & Borders */
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a4ac;
+    --border-strong: #444851;
+
+    /* Accent & Status Colors */
+    --accent: #ff9900;
+    --status-success: #4ecdc4;
+    --status-error: #ff6b6b;
+    --status-warning: #ffe066;
+
+    /* RGB color for pulse animation */
+    --status-error-rgb: 255, 107, 107;
+}
+
 body {
     font-family: 'Roboto', sans-serif;
 }
