@@ -19,12 +19,13 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 - **Optimized Caching**: Prevents redundant RPC calls by caching ongoing requests, improving performance and reducing load on the Bitcoin node. Configurable via `dashboard.cache.validity-buffer-ms`.
 - **Live Peer Statistics**: Real-time display of inbound/outbound connections, peer details, version and geographic distribution.
 - **Blockchain Status**: Track block height, sync progress, node uptime, and network health.
-- **Modern UI/UX**: Dark/light mode, responsive design, interactive charts, smooth animations, icon support.
+- **Modern UI/UX**: Dark/light/gray mode, responsive design, interactive charts, smooth animations, icon support.
 - **WebSocket Streaming**: Instant dashboard updates, automatic reconnection, exponential backoff.
 - **Mock/Test Mode**: Simulate errors, low peer count, disconnected mode for testing and demos.
 - **Comprehensive Error Handling**: Clear user messages, automatic recovery and reconnection.
 - **Performance Optimized**: GraalVM Native (<50ms startup, ~30MB RAM), tree-shaking, code splitting, gzip compression.
 - **Docker & CI/CD Ready**: Easy deployment, optimized images, automated builds and tests.
+- **Mempool Info**: View real-time mempool statistics and details directly in the dashboard.
 
 ## 🛠️ Tech Stack
 
@@ -33,13 +34,14 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 |------------|---------|-------------|
 | **Java** | 25 | Programming language |
 | **Quarkus** | 3.30.4 | Supersonic Subatomic Java Framework |
-| **Mutiny** | 2.x | Reactive programming library |
+| **Mutiny** | (via Quarkus BOM) | Reactive programming library |
 | **Jakarta WebSocket** | - | Real-time communication |
 | **MicroProfile REST Client** | - | HTTP client for Bitcoin RPC |
 | **Jackson** | - | JSON processing |
 | **Maven Compiler Plugin** | 3.14.1 | Java compilation |
 | **Maven Surefire Plugin** | 3.5.4 | Unit testing |
-| **Frontend Maven Plugin** | 1.15.4 | Frontend build integration |
+| **Maven Failsafe Plugin** | 3.5.4 | Integration testing |
+| **Frontend Maven Plugin** | 2.0.0 | Frontend build integration |
 | **Node.js** | v24.12.0 | Frontend build (via Maven) |
 | **npm** | 11.6.2 | Frontend build (via Maven) |
 
@@ -51,42 +53,49 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | **Vite** | 7.3.0 | Next-generation frontend tooling |
 | **Tailwind CSS** | 3.4.19 | Utility-first CSS framework |
 | **Chart.js** | 4.5.1 | Interactive charts |
-| **Font Awesome** | 7.1.0 | Icon library |
-| **@fortawesome/vue-fontawesome** | 3.1.2 | Font Awesome Vue component |
 | **@fortawesome/fontawesome-svg-core** | 7.1.0 | Font Awesome core |
 | **@fortawesome/free-brands-svg-icons** | 7.1.0 | Font Awesome brands icons |
 | **@fortawesome/free-regular-svg-icons** | 7.1.0 | Font Awesome regular icons |
 | **@fortawesome/free-solid-svg-icons** | 7.1.0 | Font Awesome solid icons |
+| **@fortawesome/vue-fontawesome** | 3.1.2 | Font Awesome Vue component |
+| **ky** | 1.14.1 | HTTP client |
+| **reconnecting-websocket** | 4.4.0 | WebSocket reconnect |
+| **@types/node** | 24.10.4 | Node.js types |
+| **@vitejs/plugin-vue** | 6.0.3 | Vite Vue plugin |
+| **@vitest/coverage-v8** | 4.0.16 | Coverage provider |
+| **@vitest/ui** | 4.0.16 | Vitest UI |
 | **@vue/test-utils** | 2.4.6 | Vue test utilities |
-| **vitest** | 4.0.15 | Unit testing framework |
-| **@vitest/ui** | 4.0.15 | Vitest UI |
-| **@vitest/coverage-v8** | 4.0.15 | Coverage provider |
+| **autoprefixer** | 10.4.23 | CSS vendor prefixer |
 | **happy-dom** | 20.0.11 | DOM environment for tests |
-| **workbox-window** | 7.4.0 | Service worker helper |
-| **vite-plugin-pwa** | 1.2.0 | PWA plugin |
-| **vite-plugin-compression** | 0.5.1 | Compression plugin |
+| **postcss** | 8.5.6 | CSS processor |
 | **rollup-plugin-visualizer** | 6.0.5 | Bundle visualizer |
 | **sirv-cli** | 3.0.1 | Static server |
-| **autoprefixer** | 10.4.22 | CSS vendor prefixer |
-| **postcss** | 8.5.6 | CSS processor |
-| **vue-tsc** | 3.1.8 | TypeScript type checker for Vue |
-| **@types/node** | 24.10.3 | Node.js types |
-| **reconnecting-websocket** | 4.4.0 | WebSocket reconnect |
+| **vite-plugin-compression** | 0.5.1 | Compression plugin |
+| **vite-plugin-pwa** | 1.2.0 | PWA plugin |
+| **vitest** | 4.0.16 | Unit testing framework |
+| **vue-tsc** | 3.2.1 | TypeScript type checker for Vue |
+| **workbox-window** | 7.4.0 | Service worker helper |
 
 ### Build & Deploy
+
 - **Maven** 3.9.11 (Backend build and dependency management)
 - **Maven Compiler Plugin** 3.14.1
 - **Maven Surefire Plugin** 3.5.4
-- **Frontend Maven Plugin** 1.15.4
-- **Node.js** v24.11.1 (via Maven)
+- **Maven Failsafe Plugin** 3.5.4
+- **Frontend Maven Plugin** 2.0.0
+- **Node.js** v24.12.0 (via Maven)
 - **npm** 11.6.2 (via Maven)
 - **npm ci** (Optimized frontend dependency installation with --prefer-offline)
 - **Docker** (JVM & GraalVM Native images)
 - **GitHub Actions** (CI/CD with automated testing and native image builds)
 - **GraalVM Native Image** (AOT compilation for ultra-fast startup)
 
+## 🧪 Automated Tests
 
-
+| Suite     | Tests |
+|-----------|-------|
+| Backend   | 79    |
+| Frontend  | 67    |
 
 ## 🏎️ Recommended Native Build (GraalVM)
 
