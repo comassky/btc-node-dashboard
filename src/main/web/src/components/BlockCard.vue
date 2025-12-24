@@ -14,7 +14,7 @@
                 rel="noopener noreferrer"
                 :class="['text-4xl', 'sm:text-5xl', 'font-light', 'mt-2', 'sm:mt-3', 'block', 'focus:text-status-warning', 'transition-colors', 'duration-150', 'outline-none', isOutOfSync ? 'text-status-error hover:text-accent' : 'text-status-success hover:text-accent']"
             >
-                {{ blockchain.blocks }}
+                {{ formattedBlockCount }}
             </a>
         </Tooltip>
 
@@ -57,7 +57,7 @@
                 </Tooltip>
             </div>
 
-        <!-- Affichage de la taille sur disque -->
+        <!-- Display disk size -->
         </div>
     </div>
 </template>
@@ -76,6 +76,15 @@ const props = withDefaults(defineProps<{
     forceOutOfSync?: boolean;
 }>(), { forceOutOfSync: false });
 
+// Format the number with a normal space as thousands separator, regardless of locale.
+// Regex explanation:
+//   - /\B(?=(\d{3})+(?!\d))/g matches positions in the string that are not at a word boundary (\B)
+//     and are followed by one or more groups of three digits ((\d{3})+), but not followed by another digit (?!\d).
+//   - This inserts a space between every group of three digits from the right, except at the start.
+//   - Example: 1234567 => 1 234 567
+const formattedBlockCount = computed(() => {
+    return String(props.blockchain.blocks).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+});
 const headerBlockDiff = computed(() => getHeaderBlockDiff(props.blockchain));
 const isSyncingComputed = computed(() => isSyncing(props.blockchain));
 const isOutOfSync = computed(() => props.forceOutOfSync || (props.blockchain.headers - props.blockchain.blocks > 2));
