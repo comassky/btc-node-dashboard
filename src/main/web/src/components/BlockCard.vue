@@ -1,8 +1,8 @@
+
 <template>
-        <div class="dashboard-card-interactive"
-            :class="isOutOfSync ? 'border-status-error hover:border-status-error hover:shadow-2xl' : 'border-status-success hover:border-status-success hover:shadow-2xl'">
+    <BaseCard :status="isOutOfSync ? 'error' : 'success'" interactive>
         <div class="flex justify-between items-center">
-              <div :class="['text-2xl', 'sm:text-3xl', isOutOfSync ? 'text-status-error' : 'text-status-success']">
+            <div :class="['text-2xl', 'sm:text-3xl', isOutOfSync ? 'text-status-error' : 'text-status-success']">
                 <font-awesome-icon :icon="['fas', 'cubes']" />
             </div>
             <div class="text-xs uppercase text-text-secondary font-medium">Current Block</div>
@@ -17,7 +17,6 @@
                 {{ formattedBlockCount }}
             </a>
         </Tooltip>
-
         <div class="mt-1 sm:mt-2 pt-1 sm:pt-2 border-t border-border-strong text-xs sm:text-sm text-text-secondary overflow-visible">
             <div class="flex items-center justify-between gap-3">
                 <div class="flex-1">
@@ -25,7 +24,7 @@
                         <Tooltip :text="'Number of block headers known to the node.'" position="bottom" horizontal="left">
                             <font-awesome-icon :icon="['fas', 'list-ol']" class="mr-1" />
                         </Tooltip>
-                        Headers: 
+                        Headers:
                         <span class="font-bold text-text-primary" :class="isSyncingComputed ? 'text-status-warning' : ''">
                             {{ blockchain.headers }}
                             <span v-if="isSyncingComputed && headerBlockDiff !== 0" class="text-status-warning"> (+{{ headerBlockDiff }})</span>
@@ -35,7 +34,7 @@
                         <Tooltip :text="'Time since the last block was found.'" position="bottom" horizontal="left">
                             <font-awesome-icon :icon="['far', 'clock']" class="mr-1" />
                         </Tooltip>
-                        Time: 
+                        Time:
                         <span class="font-bold text-text-primary">
                             {{ formatTimeSince(block.time).replace(/ ago$/, '') }} ago
                         </span>
@@ -44,11 +43,10 @@
                         <Tooltip :text="'Number of transactions in the current block.'" position="bottom" horizontal="left">
                             <font-awesome-icon :icon="['fas', 'exchange-alt']" class="mr-1" />
                         </Tooltip>
-                        Tx Count: 
+                        Tx Count:
                         <span class="font-bold text-text-primary">{{ block.nTx }}</span>
                     </p>
                 </div>
-                
                 <Tooltip v-if="isOutOfSync" :text="syncWarningMessage" position="bottom" horizontal="right">
                     <div class="p-2 bg-status-error/10 border border-status-error/30 rounded text-status-error flex items-center gap-1 cursor-help animate-breathe flex-shrink-0">
                         <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="text-xs" />
@@ -56,17 +54,17 @@
                     </div>
                 </Tooltip>
             </div>
-
-        <!-- Display disk size -->
         </div>
-    </div>
+    </BaseCard>
 </template>
 
 <script setup lang="ts">
 
+
 import { computed } from 'vue';
 import { formatTimeSince } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
+import BaseCard from '@components/BaseCard.vue';
 import { getHeaderBlockDiff, isSyncing, getSyncWarningMessage } from '@utils/nodeHealth';
 import type { BlockChainInfo, BlockInfoResponse } from '@types';
 

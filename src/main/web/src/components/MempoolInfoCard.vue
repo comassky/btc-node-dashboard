@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-bg-card p-4 sm:p-6 rounded-xl shadow-2xl">
+  <BaseCard status="success" interactive>
     <h2 class="text-xl sm:text-2xl font-medium mb-4">
       <font-awesome-icon :icon="['fas', 'layer-group']" class="mr-2 text-accent" />
       Mempool Info
@@ -38,12 +38,13 @@
         <div class="text-lg font-bold">{{ mempoolInfo.total_fee }} BTC</div>
       </div>
     </div>
-  </div>
+  </BaseCard>
 </template>
 
 <script setup lang="ts">
 import type { MempoolInfoResponse } from '../types/MempoolInfoResponse';
 import { formatBytes } from '../utils/formatting';
+import BaseCard from '@components/BaseCard.vue';
 const props = defineProps<{ mempoolInfo: MempoolInfoResponse }>();
 </script>
 
