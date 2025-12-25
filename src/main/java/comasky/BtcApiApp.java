@@ -1,9 +1,10 @@
 package comasky;
 
+import comasky.config.BitcoinRpcConfig;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 
 /**
@@ -15,23 +16,8 @@ public class BtcApiApp implements QuarkusApplication {
 
     private static final Logger LOG = Logger.getLogger(BtcApiApp.class);
 
-    @ConfigProperty(name = "bitcoin.rpc.scheme")
-    String rpcScheme;
-
-    @ConfigProperty(name = "bitcoin.rpc.host")
-    String rpcHost;
-
-    @ConfigProperty(name = "bitcoin.rpc.port")
-    int rpcPort;
-
-    @ConfigProperty(name = "bitcoin.rpc.user")
-    String rpcUser;
-
-    @ConfigProperty(name = "bitcoin.rpc.password")
-    String rpcPassword;
-
-    @ConfigProperty(name = "dashboard.polling.interval.seconds")
-    int pollingInterval;
+    @Inject
+    BitcoinRpcConfig bitcoinRpcConfig;
 
     /**
      * Main entry point for the Quarkus application.
@@ -67,19 +53,19 @@ public class BtcApiApp implements QuarkusApplication {
      * @throws IllegalStateException if any required property is missing or invalid
      */
     private void validateConfiguration() {
-        if (isNullOrBlank(rpcScheme) || (!"http".equals(rpcScheme) && !"https".equals(rpcScheme))) {
+        if (isNullOrBlank(bitcoinRpcConfig.rpcScheme) || (!"http".equals(bitcoinRpcConfig.rpcScheme) && !"https".equals(bitcoinRpcConfig.rpcScheme))) {
             throw new IllegalStateException("bitcoin.rpc.scheme is required and must be 'http' or 'https'");
         }
-        if (isNullOrBlank(rpcHost)) {
+        if (isNullOrBlank(bitcoinRpcConfig.rpcHost)) {
             throw new IllegalStateException("bitcoin.rpc.host is required");
         }
-        if (rpcPort < 1 || rpcPort > 65535) {
+        if (bitcoinRpcConfig.rpcPort < 1 || bitcoinRpcConfig.rpcPort > 65535) {
             throw new IllegalStateException("bitcoin.rpc.port must be between 1 and 65535");
         }
-        if (isNullOrBlank(rpcUser) || isNullOrBlank(rpcPassword)) {
+        if (isNullOrBlank(bitcoinRpcConfig.rpcUser) || isNullOrBlank(bitcoinRpcConfig.rpcPassword)) {
             throw new IllegalStateException("bitcoin.rpc.user and bitcoin.rpc.password are required");
         }
-        if (pollingInterval < 1 || pollingInterval > 300) {
+        if (bitcoinRpcConfig.pollingInterval < 1 || bitcoinRpcConfig.pollingInterval > 300) {
             throw new IllegalStateException("dashboard.polling.interval.seconds must be between 1 and 300");
         }
     }
@@ -92,14 +78,14 @@ public class BtcApiApp implements QuarkusApplication {
         LOG.info(String.format("%-30s : %-30s", "Java Version", System.getProperty("java.version")));
         LOG.info(String.format("%-30s : %-30s", "Log Level", System.getenv().getOrDefault("LOG_LEVEL", "INFO")));
         LOG.info("----------------------------------------------------------------------");
-        LOG.info(String.format("%-30s : %-30s [env: RPC_SCHEME]", "Bitcoin RPC Scheme", rpcScheme));
-        LOG.info(String.format("%-30s : %-30s [env: RPC_HOST]", "Bitcoin RPC Host", rpcHost));
-        LOG.info(String.format("%-30s : %-30d [env: RPC_PORT]", "Bitcoin RPC Port", rpcPort));
-        LOG.info(String.format("%-30s : %-30s [env: RPC_USER]", "Bitcoin RPC User", rpcUser));
-        LOG.info(String.format("%-30s : %-30s [env: RPC_PASS]", "Bitcoin RPC Password", maskPassword(rpcPassword)));
+        LOG.info(String.format("%-30s : %-30s [env: RPC_SCHEME]", "Bitcoin RPC Scheme", bitcoinRpcConfig.rpcScheme));
+        LOG.info(String.format("%-30s : %-30s [env: RPC_HOST]", "Bitcoin RPC Host", bitcoinRpcConfig.rpcHost));
+        LOG.info(String.format("%-30s : %-30d [env: RPC_PORT]", "Bitcoin RPC Port", bitcoinRpcConfig.rpcPort));
+        LOG.info(String.format("%-30s : %-30s [env: RPC_USER]", "Bitcoin RPC User", bitcoinRpcConfig.rpcUser));
+        LOG.info(String.format("%-30s : %-30s [env: RPC_PASS]", "Bitcoin RPC Password", maskPassword(bitcoinRpcConfig.rpcPassword)));
         LOG.info("  (can be overridden by env: RPC_HOST, RPC_PORT, RPC_USER, RPC_PASS, RPC_SCHEME)");
         LOG.info("----------------------------------------------------------------------");
-        LOG.info(String.format("%-40s : %-10d", "Dashboard Polling Interval (s)", pollingInterval));
+        LOG.info(String.format("%-40s : %-10d", "Dashboard Polling Interval (s)", bitcoinRpcConfig.pollingInterval));
         LOG.info(String.format("%-40s : %-10s", "Min Outbound Peers", System.getenv().getOrDefault("MIN_OUTBOUND_PEERS", "8")));
         LOG.info(String.format("%-40s : %-10s", "Cache Validity Buffer (ms)", System.getenv().getOrDefault("DASHBOARD_CACHE_VALIDITY_BUFFER_MS", "200")));
         LOG.info(String.format("%-40s : %-10s", "Dashboard Cache Validity (ms)", System.getenv().getOrDefault("DASHBOARD_CACHE_VALIDITY_MS", "1000")));
@@ -108,7 +94,7 @@ public class BtcApiApp implements QuarkusApplication {
         LOG.info(String.format("%-40s : %-10s", "Dashboard Max Connections", System.getenv().getOrDefault("DASHBOARD_MAX_CONNECTIONS", "100")));
         LOG.info(String.format("%-40s : %-10s", "Dashboard Max Subscriptions", System.getenv().getOrDefault("DASHBOARD_MAX_SUBSCRIPTIONS", "10")));
         LOG.info("----------------------------------------------------------------------");
-        LOG.info(String.format("%-30s : %-30s", "WebSocket Polling Int", System.getenv().getOrDefault("WS_POLLING_INTERVAL", String.valueOf(pollingInterval))));
+        LOG.info(String.format("%-30s : %-30s", "WebSocket Polling Int", System.getenv().getOrDefault("WS_POLLING_INTERVAL", String.valueOf(bitcoinRpcConfig.pollingInterval))));
         LOG.info("============================================================================");
     }
 
