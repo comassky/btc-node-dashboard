@@ -88,7 +88,7 @@ public class BtcApiApp implements QuarkusApplication {
      * Logs the current application configuration for debugging purposes.
      */
     private void logConfiguration() {
-        LOG.info("\n+================ Bitcoin Node Dashboard Config ================");
+        LOG.infof("\n+================ Bitcoin Node Dashboard Config ================");
         LOG.infof("Java: %s   | Log: %s",
             System.getProperty("java.version"),
             System.getenv().getOrDefault("LOG_LEVEL", "INFO"));
