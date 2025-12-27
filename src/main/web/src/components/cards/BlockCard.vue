@@ -59,14 +59,18 @@
 </template>
 
 <script setup lang="ts">
-
-
 import { computed } from 'vue';
 import { formatTimeSince } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
 import BaseCard from '@components/BaseCard.vue';
 import { getHeaderBlockDiff, isSyncing, getSyncWarningMessage } from '@utils/nodeHealth';
 import type { BlockChainInfo, BlockInfoResponse } from '@types';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faCubes, faListOl, faExchangeAlt, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { faClock } from '@fortawesome/free-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
+library.add(faCubes, faListOl, faExchangeAlt, faExclamationCircle, faClock);
 
 const props = withDefaults(defineProps<{
     blockchain: BlockChainInfo;

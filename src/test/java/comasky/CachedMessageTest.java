@@ -119,7 +119,8 @@ class CachedMessageTest {
             blockInfoResponse,
             new MempoolInfoResponse(
                 true, 0, 0L, 0L, 0L, 0.0, 0.0, 0, 0.0
-            )
+            ),
+            Collections.emptyMap()
         );
     }
 }

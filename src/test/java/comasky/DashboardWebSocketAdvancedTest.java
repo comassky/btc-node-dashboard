@@ -102,7 +102,8 @@ class DashboardWebSocketAdvancedTest {
             new BlockInfoResponse(null, 0, 0, 0, 0, 0, 0, null, null, 0, 0, 0, null, 0, null, 0, null, null),
             new MempoolInfoResponse(
                 true, 0, 0L, 0L, 0L, 0.0, 0.0, 0, 0.0
-            )
+            ),
+            Collections.emptyMap()
         );
     }
 }

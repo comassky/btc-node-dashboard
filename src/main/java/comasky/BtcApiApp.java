@@ -1,9 +1,11 @@
 package comasky;
 
+import comasky.config.BitcoinRpcConfig;
+import comasky.config.DashboardConfig;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 
 /**
@@ -15,23 +17,11 @@ public class BtcApiApp implements QuarkusApplication {
 
     private static final Logger LOG = Logger.getLogger(BtcApiApp.class);
 
-    @ConfigProperty(name = "bitcoin.rpc.scheme")
-    String rpcScheme;
+    @Inject
+    BitcoinRpcConfig rpcConfig;
 
-    @ConfigProperty(name = "bitcoin.rpc.host")
-    String rpcHost;
-
-    @ConfigProperty(name = "bitcoin.rpc.port")
-    int rpcPort;
-
-    @ConfigProperty(name = "bitcoin.rpc.user")
-    String rpcUser;
-
-    @ConfigProperty(name = "bitcoin.rpc.password")
-    String rpcPassword;
-
-    @ConfigProperty(name = "dashboard.polling.interval.seconds")
-    int pollingInterval;
+    @Inject
+    DashboardConfig dashboardConfig;
 
     /**
      * Main entry point for the Quarkus application.
@@ -43,44 +33,14 @@ public class BtcApiApp implements QuarkusApplication {
     }
 
     @Override
-    /**
-     * Runs the application, validating configuration and starting Quarkus.
-     *
-     * @param args command-line arguments
-     * @return 0 if successful, 1 if startup failed
-     */
     public int run(String... args) {
         try {
-            validateConfiguration();
             logConfiguration();
             Quarkus.waitForExit();
             return 0;
         } catch (Exception e) {
             LOG.error("Startup failed: " + e.getMessage(), e);
             return 1;
-        }
-    }
-
-    /**
-     * Validates application configuration properties.
-     *
-     * @throws IllegalStateException if any required property is missing or invalid
-     */
-    private void validateConfiguration() {
-        if (isNullOrBlank(rpcScheme) || (!"http".equals(rpcScheme) && !"https".equals(rpcScheme))) {
-            throw new IllegalStateException("bitcoin.rpc.scheme is required and must be 'http' or 'https'");
-        }
-        if (isNullOrBlank(rpcHost)) {
-            throw new IllegalStateException("bitcoin.rpc.host is required");
-        }
-        if (rpcPort < 1 || rpcPort > 65535) {
-            throw new IllegalStateException("bitcoin.rpc.port must be between 1 and 65535");
-        }
-        if (isNullOrBlank(rpcUser) || isNullOrBlank(rpcPassword)) {
-            throw new IllegalStateException("bitcoin.rpc.user and bitcoin.rpc.password are required");
-        }
-        if (pollingInterval < 1 || pollingInterval > 300) {
-            throw new IllegalStateException("dashboard.polling.interval.seconds must be between 1 and 300");
         }
     }
 
@@ -95,8 +55,8 @@ public class BtcApiApp implements QuarkusApplication {
                 getQuarkusVersion());
         LOG.info("---------------------------------------------------------------");
         LOG.infof("RPC: %s://%s:%d  [user: %s | pass: %s]",
-                rpcScheme, rpcHost, rpcPort, rpcUser, maskPassword(rpcPassword));
-        LOG.infof("Polling Interval: %ds", pollingInterval);
+                rpcConfig.scheme(), rpcConfig.host(), rpcConfig.port(), rpcConfig.user(), maskPassword(rpcConfig.password()));
+        LOG.infof("Polling Interval: %ds", dashboardConfig.pollingIntervalSeconds());
         LOG.infof("Disable Mempool: %s",
                 System.getenv().getOrDefault("DASHBOARD_DISABLE_MEMPOOL", System.getProperty("dashboard.disable-mempool", "false")));
         LOG.info("---------------------------------------------------------------");
@@ -111,16 +71,6 @@ public class BtcApiApp implements QuarkusApplication {
                 System.getenv().getOrDefault("DASHBOARD_MAX_SUBSCRIPTIONS", "10"),
                 System.getenv().getOrDefault("QUARKUS_IO_THREADS", System.getProperty("quarkus.http.io-threads", "8")));
         LOG.info("===============================================================\n");
-    }
-
-    /**
-     * Checks if a string is null or blank.
-     *
-     * @param s the string to check
-     * @return true if the string is null or blank, false otherwise
-     */
-    private boolean isNullOrBlank(String s) {
-        return s == null || s.isBlank();
     }
 
     /**

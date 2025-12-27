@@ -3,6 +3,11 @@
 import { ref, watch, nextTick, onBeforeUnmount, computed } from 'vue';
 import { Chart, ArcElement, Tooltip, Legend, PieController, type TooltipItem, type ChartOptions } from 'chart.js';
 import { type SubverDistribution } from '@types';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
+library.add(faArrowDown, faArrowUp);
 
 Chart.register(ArcElement, Tooltip, Legend, PieController);
 Chart.defaults.animation = false;
@@ -166,7 +171,6 @@ watch(
 onBeforeUnmount(destroyChart);
 
 const headerColor = props.type === 'inbound' ? 'status-success' : 'accent';
-const headerIcon = props.type === 'inbound' ? 'fas fa-arrow-alt-circle-down' : 'fas fa-arrow-alt-circle-up';
 </script>
 
 <template>
@@ -175,7 +179,7 @@ const headerIcon = props.type === 'inbound' ? 'fas fa-arrow-alt-circle-down' : '
             class="text-lg font-bold uppercase text-center pb-2 border-b-2 tracking-wider"
             :class="[`border-${headerColor}`, `text-${headerColor}`]"
         >
-            <i :class="headerIcon" class="mr-1"></i>
+            <font-awesome-icon :icon="['fas', type === 'inbound' ? 'arrow-down' : 'arrow-up']" class="mr-1" />
             {{ type === 'inbound' ? 'Inbound Peers' : 'Outbound Peers' }} ({{ count }})
         </h4>
         <div class="flex flex-col items-center justify-center h-full w-full">

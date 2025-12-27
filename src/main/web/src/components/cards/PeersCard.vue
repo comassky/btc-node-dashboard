@@ -35,12 +35,16 @@
 </template>
 
 <script setup lang="ts">
-
 import { computed } from 'vue';
 import Tooltip from '@components/Tooltip.vue';
 import BaseCard from '@components/BaseCard.vue';
 import { hasLowOutboundPeers } from '@utils/nodeHealth';
 import type { GeneralStats } from '../../types';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faUserFriends, faSignInAlt, faSignOutAlt, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
+library.add(faUserFriends, faSignInAlt, faSignOutAlt, faExclamationTriangle);
 
 const props = withDefaults(defineProps<{
     stats: GeneralStats;

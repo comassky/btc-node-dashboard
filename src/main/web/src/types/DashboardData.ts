@@ -36,4 +36,6 @@ export interface DashboardData {
   errorMessage?: string;
   /** Mempool statistics */
   mempoolInfo: MempoolInfoResponse;
+  /** Partial errors map */
+  errors?: { [key: string]: string };
 }

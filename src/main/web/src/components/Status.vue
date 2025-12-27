@@ -5,6 +5,12 @@ import { hasLowOutboundPeers, isNodeOutOfSync } from '@utils/nodeHealth';
 
 import Tooltip from '@components/Tooltip.vue';
 
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faNetworkWired, faSpinner, faServer, faExclamationCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
+library.add(faNetworkWired, faSpinner, faServer, faExclamationCircle, faExclamationTriangle);
+
 const props = defineProps<{
     isConnected: boolean;
     rpcConnected: boolean;
@@ -44,7 +50,7 @@ const badgeTextClass = computed(() =>
             <span class="flex items-center">
                 <font-awesome-icon :icon="['fas', 'network-wired']" class="mr-2 text-xl" /> WebSocket: {{ props.isConnected ? 'CONNECTED' : 'DISCONNECTED' }}
                 <span v-if="props.isRetrying" :class="['ml-3 flex items-center text-sm', badgeTextClass]" aria-live="polite">
-                    <font-awesome-icon :icon="['fas','sync-alt']" class="mr-2 animate-spin" /> Reconnecting...
+                    <font-awesome-icon :icon="['fas','spinner']" class="mr-2 animate-spin" /> Reconnecting...
                 </span>
             </span>
         </Tooltip>

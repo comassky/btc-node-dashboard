@@ -59,11 +59,21 @@
 </template>
 
 <script setup lang="ts">
-
 import { computed } from 'vue';
 import Tooltip from '@components/Tooltip.vue';
 import BaseCard from '@components/BaseCard.vue';
 import type { BlockChainInfo, NetworkInfoResponse } from '@types';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import {
+    faHardHat, faShieldAlt, faHdd, faNetworkWired, faProjectDiagram,
+    faMask, faLayerGroup, faCloud, faQuestionCircle
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
+library.add(
+    faHardHat, faShieldAlt, faHdd, faNetworkWired, faProjectDiagram,
+    faMask, faLayerGroup, faCloud, faQuestionCircle
+);
 
 const props = defineProps<{ node: NetworkInfoResponse; blockchain: BlockChainInfo; upTime: string }>();
 

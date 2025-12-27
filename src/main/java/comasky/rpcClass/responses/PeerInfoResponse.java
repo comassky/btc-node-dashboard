@@ -7,6 +7,33 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 
 import java.util.Map;
 
+/**
+ * Response wrapper for the 'getpeerinfo' RPC call.
+ * Contains detailed information about each connected peer.
+ *
+ * @param id                 Peer index.
+ * @param addr               The IP address and port of the peer.
+ * @param addrlocal          Local address as reported by the peer.
+ * @param services           The services offered by the peer.
+ * @param conntime           The time the connection was established.
+ * @param lastsend           The time of the last send.
+ * @param lastrecv           The time of the last receive.
+ * @param bytesrecv          The total bytes received.
+ * @param bytessent          The total bytes sent.
+ * @param bytesRecvPerMsg    Bytes received per message type.
+ * @param bytesSentPerMsg    Bytes sent per message type.
+ * @param pingtime           The last ping time.
+ * @param minping            The minimum observed ping time.
+ * @param timeoffset         The time offset in seconds.
+ * @param version            The peer's version.
+ * @param subver             The string version.
+ * @param inbound            True if the connection is inbound.
+ * @param transportProtocol  The transport protocol used (e.g., "tcp").
+ * @param permission         Permission flags.
+ * @param connectionType     Type of connection (e.g., "inbound", "outbound-full-relay").
+ * @param network            The network used (e.g., "ipv4", "ipv6", "onion").
+ * @param unshippedTxs       Number of transactions not yet sent to this peer.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @RegisterForReflection
 public record PeerInfoResponse(

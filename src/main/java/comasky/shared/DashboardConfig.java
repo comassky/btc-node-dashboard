@@ -7,10 +7,26 @@ import io.smallrye.config.ConfigMapping;
  */
 @ConfigMapping(prefix = "dashboard")
 public interface DashboardConfig {
+    /**
+     * Polling configuration.
+     */
     Polling polling();
+
+    /**
+     * Health check configuration.
+     */
     Health health();
+
+    /**
+     * Cache configuration.
+     */
     Cache cache();
+
+    /**
+     * Maximum number of concurrent sessions.
+     */
     int sessionsMax();
+
     /**
      * If true, disables mempool info retrieval in the backend.
      */

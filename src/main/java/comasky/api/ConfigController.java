@@ -1,4 +1,3 @@
-
 package comasky.api;
 
 import comasky.shared.DashboardConfig;
@@ -27,7 +26,6 @@ public class ConfigController {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-
     public Uni<DashboardConfigResponse> getConfig() {
         int minPeers = 0;
         boolean disableMempool = false;
@@ -43,6 +41,7 @@ public class ConfigController {
     /**
      * DTO for dashboard configuration response.
      * @param minOutboundPeers minimum number of outbound peers required
+     * @param disableMempool whether mempool display is disabled
      */
     public record DashboardConfigResponse(int minOutboundPeers, boolean disableMempool) {}
 }

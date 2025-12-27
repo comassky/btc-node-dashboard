@@ -31,6 +31,12 @@
 </template>
 
 <script setup lang="ts">
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
+library.add(faGithub);
+
 const version = __APP_VERSION__;
 const currentYear = new Date().getFullYear();
 </script>

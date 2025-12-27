@@ -14,6 +14,7 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -82,7 +83,8 @@ class BtcControllerTest {
                 nodeInfo,
                 "5 days 3 hours",
                 blockInfoResponse,
-                mempoolInfo
+                mempoolInfo,
+                Collections.emptyMap()
         );
     }
 }

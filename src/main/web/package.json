@@ -19,7 +19,8 @@
     "@fortawesome/free-solid-svg-icons": "7.1.0",
     "@fortawesome/vue-fontawesome": "3.1.2",
     "chart.js": "4.5.1",
-    "ky": "1.14.1",
+    "ky": "1.14.2",
+    "pinia": "2.3.1",
     "reconnecting-websocket": "4.4.0",
     "vue": "3.5.26"
   },

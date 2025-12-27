@@ -107,7 +107,8 @@ class DashboardWebSocketTest {
             nodeInfo,
             "5 days",
             blockInfoResponse,
-            DummyMempoolInfoResponse.create()
+            DummyMempoolInfoResponse.create(),
+            Collections.emptyMap()
         );
     }
 }

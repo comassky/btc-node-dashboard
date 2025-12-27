@@ -5,32 +5,53 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
+/**
+ * Response wrapper for the 'getnetworkinfo' RPC call.
+ * Contains general information about the node and the P2P network.
+ *
+ * @param version             The version of the node software.
+ * @param subversion          The user agent string (e.g., "/Satoshi:25.0.0/").
+ * @param protocolversion     The protocol version of the P2P network.
+ * @param localservices       The services supported by this node (in hex).
+ * @param localservicesnames  The names of the services supported (e.g., ["WITNESS", "NETWORK"]).
+ * @param localrelay          True if the node relays non-witness transactions (deprecated).
+ * @param timeoffset          The time offset of the node relative to the network average (in seconds).
+ * @param connections         The number of active P2P connections.
+ * @param networkactive       True if P2P network activity is enabled.
+ * @param networks            Information about the different networks (IPv4, IPv6, Tor, etc.).
+ * @param localaddresses      List of local addresses.
+ */
 public record NetworkInfoResponse(
-        // Informations Générales
         @JsonProperty("version")
-        int version,                       // La version du protocole de votre nœud
-        @JsonProperty("subversion")
-        String subversion,                 // La chaîne de sous-version (ex: "/Satoshi:25.0.0/")
-        @JsonProperty("protocolversion")
-        int protocolversion,               // La version du protocole P2P
-        @JsonIgnore @JsonProperty("localservices")
-        String localservices,              // Les services supportés par ce nœud (en hexadécimal)
-        @JsonIgnore @JsonProperty("localservicesnames")
-        List<String> localservicesnames,   // Les noms des services supportés (ex: ["WITNESS", "NETWORK"])
-        @JsonIgnore @JsonProperty("localrelay")
-        boolean localrelay,                // Si le nœud relaie les transactions non-witness (déprécié)
-        @JsonIgnore @JsonProperty("timeoffset")
-        int timeoffset,                    // Décalage temporel moyen des pairs (en secondes)
-        @JsonIgnore @JsonProperty("connections")
-        int connections,                   // Le nombre de connexions P2P actives
-        @JsonIgnore @JsonProperty("networkactive")
-        boolean networkactive,             // True si le nœud est actif sur le réseau P2P
+        int version,
 
-        // Informations sur les différents réseaux (IPv4, IPv6, Tor, etc.)
+        @JsonProperty("subversion")
+        String subversion,
+
+        @JsonProperty("protocolversion")
+        int protocolversion,
+
+        @JsonIgnore @JsonProperty("localservices")
+        String localservices,
+
+        @JsonIgnore @JsonProperty("localservicesnames")
+        List<String> localservicesnames,
+
+        @JsonIgnore @JsonProperty("localrelay")
+        boolean localrelay,
+
+        @JsonIgnore @JsonProperty("timeoffset")
+        int timeoffset,
+
+        @JsonIgnore @JsonProperty("connections")
+        int connections,
+
+        @JsonIgnore @JsonProperty("networkactive")
+        boolean networkactive,
+
         @JsonProperty("networks")
         List<Network> networks,
 
-        // Adresses locales
         @JsonProperty("localaddresses")
         List<LocalAddress> localaddresses
 ) {}

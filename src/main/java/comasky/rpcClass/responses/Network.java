@@ -2,15 +2,28 @@ package comasky.rpcClass.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Represents information about a network interface (IPv4, IPv6, Tor, etc.).
+ *
+ * @param name                      Name of the network (e.g., "ipv4", "ipv6", "onion", "i2p").
+ * @param limited                   True if the node is limited to this network.
+ * @param reachable                 True if the network is reachable.
+ * @param proxy                     Address of the proxy used (if applicable).
+ * @param proxyRandomizeCredentials True if proxy credentials are randomized.
+ */
 public record Network(
         @JsonProperty("name")
-        String name,        // Nom du réseau (e.g., "ipv4", "ipv6", "onion", "i2p")
+        String name,
+
         @JsonProperty("limited")
-        boolean limited,    // True si le nœud est limité à ce réseau (ex: Tor seulement)
+        boolean limited,
+
         @JsonProperty("reachable")
-        boolean reachable,  // True si le réseau est accessible
+        boolean reachable,
+
         @JsonProperty("proxy")
-        String proxy,       // Adresse du proxy utilisé (si applicable)
+        String proxy,
+
         @JsonProperty("proxy_randomize_credentials")
-        boolean proxyRandomizeCredentials // True si les identifiants du proxy sont randomisés
+        boolean proxyRandomizeCredentials
 ) {}

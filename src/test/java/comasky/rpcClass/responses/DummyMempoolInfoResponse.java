@@ -1,6 +1,13 @@
 package comasky.rpcClass.responses;
 
+/**
+ * Factory for creating dummy MempoolInfoResponse objects for testing.
+ */
 public class DummyMempoolInfoResponse {
+    /**
+     * Creates a dummy MempoolInfoResponse with default values.
+     * @return a new MempoolInfoResponse instance
+     */
     public static MempoolInfoResponse create() {
         return new MempoolInfoResponse(
             true, // loaded

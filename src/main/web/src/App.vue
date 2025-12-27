@@ -1,7 +1,17 @@
 <script setup lang="ts">
-import type { DashboardData, DashboardConfig, NetworkInfoResponse, BlockChainInfo, Peer } from '@types';
-import { defineAsyncComponent, reactive, computed, onBeforeUnmount, ref, onMounted, nextTick } from 'vue';
-const Spinner = defineAsyncComponent(() => import('@components/Spinner.vue'));
+import { computed, defineAsyncComponent, onBeforeUnmount, onMounted } from 'vue';
+import { useDashboardStore } from '@/stores/dashboard';
+import { useTheme } from '@composables/useTheme';
+import { useMockData } from '@composables/useMockData';
+import { storeToRefs } from 'pinia';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faSun, faMoon, faCloud, faHardHat, faChartPie, faTable } from '@fortawesome/free-solid-svg-icons';
+import { faBitcoin } from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
+library.add(faSun, faMoon, faCloud, faHardHat, faChartPie, faTable, faBitcoin);
+
+// Async Components
 const Status = defineAsyncComponent(() => import('@components/Status.vue'));
 const PeersCard = defineAsyncComponent(() => import('@components/cards/PeersCard.vue'));
 const BlockCard = defineAsyncComponent(() => import('@components/cards/BlockCard.vue'));
@@ -10,208 +20,67 @@ const PeerDistributionChart = defineAsyncComponent(() => import('@components/Pee
 const MempoolInfoCard = defineAsyncComponent(() => import('@components/cards/MempoolInfoCard.vue'));
 const PeerTable = defineAsyncComponent(() => import('@components/PeerTable.vue'));
 const Footer = defineAsyncComponent(() => import('@components/Footer.vue'));
-import { useWebSocket } from '@composables/useWebSocket';
-import { useTheme } from '@composables/useTheme';
-import { useMockData } from '@composables/useMockData';
-import { setMinOutboundPeers } from '@utils/nodeHealth';
+const BaseCardSkeleton = defineAsyncComponent(() => import('@components/cards/BaseCardSkeleton.vue'));
 
-/**
- * Main Dashboard Application Component
- * Manages WebSocket connection, data state, and theme for the Bitcoin node dashboard.
- */
+// Store
+const dashboardStore = useDashboardStore();
+const {
+  dataState,
+  disableMempool,
+  isConnected,
+  rpcConnected,
+  errorMessage,
+  isRetrying,
+} = storeToRefs(dashboardStore);
 
-const WS_URL = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws/dashboard`;
-
-const DEFAULT_DATA: DashboardData = {
-  generalStats: { inboundCount: 0, outboundCount: 0, totalPeers: 0 },
-  blockchainInfoResponse: {
-    blocks: 0,
-    headers: 0,
-    chain: 'Loading...',
-    verificationprogress: 0,
-    difficulty: 0,
-    bestblockhash: '',
-    time: 0,
-    mediantime: 0,
-    initialblockdownload: false,
-    chainwork: '',
-    size_on_disk: 0,
-    pruned: false,
-    pruneheight: null,
-  },
-  nodeInfo: {
-    version: 0,
-    protocolversion: 0,
-    subversion: 'N/A',
-    localservices: '',
-    localservicesnames: [],
-    localrelay: false,
-    timeoffset: 0,
-    connections: 0,
-    networkactive: false,
-    networks: [],
-    localaddresses: []
-  },
-  upTime: 'N/A',
-  inboundPeer: [],
-  outboundPeer: [],
-  subverDistribution: { inbound: [], outbound: [] },
-  block: { time: 0, nTx: 0 },
-  rpcConnected: false,
-  mempoolInfo: {
-    loaded: false,
-    size: 0,
-    bytes: 0,
-    usage: 0,
-    maxmempool: 0,
-    mempoolminfee: 0,
-    minrelaytxfee: 0,
-    unbroadcastcount: 0,
-    total_fee: 0
-  },
-};
-
-const dataState = reactive<DashboardData>(DEFAULT_DATA);
-
-const configLoaded = ref(false);
-const disableMempool = ref(false);
+// Derived state from dataState
+const inboundPeers = computed(() => dataState.value.inboundPeer);
+const outboundPeers = computed(() => dataState.value.outboundPeer);
+const subverInbound = computed(() => dataState.value.subverDistribution.inbound);
+const subverOutbound = computed(() => dataState.value.subverDistribution.outbound);
+const inboundCount = computed(() => dataState.value.generalStats.inboundCount);
+const outboundCount = computed(() => dataState.value.generalStats.outboundCount);
 
 
-const inboundPeers = computed(() => dataState.inboundPeer);
-const outboundPeers = computed(() => dataState.outboundPeer);
-const subverInbound = computed(() => dataState.subverDistribution.inbound);
-const subverOutbound = computed(() => dataState.subverDistribution.outbound);
-const inboundCount = computed(() => dataState.generalStats.inboundCount);
-const outboundCount = computed(() => dataState.generalStats.outboundCount);
-
+// Theme
 const { theme, isDarkMode, cycleTheme } = useTheme();
 
-// Mock data composable for testing error/warning states
-const { 
-  MOCK_MODE, 
-  mockScenario, 
-  cycleMockScenario, 
-  generateMockData, 
-  getMockConnectionState,
-  startAutoCycle 
-} = useMockData();
+// Mock Data (for development/demo)
+const { MOCK_MODE, mockScenario, cycleMockScenario, generateMockData, getMockConnectionState, startAutoCycle } = useMockData();
 
-// Auto-cycle interval id for mock mode (cleared on unmount)
-const autoCycleId = ref<number | null>(null);
+// Computed properties for cleaner template logic
+const shouldShowContent = computed(() => MOCK_MODE.value || rpcConnected.value);
 
-// Load configuration from backend
+const themeIcon = computed(() => {
+  if (theme.value === 'light') return ['fas', 'sun'];
+  if (theme.value === 'dark') return ['fas', 'moon'];
+  return ['fas', 'cloud'];
+});
 
-import ky from 'ky';
-
-const loadConfig = async () => {
-  try {
-    const config: DashboardConfig = await ky.get('/api/config').json();
-    setMinOutboundPeers(config.minOutboundPeers);
-    disableMempool.value = !!config.disableMempool;
-    configLoaded.value = true;
-  } catch (error) {
-    console.error('Failed to load dashboard configuration:', error);
-    configLoaded.value = true; // Continue with default values
-  }
-};
-
-onMounted(async () => {
-  await loadConfig();
-  
-  // Apply mock data in dev mode
+onMounted(() => {
   if (MOCK_MODE.value) {
-    Object.assign(dataState, generateMockData());
-    // Auto-cycle scenarios every 8 seconds for demo
-    autoCycleId.value = startAutoCycle(8000);
+    Object.assign(dataState.value, generateMockData());
+    startAutoCycle(8000);
+  } else {
+    dashboardStore.initialize();
   }
 });
 
-// Normalizes incoming WebSocket data and updates reactive state
-const normalizeData = (rawData: Partial<DashboardData>) => {
-  const nodeInfo = rawData.nodeInfo as NetworkInfoResponse || {};
-  const blockchainInfoResponse = rawData.blockchainInfoResponse as BlockChainInfo || {};
-
-  Object.assign(dataState, {
-    generalStats: rawData.generalStats || dataState.generalStats,
-    blockchainInfoResponse: {
-      blocks: blockchainInfoResponse.blocks ?? 0,
-      headers: blockchainInfoResponse.headers ?? 0,
-      chain: blockchainInfoResponse.chain || 'N/A',
-      verificationprogress: blockchainInfoResponse.verificationprogress ?? 0,
-      difficulty: blockchainInfoResponse.difficulty ?? 0,
-      bestblockhash: blockchainInfoResponse.bestblockhash || '',
-      time: blockchainInfoResponse.time ?? 0,
-      mediantime: blockchainInfoResponse.mediantime ?? 0,
-      initialblockdownload: blockchainInfoResponse.initialblockdownload ?? false,
-      chainwork: blockchainInfoResponse.chainwork || '',
-      size_on_disk: blockchainInfoResponse.size_on_disk ?? 0,
-      pruned: blockchainInfoResponse.pruned ?? false,
-      pruneheight: blockchainInfoResponse.pruneheight ?? null,
-    },
-    nodeInfo: {
-      version: nodeInfo.version ?? 0,
-      protocolversion: nodeInfo.protocolversion ?? 0,
-      subversion: nodeInfo.subversion || 'N/A',
-      localservices: nodeInfo.localservices || '',
-      localservicesnames: nodeInfo.localservicesnames || [],
-      localrelay: nodeInfo.localrelay ?? false,
-      timeoffset: nodeInfo.timeoffset ?? 0,
-      connections: nodeInfo.connections ?? 0,
-      networkactive: nodeInfo.networkactive ?? false,
-      networks: nodeInfo.networks || [],
-      localaddresses: nodeInfo.localaddresses || [],
-    },
-    upTime: rawData.upTime || 'N/A',
-    inboundPeer: rawData.inboundPeer || [],
-    outboundPeer: rawData.outboundPeer || [],
-    subverDistribution: rawData.subverDistribution || { inbound: [], outbound: [] },
-    block: rawData.block || { time: 0, nTx: 0 },
-    mempoolInfo: rawData.mempoolInfo || dataState.mempoolInfo,
-  });
-};
-
-const { isConnected, rpcConnected, errorMessage, isRetrying, connect, disconnect } = useWebSocket(WS_URL, normalizeData);
-
-if (!MOCK_MODE.value) {
-  connect();
-}
-
-// Always clean resources on unmount: disconnect websocket and clear mock interval
 onBeforeUnmount(() => {
-  try { disconnect(); } catch (e) {}
-  if (autoCycleId.value) {
-    clearInterval(autoCycleId.value);
-    autoCycleId.value = null;
+  if (!MOCK_MODE.value) {
+    dashboardStore.disconnect();
   }
 });
-
-function handleCycleScenario() {
-  cycleMockScenario();
-  nextTick(() => {
-    Object.assign(dataState, generateMockData());
-  });
-}
 </script>
 
 <template>
     <div class="p-3 sm:p-4 md:p-6 bg-bg-app min-h-screen">
         <button @click="cycleTheme"
           class="fixed top-3 right-3 sm:top-4 sm:right-4 z-50 btn btn-secondary"
-          title="Changer de thème (clair, sombre, gris)"
-          aria-label="Changer de thème"
+          title="Cycle theme (light, dark, gray)"
+          aria-label="Cycle theme"
           :aria-pressed="theme === 'dark' || theme === 'gray'">
-          <font-awesome-icon
-            v-if="theme === 'light'"
-            :icon="['fas', 'sun']"
-          />
-          <font-awesome-icon
-            v-else-if="theme === 'dark'"
-            :icon="['fas', 'moon']"
-          />
-          <font-awesome-icon
-            v-else
-            :icon="['fas', 'cloud']"
-          />
+          <font-awesome-icon :icon="themeIcon" />
         </button>
 
         <div v-if="MOCK_MODE" class="fixed top-3 left-3 sm:top-4 sm:left-4 z-50 dashboard-card border-accent text-xs">
@@ -219,7 +88,7 @@ function handleCycleScenario() {
                 <font-awesome-icon :icon="['fas', 'hard-hat']" /> MOCK MODE
             </div>
             <button 
-              @click="handleCycleScenario"
+              @click="cycleMockScenario"
               class="btn btn-accent">
                 Cycle Scenario
             </button>
@@ -253,9 +122,9 @@ function handleCycleScenario() {
         </transition>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 sm:gap-4 md:gap-6 lg:gap-8 gap-y-4 md:gap-y-6">
-          <!-- Cartes principales -->
+          <!-- Main Cards -->
           <transition name="fade" mode="out-in">
-            <template v-if="(MOCK_MODE && dataState.rpcConnected) || rpcConnected">
+            <template v-if="shouldShowContent">
               <div class="lg:col-span-2" key="cards">
                 <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 xs:gap-3 sm:gap-4 md:gap-6">
                   <PeersCard :stats="dataState.generalStats" class="col-span-1" />
@@ -264,10 +133,13 @@ function handleCycleScenario() {
                 </div>
               </div>
             </template>
-            <template v-else-if="isConnected && !rpcConnected">
-              <div class="dashboard-card lg:col-span-2 flex flex-col items-center justify-center min-h-[120px]" key="spinner">
-                <Spinner />
-                <p class="text-center text-text-secondary mt-2">Connecting to node RPC...</p>
+            <template v-else>
+              <div class="lg:col-span-2" key="skeletons">
+                <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 xs:gap-3 sm:gap-4 md:gap-6">
+                  <BaseCardSkeleton class="col-span-1" />
+                  <BaseCardSkeleton class="col-span-1" />
+                  <BaseCardSkeleton class="col-span-1 lg:col-span-2 w-full max-w-full" />
+                </div>
               </div>
             </template>
           </transition>
@@ -275,7 +147,7 @@ function handleCycleScenario() {
           <!-- Mempool Info -->
           <transition name="fade" mode="out-in">
             <MempoolInfoCard
-              v-if="((MOCK_MODE && dataState.rpcConnected) || rpcConnected) && !disableMempool"
+              v-if="shouldShowContent && !disableMempool"
               :mempool-info="dataState.mempoolInfo"
               class="dashboard-card lg:col-span-2"
             />
@@ -283,7 +155,7 @@ function handleCycleScenario() {
 
           <!-- Peer Software Distribution -->
           <transition name="fade" mode="out-in">
-            <template v-if="(MOCK_MODE && dataState.rpcConnected) || rpcConnected">
+            <template v-if="shouldShowContent">
               <div class="dashboard-card lg:col-span-2">
                 <h2 class="text-lg xs:text-xl sm:text-2xl font-medium mb-3 sm:mb-4 md:mb-6 break-words">
                   <font-awesome-icon :icon="['fas', 'chart-pie']" class="mr-2 text-accent" />
@@ -300,13 +172,13 @@ function handleCycleScenario() {
 
           <!-- Peer Table -->
           <transition name="fade" mode="out-in">
-            <template v-if="(MOCK_MODE && dataState.rpcConnected) || rpcConnected">
+            <template v-if="shouldShowContent">
               <div class="dashboard-card lg:col-span-2 overflow-x-auto" key="table">
                 <h2 class="text-lg xs:text-xl sm:text-2xl font-medium mb-3 sm:mb-4 md:mb-6 break-words">
                   <font-awesome-icon :icon="['fas', 'table']" class="mr-2 text-accent" /> Connection Details
                 </h2>
-                <PeerTable :peers="inboundPeers as Peer[]" type="inbound" />
-                <PeerTable :peers="outboundPeers as Peer[]" type="outbound" />
+                <PeerTable :peers="inboundPeers" type="inbound" />
+                <PeerTable :peers="outboundPeers" type="outbound" />
               </div>
             </template>
           </transition>

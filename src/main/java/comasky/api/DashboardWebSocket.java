@@ -3,6 +3,7 @@ package comasky.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.rpcClass.DashboardDataProvider;
 import io.quarkus.scheduler.Scheduled;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -76,7 +77,7 @@ public class DashboardWebSocket {
                         message -> {
                             String json = message.serializedJson();
                             if (json != null) {
-                                broadcastMessage(json); // diffuse la même chaîne à tous
+                                broadcastMessage(json); // Broadcasts the same JSON string to all clients
                             } else {
                                 LOG.error("No JSON to broadcast");
                             }
@@ -236,29 +237,24 @@ public class DashboardWebSocket {
     }
 
     /**
-     * Broadcasts a message to all connected WebSocket sessions.
+     * Broadcasts a message to all connected WebSocket sessions in parallel.
      *
      * @param message the message to broadcast
      */
     private void broadcastMessage(String message) {
-        // Iterate over a snapshot to avoid ConcurrentModification and keep predicate side-effect free
-        var snapshot = Set.copyOf(sessions);
-        for (Session session : snapshot) {
-            if (session == null || !session.isOpen()) {
-                sessions.remove(session);
-                continue;
-            }
-            try {
-                session.getAsyncRemote().sendText(message, result -> {
-                    if (result == null || !result.isOK()) {
-                        LOG.warnf("Failed to send message to session %s: %s", session.getId(), result == null ? "unknown" : result.getException());
-                        sessions.remove(session);
-                    }
-                });
-            } catch (Exception e) {
-                LOG.warnf(e, "Failed to send message to session %s", session.getId());
-                sessions.remove(session);
-            }
-        }
+        Multi.createFrom().iterable(sessions)
+                .filter(Session::isOpen)
+                .onItem().transformToUniAndMerge(session ->
+                        Uni.createFrom().future(session.getAsyncRemote().sendText(message))
+                                .onFailure().invoke(failure -> {
+                                    LOG.warnf(failure, "Failed to send message to session %s. Removing.", session.getId());
+                                    sessions.remove(session);
+                                })
+                                .onFailure().recoverWithNull() // Continue with other sessions on failure
+                )
+                .subscribe().with(
+                        v -> {}, // Ignored on success
+                        failure -> LOG.error("An unexpected error occurred during broadcast.", failure)
+                );
     }
 }

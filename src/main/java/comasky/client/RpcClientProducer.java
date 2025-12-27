@@ -1,79 +1,42 @@
-
 package comasky.client;
 
+import comasky.config.BitcoinRpcConfig;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
- * Producer for the RpcClient REST client, with validation and robust configuration.
+ * Producer for the RpcClient REST client, configured via typesafe properties.
  */
 @ApplicationScoped
 public class RpcClientProducer {
 
-    @ConfigProperty(name = "bitcoin.rpc.scheme")
-    String scheme;
-
-    @ConfigProperty(name = "bitcoin.rpc.host")
-    String host;
-
-    @ConfigProperty(name = "bitcoin.rpc.port")
-    int port;
-
-    @ConfigProperty(name = "bitcoin.rpc.user")
-    String user;
-
-    @ConfigProperty(name = "bitcoin.rpc.password")
-    String password;
+    @Inject
+    BitcoinRpcConfig config;
 
     /**
-     * Creates and configures the RpcClient REST client.
+     * Creates and configures the RpcClient REST client using typesafe configuration.
+     * This method leverages the RestClientBuilder to construct the client with a base URI
+     * and registers a BasicAuthentication filter for handling RPC credentials securely.
      *
-     * @return configured RpcClient instance
-     * @throws IllegalStateException if any required configuration property is missing or invalid
-     * @throws IllegalArgumentException if the port is out of range
+     * @return A configured RpcClient instance.
+     * @throws URISyntaxException if the configured RPC URL is invalid.
      */
     @Produces
     @ApplicationScoped
-    public RpcClient createRpcClient() {
-        validateCredentials();
-        if (isNullOrBlank(scheme) || isNullOrBlank(host) || isNullOrBlank(user) || isNullOrBlank(password)) {
-            throw new IllegalStateException("All bitcoin.rpc.* properties must be set and non-blank");
-        }
-        if (port < 1 || port > 65535) {
-            throw new IllegalArgumentException("bitcoin.rpc.port must be between 1 and 65535");
-        }
-        String urlWithAuth = String.format("%s://%s:%s@%s:%d", scheme, user, password, host, port);
-        URI baseUri = URI.create(urlWithAuth);
+    public RpcClient createRpcClient() throws URISyntaxException {
+        URI baseUri = new URI(String.format("%s://%s:%d", config.scheme(), config.host(), config.port()));
+
+        // Use our own BasicAuthentication class
+        BasicAuthentication authFilter = new BasicAuthentication(config.user(), config.password());
+
         return RestClientBuilder.newBuilder()
                 .baseUri(baseUri)
+                .register(authFilter)
                 .build(RpcClient.class);
-    }
-
-    /**
-     * Validates the RPC user and password for illegal characters.
-     *
-     * @throws IllegalArgumentException if user or password contains invalid characters
-     */
-    private void validateCredentials() {
-        if (user != null && (user.contains(":") || user.contains("@"))) {
-            throw new IllegalArgumentException("bitcoin.rpc.user contains invalid characters (: or @)");
-        }
-        if (password != null && password.contains("@")) {
-            throw new IllegalArgumentException("bitcoin.rpc.password contains invalid character (@)");
-        }
-    }
-
-    /**
-     * Checks if a string is null or blank.
-     *
-     * @param s the string to check
-     * @return true if the string is null or blank, false otherwise
-     */
-    private boolean isNullOrBlank(String s) {
-        return s == null || s.isBlank();
     }
 }
