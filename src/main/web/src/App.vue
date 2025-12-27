@@ -3,11 +3,11 @@ import type { DashboardData, DashboardConfig, NetworkInfoResponse, BlockChainInf
 import { defineAsyncComponent, reactive, computed, onBeforeUnmount, ref, onMounted, nextTick } from 'vue';
 const Spinner = defineAsyncComponent(() => import('@components/Spinner.vue'));
 const Status = defineAsyncComponent(() => import('@components/Status.vue'));
-const PeersCard = defineAsyncComponent(() => import('@components/PeersCard.vue'));
-const BlockCard = defineAsyncComponent(() => import('@components/BlockCard.vue'));
-const NodeCard = defineAsyncComponent(() => import('@components/NodeCard.vue'));
+const PeersCard = defineAsyncComponent(() => import('@components/cards/PeersCard.vue'));
+const BlockCard = defineAsyncComponent(() => import('@components/cards/BlockCard.vue'));
+const NodeCard = defineAsyncComponent(() => import('@components/cards/NodeCard.vue'));
 const PeerDistributionChart = defineAsyncComponent(() => import('@components/PeerDistributionChart.vue'));
-const MempoolInfoCard = defineAsyncComponent(() => import('@components/MempoolInfoCard.vue'));
+const MempoolInfoCard = defineAsyncComponent(() => import('@components/cards/MempoolInfoCard.vue'));
 const PeerTable = defineAsyncComponent(() => import('@components/PeerTable.vue'));
 const Footer = defineAsyncComponent(() => import('@components/Footer.vue'));
 import { useWebSocket } from '@composables/useWebSocket';
@@ -84,7 +84,7 @@ const subverOutbound = computed(() => dataState.subverDistribution.outbound);
 const inboundCount = computed(() => dataState.generalStats.inboundCount);
 const outboundCount = computed(() => dataState.generalStats.outboundCount);
 
-const { isDarkMode, toggleDarkMode } = useTheme();
+const { theme, isDarkMode, cycleTheme } = useTheme();
 
 // Mock data composable for testing error/warning states
 const { 
@@ -195,12 +195,23 @@ function handleCycleScenario() {
 
 <template>
     <div class="p-3 sm:p-4 md:p-6 bg-bg-app min-h-screen">
-        <button @click="toggleDarkMode"
+        <button @click="cycleTheme"
           class="fixed top-3 right-3 sm:top-4 sm:right-4 z-50 btn btn-secondary"
-          title="Toggle Dark/Light Mode"
-          aria-label="Toggle dark mode"
-          :aria-pressed="isDarkMode">
-          <font-awesome-icon :icon="isDarkMode ? ['fas', 'sun'] : ['fas', 'moon']" />
+          title="Changer de thème (clair, sombre, gris)"
+          aria-label="Changer de thème"
+          :aria-pressed="theme === 'dark' || theme === 'gray'">
+          <font-awesome-icon
+            v-if="theme === 'light'"
+            :icon="['fas', 'sun']"
+          />
+          <font-awesome-icon
+            v-else-if="theme === 'dark'"
+            :icon="['fas', 'moon']"
+          />
+          <font-awesome-icon
+            v-else
+            :icon="['fas', 'cloud']"
+          />
         </button>
 
         <div v-if="MOCK_MODE" class="fixed top-3 left-3 sm:top-4 sm:left-4 z-50 dashboard-card border-accent text-xs">

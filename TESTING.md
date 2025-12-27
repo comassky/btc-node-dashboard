@@ -11,8 +11,8 @@
 
 | Component   | Tests | Technologies                        |
 |------------ |-------|-------------------------------------|
-| Backend     | 79    | JUnit 5, Mockito, Quarkus Test      |
-| Frontend    | 67    | Vitest (4.0.16), Vue Test Utils (2.4.6), Happy DOM (20.0.11)   |
+| Backend     | 79    | JUnit 5, Mockito, Quarkus Test, Rest Assured |
+| Frontend    | 67    | Vitest (4.0.16), Vue Test Utils (2.4.6), Happy DOM (20.0.11), Vite (7.3.0), TypeScript (5.9.3), Chart.js (4.5.1), Font Awesome (7.1.0), ky (1.14.1), Tailwind CSS (3.4.19), vite-plugin-pwa (1.2.0), vite-plugin-compression (0.5.1), rollup-plugin-visualizer (6.0.5), sirv-cli (3.0.1), autoprefixer (10.4.23), postcss (8.5.6), vue-tsc (3.2.1), workbox-window (7.4.0) |
 
 **Test execution**: ~25s total (Backend: ~20s, Frontend: ~3s)
 
@@ -58,6 +58,9 @@ cd src/main/web && npm run coverage
 - `types.test.ts` (15) - Interfaces, data validation
 - `formatters.test.ts` (12) - Number/date formatting
 - `logic.test.ts` (16) - Business logic, calculations
+
+**Main Libraries:**
+- Vitest 4.0.16, Vue Test Utils 2.4.6, Happy DOM 20.0.11, Vite 7.3.0, TypeScript 5.9.3, Chart.js 4.5.1, Font Awesome 7.1.0, ky 1.14.1, Tailwind CSS 3.4.19, vite-plugin-pwa 1.2.0, vite-plugin-compression 0.5.1, rollup-plugin-visualizer 6.0.5, sirv-cli 3.0.1, autoprefixer 10.4.23, postcss 8.5.6, vue-tsc 3.2.1, workbox-window 7.4.0
 
 ## 📝 Writing New Tests
 

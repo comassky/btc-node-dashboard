@@ -1,8 +1,7 @@
 <template>
-        <div class="dashboard-card-interactive"
-            :class="hasLowOutbound ? 'border-status-warning hover:border-status-warning hover:shadow-2xl' : 'border-status-success hover:border-status-success hover:shadow-2xl'">
+    <BaseCard :status="hasLowOutbound ? 'warning' : 'success'" interactive>
         <div class="flex justify-between items-center">
-              <div :class="['text-2xl', 'sm:text-3xl', hasLowOutbound ? 'text-status-warning' : 'text-status-success']">
+            <div :class="['text-2xl', 'sm:text-3xl', hasLowOutbound ? 'text-status-warning' : 'text-status-success']">
                 <font-awesome-icon :icon="['fas', 'user-friends']" />
             </div>
             <div class="text-xs uppercase text-text-secondary font-medium">Total Peers</div>
@@ -19,7 +18,7 @@
             <div class="flex items-center justify-between gap-3">
                 <Tooltip :text="'Outbound connections: your node connecting to others.'">
                     <p class="mb-0.5 sm:mb-1">
-                        <font-awesome-icon :icon="['fas', 'sign-out-alt']" class="mr-1" /> Outbound: 
+                        <font-awesome-icon :icon="['fas', 'sign-out-alt']" class="mr-1" /> Outbound:
                         <span :class="hasLowOutbound ? 'text-status-warning font-bold' : ''">{{ stats.outboundCount }}</span>
                     </p>
                 </Tooltip>
@@ -31,14 +30,17 @@
                 </Tooltip>
             </div>
         </div>
-    </div>
+
+    </BaseCard>
 </template>
 
 <script setup lang="ts">
+
 import { computed } from 'vue';
 import Tooltip from '@components/Tooltip.vue';
+import BaseCard from '@components/BaseCard.vue';
 import { hasLowOutboundPeers } from '@utils/nodeHealth';
-import type { GeneralStats } from '../types';
+import type { GeneralStats } from '../../types';
 
 const props = withDefaults(defineProps<{
     stats: GeneralStats;

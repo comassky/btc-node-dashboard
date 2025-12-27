@@ -7,7 +7,7 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
  * WebSocket composable for real-time dashboard updates.
  * Handles connection lifecycle, automatic reconnection with exponential backoff,
  * and data parsing from the server.
- *
+
  * @param wsUrl WebSocket endpoint URL
  * @param onDataReceived Callback invoked when dashboard data is received
  * @param wsClass Optional WebSocket class (for testing/mocking)

@@ -42,6 +42,8 @@ const props = withDefaults(defineProps<{
 
 
 const isHovered = ref(false);
+// Expose pour les tests unitaires
+defineExpose({ isHovered });
 const triggerEl = ref<HTMLElement>();
 const tooltipEl = ref<HTMLElement>();
 const tooltipStyle = ref({ top: '0px', left: '0px', maxWidth: '100vw' });

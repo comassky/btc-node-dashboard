@@ -1,10 +1,11 @@
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 
 const DARK_ERROR_RGB = '239, 71, 111';
 const LIGHT_ERROR_RGB = '239, 68, 68';
 const THEME_STORAGE_KEY = 'theme';
 const DARK_THEME = 'dark';
 const LIGHT_THEME = 'light';
+const GRAY_THEME = 'gray';
 
 /**
  * Theme management composable.
@@ -13,33 +14,45 @@ const LIGHT_THEME = 'light';
  * @returns Reactive dark mode state and toggle function
  */
 export function useTheme() {
-    const isDarkMode = ref(true);
+    // theme: 'light' | 'dark' | 'gray'
+    const theme = ref<'light' | 'dark' | 'gray'>(DARK_THEME);
+    const isDarkMode = computed(() => theme.value === DARK_THEME);
+    const isGrayMode = computed(() => theme.value === GRAY_THEME);
 
     /**
      * Updates the CSS variable for error pulse color based on theme.
      * @param darkMode Whether dark mode is enabled
      */
-    const updateErrorPulseRgb = (darkMode: boolean) => {
-        document.documentElement.style.setProperty('--status-error-rgb', 
-            darkMode ? DARK_ERROR_RGB : LIGHT_ERROR_RGB);
+    const updateErrorPulseRgb = (themeValue: string) => {
+        if (themeValue === DARK_THEME) {
+            document.documentElement.style.setProperty('--status-error-rgb', DARK_ERROR_RGB);
+        } else if (themeValue === GRAY_THEME) {
+            document.documentElement.style.setProperty('--status-error-rgb', '255, 107, 107');
+        } else {
+            document.documentElement.style.setProperty('--status-error-rgb', LIGHT_ERROR_RGB);
+        }
     };
 
     /**
      * Applies the theme to the document root.
      * @param darkMode Whether dark mode is enabled
      */
-    const applyTheme = (darkMode: boolean) => {
-        document.documentElement.classList.toggle('dark', darkMode);
-        updateErrorPulseRgb(darkMode);
+    const applyTheme = (themeValue: string) => {
+        document.documentElement.classList.remove(DARK_THEME, LIGHT_THEME, GRAY_THEME);
+        document.documentElement.classList.add(themeValue);
+        updateErrorPulseRgb(themeValue);
     };
 
     /**
      * Toggles between dark and light mode, saving preference to localStorage.
      */
-    const toggleDarkMode = () => {
-        isDarkMode.value = !isDarkMode.value;
-        localStorage.setItem(THEME_STORAGE_KEY, isDarkMode.value ? DARK_THEME : LIGHT_THEME);
-        applyTheme(isDarkMode.value);
+    // Cycle theme: light -> dark -> gray -> light ...
+    const cycleTheme = () => {
+        if (theme.value === LIGHT_THEME) theme.value = DARK_THEME;
+        else if (theme.value === DARK_THEME) theme.value = GRAY_THEME;
+        else theme.value = LIGHT_THEME;
+        localStorage.setItem(THEME_STORAGE_KEY, theme.value);
+        applyTheme(theme.value);
     };
 
     /**
@@ -47,21 +60,28 @@ export function useTheme() {
      */
     const loadTheme = () => {
         const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-        isDarkMode.value = savedTheme 
-            ? savedTheme === DARK_THEME
-            : window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
-        applyTheme(isDarkMode.value);
+        if (savedTheme === DARK_THEME || savedTheme === LIGHT_THEME || savedTheme === GRAY_THEME) {
+            theme.value = savedTheme;
+        } else {
+            theme.value = window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK_THEME : LIGHT_THEME;
+        }
+        applyTheme(theme.value);
     };
 
     onMounted(() => {
         loadTheme();
     });
 
+    // For backward compatibility with tests expecting toggleDarkMode
+    function toggleDarkMode() {
+        cycleTheme();
+    }
+
     return {
-        /** Reactive dark mode state */
+        theme,
         isDarkMode,
-        /** Function to toggle dark mode */
+        isGrayMode,
+        cycleTheme,
         toggleDarkMode,
     };
 }

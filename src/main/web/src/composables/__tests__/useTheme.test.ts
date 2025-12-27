@@ -54,12 +54,24 @@ describe('useTheme', () => {
   it('should toggle dark mode', async () => {
     const { result, wrapper } = createWrapper();
     await wrapper.vm.$nextTick();
-    
-    const initialMode = result.isDarkMode.value;
+
+    // Initial state: dark
+    expect(result.theme.value).toBe('dark');
+
+    // 1st toggle: dark -> gray
     result.toggleDarkMode();
-    
-    expect(result.isDarkMode.value).toBe(!initialMode);
-    expect(localStorage.getItem('theme')).toBe(initialMode ? 'light' : 'dark');
+    expect(result.theme.value).toBe('gray');
+    expect(localStorage.getItem('theme')).toBe('gray');
+
+    // 2nd toggle: gray -> light
+    result.toggleDarkMode();
+    expect(result.theme.value).toBe('light');
+    expect(localStorage.getItem('theme')).toBe('light');
+
+    // 3rd toggle: light -> dark
+    result.toggleDarkMode();
+    expect(result.theme.value).toBe('dark');
+    expect(localStorage.getItem('theme')).toBe('dark');
   });
 
   it('should save theme preference to localStorage', async () => {
