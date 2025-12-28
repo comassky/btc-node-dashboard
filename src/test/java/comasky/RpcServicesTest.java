@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
 import comasky.client.RpcRequestDto;
 import comasky.exceptions.RpcException;
+import comasky.rpcClass.RpcError;
 import comasky.rpcClass.RpcResponse;
 import comasky.rpcClass.RpcServices;
 import comasky.rpcClass.responses.BlockInfoResponse;
@@ -38,7 +39,7 @@ class RpcServicesTest {
     }
 
     
-    private String createErrorRpcResponseJson(Object error) throws Exception {
+    private String createErrorRpcResponseJson(RpcError error) throws Exception {
         RpcResponse<Object> response = new RpcResponse<>();
         response.setError(error);
         response.setId("1.0");
@@ -140,13 +141,13 @@ class RpcServicesTest {
     @Test
     void testRpcError_throwsException() throws Exception {
         
-        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createErrorRpcResponseJson("RPC Error: Verifying blocks..."));
+        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createErrorRpcResponseJson(new RpcError(-1, "RPC Error: Verifying blocks...")));
 
         RpcException exception = assertThrows(RpcException.class,
             () -> rpcServices.getBlockchainInfo().await().indefinitely());
         
         
-        assertTrue(exception.getMessage().contains("RPC Error for method getblockchaininfo: RPC Error: Verifying blocks..."));
+        assertTrue(exception.getMessage().contains("RPC Error for method getblockchaininfo: RpcError[code=-1, message='RPC Error: Verifying blocks...']"));
     }
 
     @Test
