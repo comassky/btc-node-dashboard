@@ -1,44 +1,59 @@
 import { mount } from '@vue/test-utils';
 import BlockCard from '../BlockCard.vue';
 import { describe, it, expect } from 'vitest';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import type { BlockChainInfo } from '../../../types';
+import type { BlockInfoResponse } from '../../../types';
 
 describe('BlockCard.vue', () => {
 
-const slotStub = { template: '<slot />' };
+  const slotStub = { template: '<div><slot /></div>' };
 
-// Mock complet pour BlockChainInfo
-const blockchain = {
-  chain: 'main',
-  blocks: 123456,
-  headers: 123460,
-  bestblockhash: '0000000000000000000',
-  difficulty: 1,
-  time: Math.floor(Date.now() / 1000),
-  mediantime: Math.floor(Date.now() / 1000),
-  verificationprogress: 1,
-  initialblockdownload: false,
-  chainwork: '00',
-  size_on_disk: 0,
-  pruned: false,
-  pruneheight: null,
-} as import('../../../types/BlockChainInfo').BlockChainInfo;
-const block = { time: Math.floor(Date.now() / 1000), nTx: 2000 };
+  const blockchain: BlockChainInfo = {
+    chain: 'main',
+    blocks: 123456,
+    headers: 123460,
+    bestblockhash: '0000000000000000000',
+    difficulty: 1,
+    time: Math.floor(Date.now() / 1000),
+    mediantime: Math.floor(Date.now() / 1000),
+    verificationprogress: 1,
+    initialblockdownload: false,
+    chainwork: '00',
+    size_on_disk: 0,
+    pruned: false,
+    pruneheight: null,
+  };
+
+  const block: BlockInfoResponse = { time: Math.floor(Date.now() / 1000), nTx: 2000, hash: 'somehash' };
 
   it('renders block count and headers', () => {
     const wrapper = mount(BlockCard, {
       props: { blockchain, block },
-      global: { stubs: { 'font-awesome-icon': slotStub, Tooltip: slotStub, BaseCard: slotStub } }
+      global: {
+        stubs: { Tooltip: slotStub, BaseCard: slotStub },
+        components: { FontAwesomeIcon }
+      }
     });
-    // Le nombre de blocs est formaté avec un espace
     expect(wrapper.text().replace(/\s/g, '')).toContain('123456');
     expect(wrapper.text()).toContain('Headers:');
+    expect(wrapper.findComponent(FontAwesomeIcon).exists()).toBe(true);
   });
 
   it('shows out of sync warning if forceOutOfSync is true', () => {
     const wrapper = mount(BlockCard, {
       props: { blockchain, block, forceOutOfSync: true },
-      global: { stubs: { 'font-awesome-icon': slotStub, Tooltip: slotStub, BaseCard: slotStub } }
+      global: {
+        stubs: { Tooltip: slotStub, BaseCard: slotStub },
+        components: { FontAwesomeIcon }
+      }
     });
     expect(wrapper.text()).toContain('Node out of sync');
+    const icons = wrapper.findAllComponents(FontAwesomeIcon);
+    const hasWarningIcon = icons.some(icon => {
+      const iconProp = icon.props('icon');
+      return Array.isArray(iconProp) && iconProp[1] === 'exclamation-circle';
+    });
+    expect(hasWarningIcon).toBe(true);
   });
 });
