@@ -1,6 +1,6 @@
 package comasky.api;
 
-import comasky.shared.DashboardConfig;
+import comasky.config.DashboardConfig;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -30,10 +30,8 @@ public class ConfigController {
         int minPeers = 0;
         boolean disableMempool = false;
         if (config != null) {
-            if (config.health() != null && config.health().min() != null && config.health().min().outbound() != null) {
-                minPeers = config.health().min().outbound().peers();
-            }
-            disableMempool = config.disableMempool();
+                minPeers = config.minOutboundPeers();
+                disableMempool = config.disableMempool();
         }
         return Uni.createFrom().item(new DashboardConfigResponse(minPeers, disableMempool));
     }

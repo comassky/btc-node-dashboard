@@ -33,6 +33,7 @@ public interface DashboardConfig {
      * Disables mempool data collection if true.
      * Useful for pruned nodes where mempool data can be unreliable.
      */
+    @WithName("disable.mempool")
     @WithDefault("false")
     boolean disableMempool();
 
