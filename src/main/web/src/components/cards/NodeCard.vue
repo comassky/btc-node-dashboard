@@ -63,30 +63,20 @@ import { computed } from 'vue';
 import Tooltip from '@components/Tooltip.vue';
 import BaseCard from '@components/BaseCard.vue';
 import type { BlockChainInfo, NetworkInfoResponse } from '@types';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import {
-    faHardHat, faShieldAlt, faHdd, faNetworkWired, faProjectDiagram,
-    faMask, faLayerGroup, faCloud, faQuestionCircle
-} from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-
-library.add(
-    faHardHat, faShieldAlt, faHdd, faNetworkWired, faProjectDiagram,
-    faMask, faLayerGroup, faCloud, faQuestionCircle
-);
 
 const props = defineProps<{ node: NetworkInfoResponse; blockchain: BlockChainInfo; upTime: string }>();
 
+const networkIcons: Record<string, string[]> = {
+    ipv4: ['fas', 'network-wired'],
+    ipv6: ['fas', 'project-diagram'],
+    onion: ['fas', 'mask'],
+    i2p: ['fas', 'layer-group'],
+    cjdns: ['fas', 'cloud'], // Assuming 'cloud' is for cjdns or similar
+};
+const defaultNetworkIcon = ['fas', 'question-circle'];
 
 function networkIcon(name: string) {
-	switch (name) {
-		case 'ipv4': return ['fas', 'network-wired'];
-		case 'ipv6': return ['fas', 'project-diagram'];
-		case 'onion': return ['fas', 'mask'];
-		case 'i2p': return ['fas', 'layer-group'];
-		case 'cloud': return ['fas', 'cloud'];
-		default: return ['fas', 'question-circle'];
-	}
+	return networkIcons[name] || defaultNetworkIcon;
 }
 
 function netLabel(net: { name: string; reachable: boolean }) {
@@ -105,12 +95,13 @@ const cleanedSubversion = computed(() => {
 	const subver = props.node.subversion;
 	return (!subver || subver === 'N/A') ? 'N/A' : subver.replace(/^\/|\/$/g, '').trim();
 });
+
+const sizeUnits = ['B', 'KB', 'MB', 'GB', 'TB'];
 function formatSizeOnDisk(size?: number): string {
-	if (!size && size !== 0) return 'N/A';
-	if (size >= 1e12) return (size / 1e12).toFixed(2) + ' TB';
-	if (size >= 1e9) return (size / 1e9).toFixed(2) + ' GB';
-	if (size >= 1e6) return (size / 1e6).toFixed(2) + ' MB';
-	if (size >= 1e3) return (size / 1e3).toFixed(2) + ' KB';
-	return size + ' B';
+    if (size === undefined || size === null) return 'N/A';
+    if (size === 0) return '0 B';
+
+    const i = Math.floor(Math.log(size) / Math.log(1024));
+    return `${(size / Math.pow(1024, i)).toFixed(2)} ${sizeUnits[i]}`;
 }
 </script>

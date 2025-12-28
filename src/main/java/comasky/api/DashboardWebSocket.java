@@ -1,9 +1,6 @@
 package comasky.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.rpcClass.DashboardDataProvider;
-import comasky.rpcClass.dto.GlobalResponse;
 import io.quarkus.scheduler.Scheduled;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -15,6 +12,7 @@ import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 import org.jboss.logging.Logger;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,9 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * WebSocket endpoint for real-time dashboard updates.
  * <p>
  * Broadcasts Bitcoin node data to all connected clients at configured intervals using a reactive approach.
- * It leverages Quarkus's built-in caching to avoid redundant RPC calls.
+ * It leverages Quarkus's built-in caching and a custom JSON encoder for serialization.
  */
-@ServerEndpoint("/ws/dashboard")
+@ServerEndpoint(value = "/ws/dashboard", encoders = {JsonEncoder.class})
 @ApplicationScoped
 public class DashboardWebSocket {
 
@@ -36,33 +34,39 @@ public class DashboardWebSocket {
     @Inject
     DashboardDataProvider dataProvider;
 
-    @Inject
-    ObjectMapper objectMapper;
+    /**
+     * Creates a Uni that emits a unified Object payload.
+     * On success, it emits the GlobalResponse.
+     * On failure, it emits a Map representing the error.
+     * This robustly handles type differences between success and failure paths.
+     *
+     * @return A Uni<Object> ready to be sent via WebSocket.
+     */
+    private Uni<Object> getUnifiedDashboardData() {
+        return Uni.createFrom().emitter(emitter ->
+                dataProvider.getData().subscribe().with(
+                        emitter::complete,
+                        failure -> emitter.complete(createErrorPayload(failure))
+                )
+        );
+    }
 
     /**
      * Periodically fetches and broadcasts the latest dashboard data to all connected WebSocket clients.
-     * The data fetching is cached via {@link DashboardDataProvider}.
      */
     @Scheduled(every = "${dashboard.polling.interval.seconds}s", identity = "dashboard-broadcast")
     void scheduledBroadcast() {
         if (sessions.isEmpty()) {
             return;
         }
-
-        dataProvider.getData()
-                .onItem().transform(this::serializeResponse)
-                .onFailure().recoverWithItem(this::serializeError)
+        getUnifiedDashboardData()
                 .subscribe().with(
                         this::broadcastMessage,
-                        failure -> LOG.error("Failed to serialize and broadcast message.", failure)
+                        failure -> LOG.error("Failed to subscribe for broadcast.", failure)
                 );
     }
 
-    /**
-     * Handles a new WebSocket connection by adding it to the session pool and sending the current data.
-     *
-     * @param session the new WebSocket session
-     */
+
     @OnOpen
     public void onOpen(Session session) {
         sessions.add(session);
@@ -70,11 +74,6 @@ public class DashboardWebSocket {
         sendDataToSession(session);
     }
 
-    /**
-     * Handles the closure of a WebSocket connection by removing it from the session pool.
-     *
-     * @param session the closed WebSocket session
-     */
     @OnClose
     public void onClose(Session session) {
         sessions.remove(session);
@@ -83,8 +82,6 @@ public class DashboardWebSocket {
 
     /**
      * Sends the latest dashboard data to a specific WebSocket session.
-     *
-     * @param session the WebSocket session to send data to
      */
     private void sendDataToSession(Session session) {
         if (session == null || !session.isOpen()) {
@@ -92,78 +89,74 @@ public class DashboardWebSocket {
             return;
         }
 
-        dataProvider.getData()
-                .onItem().transform(this::serializeResponse)
-                .onFailure().recoverWithItem(this::serializeError)
+        getUnifiedDashboardData()
+                .onItem().transformToUni(data -> sendMessage(session, data))
                 .subscribe().with(
-                        json -> sendMessage(session, json),
+                        _ -> LOG.debugf("Initial data sent to session %s", session.getId()),
                         failure -> LOG.errorf(failure, "Failed to send initial data to session %s", session.getId())
                 );
     }
 
     /**
-     * Broadcasts a JSON message to all connected and open WebSocket sessions.
-     *
-     * @param jsonMessage the JSON message to broadcast
+     * Broadcasts a message object to all connected and open WebSocket sessions concurrently.
      */
-    private void broadcastMessage(String jsonMessage) {
+    private void broadcastMessage(Object message) {
+        if (message == null) return;
+        LOG.debugf("Broadcasting to %d sessions", sessions.size());
         Multi.createFrom().iterable(sessions)
                 .filter(Session::isOpen)
-                .subscribe().with(session -> sendMessage(session, jsonMessage));
-    }
-
-    /**
-     * Sends a JSON message to a single WebSocket session.
-     *
-     * @param session     the session to send the message to
-     * @param jsonMessage the JSON message to send
-     */
-    private void sendMessage(Session session, String jsonMessage) {
-        Uni.createFrom().future(session.getAsyncRemote().sendText(jsonMessage))
-                .onFailure().invoke(failure -> {
-                    LOG.warnf(failure, "Failed to send message to session %s. Removing.", session.getId());
-                    sessions.remove(session); // Remove session on send failure
-                })
+                .onItem().transformToUniAndMerge(session ->
+                        sendMessage(session, message)
+                                .onFailure().recoverWithNull()
+                )
+                .collect().asList()
                 .subscribe().with(
-                        v -> {}, // Success is ignored
-                        failure -> {} // Failure is already logged
+                        _ -> LOG.debug("Broadcast complete."),
+                        failure -> LOG.error("An unexpected error occurred during broadcast.", failure)
                 );
     }
 
     /**
-     * Serializes a successful GlobalResponse to its JSON string representation.
+     * Sends a message object to a single WebSocket session using a callback-based approach
+     * wrapped in a Mutiny Uni. This is the robust way to bridge the imperative WebSocket API
+     * with the reactive world, avoiding threading issues.
      *
-     * @param response the GlobalResponse object
-     * @return a JSON string
+     * @param session the session to send the message to
+     * @param message the object to send
+     * @return a Uni<Void> that completes on success or fails
      */
-    private String serializeResponse(GlobalResponse response) {
-        try {
-            return objectMapper.writeValueAsString(response);
-        } catch (JsonProcessingException e) {
-            LOG.error("Failed to serialize dashboard data", e);
-            // This becomes the new item in the Uni, which will be handled by serializeError downstream.
-            throw new RuntimeException("Failed to serialize dashboard data", e);
-        }
+    private Uni<Void> sendMessage(Session session, Object message) {
+        // Create the Uni and explicitly type it to Uni<Void> to resolve compiler inference issues.
+        Uni<Void> sendUni = Uni.createFrom().emitter(emitter -> {
+            session.getAsyncRemote().sendObject(message, result -> {
+                if (result.isOK()) {
+                    emitter.complete(null);
+                } else {
+                    emitter.fail(result.getException());
+                }
+            });
+        });
+
+        // Apply the side-effect on failure to the correctly typed Uni.
+        return sendUni.onFailure().invoke(failure -> {
+            if (failure instanceof IOException) {
+                LOG.debugf("Client %s disconnected, removing session.", session.getId());
+            } else {
+                LOG.warnf(failure, "Failed to send message to session %s, removing.", session.getId());
+            }
+            sessions.remove(session);
+        });
     }
 
     /**
-     * Serializes an error into a standard JSON error message.
-     *
-     * @param throwable the error that occurred
-     * @return a JSON string representing the error
+     * Creates a standard error payload map when data fetching fails.
      */
-    private String serializeError(Throwable throwable) {
+    private Map<String, Object> createErrorPayload(Throwable throwable) {
         LOG.error("An error occurred while fetching data for WebSocket", throwable);
         String errorMessage = throwable.getMessage() != null ? throwable.getMessage() : "An unknown error occurred.";
-        Map<String, Object> errorMap = Map.of(
+        return Map.of(
                 "rpcConnected", false,
                 "errorMessage", "Failed to fetch data: " + errorMessage
         );
-        try {
-            return objectMapper.writeValueAsString(errorMap);
-        } catch (JsonProcessingException e) {
-            LOG.fatal("Failed to serialize an error message.", e);
-            return "{\"rpcConnected\":false,\"errorMessage\":\"Internal server error: failed to serialize error message.\"}";
-        }
     }
 }
