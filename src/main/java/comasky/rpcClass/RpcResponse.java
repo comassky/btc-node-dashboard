@@ -12,7 +12,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 @RegisterForReflection
 public class RpcResponse<T> {
     private T result;
-    private Object error;
+    private RpcError error;
     private String id;
 
     /**
@@ -40,7 +40,7 @@ public class RpcResponse<T> {
      * Gets the error object if the RPC call failed.
      * @return the error object, or null if successful
      */
-    public Object getError() {
+    public RpcError getError() {
         return error;
     }
 
@@ -48,7 +48,7 @@ public class RpcResponse<T> {
      * Sets the error object.
      * @param error the error object
      */
-    public void setError(Object error) {
+    public void setError(RpcError error) {
         this.error = error;
     }
 

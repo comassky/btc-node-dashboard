@@ -3,17 +3,17 @@ package comasky;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
 import comasky.client.RpcRequestDto;
+import comasky.rpcClass.RpcError;
 import comasky.rpcClass.RpcResponse;
 import comasky.rpcClass.RpcServices;
 import comasky.rpcClass.dto.GlobalResponse;
 import comasky.rpcClass.dto.SubverStats;
-import comasky.rpcClass.responses.BlockInfoResponse;
-import comasky.rpcClass.responses.BlockchainInfoResponse;
-import comasky.rpcClass.responses.NetworkInfoResponse;
-import comasky.rpcClass.responses.PeerInfoResponse;
+import comasky.rpcClass.responses.*;
+import comasky.service.CacheProvider;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -33,7 +33,16 @@ class SubverStatsCalculationTest {
     RpcServices rpcServices;
 
     @Inject
+    CacheProvider cacheProvider;
+
+    @Inject
     ObjectMapper objectMapper;
+
+    @BeforeEach
+    void setup() {
+        // Invalidate cache before each test to ensure isolation
+        cacheProvider.invalidateAll();
+    }
 
     private <T> String createSuccessRpcResponseJson(T result) throws Exception {
         RpcResponse<T> response = new RpcResponse<>();
@@ -42,7 +51,7 @@ class SubverStatsCalculationTest {
         return objectMapper.writeValueAsString(response);
     }
 
-    private String createErrorRpcResponseJson(Object error) throws Exception {
+    private String createErrorRpcResponseJson(RpcError error) throws Exception {
         RpcResponse<Object> response = new RpcResponse<>();
         response.setError(error);
         response.setId("1.0");
@@ -252,6 +261,9 @@ class SubverStatsCalculationTest {
         String mockBlockInfoResponse = createSuccessRpcResponseJson(new BlockInfoResponse(
                 "00000000000000000001abc", 1, 0, 0, 0, 870000, 1, "", "", 1733443200L, 0L, 0L, "", 1.0, "", 2500, "", ""
         ));
+        String mockMempoolInfoResponse = createSuccessRpcResponseJson(new MempoolInfoResponse(
+                true, 0, 0L, 0L, 0L, 0.0, 0.0, 0, 0.0
+        ));
 
         when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenAnswer(invocation -> {
             RpcRequestDto request = invocation.getArgument(0);
@@ -270,6 +282,8 @@ class SubverStatsCalculationTest {
                     return mockBestBlockHashResponse;
                 case "getblock":
                     return mockBlockInfoResponse;
+                case "getmempoolinfo":
+                    return mockMempoolInfoResponse;
                 default:
                     throw new IllegalArgumentException("Unexpected method: " + method);
             }

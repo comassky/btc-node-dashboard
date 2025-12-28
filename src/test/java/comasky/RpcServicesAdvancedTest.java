@@ -9,10 +9,13 @@ import comasky.rpcClass.RpcServices;
 import comasky.rpcClass.dto.GlobalResponse;
 import comasky.rpcClass.responses.BlockInfoResponse;
 import comasky.rpcClass.responses.BlockchainInfoResponse;
+import comasky.rpcClass.responses.MempoolInfoResponse;
 import comasky.rpcClass.responses.PeerInfoResponse;
+import comasky.service.CacheProvider;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -35,7 +38,16 @@ class RpcServicesAdvancedTest {
     RpcServices rpcServices;
 
     @Inject
+    CacheProvider cacheProvider;
+
+    @Inject
     ObjectMapper objectMapper;
+
+    @BeforeEach
+    void setup() {
+        // Invalidate cache before each test to ensure isolation
+        cacheProvider.invalidateAll();
+    }
 
     // Helper to create a successful RpcResponse JSON string
     private <T> String createSuccessRpcResponseJson(T result) throws Exception {
@@ -138,7 +150,8 @@ class RpcServicesAdvancedTest {
             "getbestblockhash", "00000000000000000001abc", // This is a String object, will be wrapped
             "getblock", new BlockInfoResponse(
                 "00000000000000000001abc", 1, 0, 0, 0, 870000, 1, "", "", 1733443200L, 0L, 0L, "", 1.0, "", 2500, "", ""
-            )
+            ),
+            "getmempoolinfo", new MempoolInfoResponse(true, 0, 0L, 0L, 0L, 0.0, 0.0, 0, 0.0)
         );
         setupRpcClientMock(mockResponses);
 
@@ -177,7 +190,8 @@ class RpcServicesAdvancedTest {
             "getbestblockhash", "00000000000000000001abc",
             "getblock", new BlockInfoResponse(
                 "00000000000000000001abc", 1, 0, 0, 0, 870000, 1, "", "", 1733443200L, 0L, 0L, "", 1.0, "", 2500, "", ""
-            )
+            ),
+            "getmempoolinfo", new MempoolInfoResponse(true, 0, 0L, 0L, 0L, 0.0, 0.0, 0, 0.0)
         );
         setupRpcClientMock(mockResponses);
 

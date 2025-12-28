@@ -90,6 +90,11 @@ import { ref, computed } from 'vue';
 import { formatBytes, formatTimeOffset, formatPing, formatConnectionTime } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
 import type { Peer } from '../types';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
+library.add(faArrowDown, faArrowUp);
 
 const props = defineProps<{ peers: Peer[]; type: 'inbound' | 'outbound' }>();
 const headerColor = props.type === 'inbound' ? 'status-success' : 'accent';

@@ -5,10 +5,10 @@ import comasky.rpcClass.RpcServices;
 import comasky.rpcClass.dto.GeneralStats;
 import comasky.rpcClass.dto.GlobalResponse;
 import comasky.rpcClass.dto.SubverDistribution;
-import comasky.rpcClass.responses.BlockInfoResponse;
-import comasky.rpcClass.responses.BlockchainInfoResponse;
-import comasky.rpcClass.responses.DummyMempoolInfoResponse;
-import comasky.rpcClass.responses.NetworkInfoResponse;
+import comasky.rpcClass.view.BlockInfoView;
+import comasky.rpcClass.view.BlockchainInfoView;
+import comasky.rpcClass.view.MempoolInfoView;
+import comasky.rpcClass.view.NetworkInfoView;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
@@ -64,50 +64,55 @@ class DashboardWebSocketTest {
     private GlobalResponse createMockResponse() {
         GeneralStats generalStats = new GeneralStats(2, 8, 10);
 
-        BlockchainInfoResponse blockchainInfoResponse = new BlockchainInfoResponse(
+        BlockchainInfoView blockchainInfoView = new BlockchainInfoView(
             "main", // chain
             870000,  // blocks
             870000,  // headers
-            "0000000000000000000dummyhash", // bestblockhash
             0.9999,  // difficulty
             1700000000L, // time
             1700000000L, // mediantime
             0.9999,  // verificationprogress
             false,   // initialblockdownload
             "0000000000000000000000000000000000000000000000000000000000000000", // chainwork
-            1000000000L, // size_on_disk
-            false,   // pruned
-            null     // pruneheight
+            1000000000L // size_on_disk
         );
 
-        NetworkInfoResponse nodeInfo = new NetworkInfoResponse(
+        NetworkInfoView nodeInfoView = new NetworkInfoView(
             70016, // version
             "/Satoshi:27.0.0/", // subversion
             270000, // protocolversion
-            "0000000000000000", // localservices
-            java.util.Collections.emptyList(), // localservicesnames
-            true, // localrelay
-            0, // timeoffset
-            10, // connections
-            true, // networkactive
             java.util.Collections.emptyList(), // networks
             java.util.Collections.emptyList() // localaddresses
         );
 
         SubverDistribution distribution = new SubverDistribution(Collections.emptyList(), Collections.emptyList());
 
-        BlockInfoResponse blockInfoResponse = new BlockInfoResponse(null, 0, 0, 0, 0, 0, 0, null, null, System.currentTimeMillis() / 1000, 0, 0, null, 0, null, 2500, null, null);
+        BlockInfoView blockInfoView = new BlockInfoView(
+            System.currentTimeMillis() / 1000, // time
+            2500 // nTx
+        );
+
+        MempoolInfoView mempoolInfoView = new MempoolInfoView(
+            5000, // size
+            1000000L, // bytes
+            2000000L, // usage
+            300000000L, // maxmempool
+            0.00001, // mempoolminfee
+            0.00001, // minrelaytxfee
+            0, // unbroadcastcount
+            0.5 // totalFee
+        );
 
         return new GlobalResponse(
             generalStats,
             distribution,
             Collections.emptyList(),
             Collections.emptyList(),
-            blockchainInfoResponse,
-            nodeInfo,
+            blockchainInfoView,
+            nodeInfoView,
             "5 days",
-            blockInfoResponse,
-            DummyMempoolInfoResponse.create(),
+            blockInfoView,
+            mempoolInfoView,
             Collections.emptyMap()
         );
     }

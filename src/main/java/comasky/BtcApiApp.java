@@ -6,6 +6,7 @@ import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.Config;
 import org.jboss.logging.Logger;
 
 /**
@@ -22,6 +23,9 @@ public class BtcApiApp implements QuarkusApplication {
 
     @Inject
     DashboardConfig dashboardConfig;
+
+    @Inject
+    Config config; // Keep for quarkus.http.io-threads
 
     /**
      * Main entry point for the Quarkus application.
@@ -51,25 +55,28 @@ public class BtcApiApp implements QuarkusApplication {
         LOG.info("+================ Bitcoin Node Dashboard Config ================");
         LOG.infof("Java: %s   | Log level: %s   | Quarkus: %s",
                 System.getProperty("java.version"),
-                System.getenv().getOrDefault("LOG_LEVEL", "INFO"),
+                config.getOptionalValue("quarkus.log.level", String.class).orElse("INFO"),
                 getQuarkusVersion());
         LOG.info("---------------------------------------------------------------");
         LOG.infof("RPC: %s://%s:%d  [user: %s | pass: %s]",
                 rpcConfig.scheme(), rpcConfig.host(), rpcConfig.port(), rpcConfig.user(), maskPassword(rpcConfig.password()));
         LOG.infof("Polling Interval: %ds", dashboardConfig.pollingIntervalSeconds());
-        LOG.infof("Disable Mempool: %s",
-                System.getenv().getOrDefault("DASHBOARD_DISABLE_MEMPOOL", System.getProperty("dashboard.disable-mempool", "false")));
+        LOG.infof("Disable Mempool: %s", dashboardConfig.disableMempool());
         LOG.info("---------------------------------------------------------------");
-        LOG.infof("Min Outbound Peers: %s | Cache Buffer: %sms | Cache Validity: %sms",
-                System.getenv().getOrDefault("MIN_OUTBOUND_PEERS", "8"),
-                System.getenv().getOrDefault("DASHBOARD_CACHE_VALIDITY_BUFFER_MS", "200"),
-                System.getenv().getOrDefault("DASHBOARD_CACHE_VALIDITY_MS", "1000"));
-        LOG.infof("Max Cache: %s | Max Msg: %s | Max Conn: %s | Max Subs: %s | Quarkus IO Threads: %s",
-                System.getenv().getOrDefault("DASHBOARD_MAX_CACHE_SIZE", "1000"),
-                System.getenv().getOrDefault("DASHBOARD_MAX_MESSAGE_SIZE", "1048576"),
-                System.getenv().getOrDefault("DASHBOARD_MAX_CONNECTIONS", "100"),
-                System.getenv().getOrDefault("DASHBOARD_MAX_SUBSCRIPTIONS", "10"),
-                System.getenv().getOrDefault("QUARKUS_IO_THREADS", System.getProperty("quarkus.http.io-threads", "8")));
+        
+        long pollingIntervalMs = dashboardConfig.pollingIntervalSeconds() * 1000L;
+        long bufferMs = dashboardConfig.cache().validityBufferMs();
+        long cacheValidityMs = Math.max(100, pollingIntervalMs - bufferMs);
+
+        LOG.infof("Min Outbound Peers: %d | Cache Buffer: %dms | Cache Validity: %dms",
+                dashboardConfig.minOutboundPeers(),
+                bufferMs,
+                cacheValidityMs);
+                
+        LOG.infof("Max Cache Items: %d | Max Sessions: %d | Quarkus IO Threads: %s",
+                dashboardConfig.cache().maxItems(),
+                dashboardConfig.sessionsMax(),
+                config.getOptionalValue("quarkus.http.io-threads", String.class).orElse("N/A"));
         LOG.info("===============================================================\n");
     }
 

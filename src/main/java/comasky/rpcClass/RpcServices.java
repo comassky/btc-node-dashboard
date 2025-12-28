@@ -5,13 +5,15 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
 import comasky.client.RpcRequestDto;
+import comasky.config.DashboardConfig;
 import comasky.exceptions.RpcException;
 import comasky.rpcClass.dto.GeneralStats;
 import comasky.rpcClass.dto.GlobalResponse;
 import comasky.rpcClass.dto.SubverDistribution;
 import comasky.rpcClass.dto.SubverStats;
 import comasky.rpcClass.responses.*;
-import comasky.shared.DashboardConfig;
+import comasky.rpcClass.view.*;
+import comasky.service.CacheProvider;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
 import io.smallrye.mutiny.tuples.Tuple6;
@@ -55,6 +57,9 @@ public class RpcServices implements DashboardDataProvider {
     @Inject
     DashboardConfig dashboardConfig;
 
+    @Inject
+    CacheProvider cacheProvider;
+
     private final ObjectMapper objectMapper;
     private final RpcClient rpcClient;
 
@@ -64,33 +69,13 @@ public class RpcServices implements DashboardDataProvider {
         this.rpcClient = rpcClient;
     }
 
-    public Uni<NetworkInfoResponse> getNetworkInfo() {
-        return callRpcTyped(GET_NETWORK_INFO, Collections.emptyList(), NetworkInfoResponse.class);
-    }
-
-    public Uni<String> getBestBlockHash() {
-        return callRpcTyped(GET_BEST_BLOCK_HASH, Collections.emptyList(), String.class);
-    }
-
-    public Uni<BlockInfoResponse> getBlockInfo(String blockHash) {
-        List<Object> params = List.of(blockHash, 1);
-        return callRpcTyped(GET_BLOCK, params, BlockInfoResponse.class);
-    }
-
-    public Uni<BlockchainInfoResponse> getBlockchainInfo() {
-        return callRpcTyped(GET_BLOCKCHAIN_INFO, Collections.emptyList(), BlockchainInfoResponse.class);
-    }
-
-    public Uni<MempoolInfoResponse> getMempoolInfo() {
-        return callRpcTyped(GET_MEMPOOL_INFO, Collections.emptyList(), MempoolInfoResponse.class);
-    }
-
-    public Uni<Long> getUptimeSeconds() {
-        return callRpcTyped(UPTIME, Collections.emptyList(), Long.class);
-    }
-
     @Override
     public Uni<GlobalResponse> getData() {
+        return cacheProvider.getCachedData(this::fetchFreshData);
+    }
+
+    private Uni<GlobalResponse> fetchFreshData() {
+        LOG.debug("Fetching fresh data from RPC...");
         Map<String, String> errors = new HashMap<>();
 
         Uni<List<PeerInfoResponse>> peerInfoUni = addErrorHandling(
@@ -125,6 +110,31 @@ public class RpcServices implements DashboardDataProvider {
                 .onItem().transform(tuple -> buildGlobalResponseFromTuple(tuple, errors));
     }
 
+    public Uni<NetworkInfoResponse> getNetworkInfo() {
+        return callRpcTyped(GET_NETWORK_INFO, Collections.emptyList(), NetworkInfoResponse.class);
+    }
+
+    public Uni<String> getBestBlockHash() {
+        return callRpcTyped(GET_BEST_BLOCK_HASH, Collections.emptyList(), String.class);
+    }
+
+    public Uni<BlockInfoResponse> getBlockInfo(String blockHash) {
+        List<Object> params = List.of(blockHash, 1);
+        return callRpcTyped(GET_BLOCK, params, BlockInfoResponse.class);
+    }
+
+    public Uni<BlockchainInfoResponse> getBlockchainInfo() {
+        return callRpcTyped(GET_BLOCKCHAIN_INFO, Collections.emptyList(), BlockchainInfoResponse.class);
+    }
+
+    public Uni<MempoolInfoResponse> getMempoolInfo() {
+        return callRpcTyped(GET_MEMPOOL_INFO, Collections.emptyList(), MempoolInfoResponse.class);
+    }
+
+    public Uni<Long> getUptimeSeconds() {
+        return callRpcTyped(UPTIME, Collections.emptyList(), Long.class);
+    }
+
     private <T> Uni<T> addErrorHandling(Uni<T> uni, String callName, Map<String, String> errors, Supplier<T> defaultValueSupplier) {
         return uni.onFailure().retry().atMost(3)
                 .onFailure().invoke(e -> {
@@ -151,16 +161,24 @@ public class RpcServices implements DashboardDataProvider {
         var stats = new SubverDistribution(calculateSubverStats(inboundPeers), calculateSubverStats(outboundPeers));
         var generalStat = new GeneralStats(inboundPeers.size(), outboundPeers.size(), inboundPeers.size() + outboundPeers.size());
 
+        // Map RPC responses to View objects
+        List<PeerInfoView> inboundPeersView = inboundPeers.stream().map(PeerInfoView::from).toList();
+        List<PeerInfoView> outboundPeersView = outboundPeers.stream().map(PeerInfoView::from).toList();
+        BlockchainInfoView blockchainInfoView = BlockchainInfoView.from(blockchainInfoResponse);
+        NetworkInfoView nodeInfoView = NetworkInfoView.from(nodeInfo);
+        BlockInfoView blockInfoView = BlockInfoView.from(blockInfoResponse);
+        MempoolInfoView mempoolInfoView = MempoolInfoView.from(mempoolInfoResponse);
+
         return new GlobalResponse(
                 generalStat,
                 stats,
-                inboundPeers,
-                outboundPeers,
-                blockchainInfoResponse,
-                nodeInfo,
+                inboundPeersView,
+                outboundPeersView,
+                blockchainInfoView,
+                nodeInfoView,
                 formatUptime(uptime),
-                blockInfoResponse,
-                mempoolInfoResponse,
+                blockInfoView,
+                mempoolInfoView,
                 errors
         );
     }

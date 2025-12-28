@@ -32,4 +32,33 @@ public interface DashboardConfig {
      */
     @WithDefault("false")
     boolean disableMempool();
+
+    /**
+     * The maximum number of concurrent WebSocket sessions allowed.
+     */
+    @WithDefault("1000")
+    @Min(1)
+    int sessionsMax();
+
+    /**
+     * Configuration for the dashboard data cache.
+     */
+    CacheConfig cache();
+
+    interface CacheConfig {
+        /**
+         * Buffer time in milliseconds to subtract from the polling interval
+         * to ensure cache validity.
+         */
+        @WithDefault("100")
+        @Min(0)
+        int validityBufferMs();
+
+        /**
+         * The maximum number of items to hold in the cache.
+         */
+        @WithDefault("50")
+        @Min(1)
+        int maxItems();
+    }
 }
