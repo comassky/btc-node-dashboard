@@ -2,6 +2,7 @@ package comasky.config;
 
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
+import io.smallrye.config.WithName;
 import jakarta.validation.constraints.Min;
 
 /**
@@ -14,6 +15,7 @@ public interface DashboardConfig {
     /**
      * The interval in seconds for polling the Bitcoin node for new data.
      */
+    @WithName("polling.interval.seconds")
     @WithDefault("5")
     @Min(1)
     int pollingIntervalSeconds();
@@ -22,6 +24,7 @@ public interface DashboardConfig {
      * The minimum number of outbound peers to maintain.
      * If the number of outbound peers falls below this, a warning is shown.
      */
+    @WithName("min.outbound.peers")
     @WithDefault("8")
     @Min(1)
     int minOutboundPeers();
@@ -36,6 +39,7 @@ public interface DashboardConfig {
     /**
      * The maximum number of concurrent WebSocket sessions allowed.
      */
+    @WithName("sessions.max")
     @WithDefault("1000")
     @Min(1)
     int sessionsMax();
@@ -50,6 +54,7 @@ public interface DashboardConfig {
          * Buffer time in milliseconds to subtract from the polling interval
          * to ensure cache validity.
          */
+        @WithName("validity.buffer.ms")
         @WithDefault("100")
         @Min(0)
         int validityBufferMs();
@@ -57,6 +62,7 @@ public interface DashboardConfig {
         /**
          * The maximum number of items to hold in the cache.
          */
+        @WithName("max.items")
         @WithDefault("50")
         @Min(1)
         int maxItems();
