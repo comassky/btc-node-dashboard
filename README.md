@@ -16,7 +16,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 - **Reactive Architecture (Mutiny)**: Event-driven, non-blocking backend for high responsiveness and efficient resource utilization.
 - **Parallel & Monitored RPC Execution**: All Bitcoin Core RPC calls are executed in parallel, with DEBUG logs and latency measurement for each call.
-- **Optimized Caching**: Prevents redundant RPC calls by caching ongoing requests, improving performance and reducing load on the Bitcoin node. Configurable via `dashboard.cache.validity-buffer-ms`.
+- **Optimized Caching**: Prevents redundant RPC calls by caching ongoing requests, improving performance and reducing load on the Bitcoin node. Configurable via `dashboard.cache.validity.buffer.ms`.
 - **Live Peer Statistics**: Real-time display of inbound/outbound connections, peer details, version and geographic distribution.
 - **Blockchain Status**: Track block height, sync progress, node uptime, and network health.
 - **Modern UI/UX**: Dark/light/gray mode, responsive design, interactive charts, smooth animations, icon support.
@@ -216,7 +216,7 @@ bitcoin.rpc.port=8332
 bitcoin.rpc.user=your_user
 bitcoin.rpc.password=your_password
 dashboard.polling.interval.seconds=5
-dashboard.cache.validity-buffer-ms=200
+dashboard.cache.validity.buffer.ms=200
 ```
 
 # 🚦 Build & Continuous Integration

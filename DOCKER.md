@@ -69,7 +69,7 @@ bitcoin.rpc.port=8332
 bitcoin.rpc.user=your_rpc_username
 bitcoin.rpc.password=your_rpc_password
 dashboard.polling.interval.seconds=5
-dashboard.cache.validity-buffer-ms=200
+dashboard.cache.validity.buffer.ms=200
 ```
 
 ## Available Image Tags

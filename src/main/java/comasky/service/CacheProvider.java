@@ -25,7 +25,7 @@ public class CacheProvider {
     @Inject
     public CacheProvider(DashboardConfig config) {
         // Calculate cache duration: polling interval minus the configured buffer.
-        long pollingIntervalMs = config.pollingIntervalSeconds() * 1000L;
+        long pollingIntervalMs = config.polling().seconds() * 1000L;
         long bufferMs = config.cache().validityBufferMs();
         long cacheDurationMs = Math.max(100, pollingIntervalMs - bufferMs); // Ensure at least 100ms
 

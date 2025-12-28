@@ -99,7 +99,7 @@ public class RpcServices implements DashboardDataProvider {
                 });
 
         Uni<MempoolInfoResponse> mempoolInfoResponse;
-        if (dashboardConfig != null && dashboardConfig.disableMempool()) {
+        if (dashboardConfig != null && dashboardConfig.mempool().disable()) {
             mempoolInfoResponse = Uni.createFrom().nullItem();
         } else {
             mempoolInfoResponse = addErrorHandling(getMempoolInfo(), "mempoolInfo", errors, () -> null);

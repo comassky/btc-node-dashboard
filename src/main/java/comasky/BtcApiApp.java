@@ -60,22 +60,22 @@ public class BtcApiApp implements QuarkusApplication {
         LOG.info("---------------------------------------------------------------");
         LOG.infof("RPC: %s://%s:%d  [user: %s | pass: %s]",
                 rpcConfig.scheme(), rpcConfig.host(), rpcConfig.port(), rpcConfig.user(), maskPassword(rpcConfig.password()));
-        LOG.infof("Polling Interval: %ds", dashboardConfig.pollingIntervalSeconds());
-        LOG.infof("Disable Mempool: %s", dashboardConfig.disableMempool());
+        LOG.infof("Polling Interval: %ds", dashboardConfig.polling().seconds());
+        LOG.infof("Disable Mempool: %s", dashboardConfig.mempool().disable());
         LOG.info("---------------------------------------------------------------");
         
-        long pollingIntervalMs = dashboardConfig.pollingIntervalSeconds() * 1000L;
+        long pollingIntervalMs = dashboardConfig.polling().seconds() * 1000L;
         long bufferMs = dashboardConfig.cache().validityBufferMs();
         long cacheValidityMs = Math.max(100, pollingIntervalMs - bufferMs);
 
         LOG.infof("Min Outbound Peers: %d | Cache Buffer: %dms | Cache Validity: %dms",
-                dashboardConfig.minOutboundPeers(),
+                dashboardConfig.peers().minOutbound(),
                 bufferMs,
                 cacheValidityMs);
                 
         LOG.infof("Max Cache Items: %d | Max Sessions: %d | Quarkus IO Threads: %s",
                 dashboardConfig.cache().maxItems(),
-                dashboardConfig.sessionsMax(),
+                dashboardConfig.sessions().max(),
                 config.getOptionalValue("quarkus.http.io-threads", String.class).orElse("N/A"));
         LOG.info("===============================================================\n");
     }

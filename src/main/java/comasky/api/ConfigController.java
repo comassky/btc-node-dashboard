@@ -30,8 +30,8 @@ public class ConfigController {
         int minPeers = 0;
         boolean disableMempool = false;
         if (config != null) {
-                minPeers = config.minOutboundPeers();
-                disableMempool = config.disableMempool();
+                minPeers = config.peers().minOutbound();
+                disableMempool = config.mempool().disable();
         }
         return Uni.createFrom().item(new DashboardConfigResponse(minPeers, disableMempool));
     }
