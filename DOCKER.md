@@ -53,10 +53,13 @@ See [compose.yml](compose.yml) for a full setup with Bitcoin Core.
 | `BITCOIN_RPC_USER` | - | RPC username for authentication |
 | `BITCOIN_RPC_PASSWORD` | - | RPC password for authentication |
 | `BITCOIN_RPC_SCHEME` | `http` | RPC protocol (`http` or `https`) |
-| `WS_POLLING_INTERVAL` | `5` | Dashboard refresh interval in seconds |
-| `LOG_LEVEL` | `INFO` | Application log level (`TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`). Use `DEBUG` to see detailed startup configuration |
-| `DASHBOARD_CACHE_VALIDITY_BUFFER_MS` | `200` | Time in milliseconds to subtract from the cache entry's expiry to ensure data freshness. Useful for preventing stale data in highly dynamic environments. |
+| `WS_POLLING_INTERVAL` | `5` | Dashboard polling interval in seconds |
+| `MIN_OUTBOUND_PEERS` | `8` | Minimum number of outbound peers for dashboard health |
+| `DASHBOARD_CACHE_VALIDITY_BUFFER_MS` | `200` | Cache validity buffer in ms for dashboard cache |
+| `DASHBOARD_SESSIONS_MAX` | `1000` | Maximum number of dashboard sessions |
+| `DASHBOARD_CACHE_MAX_ITEMS` | `50` | Maximum number of items in dashboard cache |
 | `DASHBOARD_DISABLE_MEMPOOL` | `false` | Set to `true` to disable mempool info retrieval in the dashboard |
+| `LOG_LEVEL` | `INFO` | Application log level (`TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`). Use `DEBUG` to see detailed startup configuration |
 
 ### Application Properties
 

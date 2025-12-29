@@ -4,8 +4,8 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
 ![Java](https://img.shields.io/badge/Java-25-orange.svg)
-![Quarkus](https://img.shields.io/badge/Quarkus-3.30.4-blue.svg)
-![Vue](https://img.shields.io/badge/Vue.js-3.5.25-green.svg)
+![Quarkus](https://img.shields.io/badge/Quarkus-3.30.5-blue.svg)
+![Vue](https://img.shields.io/badge/Vue.js-3.5.26-green.svg)
 
 ## 📸 Screenshots
 
@@ -14,18 +14,19 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ## ✨ Features
 
-- **Reactive Architecture (Mutiny)**: Event-driven, non-blocking backend for high responsiveness and efficient resource utilization.
+- **Reactive & Non-blocking Backend (Mutiny)**: Ultra-responsive, event-driven backend using Quarkus and Mutiny for maximum scalability.
 - **Parallel & Monitored RPC Execution**: All Bitcoin Core RPC calls are executed in parallel, with DEBUG logs and latency measurement for each call.
-- **Optimized Caching**: Prevents redundant RPC calls by caching ongoing requests, improving performance and reducing load on the Bitcoin node. Configurable via `dashboard.cache.validity.buffer.ms`.
-- **Live Peer Statistics**: Real-time display of inbound/outbound connections, peer details, version and geographic distribution.
-- **Blockchain Status**: Track block height, sync progress, node uptime, and network health.
+- **Advanced Caching**: Prevents redundant RPC calls by caching ongoing requests, with fine-tuned expiry and buffer (see `dashboard.cache.*`).
+- **Configurable & Nested Dashboard Settings**: All dashboard features are configurable via nested properties (see `dashboard.*`), compatible with Quarkus @ConfigMapping and @WithName.
+- **Live Peer & Network Statistics**: Real-time display of inbound/outbound connections, peer details, version and geographic distribution.
+- **Blockchain & Mempool Monitoring**: Track block height, sync progress, node uptime, mempool size, and network health in real time.
 - **Modern UI/UX**: Dark/light/gray mode, responsive design, interactive charts, smooth animations, icon support.
-- **WebSocket Streaming**: Instant dashboard updates, automatic reconnection, exponential backoff.
+- **WebSocket Streaming**: Instant dashboard updates, automatic reconnection, exponential backoff, and robust error handling.
 - **Mock/Test Mode**: Simulate errors, low peer count, disconnected mode for testing and demos.
 - **Comprehensive Error Handling**: Clear user messages, automatic recovery and reconnection.
-- **Performance Optimized**: GraalVM Native (<50ms startup, ~30MB RAM), tree-shaking, code splitting, gzip compression.
-- **Docker & CI/CD Ready**: Easy deployment, optimized images, automated builds and tests.
-- **Mempool Info**: View real-time mempool statistics and details directly in the dashboard.
+- **Security & Privacy**: No tracking, no analytics, all data stays on your node.
+- **Performance Optimized**: GraalVM Native (<50ms startup, ~30MB RAM), tree-shaking, code splitting, gzip/brotli compression.
+- **Docker & CI/CD Ready**: Easy deployment, optimized images, automated builds and tests (GitHub Actions).
 
 ## 🛠️ Tech Stack
 
@@ -33,7 +34,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | Technology | Version | Description |
 |------------|---------|-------------|
 | **Java** | 25 | Programming language |
-| **Quarkus** | 3.30.4 | Supersonic Subatomic Java Framework |
+| **Quarkus** | 3.30.5 | Supersonic Subatomic Java Framework |
 | **Mutiny** | (via Quarkus BOM) | Reactive programming library |
 | **Jakarta WebSocket** | - | Real-time communication |
 | **MicroProfile REST Client** | - | HTTP client for Bitcoin RPC |
@@ -48,7 +49,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 ### Frontend
 | Technology | Version | Description |
 |------------|---------|-------------|
-| **Vue.js** | 3.5.25 | Progressive JavaScript framework |
+| **Vue.js** | 3.5.26 | Progressive JavaScript framework |
 | **TypeScript** | 5.9.3 | Type-safe JavaScript |
 | **Vite** | 7.3.0 | Next-generation frontend tooling |
 | **Tailwind CSS** | 3.4.19 | Utility-first CSS framework |
@@ -58,7 +59,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | **@fortawesome/free-regular-svg-icons** | 7.1.0 | Font Awesome regular icons |
 | **@fortawesome/free-solid-svg-icons** | 7.1.0 | Font Awesome solid icons |
 | **@fortawesome/vue-fontawesome** | 3.1.2 | Font Awesome Vue component |
-| **ky** | 1.14.1 | HTTP client |
+| **ky** | 1.14.2 | HTTP client |
 | **reconnecting-websocket** | 4.4.0 | WebSocket reconnect |
 | **@types/node** | 24.10.4 | Node.js types |
 | **@vitejs/plugin-vue** | 6.0.3 | Vite Vue plugin |
