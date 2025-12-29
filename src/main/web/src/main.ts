@@ -5,7 +5,8 @@ import App from '@/App.vue';
 import './assets/dashboard.css';
 import './assets/animations.css';
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+// Import and initialize FontAwesome
+import { FontAwesomeIcon } from './plugins/fontawesome';
 
 const app = createApp(App);
 const pinia = createPinia();

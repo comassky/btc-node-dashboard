@@ -7,6 +7,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'happy-dom',
+    // Add this section to run setup files
+    setupFiles: ['src/test/setup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -16,6 +18,7 @@ export default defineConfig({
         '**/*.d.ts',
         '**/*.config.*',
         '**/dist/**',
+        'src/test/setup.ts', // Exclude setup file from coverage
       ],
     },
   },

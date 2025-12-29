@@ -4,12 +4,6 @@ import { useDashboardStore } from '@/stores/dashboard';
 import { useTheme } from '@composables/useTheme';
 import { useMockData } from '@composables/useMockData';
 import { storeToRefs } from 'pinia';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faSun, faMoon, faCloud, faHardHat, faChartPie, faTable } from '@fortawesome/free-solid-svg-icons';
-import { faBitcoin } from '@fortawesome/free-brands-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-
-library.add(faSun, faMoon, faCloud, faHardHat, faChartPie, faTable, faBitcoin);
 
 // Async Components
 const Status = defineAsyncComponent(() => import('@components/Status.vue'));
@@ -51,11 +45,12 @@ const { MOCK_MODE, mockScenario, cycleMockScenario, generateMockData, getMockCon
 // Computed properties for cleaner template logic
 const shouldShowContent = computed(() => MOCK_MODE.value || rpcConnected.value);
 
-const themeIcon = computed(() => {
-  if (theme.value === 'light') return ['fas', 'sun'];
-  if (theme.value === 'dark') return ['fas', 'moon'];
-  return ['fas', 'cloud'];
-});
+const themeIcons: { [key: string]: string[] } = {
+  light: ['fas', 'sun'],
+  dark: ['fas', 'moon'],
+  gray: ['fas', 'cloud'],
+};
+const themeIcon = computed(() => themeIcons[theme.value] || themeIcons.gray);
 
 onMounted(() => {
   if (MOCK_MODE.value) {
@@ -124,24 +119,20 @@ onBeforeUnmount(() => {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 sm:gap-4 md:gap-6 lg:gap-8 gap-y-4 md:gap-y-6">
           <!-- Main Cards -->
           <transition name="fade" mode="out-in">
-            <template v-if="shouldShowContent">
-              <div class="lg:col-span-2" key="cards">
-                <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 xs:gap-3 sm:gap-4 md:gap-6">
-                  <PeersCard :stats="dataState.generalStats" class="col-span-1" />
-                  <BlockCard :blockchain="dataState.blockchainInfoResponse" :block="dataState.block" class="col-span-1" />
-                  <NodeCard :node="dataState.nodeInfo" :blockchain="dataState.blockchainInfoResponse" :upTime="dataState.upTime" class="col-span-1 lg:col-span-2 w-full max-w-full" />
-                </div>
+            <div v-if="shouldShowContent" class="lg:col-span-2" key="cards">
+              <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 xs:gap-3 sm:gap-4 md:gap-6">
+                <PeersCard :stats="dataState.generalStats" class="col-span-1" />
+                <BlockCard :blockchain="dataState.blockchainInfoResponse" :block="dataState.block" class="col-span-1" />
+                <NodeCard :node="dataState.nodeInfo" :blockchain="dataState.blockchainInfoResponse" :upTime="dataState.upTime" class="col-span-1 lg:col-span-2 w-full max-w-full" />
               </div>
-            </template>
-            <template v-else>
-              <div class="lg:col-span-2" key="skeletons">
-                <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 xs:gap-3 sm:gap-4 md:gap-6">
-                  <BaseCardSkeleton class="col-span-1" />
-                  <BaseCardSkeleton class="col-span-1" />
-                  <BaseCardSkeleton class="col-span-1 lg:col-span-2 w-full max-w-full" />
-                </div>
+            </div>
+            <div v-else class="lg:col-span-2" key="skeletons">
+              <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 xs:gap-3 sm:gap-4 md:gap-6">
+                <BaseCardSkeleton class="col-span-1" />
+                <BaseCardSkeleton class="col-span-1" />
+                <BaseCardSkeleton class="col-span-1 lg:col-span-2 w-full max-w-full" />
               </div>
-            </template>
+            </div>
           </transition>
 
           <!-- Mempool Info -->
@@ -155,32 +146,28 @@ onBeforeUnmount(() => {
 
           <!-- Peer Software Distribution -->
           <transition name="fade" mode="out-in">
-            <template v-if="shouldShowContent">
-              <div class="dashboard-card lg:col-span-2">
-                <h2 class="text-lg xs:text-xl sm:text-2xl font-medium mb-3 sm:mb-4 md:mb-6 break-words">
-                  <font-awesome-icon :icon="['fas', 'chart-pie']" class="mr-2 text-accent" />
-                  <span class="hidden sm:inline">Peer Software Distribution</span>
-                  <span class="sm:hidden">Peers Distribution</span>
-                </h2>
-                <div class="flex flex-col md:flex-row gap-4 sm:gap-6 md:gap-8 mt-2 sm:mt-3 md:mt-4">
-                  <PeerDistributionChart :peers="subverInbound" type="inbound" :count="inboundCount" :isDarkMode="isDarkMode" />
-                  <PeerDistributionChart :peers="subverOutbound" type="outbound" :count="outboundCount" :isDarkMode="isDarkMode" />
-                </div>
+            <div v-if="shouldShowContent" class="dashboard-card lg:col-span-2">
+              <h2 class="text-lg xs:text-xl sm:text-2xl font-medium mb-3 sm:mb-4 md:mb-6 break-words">
+                <font-awesome-icon :icon="['fas', 'chart-pie']" class="mr-2 text-accent" />
+                <span class="hidden sm:inline">Peer Software Distribution</span>
+                <span class="sm:hidden">Peers Distribution</span>
+              </h2>
+              <div class="flex flex-col md:flex-row gap-4 sm:gap-6 md:gap-8 mt-2 sm:mt-3 md:mt-4">
+                <PeerDistributionChart :peers="subverInbound" type="inbound" :count="inboundCount" :isDarkMode="isDarkMode" />
+                <PeerDistributionChart :peers="subverOutbound" type="outbound" :count="outboundCount" :isDarkMode="isDarkMode" />
               </div>
-            </template>
+            </div>
           </transition>
 
           <!-- Peer Table -->
           <transition name="fade" mode="out-in">
-            <template v-if="shouldShowContent">
-              <div class="dashboard-card lg:col-span-2 overflow-x-auto" key="table">
-                <h2 class="text-lg xs:text-xl sm:text-2xl font-medium mb-3 sm:mb-4 md:mb-6 break-words">
-                  <font-awesome-icon :icon="['fas', 'table']" class="mr-2 text-accent" /> Connection Details
-                </h2>
-                <PeerTable :peers="inboundPeers" type="inbound" />
-                <PeerTable :peers="outboundPeers" type="outbound" />
-              </div>
-            </template>
+            <div v-if="shouldShowContent" class="dashboard-card lg:col-span-2 overflow-x-auto" key="table">
+              <h2 class="text-lg xs:text-xl sm:text-2xl font-medium mb-3 sm:mb-4 md:mb-6 break-words">
+                <font-awesome-icon :icon="['fas', 'table']" class="mr-2 text-accent" /> Connection Details
+              </h2>
+              <PeerTable :peers="inboundPeers" type="inbound" />
+              <PeerTable :peers="outboundPeers" type="outbound" />
+            </div>
           </transition>
         </div>
 

@@ -1,78 +1,68 @@
-import { ref, onMounted, computed } from 'vue';
+import { ref, computed, watchEffect } from 'vue';
 
-const DARK_ERROR_RGB = '239, 71, 111';
-const LIGHT_ERROR_RGB = '239, 68, 68';
+type Theme = 'light' | 'dark' | 'gray';
+
+const THEMES: Theme[] = ['light', 'dark', 'gray'];
 const THEME_STORAGE_KEY = 'theme';
-const DARK_THEME = 'dark';
-const LIGHT_THEME = 'light';
-const GRAY_THEME = 'gray';
+
+const themeRgbMap: Record<Theme, string> = {
+    dark: '239, 71, 111',
+    light: '239, 68, 68',
+    gray: '255, 107, 107',
+};
+
+/**
+ * Determines the initial theme by checking localStorage first, then system preference.
+ * This function should only be called on the client side.
+ */
+function getInitialTheme(): Theme {
+    if (typeof window === 'undefined') {
+        return 'dark'; // Default for non-browser environments
+    }
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as Theme;
+    if (THEMES.includes(savedTheme)) {
+        return savedTheme;
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
 
 /**
  * Theme management composable.
- * Handles dark/light mode switching with localStorage persistence.
- *
- * @returns Reactive dark mode state and toggle function
+ * Handles theme switching with localStorage persistence and applies theme changes to the DOM.
  */
 export function useTheme() {
-    // theme: 'light' | 'dark' | 'gray'
-    const theme = ref<'light' | 'dark' | 'gray'>(DARK_THEME);
-    const isDarkMode = computed(() => theme.value === DARK_THEME);
-    const isGrayMode = computed(() => theme.value === GRAY_THEME);
+    // Initialize the theme with the correct value from the start.
+    const theme = ref<Theme>(getInitialTheme());
 
-    /**
-     * Updates the CSS variable for error pulse color based on theme.
-     * @param darkMode Whether dark mode is enabled
-     */
-    const updateErrorPulseRgb = (themeValue: string) => {
-        if (themeValue === DARK_THEME) {
-            document.documentElement.style.setProperty('--status-error-rgb', DARK_ERROR_RGB);
-        } else if (themeValue === GRAY_THEME) {
-            document.documentElement.style.setProperty('--status-error-rgb', '255, 107, 107');
-        } else {
-            document.documentElement.style.setProperty('--status-error-rgb', LIGHT_ERROR_RGB);
+    const isDarkMode = computed(() => theme.value === 'dark');
+    const isGrayMode = computed(() => theme.value === 'gray');
+
+    // This effect runs whenever `theme.value` changes, applying side effects.
+    watchEffect(() => {
+        if (typeof document !== 'undefined') {
+            // 1. Update localStorage
+            localStorage.setItem(THEME_STORAGE_KEY, theme.value);
+
+            // 2. Update CSS variables
+            const rgb = themeRgbMap[theme.value] || themeRgbMap.light;
+            document.documentElement.style.setProperty('--status-error-rgb', rgb);
+
+            // 3. Update document class
+            document.documentElement.classList.remove(...THEMES);
+            document.documentElement.classList.add(theme.value);
         }
-    };
-
-    /**
-     * Applies the theme to the document root.
-     * @param darkMode Whether dark mode is enabled
-     */
-    const applyTheme = (themeValue: string) => {
-        document.documentElement.classList.remove(DARK_THEME, LIGHT_THEME, GRAY_THEME);
-        document.documentElement.classList.add(themeValue);
-        updateErrorPulseRgb(themeValue);
-    };
-
-    /**
-     * Toggles between dark and light mode, saving preference to localStorage.
-     */
-    // Cycle theme: light -> dark -> gray -> light ...
-    const cycleTheme = () => {
-        if (theme.value === LIGHT_THEME) theme.value = DARK_THEME;
-        else if (theme.value === DARK_THEME) theme.value = GRAY_THEME;
-        else theme.value = LIGHT_THEME;
-        localStorage.setItem(THEME_STORAGE_KEY, theme.value);
-        applyTheme(theme.value);
-    };
-
-    /**
-     * Loads the theme from localStorage or system preference.
-     */
-    const loadTheme = () => {
-        const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-        if (savedTheme === DARK_THEME || savedTheme === LIGHT_THEME || savedTheme === GRAY_THEME) {
-            theme.value = savedTheme;
-        } else {
-            theme.value = window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK_THEME : LIGHT_THEME;
-        }
-        applyTheme(theme.value);
-    };
-
-    onMounted(() => {
-        loadTheme();
     });
 
-    // For backward compatibility with tests expecting toggleDarkMode
+    /**
+     * Cycles through themes: light -> dark -> gray -> light ...
+     */
+    const cycleTheme = () => {
+        const currentIndex = THEMES.indexOf(theme.value);
+        const nextIndex = (currentIndex + 1) % THEMES.length;
+        theme.value = THEMES[nextIndex];
+    };
+
+    // Kept for backward compatibility with older tests if any
     function toggleDarkMode() {
         cycleTheme();
     }
