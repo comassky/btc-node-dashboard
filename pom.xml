@@ -100,6 +100,7 @@
                         <goals>
                             <goal>install-node-and-npm</goal>
                         </goals>
+                        <phase>prepare-package</phase>
                         <configuration>
                             <nodeVersion>${node.lts.version}</nodeVersion>
                             <npmVersion>${npm.lts.version}</npmVersion>
@@ -112,6 +113,7 @@
                         <goals>
                             <goal>npm</goal>
                         </goals>
+                        <phase>prepare-package</phase>
                         <configuration>
                             <workingDirectory>${project.basedir}/src/main/web</workingDirectory>
                             <arguments>ci --prefer-offline --no-audit</arguments>

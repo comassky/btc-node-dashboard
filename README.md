@@ -93,10 +93,10 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ## 🧪 Automated Tests
 
-| Suite     | Tests |
-|-----------|-------|
-| Backend   | 79    |
-| Frontend  | 67    |
+| Suite     | Total | Pass | Fail |
+|-----------|-------|------|------|
+| Backend   | 58    | 58   | 0    |
+| Frontend  | 86    | 86   | 0    |
 
 ## 🏎️ Recommended Native Build (GraalVM)
 
