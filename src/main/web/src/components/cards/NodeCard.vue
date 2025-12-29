@@ -96,7 +96,7 @@ const cleanedSubversion = computed(() => {
 	return (!subver || subver === 'N/A') ? 'N/A' : subver.replace(/^\/|\/$/g, '').trim();
 });
 
-const sizeUnits = ['B', 'KB', 'MB', 'GB', 'TB'];
+const sizeUnits = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
 function formatSizeOnDisk(size?: number): string {
     if (size === undefined || size === null) return 'N/A';
     if (size === 0) return '0 B';
