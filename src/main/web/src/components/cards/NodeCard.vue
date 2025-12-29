@@ -41,7 +41,7 @@
 									<font-awesome-icon :icon="['fas', 'hdd']" class="text-text-secondary text-base" />
 								</span>
 								<span>Size on disk:</span>
-								<span class="font-bold text-text-primary">{{ formatSizeOnDisk(blockchain.size_on_disk) }}</span>
+								<span class="font-bold text-text-primary">{{ filesize(blockchain.size_on_disk, { standard: 'iec', base: 2 }) }}</span>
 							</p>
 						</Tooltip>
 					</div>
@@ -60,6 +60,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { filesize } from 'filesize';
 import Tooltip from '@components/Tooltip.vue';
 import BaseCard from '@components/BaseCard.vue';
 import type { BlockChainInfo, NetworkInfoResponse } from '@types';
@@ -96,12 +97,5 @@ const cleanedSubversion = computed(() => {
 	return (!subver || subver === 'N/A') ? 'N/A' : subver.replace(/^\/|\/$/g, '').trim();
 });
 
-const sizeUnits = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
-function formatSizeOnDisk(size?: number): string {
-    if (size === undefined || size === null) return 'N/A';
-    if (size === 0) return '0 B';
 
-    const i = Math.floor(Math.log(size) / Math.log(1024));
-    return `${(size / Math.pow(1024, i)).toFixed(2)} ${sizeUnits[i]}`;
-}
 </script>

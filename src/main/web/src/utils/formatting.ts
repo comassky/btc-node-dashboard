@@ -1,3 +1,5 @@
+import { filesize } from "filesize";
+
 /**
  * Formats a duration in seconds as a human-readable string (e.g., "X days Y hours", "Y minutes Z seconds").
  * If input is a timestamp, converts to duration from now.
@@ -40,12 +42,9 @@ export const formatConnectionTime = (input?: number | null): string => {
  * @returns Formatted string with appropriate unit
  */
 export const formatBytes = (bytes: number, decimals = 2): string => {
-  if (!bytes || bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  const value = bytes / Math.pow(k, i);
-  return `${parseFloat(value.toFixed(decimals))} ${sizes[i]}`;
+  if (bytes === undefined || bytes === null || isNaN(bytes)) return 'N/A';
+  if (bytes === 0) return '0 B';
+  return filesize(bytes, { standard: 'iec', base: decimals });
 };
 
 /**

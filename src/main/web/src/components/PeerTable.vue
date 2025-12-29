@@ -87,7 +87,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { formatBytes, formatTimeOffset, formatPing, formatConnectionTime } from '@utils/formatting';
+import { formatTimeOffset, formatPing, formatConnectionTime, formatBytes } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
 import type { Peer } from '../types';
 import { library } from '@fortawesome/fontawesome-svg-core';
