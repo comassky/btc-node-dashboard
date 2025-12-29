@@ -2,8 +2,8 @@
 # Versions used
 
 - Java 25
-- Quarkus 3.30.3
-- Node.js v24.11.1
+- Quarkus 3.30.5
+- Node.js v24.12.0
 - npm 11.6.2
 
 

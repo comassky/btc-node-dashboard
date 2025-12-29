@@ -36,7 +36,7 @@ This guide explains how to build and deploy the Bitcoin Node Dashboard.
 ## Prerequisites
 
 **Required:** Java 25+, Maven 3.9+, Bitcoin Core with RPC enabled
-**Optional:** Node.js 24+ (v24.12.0 recommandé), npm 11.6.2, Docker
+**Optional:** Node.js 24+ (v24.12.0 recommended), npm 11.6.2, Docker
 
 ## 🚀 Quick Start
 
