@@ -46,11 +46,11 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: src/main/web
-        run: npm ci
+        run: pnpm install
 
       - name: Run frontend tests
         working-directory: src/main/web
-        run: npm test -- --run
+        run: pnpm test -- --run
 
   build:
     name: Build Docker Image

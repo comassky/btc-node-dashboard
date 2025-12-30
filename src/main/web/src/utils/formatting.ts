@@ -1,3 +1,6 @@
+import { filesize } from 'filesize';
+import { intervalToDuration, formatDuration } from 'date-fns';
+
 /**
  * Format bytes with locale-specific separators (space, dot, etc) for tooltips and display.
  * @param bytes Number of bytes
@@ -9,9 +12,6 @@ export function formatBytesLocale(bytes?: number | null): string {
     typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'en-US';
   return bytes.toLocaleString(locale);
 }
-
-import { filesize } from 'filesize';
-import { intervalToDuration, format as formatDate, formatDuration } from 'date-fns';
 
 /**
  * Formats a duration in seconds or a timestamp as a human-readable string (e.g., "2d 3h", "5m 10s").

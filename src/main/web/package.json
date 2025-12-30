@@ -11,8 +11,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "coverage": "vitest run --coverage",
-    "prettier": "prettier --write .",
-    "prepare": "husky install"
+    "prettier": "prettier --write ."
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "7.1.0",
@@ -47,7 +46,6 @@
     "vite-plugin-pwa": "1.2.0",
     "vitest": "4.0.16",
     "vue-tsc": "3.2.1",
-    "workbox-window": "7.4.0",
-    "husky": "^8.0.0"
+    "workbox-window": "7.4.0"
   }
 }

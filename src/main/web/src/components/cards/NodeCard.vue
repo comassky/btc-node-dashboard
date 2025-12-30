@@ -93,10 +93,8 @@ import BaseCard from '@components/BaseCard.vue';
 
 import { computed } from 'vue';
 import { filesize } from 'filesize';
-import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
+import { intervalToDuration } from 'date-fns';
 import { BlockChainInfo, NetworkInfoResponse } from '@/types';
-dayjs.extend(duration);
 
 const props = defineProps<{
   node: NetworkInfoResponse;
@@ -106,7 +104,13 @@ const props = defineProps<{
 
 function formatUptime(totalSeconds: number): string {
   if (typeof totalSeconds !== 'number' || isNaN(totalSeconds) || totalSeconds < 0) return 'N/A';
-  return dayjs.duration(totalSeconds, 'seconds').format('D[d], HH:mm:ss');
+  const durationObj = intervalToDuration({ start: 0, end: totalSeconds * 1000 });
+  // Format: "Xd, HH:mm:ss" (jours, heures, minutes, secondes)
+  const days = durationObj.days ? `${durationObj.days}d, ` : '';
+  const hours = String(durationObj.hours ?? 0).padStart(2, '0');
+  const minutes = String(durationObj.minutes ?? 0).padStart(2, '0');
+  const seconds = String(durationObj.seconds ?? 0).padStart(2, '0');
+  return `${days}${hours}:${minutes}:${seconds}`;
 }
 
 const networkIcons: Record<string, string[]> = {
