@@ -18,7 +18,7 @@
 			<div class="w-full sm:w-auto flex flex-col items-end">
 				<Tooltip :text="'Uptime: Time elapsed since the node started.'" position="bottom" horizontal="left">
 					<div class="text-xl sm:text-2xl font-bold text-text-primary">
-						{{ upTime }}
+						{{ formatUptime(upTime) }}
 					</div>
 				</Tooltip>
 				<div class="text-xs sm:text-sm text-text-secondary">Uptime</div>
@@ -59,13 +59,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { filesize } from 'filesize';
 import Tooltip from '@components/Tooltip.vue';
 import BaseCard from '@components/BaseCard.vue';
-import type { BlockChainInfo, NetworkInfoResponse } from '@types';
 
-const props = defineProps<{ node: NetworkInfoResponse; blockchain: BlockChainInfo; upTime: string }>();
+import { computed } from 'vue';
+import { filesize } from 'filesize';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+import { BlockChainInfo, NetworkInfoResponse } from '@/types';
+dayjs.extend(duration);
+
+const props = defineProps<{ node: NetworkInfoResponse; blockchain: BlockChainInfo; upTime: number }>();
+
+function formatUptime(totalSeconds: number): string {
+	if (typeof totalSeconds !== 'number' || isNaN(totalSeconds) || totalSeconds < 0) return 'N/A';
+	return dayjs.duration(totalSeconds, 'seconds').format('D[d], HH:mm:ss');
+}
 
 const networkIcons: Record<string, string[]> = {
     ipv4: ['fas', 'network-wired'],

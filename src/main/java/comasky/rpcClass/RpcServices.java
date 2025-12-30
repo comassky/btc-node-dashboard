@@ -170,16 +170,16 @@ public class RpcServices implements DashboardDataProvider {
         MempoolInfoView mempoolInfoView = MempoolInfoView.from(mempoolInfoResponse);
 
         return new GlobalResponse(
-                generalStat,
-                stats,
-                inboundPeersView,
-                outboundPeersView,
-                blockchainInfoView,
-                nodeInfoView,
-                formatUptime(uptime),
-                blockInfoView,
-                mempoolInfoView,
-                errors
+            generalStat,
+            stats,
+            inboundPeersView,
+            outboundPeersView,
+            blockchainInfoView,
+            nodeInfoView,
+            uptime,
+            blockInfoView,
+            mempoolInfoView,
+            errors
         );
     }
 

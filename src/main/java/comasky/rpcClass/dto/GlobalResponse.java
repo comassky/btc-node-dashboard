@@ -18,7 +18,7 @@ public record GlobalResponse(
     List<PeerInfoView> outboundPeer,
     BlockchainInfoView blockchainInfoResponse,
     NetworkInfoView nodeInfo,
-    String upTime,
+    long upTime,
     BlockInfoView block,
     MempoolInfoView mempoolInfo,
     Map<String, String> errors

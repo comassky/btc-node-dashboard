@@ -22,8 +22,10 @@
     "paths": {
       "@/*": ["src/*"],
       "@components/*": ["src/components/*"],
+      "@cards/*": ["src/components/cards/*"],
       "@composables/*": ["src/composables/*"],
-      "@types": ["src/types"],
+      "@types": ["src/types/index.ts"],
+      "@types/*": ["src/types/*"],
       "@utils/*": ["src/utils/*"],
       "@assets/*": ["src/assets/*"]
     }

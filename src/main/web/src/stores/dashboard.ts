@@ -38,7 +38,7 @@ const DEFAULT_DATA: DashboardData = {
     networks: [],
     localaddresses: []
   },
-  upTime: 'N/A',
+  upTime: 0,
   inboundPeer: [],
   outboundPeer: [],
   subverDistribution: { inbound: [], outbound: [] },

@@ -42,12 +42,12 @@
 </template>
 
 <script setup lang="ts">
-import type { MempoolInfoResponse } from '../../types/MempoolInfoResponse';
-import { formatBytes } from '../../utils/formatting';
+import { formatBytes } from '@utils/formatting';
 import BaseCard from '@components/BaseCard.vue';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import type { MempoolInfoResponse } from '@types';
 
 library.add(faLayerGroup);
 

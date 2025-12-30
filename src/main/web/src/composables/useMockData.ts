@@ -101,7 +101,7 @@ export function useMockData() {
         networks: [],
         localaddresses: []
       },
-      upTime: '15d 7h 23m',
+      upTime: 15 * 24 * 3600 + 7 * 3600 + 23 * 60, // 15 days, 7 hours, 23 minutes in seconds
       inboundPeer: Array.from({ length: mockScenario.value === 'lowPeers' ? 5 : 45 }, (_, i) => ({
         id: i,
         addr: `192.168.1.${i + 10}:8333`,

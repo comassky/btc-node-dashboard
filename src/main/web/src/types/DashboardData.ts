@@ -17,8 +17,8 @@ export interface DashboardData {
   blockchainInfoResponse: BlockChainInfo;
   /** Node info (version, protocol, etc.) */
   nodeInfo: NetworkInfoResponse;
-  /** Node uptime as a formatted string */
-  upTime: string;
+  /** Node uptime in seconds (timestamp) */
+  upTime: number;
   /** List of inbound peers */
   inboundPeer: Peer[];
   /** List of outbound peers */

@@ -61,8 +61,6 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | **@fortawesome/vue-fontawesome** | 3.1.2 | Font Awesome Vue component |
 | **ky** | 1.14.2 | HTTP client |
 | **reconnecting-websocket** | 4.4.0 | WebSocket reconnect |
-| **filesize** | 11.0.13 | File size utility |
-| **pinia** | 2.3.1 | State management |
 | **@types/node** | 24.10.4 | Node.js types |
 | **@vitejs/plugin-vue** | 6.0.3 | Vite Vue plugin |
 | **@vitest/coverage-v8** | 4.0.16 | Coverage provider |
@@ -95,10 +93,10 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ## 🧪 Automated Tests
 
-| Suite     | Total | Pass | Fail |
-|-----------|-------|------|------|
-| Backend   | 58    | 58   | 0    |
-| Frontend  | 86    | 86   | 0    |
+| Suite     | Tests |
+|-----------|-------|
+| Backend   | 58    |
+| Frontend  | 67    |
 
 ## 🏎️ Recommended Native Build (GraalVM)
 
