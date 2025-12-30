@@ -10,8 +10,8 @@
         <maven.compiler.release>25</maven.compiler.release>
         <quarkus.platform.version>3.30.5</quarkus.platform.version>
         <frontend-maven-plugin.version>2.0.0</frontend-maven-plugin.version>
-        <node.lts.version>v24.12.0</node.lts.version>
-        <npm.lts.version>11.6.2</npm.lts.version>
+        <node.lts.version></node.lts.version>
+        <pnpm.version>10.26.2</pnpm.version>
         <compiler-plugin.version>3.14.1</compiler-plugin.version>
         <surefire-plugin.version>3.5.4</surefire-plugin.version>
 
@@ -96,34 +96,34 @@
                 <version>${frontend-maven-plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>install node and npm</id>
+                        <id>install node and pnpm</id>
                         <goals>
-                            <goal>install-node-and-npm</goal>
+                            <goal>install-node-and-pnpm</goal>
                         </goals>
                         <phase>prepare-package</phase>
                         <configuration>
                             <nodeVersion>${node.lts.version}</nodeVersion>
-                            <npmVersion>${npm.lts.version}</npmVersion>
+                            <pnpmVersion>${pnpm.version}</pnpmVersion>
                             <workingDirectory>${project.basedir}/src/main/web</workingDirectory>
                         </configuration>
                     </execution>
 
                     <execution>
-                        <id>npm install</id>
+                        <id>pnpm install</id>
                         <goals>
-                            <goal>npm</goal>
+                            <goal>pnpm</goal>
                         </goals>
                         <phase>prepare-package</phase>
                         <configuration>
                             <workingDirectory>${project.basedir}/src/main/web</workingDirectory>
-                            <arguments>ci --prefer-offline --no-audit</arguments>
+                            <arguments>install --frozen-lockfile</arguments>
                         </configuration>
                     </execution>
 
                     <execution>
-                        <id>npm test</id>
+                        <id>pnpm test</id>
                         <goals>
-                            <goal>npm</goal>
+                            <goal>pnpm</goal>
                         </goals>
                         <phase>test</phase>
                         <configuration>
@@ -136,7 +136,7 @@
                     <execution>
                         <id>sync version</id>
                         <goals>
-                            <goal>npm</goal>
+                            <goal>pnpm</goal>
                         </goals>
                         <phase>prepare-package</phase>
                         <configuration>
@@ -146,9 +146,9 @@
                     </execution>
 
                     <execution>
-                        <id>npm build</id>
+                        <id>pnpm build</id>
                         <goals>
-                            <goal>npm</goal>
+                            <goal>pnpm</goal>
                         </goals>
                         <phase>prepare-package</phase>
                         <configuration>

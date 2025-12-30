@@ -35,12 +35,14 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "v24.12.0"
           cache: "npm"
           cache-dependency-path: src/main/web/package-lock.json
 
       - name: Install frontend dependencies
         working-directory: src/main/web
+        run: npm install -g pnpm@10.26.2
+      - name: Install dependencies (pnpm)
         run: pnpm install
 
       - name: Run frontend tests
