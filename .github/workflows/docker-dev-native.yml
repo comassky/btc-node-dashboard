@@ -40,6 +40,7 @@ jobs:
         working-directory: src/main/web
         run: npm install -g pnpm@10.26.2
       - name: Install dependencies (pnpm)
+        working-directory: src/main/web
         run: pnpm install
 
       - name: Install Node.js and pnpm (frontend-maven-plugin)
