@@ -1,4 +1,3 @@
-
 <template>
     <BaseCard :status="isOutOfSync ? 'error' : 'success'" interactive>
         <div class="flex justify-between items-center">
@@ -36,7 +35,7 @@
                         </Tooltip>
                         Time:
                         <span class="font-bold text-text-primary">
-                            {{ formatRelativeTimeSince(block.time).replace(/ ago$/, '') }} ago
+                            {{ formatDistanceToNow(new Date(block.time * 1000), { addSuffix: true }) }}
                         </span>
                     </p>
                     <p class="mb-0.5 sm:mb-1">
@@ -61,6 +60,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { formatRelativeTimeSince } from '@utils/formatting';
+import { formatDistanceToNow } from 'date-fns';
 import Tooltip from '@components/Tooltip.vue';
 import BaseCard from '@components/BaseCard.vue';
 import { getHeaderBlockDiff, isSyncing, getSyncWarningMessage } from '@utils/nodeHealth';
