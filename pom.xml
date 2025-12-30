@@ -125,18 +125,6 @@
                         </configuration>
                     </execution>
 
-                    <execution>
-                        <id>pnpm test</id>
-                        <goals>
-                            <goal>pnpm</goal>
-                        </goals>
-                        <phase>test</phase>
-                        <configuration>
-                            <skip>${skipFrontendTests}</skip>
-                            <workingDirectory>${project.basedir}/src/main/web</workingDirectory>
-                            <arguments>test -- --run</arguments>
-                        </configuration>
-                    </execution>
 
                     <execution>
                         <id>sync version</id>
