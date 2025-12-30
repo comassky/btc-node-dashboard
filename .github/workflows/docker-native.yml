@@ -29,8 +29,6 @@ jobs:
           distribution: "temurin"
           cache: maven
 
-      - name: Run backend tests
-        run: mvn test
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -47,6 +45,9 @@ jobs:
 
       - name: Install Node.js and pnpm (frontend-maven-plugin)
         run: mvn frontend:install-node-and-pnpm
+
+      - name: Run backend tests
+        run: mvn test
 
       - name: Run frontend tests
         working-directory: src/main/web
