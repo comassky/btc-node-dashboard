@@ -1,3 +1,28 @@
+# 🧩 Monorepo & Développement Frontend
+
+Le projet utilise un workspace pnpm pour la gestion des dépendances frontend (voir `src/main/web/pnpm-workspace.yaml`).
+
+## Installation des dépendances frontend
+
+```bash
+cd src/main/web
+pnpm install
+# ou, si pnpm n'est pas installé :
+npm install -g pnpm@10.26.2
+pnpm install
+```
+
+## Scripts utiles
+
+- `pnpm dev` : serveur de développement Vite
+- `pnpm build` : build de production
+- `pnpm test` : tests unitaires frontend (Vitest)
+- `pnpm test:ui` : UI de tests
+- `pnpm coverage` : couverture de tests
+
+Les workflows CI utilisent pnpm pour garantir la cohérence des dépendances.
+
+---
 # Versions used
 
 - Java 25

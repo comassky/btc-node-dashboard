@@ -126,26 +126,40 @@ The native binary starts instantly and uses very little memory, making it ideal 
 - Bitcoin Core with RPC enabled
 - Node.js 24+ (optional, for frontend development)
 
-### Development
+
+### Développement
 
 ```bash
 git clone https://github.com/comassky/btc-node-dashboard.git
 cd btc-node-dashboard
 
-# Configure RPC (environment variables or application-local.properties)
+# Configurez le backend (variables d'environnement ou application-local.properties)
 export RPC_HOST=localhost
 export RPC_PORT=8332
 export RPC_USER=your_user
 export RPC_PASS=your_password
 
-# Start backend with hot reload
+# Installez les dépendances frontend (recommandé : pnpm)
+cd src/main/web
+pnpm install
+# ou, si pnpm n'est pas installé :
+npm install -g pnpm@10.26.2
+pnpm install
+
+# Démarrez le serveur de développement frontend (Vite)
+pnpm dev
+# ou npm run dev
+
+# Dans un autre terminal, démarrez le backend avec hot reload
+cd ../..
 ./mvnw quarkus:dev  # http://localhost:8080
 ```
 
-## 🐳 Docker (Recommended)
+
+## 🐳 Docker (Recommandé)
 
 ```bash
-# Run GraalVM Native image (fast startup, low memory)
+# Exécuter l'image native GraalVM (démarrage rapide, faible mémoire)
 docker run -d -p 8080:8080 \
   -e RPC_HOST=<HOST> \
   -e RPC_PORT=<PORT> \
@@ -158,14 +172,19 @@ docker run -d -p 8080:8080 \
   ghcr.io/comassky/btc-node-dashboard:native
 ```
 
+
+Docker images are built and published automatically via GitHub Actions workflows:
+- `docker-native.yml` (Native)
+- `docker-dev-native.yml` (develop branch)
+
 ### Image Performance
 
-| Metric         | JVM        | Native       |
-| -------------- | ---------- | ------------ |
-| **Startup**    | ~2-4s      | **~50-80ms** |
-| **Memory**     | ~180-250MB | **~30-60MB** |
-| **Image Size** | ~400MB     | **~120MB**   |
-| **CPU (Idle)** | ~1%        | **<0.5%**    |
+| Metric         | Native       |
+| -------------- | ------------ |
+| **Startup**    | **~50-80ms** |
+| **Memory**     | **~30-60MB** |
+| **Image Size** | **~120MB**   |
+| **CPU (Idle)** | **<0.5%**    |
 
 See [DOCKER.md](DOCKER.md) for more details.
 
@@ -173,7 +192,6 @@ See [DOCKER.md](DOCKER.md) for more details.
 
 A short summary of the Docker image tags produced by the GitHub Actions workflows (full list in `DOCKER.md`):
 
-- `jvm` and `jvm-<version>`: JVM-based images (examples: `jvm`, `jvm-1.4.0`).
 - `latest` and semantic version tags (`<version>`, `<major>.<minor>`, `<major>`): native (GraalVM) images built from `main` and from git tags.
 - `develop`: images built from the `develop` branch.
 
@@ -194,9 +212,21 @@ A short summary of the Docker image tags produced by the GitHub Actions workflow
 
 ## 🔧 Configuration
 
-For details on reactive programming, non-blocking guarantees, and contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Main user-configurable environment variables:
+Pour les détails sur la programmation réactive, les garanties non-bloquantes et les guidelines de contribution, voir [CONTRIBUTING.md](CONTRIBUTING.md).
+
+### Dépendances et outils principaux
+
+- **pnpm** (gestionnaire de paquets frontend, workspace monorepo)
+- **Vite** (serveur de développement et build frontend)
+- **Vitest** (tests unitaires frontend)
+- **Tailwind CSS** (framework CSS)
+- **PostCSS** (préprocesseur CSS)
+- **TypeScript**, **Vue 3**, **Chart.js**, **FontAwesome**, etc.
+
+Voir `src/main/web/package.json` pour la liste complète.
+
+Variables d'environnement principales :
 
 - `QUARKUS_IO_THREADS`: Number of IO threads for the backend (recommended: 2 × number of CPU cores). Set this environment variable to control backend concurrency. Example: `QUARKUS_IO_THREADS=16 java -jar ...`. Defaults to 8 if not set.
 
@@ -206,7 +236,23 @@ Main user-configurable environment variables:
 - `DASHBOARD_CACHE_VALIDITY_BUFFER_MS`: cache validity buffer (ms)
 - `LOG_LEVEL`: log level (INFO, DEBUG, ...)
 
-For the full list and default values, see [BUILD.md](BUILD.md).
+
+Pour la liste complète et les valeurs par défaut, voir [BUILD.md](BUILD.md).
+
+---
+
+## 🧩 Monorepo & pnpm workspace
+
+Le projet utilise un workspace pnpm pour la gestion des dépendances frontend. Voir `src/main/web/pnpm-workspace.yaml`.
+
+Pour installer toutes les dépendances :
+
+```bash
+cd src/main/web
+pnpm install
+```
+
+---
 
 Example in `application-local.properties`:
 
@@ -222,7 +268,7 @@ dashboard.cache.validity.buffer.ms=200
 # 🚦 Build & Continuous Integration
 
 - The Maven build (`mvn package`) runs all tests and produces the final artifact (backend + frontend bundled).
-- Docker and native workflows use this artifact: no build or tests are repeated in those steps.
+- Native Docker workflows use this artifact: no build or tests are repeated in those steps.
 - CI (GitHub Actions) blocks any deployment if a test fails.
 - See [BUILD.md](BUILD.md) and [TESTING.md](TESTING.md) for more details.
 

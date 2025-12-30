@@ -27,10 +27,10 @@
 ./mvnw test
 
 # Frontend only
-cd src/main/web && npm test
+cd src/main/web && pnpm test
 
-# With coverage
-cd src/main/web && npm run coverage
+# Avec couverture
+cd src/main/web && pnpm coverage
 ```
 
 ## 🔍 Backend Tests (79)
@@ -60,9 +60,12 @@ cd src/main/web && npm run coverage
 - `formatters.test.ts` (12) - Number/date formatting
 - `logic.test.ts` (16) - Business logic, calculations
 
-**Main Libraries:**
 
-- Vitest 4.0.16, Vue Test Utils 2.4.6, Happy DOM 20.0.11, Vite 7.3.0, TypeScript 5.9.3, Chart.js 4.5.1, Font Awesome 7.1.0, ky 1.14.2, Tailwind CSS 3.4.19, vite-plugin-pwa 1.2.0, vite-plugin-compression 0.5.1, rollup-plugin-visualizer 6.0.5, sirv-cli 3.0.1, autoprefixer 10.4.23, postcss 8.5.6, vue-tsc 3.2.1, workbox-window 7.4.0, reconnecting-websocket 4.4.0
+**Outils et librairies principaux :**
+
+- **pnpm** (gestionnaire de paquets frontend, workspace monorepo)
+- **Vitest** 4.0.16 (tests unitaires frontend)
+- **Vue Test Utils** 2.4.6, **Happy DOM** 20.0.11, **Vite** 7.3.0, **TypeScript** 5.9.3, **Chart.js** 4.5.1, **Font Awesome** 7.1.0, **ky** 1.14.2, **Tailwind CSS** 3.4.19, **vite-plugin-pwa** 1.2.0, **vite-plugin-compression** 0.5.1, **rollup-plugin-visualizer** 6.0.5, **sirv-cli** 3.0.1, **autoprefixer** 10.4.23, **postcss** 8.5.6, **vue-tsc** 3.2.1, **workbox-window** 7.4.0, **reconnecting-websocket** 4.4.0
 
 ## 📝 Writing New Tests
 
@@ -93,7 +96,14 @@ class MyServiceTest {
 }
 ```
 
-### Frontend Test Template
+
+### Scripts de test frontend
+
+- `pnpm test` : tests unitaires (Vitest)
+- `pnpm test:ui` : UI de tests interactive
+- `pnpm coverage` : rapport de couverture
+
+### Exemple de test frontend
 
 ```typescript
 import { describe, it, expect, vi } from "vitest";
@@ -132,22 +142,14 @@ cd src/main/web && npm run test:ui
 
 ## 🔄 Continuous Integration
 
-### GitHub Actions Workflows
 
-#### 1. Tests Workflow (`.github/workflows/tests.yml`)
+### Workflows GitHub Actions
 
-Runs on every push to `main` and `develop`:
+Les workflows CI utilisent pnpm pour installer les dépendances frontend et exécuter les tests (voir `.github/workflows/docker.yml`, `docker-native.yml`, `docker-dev-native.yml`).
 
-- Setup JDK 25 and run backend tests
-- Setup Node.js 20, install dependencies, run frontend tests and coverage
-- Perform a full Maven build for integration tests
+Avant chaque build d'image Docker :
+- ✅ Les tests backend sont exécutés
+- ✅ Les tests frontend sont exécutés (pnpm test, pnpm coverage)
+- ❌ Le build est annulé si un test échoue
 
-#### 2. Docker Workflows
-
-**Before** building Docker images:
-
-- ✅ Run backend tests
-- ✅ Run frontend tests
-- ❌ Abort if any test fails
-
-This ensures only tested code is deployed.
+Cela garantit que seules les versions testées sont déployées.

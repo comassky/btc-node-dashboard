@@ -19,7 +19,8 @@ Complete guide for building and deploying the Bitcoin Node Dashboard.
 ## Prerequisites
 
 **Required**: Java 25+, Maven 3.9+, Bitcoin Core with RPC enabled  
-**Optional**: Node.js v24.12.0 (for frontend development), npm 11.6.2, Docker
+
+**Optional**: Node.js v24.12.0 (for frontend development), pnpm 10.26.2 (recommended), npm 11.6.2, Docker
 
 ## 🚀 Quick Start
 
@@ -37,7 +38,8 @@ This guide explains how to build and deploy the Bitcoin Node Dashboard.
 ## Prerequisites
 
 **Required:** Java 25+, Maven 3.9+, Bitcoin Core with RPC enabled
-**Optional:** Node.js 24+ (v24.12.0 recommended), npm 11.6.2, Docker
+
+**Optional:** Node.js 24+ (v24.12.0 recommended), pnpm 10.26.2 (recommended), npm 11.6.2, Docker
 
 ## 🚀 Quick Start
 
@@ -100,15 +102,19 @@ java -Dquarkus.profile=staging -jar target/quarkus-app/quarkus-run.jar
 ```bash
 cd src/main/web
 
-# Install dependencies
-npm install
+# Install frontend dependencies (recommended: pnpm)
+pnpm install
+# or, if pnpm is not installed:
+npm install -g pnpm@10.26.2
+pnpm install
 ```
 
 ### Development Server
 
 ```bash
 # Vite dev server with hot reload
-npm run dev
+pnpm dev
+# or npm run dev
 ```
 
 The Vite dev server will start on `http://localhost:5173` with proxy configured to forward API/WebSocket requests to `http://localhost:8080`.
@@ -126,12 +132,26 @@ The Vite dev server will start on `http://localhost:5173` with proxy configured 
 cd src/main/web
 
 # Production build
-npm run build
+pnpm build
+# or npm run build
 
 # Build output: dist/ directory
 ```
 
-The Maven build automatically runs `npm install` and `npm run build` to bundle the frontend into `target/classes/META-INF/resources/`.
+
+The Maven build automatically runs `pnpm install` (or `npm install` if pnpm is missing) and `pnpm build` to bundle the frontend into `target/classes/META-INF/resources/`.
+## 🧩 Monorepo & pnpm workspace
+
+This project uses a pnpm workspace for frontend dependency management. See `src/main/web/pnpm-workspace.yaml`.
+
+To install all dependencies:
+
+```bash
+cd src/main/web
+pnpm install
+```
+
+---
 
 ## 🚧 Troubleshooting
 
