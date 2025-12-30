@@ -36,7 +36,7 @@
                         </Tooltip>
                         Time:
                         <span class="font-bold text-text-primary">
-                            {{ formatTimeSince(block.time).replace(/ ago$/, '') }} ago
+                            {{ formatRelativeTimeSince(block.time).replace(/ ago$/, '') }} ago
                         </span>
                     </p>
                     <p class="mb-0.5 sm:mb-1">
@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { formatTimeSince } from '@utils/formatting';
+import { formatRelativeTimeSince } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
 import BaseCard from '@components/BaseCard.vue';
 import { getHeaderBlockDiff, isSyncing, getSyncWarningMessage } from '@utils/nodeHealth';
@@ -84,6 +84,6 @@ const formattedBlockCount = computed(() => {
 const headerBlockDiff = computed(() => getHeaderBlockDiff(props.blockchain));
 const isSyncingComputed = computed(() => isSyncing(props.blockchain));
 const isOutOfSync = computed(() => props.forceOutOfSync || (props.blockchain.headers - props.blockchain.blocks > 2));
-const syncWarningMessage = computed(() => getSyncWarningMessage(props.blockchain, props.block, formatTimeSince));
+const syncWarningMessage = computed(() => getSyncWarningMessage(props.blockchain, props.block, formatRelativeTimeSince));
 
 </script>

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatConnectionTime, formatBytes, formatTimeOffset, formatTimeSince, formatDurationShort, formatPing } from '../formatting';
+import { formatDurationOrTimestamp, formatBytesIEC, formatSecondsWithSuffix, formatRelativeTimeSince, formatDurationFull, formatPingSmart, formatTimestampToLocale, formatDateFromNowMinusDuration } from '../formatting';
 
 describe('formatConnectionTime', () => {
   it('returns <1s for falsy or <1', () => {

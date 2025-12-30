@@ -1,3 +1,4 @@
+import { formatSecondsWithSuffix, formatPingSmart, formatRelativeTimeSince, formatBytesIEC, formatTimestampToLocale } from '@utils/formatting';
 <template>
     <div>
         <h4
@@ -67,16 +68,38 @@
                                 <span class="max-w-[150px] truncate inline-block">{{ peer.subver || '[Empty]' }}</span>
                             </Tooltip>
                         </td>
-                        <td class="p-4 font-light">{{ peer.version }}</td>
-                        <td class="p-4 font-light">{{ formatTimeOffset(peer.timeoffset) }}</td>
-                        <td class="p-4 font-light">{{ formatTimeSince(peer.conntime) }}</td>
-                        <td class="p-4 font-light">{{ peer.network || 'N/A' }}</td>
+                        <td class="p-4 font-light">
+                            <Tooltip :text="`Full version: ${peer.version}`" position="bottom" horizontal="left">
+                                <span>{{ peer.version }}</span>
+                            </Tooltip>
+                        </td>
+                        <td class="p-4 font-light">{{ formatSecondsWithSuffix(peer.timeoffset) }}</td>
+                        <td class="p-4 font-light">
+                            <Tooltip :text="peer.conntime ? `Connected at: ${formatTimestampToLocale(peer.conntime)}` : 'N/A'" position="bottom" horizontal="left">
+                                <span>{{ formatRelativeTimeSince(peer.conntime) }}</span>
+                            </Tooltip>
+                        </td>
+                        <td class="p-4 font-light">
+                            <Tooltip :text="`Network type: ${peer.network || 'N/A'}`" position="bottom" horizontal="left">
+                                <span>{{ peer.network || 'N/A' }}</span>
+                            </Tooltip>
+                        </td>
                         <td class="p-4 font-medium" :class="[`text-${type === 'inbound' ? 'status-success' : 'accent'}`]"
                             :title="'Connection type: ' + peer.connection_type">{{ peer.connection_type }}</td>
-                        <td class="p-4 font-light">{{ formatPing(peer.minping) }}</td>
-                        <td class="p-4 font-light" :title="peer.bytesrecv + ' Bytes'">{{ formatBytes(peer.bytesrecv) }}
+                        <td class="p-4 font-light">
+                            <Tooltip :text="`Raw ping: ${peer.minping ?? 'N/A'} s`" position="bottom" horizontal="left">
+                                <span>{{ formatPingSmart(peer.minping) }}</span>
+                            </Tooltip>
                         </td>
-                        <td class="p-4 font-light" :title="peer.bytessent + ' Bytes'">{{ formatBytes(peer.bytessent) }}
+                        <td class="p-4 font-light">
+                            <Tooltip :text="formatBytesLocale(peer.bytesrecv) + ' Bytes'" position="bottom" horizontal="left">
+                                <span>{{ formatBytesIEC(peer.bytesrecv) }}</span>
+                            </Tooltip>
+                        </td>
+                        <td class="p-4 font-light">
+                            <Tooltip :text="formatBytesLocale(peer.bytessent) + ' Bytes'" position="bottom" horizontal="left">
+                                <span>{{ formatBytesIEC(peer.bytessent) }}</span>
+                            </Tooltip>
                         </td>
                     </tr>
                 </tbody>
@@ -87,7 +110,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { formatTimeOffset, formatPing, formatTimeSince, formatBytes } from '@utils/formatting';
+import { formatSecondsWithSuffix, formatPingSmart, formatRelativeTimeSince, formatBytesIEC, formatTimestampToLocale, formatBytesLocale } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
 import type { Peer } from '../types';
 import { library } from '@fortawesome/fontawesome-svg-core';

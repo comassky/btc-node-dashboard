@@ -11,15 +11,15 @@
       </div>
       <div>
         <div class="text-xs text-text-secondary mb-1">Total Bytes</div>
-        <div class="text-lg font-bold">{{ formatBytes(mempoolInfo.bytes) }}</div>
+        <div class="text-lg font-bold">{{ formatBytesIEC(mempoolInfo.bytes) }}</div>
       </div>
       <div>
         <div class="text-xs text-text-secondary mb-1">Memory Usage</div>
-        <div class="text-lg font-bold">{{ formatBytes(mempoolInfo.usage) }}</div>
+        <div class="text-lg font-bold">{{ formatBytesIEC(mempoolInfo.usage) }}</div>
       </div>
       <div>
         <div class="text-xs text-text-secondary mb-1">Max Mempool</div>
-        <div class="text-lg font-bold">{{ formatBytes(mempoolInfo.maxmempool) }}</div>
+        <div class="text-lg font-bold">{{ formatBytesIEC(mempoolInfo.maxmempool) }}</div>
       </div>
       <div>
         <div class="text-xs text-text-secondary mb-1">Min Fee (mempool)</div>
@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { formatBytes } from '@utils/formatting';
+import { formatBytesIEC } from '@utils/formatting';
 import BaseCard from '@components/BaseCard.vue';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faLayerGroup } from '@fortawesome/free-solid-svg-icons';
