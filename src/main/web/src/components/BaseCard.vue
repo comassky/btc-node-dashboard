@@ -1,10 +1,7 @@
 <template>
   <div
     class="dashboard-card"
-    :class="[
-      interactive ? 'dashboard-card-interactive' : '',
-      statusClass
-    ]"
+    :class="[interactive ? 'dashboard-card-interactive' : '', statusClass]"
   >
     <slot />
   </div>
@@ -13,13 +10,16 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-const props = withDefaults(defineProps<{
-  status?: 'success' | 'warning' | 'error';
-  interactive?: boolean;
-}>(), {
-  status: 'success',
-  interactive: false
-});
+const props = withDefaults(
+  defineProps<{
+    status?: 'success' | 'warning' | 'error';
+    interactive?: boolean;
+  }>(),
+  {
+    status: 'success',
+    interactive: false,
+  }
+);
 
 const statusClasses = {
   error: 'border-status-error hover:border-status-error hover:shadow-2xl',

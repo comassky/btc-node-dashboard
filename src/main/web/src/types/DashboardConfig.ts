@@ -1,4 +1,3 @@
-
 /**
  * Dashboard configuration options.
  */

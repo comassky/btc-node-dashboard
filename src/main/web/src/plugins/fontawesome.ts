@@ -25,7 +25,7 @@ import {
   faProjectDiagram,
   faMask,
   faLayerGroup,
-  faQuestionCircle
+  faQuestionCircle,
 } from '@fortawesome/free-solid-svg-icons';
 
 // Import regular icons

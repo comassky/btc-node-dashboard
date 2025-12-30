@@ -1,4 +1,3 @@
-
 import type { GeneralStats } from './GeneralStats';
 import type { BlockChainInfo } from './BlockChainInfo';
 import type { NetworkInfoResponse } from './NetworkInfoResponse';

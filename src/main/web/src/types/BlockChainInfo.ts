@@ -1,4 +1,3 @@
-
 /**
  * Blockchain info returned by the Bitcoin node.
  */

@@ -36,7 +36,7 @@ const DEFAULT_DATA: DashboardData = {
     connections: 0,
     networkactive: false,
     networks: [],
-    localaddresses: []
+    localaddresses: [],
   },
   upTime: 0,
   inboundPeer: [],
@@ -53,7 +53,7 @@ const DEFAULT_DATA: DashboardData = {
     mempoolminfee: 0,
     minrelaytxfee: 0,
     unbroadcastcount: 0,
-    total_fee: 0
+    total_fee: 0,
   },
 };
 
@@ -67,7 +67,10 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const onDataReceived = (rawData: Partial<DashboardData>) => {
     deepMerge(dataState, rawData);
   };
-  const { isConnected, rpcConnected, errorMessage, isRetrying, connect, disconnect } = useWebSocket(WS_URL, onDataReceived);
+  const { isConnected, rpcConnected, errorMessage, isRetrying, connect, disconnect } = useWebSocket(
+    WS_URL,
+    onDataReceived
+  );
 
   // --- Actions ---
   const loadConfig = async () => {

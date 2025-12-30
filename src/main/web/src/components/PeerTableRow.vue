@@ -2,8 +2,17 @@
   <tr class="peer-table-row">
     <td class="td-cell">{{ peer.id }}</td>
     <td class="td-cell td-overflow">
-      <Tooltip :text="`Show Bitnodes page for this node: ${peer.addr}`" position="bottom" horizontal="left">
-        <a class="peer-link" :href="`https://bitnodes.io/nodes/${peer.addr.replace(':', '-')}/`" target="_blank" rel="noopener noreferrer">
+      <Tooltip
+        :text="`Show Bitnodes page for this node: ${peer.addr}`"
+        position="bottom"
+        horizontal="left"
+      >
+        <a
+          class="peer-link"
+          :href="`https://bitnodes.io/nodes/${peer.addr.replace(':', '-')}/`"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           {{ peer.addr }}
         </a>
       </Tooltip>
@@ -20,7 +29,11 @@
     </td>
     <td class="td-cell">{{ formatSecondsWithSuffix(peer.timeoffset) }}</td>
     <td class="td-cell">
-      <Tooltip :text="peer.conntime ? `Connected at: ${formatTimestampToLocale(peer.conntime)}` : 'N/A'" position="bottom" horizontal="left">
+      <Tooltip
+        :text="peer.conntime ? `Connected at: ${formatTimestampToLocale(peer.conntime)}` : 'N/A'"
+        position="bottom"
+        horizontal="left"
+      >
         <span>{{ formatRelativeTimeSince(peer.conntime) }}</span>
       </Tooltip>
     </td>
@@ -29,7 +42,11 @@
         <span>{{ peer.network || 'N/A' }}</span>
       </Tooltip>
     </td>
-    <td class="td-cell font-medium" :class="[`text-${type === 'inbound' ? 'status-success' : 'accent'}`]" :title="'Connection type: ' + peer.connection_type">
+    <td
+      class="td-cell font-medium"
+      :class="[`text-${type === 'inbound' ? 'status-success' : 'accent'}`]"
+      :title="'Connection type: ' + peer.connection_type"
+    >
       {{ peer.connection_type }}
     </td>
     <td class="td-cell">
@@ -38,12 +55,20 @@
       </Tooltip>
     </td>
     <td class="td-cell">
-      <Tooltip :text="formatBytesLocale(peer.bytesrecv) + ' Bytes'" position="bottom" horizontal="left">
+      <Tooltip
+        :text="formatBytesLocale(peer.bytesrecv) + ' Bytes'"
+        position="bottom"
+        horizontal="left"
+      >
         <span>{{ formatBytesIEC(peer.bytesrecv) }}</span>
       </Tooltip>
     </td>
     <td class="td-cell">
-      <Tooltip :text="formatBytesLocale(peer.bytessent) + ' Bytes'" position="bottom" horizontal="left">
+      <Tooltip
+        :text="formatBytesLocale(peer.bytessent) + ' Bytes'"
+        position="bottom"
+        horizontal="left"
+      >
         <span>{{ formatBytesIEC(peer.bytessent) }}</span>
       </Tooltip>
     </td>
@@ -51,7 +76,14 @@
 </template>
 
 <script setup lang="ts">
-import { formatSecondsWithSuffix, formatPingSmart, formatRelativeTimeSince, formatBytesIEC, formatTimestampToLocale, formatBytesLocale } from '@utils/formatting';
+import {
+  formatSecondsWithSuffix,
+  formatPingSmart,
+  formatRelativeTimeSince,
+  formatBytesIEC,
+  formatTimestampToLocale,
+  formatBytesLocale,
+} from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
 import type { Peer } from '../types';
 const props = defineProps<{ peer: Peer; type: 'inbound' | 'outbound' }>();

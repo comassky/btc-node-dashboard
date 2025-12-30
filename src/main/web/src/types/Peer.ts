@@ -1,4 +1,3 @@
-
 /**
  * Represents a peer connected to the Bitcoin node.
  */

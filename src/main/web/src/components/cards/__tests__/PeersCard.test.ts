@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import type { GeneralStats } from '../../../types';
 
 describe('PeersCard.vue', () => {
-
   const slotStub = { template: '<div><slot /></div>' };
   const stats: GeneralStats = { totalPeers: 8, inboundCount: 3, outboundCount: 2 };
 
@@ -14,8 +13,8 @@ describe('PeersCard.vue', () => {
       props: { stats },
       global: {
         stubs: { Tooltip: slotStub, BaseCard: slotStub },
-        components: { FontAwesomeIcon }
-      }
+        components: { FontAwesomeIcon },
+      },
     });
     expect(wrapper.text()).toContain('Total Peers');
     expect(wrapper.text()).toContain('Inbound: 3');
@@ -28,12 +27,12 @@ describe('PeersCard.vue', () => {
       props: { stats, forceLowPeers: true },
       global: {
         stubs: { Tooltip: slotStub, BaseCard: slotStub },
-        components: { FontAwesomeIcon }
-      }
+        components: { FontAwesomeIcon },
+      },
     });
     expect(wrapper.text()).toContain('Low outbound connections');
     const icons = wrapper.findAllComponents(FontAwesomeIcon);
-    const hasWarningIcon = icons.some(icon => {
+    const hasWarningIcon = icons.some((icon) => {
       const iconProp = icon.props('icon');
       return Array.isArray(iconProp) && iconProp[1] === 'exclamation-triangle';
     });

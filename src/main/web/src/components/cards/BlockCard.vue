@@ -1,60 +1,105 @@
 <template>
-    <BaseCard :status="isOutOfSync ? 'error' : 'success'" interactive>
-        <div class="flex justify-between items-center">
-            <div :class="['text-2xl', 'sm:text-3xl', isOutOfSync ? 'text-status-error' : 'text-status-success']">
-                <font-awesome-icon :icon="['fas', 'cubes']" />
-            </div>
-            <div class="text-xs uppercase text-text-secondary font-medium">Current Block</div>
-        </div>
-        <Tooltip :text="'Current height of the blockchain. This is the number of blocks in the chain. Click to view on mempool.org.'" position="bottom" horizontal="center">
-            <a
-                :href="`https://mempool.space/block/${blockchain.blocks}`"
-                target="_blank"
-                rel="noopener noreferrer"
-                :class="['text-4xl', 'sm:text-5xl', 'font-light', 'mt-2', 'sm:mt-3', 'block', 'focus:text-status-warning', 'transition-colors', 'duration-150', 'outline-none', isOutOfSync ? 'text-status-error hover:text-accent' : 'text-status-success hover:text-accent']"
+  <BaseCard :status="isOutOfSync ? 'error' : 'success'" interactive>
+    <div class="flex items-center justify-between">
+      <div
+        :class="[
+          'text-2xl',
+          'sm:text-3xl',
+          isOutOfSync ? 'text-status-error' : 'text-status-success',
+        ]"
+      >
+        <font-awesome-icon :icon="['fas', 'cubes']" />
+      </div>
+      <div class="text-xs font-medium uppercase text-text-secondary">Current Block</div>
+    </div>
+    <Tooltip
+      :text="'Current height of the blockchain. This is the number of blocks in the chain. Click to view on mempool.org.'"
+      position="bottom"
+      horizontal="center"
+    >
+      <a
+        :href="`https://mempool.space/block/${blockchain.blocks}`"
+        target="_blank"
+        rel="noopener noreferrer"
+        :class="[
+          'text-4xl',
+          'sm:text-5xl',
+          'font-light',
+          'mt-2',
+          'sm:mt-3',
+          'block',
+          'focus:text-status-warning',
+          'transition-colors',
+          'duration-150',
+          'outline-none',
+          isOutOfSync
+            ? 'text-status-error hover:text-accent'
+            : 'text-status-success hover:text-accent',
+        ]"
+      >
+        {{ formattedBlockCount }}
+      </a>
+    </Tooltip>
+    <div
+      class="mt-1 overflow-visible border-t border-border-strong pt-1 text-xs text-text-secondary sm:mt-2 sm:pt-2 sm:text-sm"
+    >
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex-1">
+          <p class="mb-0.5 sm:mb-1">
+            <Tooltip
+              :text="'Number of block headers known to the node.'"
+              position="bottom"
+              horizontal="left"
             >
-                {{ formattedBlockCount }}
-            </a>
-        </Tooltip>
-        <div class="mt-1 sm:mt-2 pt-1 sm:pt-2 border-t border-border-strong text-xs sm:text-sm text-text-secondary overflow-visible">
-            <div class="flex items-center justify-between gap-3">
-                <div class="flex-1">
-                    <p class="mb-0.5 sm:mb-1">
-                        <Tooltip :text="'Number of block headers known to the node.'" position="bottom" horizontal="left">
-                            <font-awesome-icon :icon="['fas', 'list-ol']" class="mr-1" />
-                        </Tooltip>
-                        Headers:
-                        <span class="font-bold text-text-primary" :class="isSyncingComputed ? 'text-status-warning' : ''">
-                            {{ blockchain.headers }}
-                            <span v-if="isSyncingComputed && headerBlockDiff !== 0" class="text-status-warning"> (+{{ headerBlockDiff }})</span>
-                        </span>
-                    </p>
-                    <p class="mb-0.5 sm:mb-1">
-                        <Tooltip :text="'Time since the last block was found.'" position="bottom" horizontal="left">
-                            <font-awesome-icon :icon="['far', 'clock']" class="mr-1" />
-                        </Tooltip>
-                        Time:
-                        <span class="font-bold text-text-primary">
-                            {{ formatDistanceToNow(new Date(block.time * 1000), { addSuffix: true }) }}
-                        </span>
-                    </p>
-                    <p class="mb-0.5 sm:mb-1">
-                        <Tooltip :text="'Number of transactions in the current block.'" position="bottom" horizontal="left">
-                            <font-awesome-icon :icon="['fas', 'exchange-alt']" class="mr-1" />
-                        </Tooltip>
-                        Tx Count:
-                        <span class="font-bold text-text-primary">{{ block.nTx }}</span>
-                    </p>
-                </div>
-                <Tooltip v-if="isOutOfSync" :text="syncWarningMessage" position="bottom" horizontal="right">
-                    <div class="p-2 bg-status-error/10 border border-status-error/30 rounded text-status-error flex items-center gap-1 cursor-help animate-breathe flex-shrink-0">
-                        <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="text-xs" />
-                        <span class="text-xs font-medium">Node out of sync</span>
-                    </div>
-                </Tooltip>
-            </div>
+              <font-awesome-icon :icon="['fas', 'list-ol']" class="mr-1" />
+            </Tooltip>
+            Headers:
+            <span
+              class="font-bold text-text-primary"
+              :class="isSyncingComputed ? 'text-status-warning' : ''"
+            >
+              {{ blockchain.headers }}
+              <span v-if="isSyncingComputed && headerBlockDiff !== 0" class="text-status-warning">
+                (+{{ headerBlockDiff }})</span
+              >
+            </span>
+          </p>
+          <p class="mb-0.5 sm:mb-1">
+            <Tooltip
+              :text="'Time since the last block was found.'"
+              position="bottom"
+              horizontal="left"
+            >
+              <font-awesome-icon :icon="['far', 'clock']" class="mr-1" />
+            </Tooltip>
+            Time:
+            <span class="font-bold text-text-primary">
+              {{ formatDistanceToNow(new Date(block.time * 1000), { addSuffix: true }) }}
+            </span>
+          </p>
+          <p class="mb-0.5 sm:mb-1">
+            <Tooltip
+              :text="'Number of transactions in the current block.'"
+              position="bottom"
+              horizontal="left"
+            >
+              <font-awesome-icon :icon="['fas', 'exchange-alt']" class="mr-1" />
+            </Tooltip>
+            Tx Count:
+            <span class="font-bold text-text-primary">{{ block.nTx }}</span>
+          </p>
         </div>
-    </BaseCard>
+        <Tooltip v-if="isOutOfSync" :text="syncWarningMessage" position="bottom" horizontal="right">
+          <div
+            class="bg-status-error/10 border-status-error/30 animate-breathe flex flex-shrink-0 cursor-help items-center gap-1 rounded border p-2 text-status-error"
+          >
+            <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="text-xs" />
+            <span class="text-xs font-medium">Node out of sync</span>
+          </div>
+        </Tooltip>
+      </div>
+    </div>
+  </BaseCard>
 </template>
 
 <script setup lang="ts">
@@ -66,11 +111,14 @@ import BaseCard from '@components/BaseCard.vue';
 import { getHeaderBlockDiff, isSyncing, getSyncWarningMessage } from '@utils/nodeHealth';
 import type { BlockChainInfo, BlockInfoResponse } from '@types';
 
-const props = withDefaults(defineProps<{
+const props = withDefaults(
+  defineProps<{
     blockchain: BlockChainInfo;
     block: BlockInfoResponse;
     forceOutOfSync?: boolean;
-}>(), { forceOutOfSync: false });
+  }>(),
+  { forceOutOfSync: false }
+);
 
 // Format the number with a normal space as thousands separator, regardless of locale.
 // Regex explanation:
@@ -79,11 +127,14 @@ const props = withDefaults(defineProps<{
 //   - This inserts a space between every group of three digits from the right, except at the start.
 //   - Example: 1234567 => 1 234 567
 const formattedBlockCount = computed(() => {
-    return String(props.blockchain.blocks).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return String(props.blockchain.blocks).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 });
 const headerBlockDiff = computed(() => getHeaderBlockDiff(props.blockchain));
 const isSyncingComputed = computed(() => isSyncing(props.blockchain));
-const isOutOfSync = computed(() => props.forceOutOfSync || (props.blockchain.headers - props.blockchain.blocks > 2));
-const syncWarningMessage = computed(() => getSyncWarningMessage(props.blockchain, props.block, formatRelativeTimeSince));
-
+const isOutOfSync = computed(
+  () => props.forceOutOfSync || props.blockchain.headers - props.blockchain.blocks > 2
+);
+const syncWarningMessage = computed(() =>
+  getSyncWarningMessage(props.blockchain, props.block, formatRelativeTimeSince)
+);
 </script>

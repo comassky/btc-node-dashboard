@@ -2,15 +2,15 @@ name: DEVELOP / Docker Native (GraalVM)
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: ["develop"]
   pull_request:
-    branches: [ "develop" ]
+    branches: ["develop"]
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  GRAALVM_VERSION: '25'
+  GRAALVM_VERSION: "25"
 
 jobs:
   test:
@@ -24,8 +24,8 @@ jobs:
       - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
-          java-version: '25'
-          distribution: 'temurin'
+          java-version: "25"
+          distribution: "temurin"
           cache: maven
 
       - name: Run backend tests
@@ -34,8 +34,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
-          cache: 'npm'
+          node-version: "24"
+          cache: "npm"
           cache-dependency-path: src/main/web/package-lock.json
 
       - name: Install frontend dependencies
@@ -63,14 +63,14 @@ jobs:
         uses: graalvm/setup-graalvm@v1
         with:
           java-version: ${{ env.GRAALVM_VERSION }}
-          distribution: 'graalvm-community'
+          distribution: "graalvm-community"
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          native-image-job-reports: 'true'
+          native-image-job-reports: "true"
 
       - name: Set up Maven
         uses: stCarolas/setup-maven@v5
         with:
-          maven-version: '3.9.12'
+          maven-version: "3.9.12"
 
       - name: Cache Maven packages
         uses: actions/cache@v4
@@ -110,7 +110,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@v4.0.0
         with:
-          cosign-release: 'v3.0.3'
+          cosign-release: "v3.0.3"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -127,9 +127,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-            tags: |
-              type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
 
       - name: Build and push Docker image
         id: build-and-push

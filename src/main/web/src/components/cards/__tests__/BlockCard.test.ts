@@ -6,7 +6,6 @@ import type { BlockChainInfo } from '../../../types';
 import type { BlockInfoResponse } from '../../../types';
 
 describe('BlockCard.vue', () => {
-
   const slotStub = { template: '<div><slot /></div>' };
 
   const blockchain: BlockChainInfo = {
@@ -25,15 +24,19 @@ describe('BlockCard.vue', () => {
     pruneheight: null,
   };
 
-  const block: BlockInfoResponse = { time: Math.floor(Date.now() / 1000), nTx: 2000, hash: 'somehash' };
+  const block: BlockInfoResponse = {
+    time: Math.floor(Date.now() / 1000),
+    nTx: 2000,
+    hash: 'somehash',
+  };
 
   it('renders block count and headers', () => {
     const wrapper = mount(BlockCard, {
       props: { blockchain, block },
       global: {
         stubs: { Tooltip: slotStub, BaseCard: slotStub },
-        components: { FontAwesomeIcon }
-      }
+        components: { FontAwesomeIcon },
+      },
     });
     expect(wrapper.text().replace(/\s/g, '')).toContain('123456');
     expect(wrapper.text()).toContain('Headers:');
@@ -45,12 +48,12 @@ describe('BlockCard.vue', () => {
       props: { blockchain, block, forceOutOfSync: true },
       global: {
         stubs: { Tooltip: slotStub, BaseCard: slotStub },
-        components: { FontAwesomeIcon }
-      }
+        components: { FontAwesomeIcon },
+      },
     });
     expect(wrapper.text()).toContain('Node out of sync');
     const icons = wrapper.findAllComponents(FontAwesomeIcon);
-    const hasWarningIcon = icons.some(icon => {
+    const hasWarningIcon = icons.some((icon) => {
       const iconProp = icon.props('icon');
       return Array.isArray(iconProp) && iconProp[1] === 'exclamation-circle';
     });

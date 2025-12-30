@@ -1,6 +1,7 @@
 /* Shared animations */
 @keyframes breathe {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.4;
     transform: scale(0.98);
   }

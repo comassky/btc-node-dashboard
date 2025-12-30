@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import type { MempoolInfoResponse } from '../../../types/MempoolInfoResponse';
 
 describe('MempoolInfoCard.vue', () => {
-
   const slotStub = { template: '<div><slot /></div>' };
 
   const mempoolInfo: MempoolInfoResponse = {
@@ -17,7 +16,7 @@ describe('MempoolInfoCard.vue', () => {
     mempoolminfee: 0.00001,
     minrelaytxfee: 0.00001,
     unbroadcastcount: 5,
-    total_fee: 0.5
+    total_fee: 0.5,
   };
 
   it('renders mempool info fields', () => {
@@ -25,8 +24,8 @@ describe('MempoolInfoCard.vue', () => {
       props: { mempoolInfo },
       global: {
         stubs: { BaseCard: slotStub },
-        components: { FontAwesomeIcon }
-      }
+        components: { FontAwesomeIcon },
+      },
     });
     expect(wrapper.text()).toContain('Transactions');
     expect(wrapper.text()).toContain('1000');

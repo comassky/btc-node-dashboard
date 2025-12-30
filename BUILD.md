@@ -10,7 +10,8 @@ In CI, the Maven build (`./mvnw clean package`) runs all tests and produces the 
   ```bash
   ./mvnw clean package -Pnative -DskipTests
   ```
-git clone https://github.com/comassky/btc-node-dashboard.git
+  git clone https://github.com/comassky/btc-node-dashboard.git
+
 # Build and Run Guide
 
 Complete guide for building and deploying the Bitcoin Node Dashboard.
@@ -22,7 +23,7 @@ Complete guide for building and deploying the Bitcoin Node Dashboard.
 
 ## 🚀 Quick Start
 
-```bash
+````bash
 # Clone
 git clone https://github.com/comassky/btc-node-dashboard.git
 cd btc-node-dashboard
@@ -42,18 +43,22 @@ This guide explains how to build and deploy the Bitcoin Node Dashboard.
 
 ```bash
 # Clone repository
-```
+````
+
 cd btc-node-dashboard
 
 # Configure RPC
+
 export RPC_HOST=localhost
 export RPC_PORT=8332
 export RPC_USER=your_username
 export RPC_PASS=your_password
 
 # Start backend with hot reload
-./mvnw quarkus:dev  # http://localhost:8080
-```
+
+./mvnw quarkus:dev # http://localhost:8080
+
+````
 
 ## 🔨 Build Options
 
@@ -67,7 +72,7 @@ export RPC_PASS=your_password
 # GraalVM Native (fast startup, low memory)
 ./mvnw clean package -Pnative
 ./target/btc-node-dashboard-*-runner
-```
+````
 
 ## 🐳 Docker
 
@@ -87,7 +92,6 @@ java -jar target/quarkus-app/quarkus-run.jar
 # Custom profile
 java -Dquarkus.profile=staging -jar target/quarkus-app/quarkus-run.jar
 ```
-
 
 ## 🎨 Frontend Development
 
@@ -110,6 +114,7 @@ npm run dev
 The Vite dev server will start on `http://localhost:5173` with proxy configured to forward API/WebSocket requests to `http://localhost:8080`.
 
 **Note**: You still need to run the backend separately:
+
 ```bash
 # In project root
 ./mvnw quarkus:dev
@@ -131,12 +136,14 @@ The Maven build automatically runs `npm install` and `npm run build` to bundle t
 ## 🚧 Troubleshooting
 
 **Build fails**: Clear cache, rebuild
+
 ```bash
 rm -rf node_modules target
 ./mvnw clean install
 ```
 
 **Can't connect to Bitcoin Core**: Verify RPC settings, test connection
+
 ```bash
 curl --user user:pass \
   --data-binary '{"method":"getblockchaininfo"}' \
@@ -144,6 +151,7 @@ curl --user user:pass \
 ```
 
 **Port 8080 in use**: Change port
+
 ```bash
 export QUARKUS_HTTP_PORT=8888
 ./mvnw quarkus:dev

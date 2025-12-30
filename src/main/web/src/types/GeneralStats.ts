@@ -1,4 +1,3 @@
-
 /**
  * General peer statistics for the dashboard.
  */

@@ -23,28 +23,30 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     vue(),
     // VitePWA désactivé
-    ...(mode === 'production' ? [
-      visualizer({
-        filename: '../../stats.html',
-        open: false,
-        gzipSize: true,
-        brotliSize: false
-      }),
-      //Gzip
-      viteCompression({
-        algorithm: 'gzip',
-        ext: '.gz',
-        threshold: 1024,
-        deleteOriginFile: false
-      }),
-      // Brotli
-      viteCompression({
-        algorithm: 'brotliCompress',
-        ext: '.br',
-        threshold: 1024,
-        deleteOriginFile: false
-      })
-    ] : [])
+    ...(mode === 'production'
+      ? [
+          visualizer({
+            filename: '../../stats.html',
+            open: false,
+            gzipSize: true,
+            brotliSize: false,
+          }),
+          //Gzip
+          viteCompression({
+            algorithm: 'gzip',
+            ext: '.gz',
+            threshold: 1024,
+            deleteOriginFile: false,
+          }),
+          // Brotli
+          viteCompression({
+            algorithm: 'brotliCompress',
+            ext: '.br',
+            threshold: 1024,
+            deleteOriginFile: false,
+          }),
+        ]
+      : []),
   ],
 
   base: './',
@@ -76,7 +78,7 @@ export default defineConfig(({ mode }) => ({
       output: {
         entryFileNames: 'assets/js/[hash:16].js',
         chunkFileNames: 'assets/js/[hash:16].js',
-        assetFileNames: ({name}) => {
+        assetFileNames: ({ name }) => {
           if (/\.css$/i.test(name ?? '')) {
             return 'assets/css/[hash:16][extname]';
           }

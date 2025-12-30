@@ -28,8 +28,8 @@ const mockBlock: BlockInfoResponse = {
 
 const mountOptions = {
   global: {
-    components: { FontAwesomeIcon }
-  }
+    components: { FontAwesomeIcon },
+  },
 };
 
 describe('Status.vue', () => {
@@ -43,7 +43,7 @@ describe('Status.vue', () => {
         blockchain: mockBlockchain,
         block: mockBlock,
       },
-      ...mountOptions
+      ...mountOptions,
     });
 
     const text = wrapper.text();
@@ -61,7 +61,7 @@ describe('Status.vue', () => {
         blockchain: mockBlockchain,
         block: mockBlock,
       },
-      ...mountOptions
+      ...mountOptions,
     });
 
     const text = wrapper.text();
@@ -80,7 +80,7 @@ describe('Status.vue', () => {
         blockchain: mockBlockchain,
         block: mockBlock,
       },
-      ...mountOptions
+      ...mountOptions,
     });
 
     expect(wrapper.text()).toContain('Reconnecting...');
@@ -99,7 +99,7 @@ describe('Status.vue', () => {
         blockchain: mockBlockchain,
         block: mockBlock,
       },
-      ...mountOptions
+      ...mountOptions,
     });
 
     expect(wrapper.text()).toContain('Low outbound peers');

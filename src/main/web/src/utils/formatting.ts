@@ -5,15 +5,13 @@
  */
 export function formatBytesLocale(bytes?: number | null): string {
   if (bytes == null || isNaN(bytes)) return 'N/A';
-  const locale = typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'en-US';
+  const locale =
+    typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'en-US';
   return bytes.toLocaleString(locale);
 }
 
-
-import { filesize } from "filesize";
+import { filesize } from 'filesize';
 import { intervalToDuration, format as formatDate, formatDuration } from 'date-fns';
-
-
 
 /**
  * Formats a duration in seconds or a timestamp as a human-readable string (e.g., "2d 3h", "5m 10s").
@@ -29,10 +27,14 @@ export const formatDurationOrTimestamp = (input?: number | null): string => {
     seconds = Math.max(0, now - seconds);
   }
   const durationObj = intervalToDuration({ start: 0, end: seconds * 1000 });
-  return formatDuration(durationObj, { format: ['days', 'hours', 'minutes', 'seconds'], zero: false, delimiter: ' ' }) || '<1s';
+  return (
+    formatDuration(durationObj, {
+      format: ['days', 'hours', 'minutes', 'seconds'],
+      zero: false,
+      delimiter: ' ',
+    }) || '<1s'
+  );
 };
-
-
 
 /**
  * Formats bytes into human-readable units (B, KiB, MiB, ...).
@@ -46,7 +48,6 @@ export const formatBytesIEC = (bytes: number, decimals = 2): string => {
   return filesize(bytes, { standard: 'iec', base: decimals });
 };
 
-
 /**
  * Formats a time offset in seconds as a string with 's' suffix.
  * @param timeoffset Time offset in seconds
@@ -54,9 +55,6 @@ export const formatBytesIEC = (bytes: number, decimals = 2): string => {
  */
 export const formatSecondsWithSuffix = (timeoffset?: number | null): string =>
   `${Number(timeoffset ?? 0).toFixed(1)} s`;
-
-
-
 
 /**
  * Formats a duration in seconds as a compact string (e.g., "1d 2h 5m 10s").
@@ -66,7 +64,13 @@ export const formatSecondsWithSuffix = (timeoffset?: number | null): string =>
 export const formatDurationFull = (seconds?: number | null): string => {
   if (!seconds || seconds < 1) return '<1s';
   const durationObj = intervalToDuration({ start: 0, end: seconds * 1000 });
-  return formatDuration(durationObj, { format: ['days', 'hours', 'minutes', 'seconds'], zero: false, delimiter: ' ' }) || '<1s';
+  return (
+    formatDuration(durationObj, {
+      format: ['days', 'hours', 'minutes', 'seconds'],
+      zero: false,
+      delimiter: ' ',
+    }) || '<1s'
+  );
 };
 
 /**

@@ -29,7 +29,7 @@ describe('WebSocket Reconnection Logic', () => {
 
   it('should use exponential backoff', () => {
     const delays = [0, 1, 2, 3, 4].map(calculateReconnectDelay);
-    
+
     for (let i = 1; i < delays.length; i++) {
       expect(delays[i]).toBeGreaterThanOrEqual(delays[i - 1]);
     }
@@ -79,8 +79,10 @@ describe('Peer Filtering Logic', () => {
     subver?: string;
   }
 
-  const filterInboundPeers = (peers: TestPeer[]): TestPeer[] => peers.filter(p => p.inbound === true);
-  const filterOutboundPeers = (peers: TestPeer[]): TestPeer[] => peers.filter(p => p.inbound === false);
+  const filterInboundPeers = (peers: TestPeer[]): TestPeer[] =>
+    peers.filter((p) => p.inbound === true);
+  const filterOutboundPeers = (peers: TestPeer[]): TestPeer[] =>
+    peers.filter((p) => p.inbound === false);
   const groupBySubversion = (peers: TestPeer[]): Record<string, TestPeer[]> => {
     return peers.reduce((acc: Record<string, TestPeer[]>, p: TestPeer) => {
       const key = p.subver || 'Unknown';
@@ -99,7 +101,7 @@ describe('Peer Filtering Logic', () => {
 
     const inbound = filterInboundPeers(peers);
     expect(inbound).toHaveLength(2);
-    expect(inbound.every(p => p.inbound)).toBe(true);
+    expect(inbound.every((p) => p.inbound)).toBe(true);
   });
 
   it('should filter outbound peers correctly', () => {
@@ -111,7 +113,7 @@ describe('Peer Filtering Logic', () => {
 
     const outbound = filterOutboundPeers(peers);
     expect(outbound).toHaveLength(2);
-    expect(outbound.every(p => !p.inbound)).toBe(true);
+    expect(outbound.every((p) => !p.inbound)).toBe(true);
   });
 
   it('should group peers by subversion', () => {
@@ -153,7 +155,10 @@ describe('Chart Data Preparation', () => {
   };
 
   const calculatePercentages = (counts: Map<string, number>): SubverStats[] => {
-    const total = Array.from(counts.values()).reduce((sum: number, count: number) => sum + count, 0);
+    const total = Array.from(counts.values()).reduce(
+      (sum: number, count: number) => sum + count,
+      0
+    );
     if (total === 0) return [];
 
     return Array.from(counts.entries()).map(([server, count]: [string, number]) => ({
@@ -200,7 +205,10 @@ describe('Chart Data Preparation', () => {
     ]);
 
     const percentages = calculatePercentages(counts);
-    const total = percentages.reduce((sum: number, p: { percentage: number }) => sum + p.percentage, 0);
+    const total = percentages.reduce(
+      (sum: number, p: { percentage: number }) => sum + p.percentage,
+      0
+    );
     expect(total).toBeCloseTo(100, 1);
   });
 });

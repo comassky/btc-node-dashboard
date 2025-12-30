@@ -1,4 +1,3 @@
-
 /**
  * Information about a specific network interface.
  */

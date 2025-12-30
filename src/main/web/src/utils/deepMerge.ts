@@ -7,7 +7,8 @@
  * @returns The merged target object.
  */
 export function deepMerge<T extends object, S extends object>(target: T, source: S): T & S {
-  const isObject = (obj: any): obj is object => obj && typeof obj === 'object' && !Array.isArray(obj);
+  const isObject = (obj: any): obj is object =>
+    obj && typeof obj === 'object' && !Array.isArray(obj);
 
   if (!isObject(target) || !isObject(source)) {
     // This case should not happen based on type constraints, but as a runtime safeguard.
