@@ -44,6 +44,9 @@ jobs:
       - name: Install dependencies (pnpm)
         run: pnpm install
 
+      - name: Install Node.js and pnpm (frontend-maven-plugin)
+        run: mvn frontend:install-node-and-pnpm
+
       - name: Run frontend tests
         working-directory: src/main/web
         run: pnpm test -- --run
