@@ -27,10 +27,11 @@ if [ -n "$latest_node" ]; then
     sed -i '' "s|<node.lts.version>v[0-9.]*</node.lts.version>|<node.lts.version>${latest_node}</node.lts.version>|" pom.xml
     sed -i '' "s|<node.lts.version></node.lts.version>|<node.lts.version>${latest_node}</node.lts.version>|" pom.xml
     echo -e "\033[1;32m[UPDATED]\033[0m Node.js LTS version: ${latest_node} (pom.xml)"
-    # Pour les workflows, retirer le 'v' éventuel
+    # Pour les workflows, toujours retirer le 'v' éventuel
     latest_node_nov=$(echo "$latest_node" | sed 's/^v//')
     for wf in .github/workflows/docker*.yml; do
         if grep -q 'node-version:' "$wf"; then
+            sed -i '' "s/node-version: \"v[0-9.]*\"/node-version: \"${latest_node_nov}\"/g" "$wf"
             sed -i '' "s/node-version: \"[0-9.]*\"/node-version: \"${latest_node_nov}\"/g" "$wf"
             echo -e "\033[1;32m[UPDATED]\033[0m Node.js LTS version in $wf: ${latest_node_nov}"
         fi

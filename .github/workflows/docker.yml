@@ -35,22 +35,19 @@ jobs:
           cache: maven
 
 
-      - name: Set up Node.js
+
+      - name: Set up Node.js & pnpm
         uses: actions/setup-node@v4
         with:
-          node-version: "v24.12.0"
+          node-version: "24.12.0"
           cache: "npm"
           cache-dependency-path: src/main/web/pnpm-lock.yaml
-
-      - name: Install frontend dependencies
+      - name: Install pnpm globally
         working-directory: src/main/web
         run: npm install -g pnpm@10.26.2
       - name: Install dependencies (pnpm)
         working-directory: src/main/web
         run: pnpm install
-
-      - name: Install Node.js and pnpm (frontend-maven-plugin)
-        run: mvn frontend:install-node-and-pnpm
 
       - name: Run backend tests
         run: mvn test
