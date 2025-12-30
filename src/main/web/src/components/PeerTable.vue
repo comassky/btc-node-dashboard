@@ -9,6 +9,41 @@ formatTimestampToLocale } from '@utils/formatting';
       {{ type === 'inbound' ? 'Inbound Peers' : 'Outbound Peers' }} ({{ peers.length }})
     </h4>
 
+    <!-- Averages above the table -->
+    <div
+      class="bg-status-success/10 my-6 flex flex-wrap gap-8 rounded-lg border border-border-strong p-4 shadow-sm"
+    >
+      <div class="flex min-w-[120px] flex-col items-start">
+        <span class="mb-1 text-xs text-text-secondary">Average Ping</span>
+        <span class="text-lg font-semibold text-status-success text-text-primary">{{
+          avgMinPing !== null ? formatPingSmart(avgMinPing) : 'N/A'
+        }}</span>
+      </div>
+      <div class="flex min-w-[120px] flex-col items-start">
+        <span class="mb-1 text-xs text-text-secondary">Average Received</span>
+        <span class="text-lg font-semibold text-status-success text-text-primary">{{
+          avgBytesRecv !== null ? formatBytesIEC(avgBytesRecv) : 'N/A'
+        }}</span>
+      </div>
+      <div class="flex min-w-[120px] flex-col items-start">
+        <span class="mb-1 text-xs text-text-secondary">Average Sent</span>
+        <span class="text-lg font-semibold text-status-success text-text-primary">{{
+          avgBytesSent !== null ? formatBytesIEC(avgBytesSent) : 'N/A'
+        }}</span>
+      </div>
+      <div class="flex min-w-[120px] flex-col items-start">
+        <span class="mb-1 text-xs text-text-secondary">Average Time Offset</span>
+        <span class="text-lg font-semibold text-status-success text-text-primary">{{
+          avgTimeOffset !== null ? formatSecondsWithSuffix(avgTimeOffset) : 'N/A'
+        }}</span>
+      </div>
+      <div class="flex min-w-[120px] flex-col items-start">
+        <span class="mb-1 text-xs text-text-secondary">Average Connection Time</span>
+        <span class="text-lg font-semibold text-status-success text-text-primary">{{
+          avgConnTime !== null ? formatRelativeTimeSince(avgConnTime) : 'N/A'
+        }}</span>
+      </div>
+    </div>
     <div class="peer-table-wrapper mt-4 overflow-x-auto rounded-lg border border-border-strong">
       <table class="peer-table w-full text-sm">
         <thead>
@@ -93,6 +128,7 @@ formatTimestampToLocale } from '@utils/formatting';
           </tr>
         </thead>
         <tbody>
+          <!-- Peer Rows -->
           <PeerTableRow
             v-for="peer in sortedPeers"
             :key="type + '-' + peer.id"
@@ -112,6 +148,12 @@ import type { Peer } from '../types';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import {
+  formatBytesIEC,
+  formatPingSmart,
+  formatSecondsWithSuffix,
+  formatRelativeTimeSince,
+} from '@/utils/formatting';
 
 library.add(faArrowDown, faArrowUp);
 
@@ -145,4 +187,17 @@ const sortedPeers = computed(() => {
       : String(bVal).localeCompare(String(aVal));
   });
 });
+
+// Averages for relevant numeric columns
+const average = (arr: (number | null | undefined)[]) => {
+  const nums = arr.filter((v): v is number => typeof v === 'number' && !isNaN(v));
+  if (!nums.length) return null;
+  return nums.reduce((a, b) => a + b, 0) / nums.length;
+};
+
+const avgMinPing = computed(() => average(props.peers.map((p) => p.minping)));
+const avgBytesRecv = computed(() => average(props.peers.map((p) => p.bytesrecv)));
+const avgBytesSent = computed(() => average(props.peers.map((p) => p.bytessent)));
+const avgTimeOffset = computed(() => average(props.peers.map((p) => p.timeoffset)));
+const avgConnTime = computed(() => average(props.peers.map((p) => p.conntime)));
 </script>
