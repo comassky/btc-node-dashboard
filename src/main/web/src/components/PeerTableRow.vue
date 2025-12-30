@@ -92,12 +92,12 @@ const props = defineProps<{ peer: Peer; type: 'inbound' | 'outbound' }>();
 <style scoped>
 /* Util classes for table row and cells */
 .peer-table-row {
-  border-bottom: 1px solid var(--color-border-strong);
+  border-bottom: 1px solid var(--border-strong);
   transition: background 0.15s;
   white-space: nowrap;
 }
 .peer-table-row:hover {
-  background: var(--color-bg-card);
+  background: var(--bg-card);
 }
 .td-cell {
   padding: 1rem;
@@ -109,14 +109,14 @@ const props = defineProps<{ peer: Peer; type: 'inbound' | 'outbound' }>();
 .peer-link {
   max-width: 150px;
   display: inline-block;
-  color: white;
+  color: var(--text-primary);
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   transition: color 0.2s;
 }
 .peer-link:hover {
-  color: #f97316;
+  color: var(--accent);
 }
 .peer-subver {
   max-width: 150px;

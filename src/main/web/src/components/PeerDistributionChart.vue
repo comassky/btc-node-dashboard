@@ -17,7 +17,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(faArrowDown, faArrowUp);
 
 Chart.register(ArcElement, Tooltip, Legend, PieController);
-Chart.defaults.animation = false;
 
 // --- Color utilities ---
 
@@ -50,19 +49,6 @@ const generateColors = (num: number) => {
 };
 
 // --- Chart.js config ---
-const updateChartDefaults = () => {
-  const textPrimary = getCssVar('--text-primary');
-  const borderStrong = getCssVar('--border-strong');
-  const bgCard = getCssVar('--bg-card');
-  const textSecondary = getCssVar('--text-secondary');
-  Chart.defaults.color = textPrimary;
-  Chart.defaults.borderColor = borderStrong;
-  Chart.defaults.backgroundColor = bgCard;
-  Chart.defaults.plugins.legend.labels.color = textPrimary;
-  Chart.defaults.plugins.tooltip.backgroundColor = bgCard;
-  Chart.defaults.plugins.tooltip.bodyColor = textPrimary;
-  Chart.defaults.plugins.tooltip.titleColor = textSecondary;
-};
 const getChartOptions = (): ChartOptions<'doughnut'> => {
   const bgCard = getCssVar('--bg-card');
   const textPrimary = getCssVar('--text-primary');
@@ -72,9 +58,14 @@ const getChartOptions = (): ChartOptions<'doughnut'> => {
     responsive: true,
     maintainAspectRatio: false,
     animation: false,
+    color: textPrimary,
+    borderColor: borderStrong,
     layout: { padding: 0 },
     plugins: {
-      legend: { display: false },
+      legend: {
+        display: false,
+        labels: { color: textPrimary },
+      },
       tooltip: {
         mode: 'point',
         intersect: true,
@@ -107,24 +98,26 @@ const props = defineProps<{
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 let chartInstance: Chart | null = null;
 const hoveredIndex = ref<number | null>(null);
+const styleVersion = ref(0);
 const chartLabels = computed(() => props.peers.map((p) => p.server || '[Unknown]'));
-const chartColors = computed(() => generateColors(props.peers.length));
+const chartColors = computed(() => {
+  styleVersion.value; // Dependency to force update on theme change
+  return generateColors(props.peers.length);
+});
 
 // --- Chart.js helpers ---
-const extractChartData = (data: SubverDistribution[]) => {
+const extractChartData = (data: SubverDistribution[], colors: string[]) => {
   const labels = data.map((d) => d.server || '[Unknown]');
   const percentages = data.map((d) => d.percentage);
-  const backgroundColors = generateColors(data.length);
-  return { labels, percentages, backgroundColors };
+  return { labels, percentages, backgroundColors: colors };
 };
 const destroyChart = () => {
   chartInstance?.destroy();
   chartInstance = null;
 };
-const initChart = (data: SubverDistribution[]): Chart | null => {
+const initChart = (data: SubverDistribution[], colors: string[]): Chart | null => {
   if (!canvasRef.value) return null;
-  updateChartDefaults();
-  const { labels, percentages, backgroundColors } = extractChartData(data);
+  const { labels, percentages, backgroundColors } = extractChartData(data, colors);
   const ctx = canvasRef.value.getContext('2d');
   if (!ctx) return null;
   return new Chart(ctx, {
@@ -144,9 +137,8 @@ const initChart = (data: SubverDistribution[]): Chart | null => {
     options: getChartOptions(),
   });
 };
-const updateChartData = (chart: Chart, data: SubverDistribution[]) => {
-  updateChartDefaults();
-  const { labels, percentages, backgroundColors } = extractChartData(data);
+const updateChartData = (chart: Chart, data: SubverDistribution[], colors: string[]) => {
+  const { labels, percentages, backgroundColors } = extractChartData(data, colors);
   chart.data.labels = labels;
   chart.data.datasets[0].data = percentages;
   chart.data.datasets[0].backgroundColor = backgroundColors;
@@ -177,22 +169,27 @@ const handleLegendLeave = () => {
 watch(
   () => props.peers,
   (val) => {
-    if (chartInstance) updateChartData(chartInstance, val);
+    if (chartInstance) updateChartData(chartInstance, val, chartColors.value);
     else
       nextTick(() => {
-        if (!chartInstance) chartInstance = initChart(val);
+        if (!chartInstance) chartInstance = initChart(val, chartColors.value);
       });
   },
   { deep: true, immediate: true }
 );
 watch(
   () => props.isDarkMode,
-  () => {
+  async () => {
+    await nextTick(); // Wait for DOM/CSS updates
     invalidateCssCache();
-    destroyChart();
-    nextTick(() => {
-      chartInstance = initChart(props.peers);
-    });
+    styleVersion.value++;
+    if (chartInstance) {
+      chartInstance.options = getChartOptions();
+      if (chartInstance.data.datasets[0]) {
+        chartInstance.data.datasets[0].backgroundColor = chartColors.value;
+      }
+      chartInstance.update('none');
+    }
   }
 );
 onBeforeUnmount(destroyChart);

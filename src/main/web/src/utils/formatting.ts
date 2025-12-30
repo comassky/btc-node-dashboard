@@ -8,9 +8,14 @@ import { intervalToDuration, formatDuration } from 'date-fns';
  */
 export function formatBytesLocale(bytes?: number | null): string {
   if (bytes == null || isNaN(bytes)) return 'N/A';
-  const locale =
-    typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'en-US';
-  return bytes.toLocaleString(locale);
+  return bytes.toLocaleString();
+}
+
+/**
+ * Format a number with a space as thousands separator (e.g. 1234567 => '1 234 567')
+ */
+export function formatNumberWithSpace(n: number | string): string {
+  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
 /**

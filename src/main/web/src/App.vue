@@ -6,7 +6,6 @@ import { useMockData } from '@composables/useMockData';
 import { storeToRefs } from 'pinia';
 
 // Async Components
-const Status = defineAsyncComponent(() => import('@components/Status.vue'));
 const PeersCard = defineAsyncComponent(() => import('@components/cards/PeersCard.vue'));
 const BlockCard = defineAsyncComponent(() => import('@components/cards/BlockCard.vue'));
 const NodeCard = defineAsyncComponent(() => import('@components/cards/NodeCard.vue'));
@@ -15,10 +14,10 @@ const PeerDistributionChart = defineAsyncComponent(
 );
 const MempoolInfoCard = defineAsyncComponent(() => import('@components/cards/MempoolInfoCard.vue'));
 const PeerTable = defineAsyncComponent(() => import('@components/PeerTable.vue'));
-const Footer = defineAsyncComponent(() => import('@components/Footer.vue'));
-const BaseCardSkeleton = defineAsyncComponent(
-  () => import('@components/cards/BaseCardSkeleton.vue')
-);
+
+import Status from '@components/Status.vue';
+import Footer from '@components/Footer.vue';
+import BaseCardSkeleton from '@components/cards/BaseCardSkeleton.vue';
 
 // Store
 const dashboardStore = useDashboardStore();
@@ -48,6 +47,24 @@ const {
 
 // Computed properties for cleaner template logic
 const shouldShowContent = computed(() => MOCK_MODE.value || rpcConnected.value);
+
+const connectionState = computed(() => {
+  if (MOCK_MODE.value) {
+    const mockState = getMockConnectionState();
+    return {
+      isConnected: mockState.isConnected,
+      rpcConnected: mockState.rpcConnected,
+      errorMessage: mockState.errorMessage,
+      isRetrying: false,
+    };
+  }
+  return {
+    isConnected: isConnected.value,
+    rpcConnected: rpcConnected.value,
+    errorMessage: errorMessage.value,
+    isRetrying: isRetrying.value,
+  };
+});
 
 const themeIcons: { [key: string]: string[] } = {
   light: ['fas', 'sun'],
@@ -112,13 +129,13 @@ onBeforeUnmount(() => {
     <transition name="fade" mode="out-in">
       <Status
         v-if="MOCK_MODE || isConnected || isRetrying"
-        :isConnected="MOCK_MODE ? getMockConnectionState().isConnected : isConnected"
-        :rpcConnected="MOCK_MODE ? getMockConnectionState().rpcConnected : rpcConnected"
-        :errorMessage="MOCK_MODE ? getMockConnectionState().errorMessage : errorMessage"
+        :isConnected="connectionState.isConnected"
+        :rpcConnected="connectionState.rpcConnected"
+        :errorMessage="connectionState.errorMessage"
         :outboundPeers="dataState.generalStats.outboundCount"
         :blockchain="dataState.blockchainInfoResponse"
         :block="dataState.block"
-        :isRetrying="MOCK_MODE ? false : isRetrying"
+        :isRetrying="connectionState.isRetrying"
         key="status"
       />
     </transition>

@@ -22,15 +22,11 @@ export function useWebSocket(
   const errorMessage = ref<string | null>(null);
   const isRetrying = ref(false);
   let ws: ReconnectingWebSocket | null = null;
-  let listenersAttached = false;
 
   /**
    * Establishes a new WebSocket connection and sets up event listeners.
    */
   const attachListeners = (socket: ReconnectingWebSocket) => {
-    if (listenersAttached) return;
-    listenersAttached = true;
-
     socket.addEventListener('open', () => {
       isConnected.value = true;
       errorMessage.value = null;
@@ -78,7 +74,6 @@ export function useWebSocket(
         const OPEN = (ws as any).OPEN ?? WebSocket.OPEN;
         const CONNECTING = (ws as any).CONNECTING ?? WebSocket.CONNECTING;
         if (ready === OPEN || ready === CONNECTING) {
-          attachListeners(ws as ReconnectingWebSocket);
           return;
         }
       } catch (e) {}

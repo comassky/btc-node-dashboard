@@ -73,7 +73,10 @@ export function isNotFullySynced(blockchain: BlockChainInfo): boolean {
  * @returns True if node is out of sync
  */
 export function isNodeOutOfSync(blockchain: BlockChainInfo, block: BlockInfoResponse): boolean {
-  return isBlockTooOld(block.time) || isSyncing(blockchain) || isNotFullySynced(blockchain);
+  const blockTooOld = isBlockTooOld(block.time);
+  const syncing = isSyncing(blockchain);
+  const notFullySynced = isNotFullySynced(blockchain);
+  return blockTooOld || syncing || notFullySynced;
 }
 
 /**
@@ -89,15 +92,18 @@ export function getSyncWarningMessage(
   formatTimeSince: (timestamp: number) => string
 ): string {
   const progress = (blockchain.verificationprogress * 100).toFixed(2);
+  const blockTooOld = isBlockTooOld(block.time);
+  const syncing = isSyncing(blockchain);
+  const notFullySynced = isNotFullySynced(blockchain);
 
-  if (isBlockTooOld(block.time)) {
+  if (blockTooOld) {
     return `Last block is ${formatTimeSince(block.time)} old. Your node may have lost connection to the network or stopped syncing.`;
   }
-  if (isSyncing(blockchain)) {
+  if (syncing) {
     const headerBlockDiff = getHeaderBlockDiff(blockchain);
     return `Node is syncing: ${headerBlockDiff} blocks behind. Verification progress: ${progress}%`;
   }
-  if (isNotFullySynced(blockchain)) {
+  if (notFullySynced) {
     return `Node is still syncing. Verification progress: ${progress}%`;
   }
   return 'Node is out of sync with the blockchain.';

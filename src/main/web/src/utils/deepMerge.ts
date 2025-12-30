@@ -8,28 +8,25 @@
  */
 export function deepMerge<T extends object, S extends object>(target: T, source: S): T & S {
   const isObject = (obj: any): obj is object =>
-    obj && typeof obj === 'object' && !Array.isArray(obj);
+    obj !== null && typeof obj === 'object' && !Array.isArray(obj);
 
   if (!isObject(target) || !isObject(source)) {
-    // This case should not happen based on type constraints, but as a runtime safeguard.
     return target as T & S;
   }
 
-  // Treat target as an indexable record for dynamic key assignment
   const targetAsRecord = target as Record<string, any>;
 
-  for (const key in source) {
-    if (Object.prototype.hasOwnProperty.call(source, key)) {
-      const sourceValue = (source as any)[key];
-      const targetValue = targetAsRecord[key];
+  for (const key of Object.keys(source)) {
+    const sourceValue = (source as any)[key];
+    const targetValue = targetAsRecord[key];
 
-      if (isObject(sourceValue) && isObject(targetValue)) {
-        // Recurse for nested objects
-        targetAsRecord[key] = deepMerge(targetValue, sourceValue);
-      } else if (sourceValue !== undefined) {
-        // Assign primitive values, arrays, or if target property is not an object
-        targetAsRecord[key] = sourceValue;
-      }
+    if (Array.isArray(sourceValue) && Array.isArray(targetValue)) {
+      // Option: replace arrays (could be changed to concat or deep merge if needed)
+      targetAsRecord[key] = sourceValue.slice();
+    } else if (isObject(sourceValue) && isObject(targetValue)) {
+      targetAsRecord[key] = deepMerge(targetValue, sourceValue);
+    } else if (sourceValue !== undefined) {
+      targetAsRecord[key] = sourceValue;
     }
   }
 

@@ -17,7 +17,7 @@
           </a>
         </div>
         <div class="flex items-center gap-2">
-          <span class="rounded bg-bg-app px-2 py-1 font-mono text-xs">v{{ version }}</span>
+          <span class="rounded bg-bg-app px-2 py-1 font-mono text-xs">v{{ props.version }}</span>
           <a
             href="https://github.com/comassky/btc-node-dashboard"
             target="_blank"
@@ -33,12 +33,16 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 library.add(faGithub);
 
-const version = __APP_VERSION__;
-const currentYear = new Date().getFullYear();
+const props = withDefaults(defineProps<{ version?: string }>(), {
+  version: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev',
+});
+
+const currentYear = computed(() => new Date().getFullYear());
 </script>

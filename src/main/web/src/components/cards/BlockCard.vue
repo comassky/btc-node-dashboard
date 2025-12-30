@@ -110,6 +110,7 @@ import Tooltip from '@components/Tooltip.vue';
 import BaseCard from '@components/BaseCard.vue';
 import { getHeaderBlockDiff, isSyncing, getSyncWarningMessage } from '@utils/nodeHealth';
 import type { BlockChainInfo, BlockInfoResponse } from '@types';
+import { formatNumberWithSpace } from '@/utils/formatting';
 
 const props = withDefaults(
   defineProps<{
@@ -120,15 +121,7 @@ const props = withDefaults(
   { forceOutOfSync: false }
 );
 
-// Format the number with a normal space as thousands separator, regardless of locale.
-// Regex explanation:
-//   - /\B(?=(\d{3})+(?!\d))/g matches positions in the string that are not at a word boundary (\B)
-//     and are followed by one or more groups of three digits ((\d{3})+), but not followed by another digit (?!\d).
-//   - This inserts a space between every group of three digits from the right, except at the start.
-//   - Example: 1234567 => 1 234 567
-const formattedBlockCount = computed(() => {
-  return String(props.blockchain.blocks).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-});
+const formattedBlockCount = computed(() => formatNumberWithSpace(props.blockchain.blocks));
 const headerBlockDiff = computed(() => getHeaderBlockDiff(props.blockchain));
 const isSyncingComputed = computed(() => isSyncing(props.blockchain));
 const isOutOfSync = computed(

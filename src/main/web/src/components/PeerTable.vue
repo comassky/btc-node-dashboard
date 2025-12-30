@@ -171,29 +171,28 @@ function setSort(key: keyof Peer) {
   }
 }
 
+function compare(a: unknown, b: unknown, order: 'asc' | 'desc') {
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+  if (typeof a === 'number' && typeof b === 'number') {
+    return order === 'asc' ? a - b : b - a;
+  }
+  return order === 'asc' ? String(a).localeCompare(String(b)) : String(b).localeCompare(String(a));
+}
+
 const sortedPeers = computed(() => {
   const key = sortKey.value;
-  return [...props.peers].sort((a, b) => {
-    const aVal = a[key];
-    const bVal = b[key];
-    if (aVal == null && bVal == null) return 0;
-    if (aVal == null) return 1;
-    if (bVal == null) return -1;
-    if (typeof aVal === 'number' && typeof bVal === 'number') {
-      return sortOrder.value === 'asc' ? aVal - bVal : bVal - aVal;
-    }
-    return sortOrder.value === 'asc'
-      ? String(aVal).localeCompare(String(bVal))
-      : String(bVal).localeCompare(String(aVal));
-  });
+  const order = sortOrder.value;
+  return [...props.peers].sort((a, b) => compare(a[key], b[key], order));
 });
 
 // Averages for relevant numeric columns
-const average = (arr: (number | null | undefined)[]) => {
+
+function average(arr: Array<number | null | undefined>): number | null {
   const nums = arr.filter((v): v is number => typeof v === 'number' && !isNaN(v));
-  if (!nums.length) return null;
-  return nums.reduce((a, b) => a + b, 0) / nums.length;
-};
+  return nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : null;
+}
 
 const avgMinPing = computed(() => average(props.peers.map((p) => p.minping)));
 const avgBytesRecv = computed(() => average(props.peers.map((p) => p.bytesrecv)));

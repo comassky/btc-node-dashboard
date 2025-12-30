@@ -30,21 +30,20 @@ const props = defineProps<{
 const hasLowOutbound = computed(() => hasLowOutboundPeers(props.outboundPeers));
 const isOutOfSync = computed(() => isNodeOutOfSync(props.blockchain, props.block));
 const hasWarnings = computed(() => hasLowOutbound.value || isOutOfSync.value);
-const isHealthy = computed(() => props.isConnected && props.rpcConnected && !hasWarnings.value);
-const statusClass = computed(() =>
-  isHealthy.value
-    ? 'bg-status-success/10 border border-status-success text-status-success'
-    : props.isConnected && props.rpcConnected && hasWarnings.value
-      ? 'bg-status-warning/10 border border-status-warning text-status-warning'
-      : 'bg-status-error/10 border border-status-error text-status-error pulse-error'
-);
-const badgeTextClass = computed(() =>
-  isHealthy.value
-    ? 'text-status-success'
-    : props.isConnected && props.rpcConnected && hasWarnings.value
-      ? 'text-status-warning'
-      : 'text-status-error'
-);
+const isConnectedAndRpc = computed(() => props.isConnected && props.rpcConnected);
+const isHealthy = computed(() => isConnectedAndRpc.value && !hasWarnings.value);
+
+const statusClass = computed(() => {
+  if (isHealthy.value) return 'bg-status-success/10 border border-status-success text-status-success';
+  if (isConnectedAndRpc.value && hasWarnings.value) return 'bg-status-warning/10 border border-status-warning text-status-warning';
+  return 'bg-status-error/10 border border-status-error text-status-error pulse-error';
+});
+
+const badgeTextClass = computed(() => {
+  if (isHealthy.value) return 'text-status-success';
+  if (isConnectedAndRpc.value && hasWarnings.value) return 'text-status-warning';
+  return 'text-status-error';
+});
 </script>
 
 <template>
@@ -53,9 +52,8 @@ const badgeTextClass = computed(() =>
     :class="statusClass"
   >
     <Tooltip
-      :text="'WebSocket: Connection between dashboard and backend. Shows if the dashboard is receiving live updates.'"
+      text="WebSocket: Connection between dashboard and backend. Shows if the dashboard is receiving live updates."
       position="bottom"
-      horizontal="left"
     >
       <span class="flex items-center">
         <font-awesome-icon :icon="['fas', 'network-wired']" class="mr-2 text-xl" /> WebSocket:
@@ -70,9 +68,8 @@ const badgeTextClass = computed(() =>
       </span>
     </Tooltip>
     <Tooltip
-      :text="'Node RPC: Connection between backend and Bitcoin node. Shows if the node is responding to commands.'"
+      text="Node RPC: Connection between backend and Bitcoin node. Shows if the node is responding to commands."
       position="bottom"
-      horizontal="left"
     >
       <span class="flex items-center">
         <font-awesome-icon :icon="['fas', 'server']" class="mr-2 text-xl" /> Node RPC:
@@ -85,8 +82,7 @@ const badgeTextClass = computed(() =>
     </p>
     <div v-if="props.rpcConnected && hasWarnings" class="flex flex-wrap items-center gap-3 text-sm">
       <span v-if="hasLowOutbound" class="flex items-center">
-        <font-awesome-icon :icon="['fas', 'exclamation-triangle']" class="mr-2" /> Low outbound
-        peers ({{ props.outboundPeers }})
+        <font-awesome-icon :icon="['fas', 'exclamation-triangle']" class="mr-2" /> Low outbound peers ({{ props.outboundPeers }})
       </span>
       <span v-if="isOutOfSync" class="flex items-center">
         <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="mr-2" /> Node out of sync
