@@ -31,8 +31,8 @@ describe('MempoolInfoCard.vue', () => {
     expect(wrapper.text()).toContain('Transactions');
     expect(wrapper.text()).toContain('1000');
     expect(wrapper.text()).toContain('Total Bytes');
-    // 500000 bytes = 488.28 KB
-    expect(wrapper.text()).toMatch(/488(.|,)?28\s?KB/);
+    // 500000 bytes = 488.28 KiB
+    expect(wrapper.text()).toMatch(/488(.|,)?28\s?KiB/);
     expect(wrapper.text()).toContain('Total Fees');
     expect(wrapper.text()).toContain('0.5 BTC');
     expect(wrapper.findComponent(FontAwesomeIcon).exists()).toBe(true);

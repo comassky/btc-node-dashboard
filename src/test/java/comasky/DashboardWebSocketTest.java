@@ -90,7 +90,7 @@ class DashboardWebSocketTest {
 
         return new GlobalResponse(
             generalStats, distribution, Collections.emptyList(), Collections.emptyList(),
-            blockchainInfoView, nodeInfoView, "5 days", blockInfoView, mempoolInfoView, Collections.emptyMap()
+            blockchainInfoView, nodeInfoView, 432000L, blockInfoView, mempoolInfoView, Collections.emptyMap()
         );
     }
 }

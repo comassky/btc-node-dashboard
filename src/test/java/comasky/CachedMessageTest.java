@@ -110,7 +110,7 @@ class CachedMessageTest {
             Collections.emptyList(),
             blockchainInfoView,
             nodeInfo,
-            "5d, 03:00:00",
+            446400L,
             blockInfoView,
             new MempoolInfoView(
                 0, 0L, 0L, 0L, 0.0, 0.0, 0, 0.0

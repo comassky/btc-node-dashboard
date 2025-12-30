@@ -136,7 +136,7 @@ class BitcoinApiControllerTest {
                 outboundPeers,
                 blockchainInfoView,
                 nodeInfoView,
-                "5 days 3 hours",
+                446400L,
                 blockInfoView,
                 mempoolInfoView,
                 Collections.emptyMap()

@@ -69,7 +69,7 @@
                         </td>
                         <td class="p-4 font-light">{{ peer.version }}</td>
                         <td class="p-4 font-light">{{ formatTimeOffset(peer.timeoffset) }}</td>
-                        <td class="p-4 font-light">{{ formatConnectionTime(peer.conntime) }}</td>
+                        <td class="p-4 font-light">{{ formatTimeSince(peer.conntime) }}</td>
                         <td class="p-4 font-light">{{ peer.network || 'N/A' }}</td>
                         <td class="p-4 font-medium" :class="[`text-${type === 'inbound' ? 'status-success' : 'accent'}`]"
                             :title="'Connection type: ' + peer.connection_type">{{ peer.connection_type }}</td>
@@ -87,7 +87,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { formatTimeOffset, formatPing, formatConnectionTime, formatBytes } from '@utils/formatting';
+import { formatTimeOffset, formatPing, formatTimeSince, formatBytes } from '@utils/formatting';
 import Tooltip from '@components/Tooltip.vue';
 import type { Peer } from '../types';
 import { library } from '@fortawesome/fontawesome-svg-core';
