@@ -1,5 +1,3 @@
-
-
 import { ref } from 'vue';
 
 /**
@@ -8,7 +6,6 @@ import { ref } from 'vue';
 export type MockScenario = 'normal' | 'disconnected' | 'lowPeers' | 'outOfSync';
 
 import type { DashboardData } from '@types';
-
 
 /**
  * Represents the available mock scenarios for dashboard simulation.
@@ -29,7 +26,6 @@ import type { DashboardData } from '@types';
  * @returns {Object} Mock data utilities and state
  */
 export function useMockData() {
-
   /**
    * Indicates if mock mode is enabled (from VITE_MOCK_MODE env variable or manually).
    */
@@ -39,7 +35,6 @@ export function useMockData() {
    * Current mock scenario in use.
    */
   const mockScenario = ref<MockScenario>('normal');
-
 
   /**
    * Cycles through available mock scenarios in sequence.
@@ -66,12 +61,12 @@ export function useMockData() {
    */
   const generateMockData = (): DashboardData => {
     const now = Math.floor(Date.now() / 1000);
-    
+
     return {
-      generalStats: { 
+      generalStats: {
         inboundCount: mockScenario.value === 'lowPeers' ? 5 : 45,
         outboundCount: mockScenario.value === 'lowPeers' ? 3 : 8,
-        totalPeers: mockScenario.value === 'lowPeers' ? 8 : 53
+        totalPeers: mockScenario.value === 'lowPeers' ? 8 : 53,
       },
       blockchainInfoResponse: {
         blocks: 875432,
@@ -86,11 +81,11 @@ export function useMockData() {
         chainwork: '',
         size_on_disk: 0,
         pruned: false,
-        pruneheight: null
+        pruneheight: null,
       },
-      nodeInfo: { 
-        version: 270000, 
-        protocolversion: 70016, 
+      nodeInfo: {
+        version: 270000,
+        protocolversion: 70016,
         subversion: '/Satoshi:27.0.0/',
         localservices: '',
         localservicesnames: [],
@@ -99,21 +94,22 @@ export function useMockData() {
         connections: 0,
         networkactive: false,
         networks: [],
-        localaddresses: []
+        localaddresses: [],
       },
-      upTime: '15d 7h 23m',
+      upTime: 15 * 24 * 3600 + 7 * 3600 + 23 * 60, // 15 days, 7 hours, 23 minutes in seconds
       inboundPeer: Array.from({ length: mockScenario.value === 'lowPeers' ? 5 : 45 }, (_, i) => ({
         id: i,
         addr: `192.168.1.${i + 10}:8333`,
-        subver: i % 3 === 0 ? '/Satoshi:27.0.0/' : i % 3 === 1 ? '/Satoshi:26.0.0/' : '/Satoshi:25.0.0/',
+        subver:
+          i % 3 === 0 ? '/Satoshi:27.0.0/' : i % 3 === 1 ? '/Satoshi:26.0.0/' : '/Satoshi:25.0.0/',
         version: 270000,
         timeoffset: 0,
-        conntime: now - (3600 * (i + 1)),
+        conntime: now - 3600 * (i + 1),
         network: 'ipv4',
         connection_type: 'inbound',
-        minping: 0.05 + (i * 0.01),
-        bytesrecv: 1024000 + (i * 5000),
-        bytessent: 512000 + (i * 2500),
+        minping: 0.05 + i * 0.01,
+        bytesrecv: 1024000 + i * 5000,
+        bytessent: 512000 + i * 2500,
       })),
       outboundPeer: Array.from({ length: mockScenario.value === 'lowPeers' ? 3 : 8 }, (_, i) => ({
         id: i + 100,
@@ -121,12 +117,12 @@ export function useMockData() {
         subver: '/Satoshi:27.0.0/',
         version: 270000,
         timeoffset: 0,
-        conntime: now - (7200 * (i + 1)),
+        conntime: now - 7200 * (i + 1),
         network: 'ipv4',
         connection_type: 'outbound-full-relay',
-        minping: 0.08 + (i * 0.02),
-        bytesrecv: 2048000 + (i * 10000),
-        bytessent: 1024000 + (i * 5000),
+        minping: 0.08 + i * 0.02,
+        bytesrecv: 2048000 + i * 10000,
+        bytessent: 1024000 + i * 5000,
       })),
       subverDistribution: {
         inbound: [
@@ -135,13 +131,17 @@ export function useMockData() {
           { server: '/Satoshi:25.0.0/', count: 5, percentage: 10 },
         ],
         outbound: [
-          { server: '/Satoshi:27.0.0/', count: mockScenario.value === 'lowPeers' ? 3 : 8, percentage: 100 },
+          {
+            server: '/Satoshi:27.0.0/',
+            count: mockScenario.value === 'lowPeers' ? 3 : 8,
+            percentage: 100,
+          },
         ],
       },
-      block: { 
+      block: {
         time: mockScenario.value === 'outOfSync' ? now - 3600 : now - 120,
         nTx: 2834,
-        hash: '00000000000000000002a7c4c1e48d76c5a37902165a270156b7a8d72728a054'
+        hash: '00000000000000000002a7c4c1e48d76c5a37902165a270156b7a8d72728a054',
       },
       rpcConnected: mockScenario.value !== 'disconnected',
       mempoolInfo: {
@@ -153,11 +153,10 @@ export function useMockData() {
         mempoolminfee: 0.00001,
         minrelaytxfee: 0.00001,
         unbroadcastcount: 2,
-        total_fee: 0.123456
+        total_fee: 0.123456,
       },
     };
   };
-
 
   /**
    * Gets mock connection state based on current scenario.
@@ -167,11 +166,11 @@ export function useMockData() {
   const getMockConnectionState = () => ({
     isConnected: mockScenario.value !== 'disconnected',
     rpcConnected: mockScenario.value !== 'disconnected',
-    errorMessage: mockScenario.value === 'disconnected' 
-      ? 'WebSocket connection lost. Attempting to reconnect...' 
-      : null
+    errorMessage:
+      mockScenario.value === 'disconnected'
+        ? 'WebSocket connection lost. Attempting to reconnect...'
+        : null,
   });
-
 
   /**
    * Starts auto-cycling through scenarios at a specified interval.

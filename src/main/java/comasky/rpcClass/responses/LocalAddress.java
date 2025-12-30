@@ -2,11 +2,20 @@ package comasky.rpcClass.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Represents a local address of the node.
+ *
+ * @param address The IP address or hostname.
+ * @param port    The listening port.
+ * @param score   Reliability score of the address (higher is better).
+ */
 public record LocalAddress(
         @JsonProperty("address")
-        String address,     // L'adresse IP ou le nom d'hôte local
+        String address,
+
         @JsonProperty("port")
-        int port,           // Le port d'écoute
+        int port,
+
         @JsonProperty("score")
-        int score           // Score de fiabilité de l'adresse (plus le score est élevé, plus l'adresse est préférée)
+        int score
 ) {}

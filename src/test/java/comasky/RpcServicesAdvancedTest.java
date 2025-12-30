@@ -4,15 +4,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
 import comasky.client.RpcRequestDto;
 import comasky.exceptions.RpcException;
+import comasky.rpcClass.RpcError;
 import comasky.rpcClass.RpcResponse;
 import comasky.rpcClass.RpcServices;
 import comasky.rpcClass.dto.GlobalResponse;
 import comasky.rpcClass.responses.BlockInfoResponse;
 import comasky.rpcClass.responses.BlockchainInfoResponse;
+import comasky.rpcClass.responses.MempoolInfoResponse;
 import comasky.rpcClass.responses.PeerInfoResponse;
+import comasky.service.CacheProvider;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -35,7 +39,16 @@ class RpcServicesAdvancedTest {
     RpcServices rpcServices;
 
     @Inject
+    CacheProvider cacheProvider;
+
+    @Inject
     ObjectMapper objectMapper;
+
+    @BeforeEach
+    void setup() {
+        // Invalidate cache before each test to ensure isolation
+        cacheProvider.invalidateAll();
+    }
 
     // Helper to create a successful RpcResponse JSON string
     private <T> String createSuccessRpcResponseJson(T result) throws Exception {
@@ -46,7 +59,7 @@ class RpcServicesAdvancedTest {
     }
 
     // Helper to create an error RpcResponse JSON string
-    private String createErrorRpcResponseJson(Object error) throws Exception {
+    private String createErrorRpcResponseJson(RpcError error) throws Exception {
         RpcResponse<Object> response = new RpcResponse<>();
         response.setError(error);
         response.setId("1.0");
@@ -138,7 +151,8 @@ class RpcServicesAdvancedTest {
             "getbestblockhash", "00000000000000000001abc", // This is a String object, will be wrapped
             "getblock", new BlockInfoResponse(
                 "00000000000000000001abc", 1, 0, 0, 0, 870000, 1, "", "", 1733443200L, 0L, 0L, "", 1.0, "", 2500, "", ""
-            )
+            ),
+            "getmempoolinfo", new MempoolInfoResponse(true, 0, 0L, 0L, 0L, 0.0, 0.0, 0, 0.0)
         );
         setupRpcClientMock(mockResponses);
 
@@ -177,7 +191,8 @@ class RpcServicesAdvancedTest {
             "getbestblockhash", "00000000000000000001abc",
             "getblock", new BlockInfoResponse(
                 "00000000000000000001abc", 1, 0, 0, 0, 870000, 1, "", "", 1733443200L, 0L, 0L, "", 1.0, "", 2500, "", ""
-            )
+            ),
+            "getmempoolinfo", new MempoolInfoResponse(true, 0, 0L, 0L, 0L, 0.0, 0.0, 0, 0.0)
         );
         setupRpcClientMock(mockResponses);
 
@@ -225,19 +240,19 @@ class RpcServicesAdvancedTest {
     @Test
     void testRpcError_withDetailedMessage() throws Exception {
         // Simulate an RPC error by returning an error JSON response
-        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createErrorRpcResponseJson("Loading block index..."));
+        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createErrorRpcResponseJson(new RpcError(-1, "Loading block index...")));
 
         RpcException exception = assertThrows(RpcException.class, () -> rpcServices.getBlockchainInfo().await().indefinitely());
-        assertTrue(exception.getMessage().contains("RPC Error for method getblockchaininfo: Loading block index..."));
+        assertTrue(exception.getMessage().contains("RPC Error for method getblockchaininfo: RpcError[code=-1, message='Loading block index...']"));
     }
 
     @Test
     void testRpcError_nullResult() throws Exception {
         // Simulate an RPC error by returning an error JSON response
-        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createErrorRpcResponseJson("Null result error"));
+        when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenReturn(createErrorRpcResponseJson(new RpcError(-2, "Null result error")));
 
         RpcException exception = assertThrows(RpcException.class, () -> rpcServices.getNetworkInfo().await().indefinitely());
-        assertTrue(exception.getMessage().contains("RPC Error for method getnetworkinfo: Null result error"));
+        assertTrue(exception.getMessage().contains("RPC Error for method getnetworkinfo: RpcError[code=-2, message='Null result error']"));
     }
 
     @Test
@@ -282,7 +297,7 @@ class RpcServicesAdvancedTest {
 
     @Test
     void testGetData_rpcErrorInPeerInfo() throws Exception {
-        String mockPeerInfoResponse = createErrorRpcResponseJson(Map.of("code", -1, "message", "Peer info unavailable"));
+        String mockPeerInfoResponse = createErrorRpcResponseJson(new RpcError(-1, "Peer info unavailable"));
         when(rpcClient.executeRpcCall(any(RpcRequestDto.class))).thenAnswer(invocation -> {
             RpcRequestDto request = invocation.getArgument(0);
             if ("getpeerinfo".equals(request.method())) {

@@ -1,113 +1,96 @@
 package comasky;
 
-import comasky.api.DashboardWebSocket;
 import comasky.rpcClass.RpcServices;
 import comasky.rpcClass.dto.GeneralStats;
 import comasky.rpcClass.dto.GlobalResponse;
 import comasky.rpcClass.dto.SubverDistribution;
-import comasky.rpcClass.responses.BlockInfoResponse;
-import comasky.rpcClass.responses.BlockchainInfoResponse;
-import comasky.rpcClass.responses.DummyMempoolInfoResponse;
-import comasky.rpcClass.responses.NetworkInfoResponse;
+import comasky.rpcClass.view.BlockInfoView;
+import comasky.rpcClass.view.BlockchainInfoView;
+import comasky.rpcClass.view.MempoolInfoView;
+import comasky.rpcClass.view.NetworkInfoView;
 import io.quarkus.test.InjectMock;
+import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
-import jakarta.inject.Inject;
-import jakarta.websocket.RemoteEndpoint;
+import jakarta.websocket.ClientEndpoint;
+import jakarta.websocket.ContainerProvider;
+import jakarta.websocket.OnMessage;
+import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
 import java.util.Collections;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
 class DashboardWebSocketTest {
 
+    private static final LinkedBlockingDeque<String> MESSAGES = new LinkedBlockingDeque<>();
+
+    @TestHTTPResource("/ws/dashboard")
+    URI uri;
+
     @InjectMock
     RpcServices rpcServices;
 
-    @Inject
-    DashboardWebSocket webSocket;
-
-    @Test
-    void testOnOpen_addsSessionAndSendsData() {
-        Session mockSession = mock(Session.class);
-        RemoteEndpoint.Async mockAsync = mock(RemoteEndpoint.Async.class);
-        when(mockSession.getId()).thenReturn("test-session-123");
-        when(mockSession.isOpen()).thenReturn(true);
-        when(mockSession.getAsyncRemote()).thenReturn(mockAsync);
-
-        GlobalResponse mockResponse = createMockResponse();
-        when(rpcServices.getData()).thenReturn(Uni.createFrom().item(mockResponse));
-
-        webSocket.onOpen(mockSession);
-
-        
-        verify(mockSession, atLeastOnce()).getId();
-        verify(mockAsync, timeout(1000).times(1)).sendText(anyString());
+    @BeforeEach
+    public void setup() {
+        MESSAGES.clear();
     }
 
     @Test
-    void testOnClose_removesSession() {
-        Session mockSession = mock(Session.class);
-        when(mockSession.getId()).thenReturn("test-session-456");
+    void testOnOpen_sendsDataOnConnect() throws Exception {
+        // Mock the backend service to return a predictable response
+        GlobalResponse mockResponse = createMockResponse();
+        when(rpcServices.getData()).thenReturn(Uni.createFrom().item(mockResponse));
 
-        
-        webSocket.onOpen(mockSession);
-        webSocket.onClose(mockSession);
+        try (Session session = ContainerProvider.getWebSocketContainer().connectToServer(Client.class, uri)) {
+            // Wait for a message to arrive, with a timeout
+            String message = MESSAGES.poll(5, TimeUnit.SECONDS);
 
-        verify(mockSession, atLeastOnce()).getId();
+            // Assert that we received a message and it contains some expected data
+            assertNotNull(message, "Should have received a message on connect");
+            assertTrue(message.contains("\"chain\":\"main\""), "Message should contain blockchain info");
+            assertTrue(message.contains("\"totalPeers\":10"), "Message should contain general stats");
+        }
+    }
+
+    // A simple client endpoint for the test
+    @ClientEndpoint
+    public static class Client {
+        @OnOpen
+        public void open(Session session) {
+            // Connection opened
+        }
+
+        @OnMessage
+        void message(String msg) {
+            MESSAGES.add(msg);
+        }
     }
 
     private GlobalResponse createMockResponse() {
         GeneralStats generalStats = new GeneralStats(2, 8, 10);
 
-        BlockchainInfoResponse blockchainInfoResponse = new BlockchainInfoResponse(
-            "main", // chain
-            870000,  // blocks
-            870000,  // headers
-            "0000000000000000000dummyhash", // bestblockhash
-            0.9999,  // difficulty
-            1700000000L, // time
-            1700000000L, // mediantime
-            0.9999,  // verificationprogress
-            false,   // initialblockdownload
-            "0000000000000000000000000000000000000000000000000000000000000000", // chainwork
-            1000000000L, // size_on_disk
-            false,   // pruned
-            null     // pruneheight
+        BlockchainInfoView blockchainInfoView = new BlockchainInfoView(
+            "main", 870000, 870000, 0.9999, 1700000000L, 1700000000L, 0.9999, false, "chainwork", 1000000000L
         );
 
-        NetworkInfoResponse nodeInfo = new NetworkInfoResponse(
-            70016, // version
-            "/Satoshi:27.0.0/", // subversion
-            270000, // protocolversion
-            "0000000000000000", // localservices
-            java.util.Collections.emptyList(), // localservicesnames
-            true, // localrelay
-            0, // timeoffset
-            10, // connections
-            true, // networkactive
-            java.util.Collections.emptyList(), // networks
-            java.util.Collections.emptyList() // localaddresses
-        );
-
+        NetworkInfoView nodeInfoView = new NetworkInfoView(70016, "/Satoshi:27.0.0/", 270000, Collections.emptyList(), Collections.emptyList());
         SubverDistribution distribution = new SubverDistribution(Collections.emptyList(), Collections.emptyList());
-
-        BlockInfoResponse blockInfoResponse = new BlockInfoResponse(null, 0, 0, 0, 0, 0, 0, null, null, System.currentTimeMillis() / 1000, 0, 0, null, 0, null, 2500, null, null);
+        BlockInfoView blockInfoView = new BlockInfoView(System.currentTimeMillis() / 1000, 2500);
+        MempoolInfoView mempoolInfoView = new MempoolInfoView(5000, 1000000L, 2000000L, 300000000L, 0.00001, 0.00001, 0, 0.5);
 
         return new GlobalResponse(
-            generalStats,
-            distribution,
-            Collections.emptyList(),
-            Collections.emptyList(),
-            blockchainInfoResponse,
-            nodeInfo,
-            "5 days",
-            blockInfoResponse,
-            DummyMempoolInfoResponse.create()
+            generalStats, distribution, Collections.emptyList(), Collections.emptyList(),
+            blockchainInfoView, nodeInfoView, 432000L, blockInfoView, mempoolInfoView, Collections.emptyMap()
         );
     }
 }

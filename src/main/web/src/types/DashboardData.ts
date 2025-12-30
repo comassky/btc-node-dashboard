@@ -1,4 +1,3 @@
-
 import type { GeneralStats } from './GeneralStats';
 import type { BlockChainInfo } from './BlockChainInfo';
 import type { NetworkInfoResponse } from './NetworkInfoResponse';
@@ -17,8 +16,8 @@ export interface DashboardData {
   blockchainInfoResponse: BlockChainInfo;
   /** Node info (version, protocol, etc.) */
   nodeInfo: NetworkInfoResponse;
-  /** Node uptime as a formatted string */
-  upTime: string;
+  /** Node uptime in seconds (timestamp) */
+  upTime: number;
   /** List of inbound peers */
   inboundPeer: Peer[];
   /** List of outbound peers */
@@ -36,4 +35,6 @@ export interface DashboardData {
   errorMessage?: string;
   /** Mempool statistics */
   mempoolInfo: MempoolInfoResponse;
+  /** Partial errors map */
+  errors?: { [key: string]: string };
 }

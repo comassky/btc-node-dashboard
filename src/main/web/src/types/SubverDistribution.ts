@@ -1,4 +1,3 @@
-
 /**
  * Distribution of node subversions among peers.
  */

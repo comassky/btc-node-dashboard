@@ -1,95 +1,72 @@
 package comasky.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.rpcClass.DashboardDataProvider;
 import io.quarkus.scheduler.Scheduled;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * WebSocket endpoint for real-time dashboard updates.
  * <p>
  * Broadcasts Bitcoin node data to all connected clients at configured intervals using a reactive approach.
- * Implements caching to avoid redundant RPC calls when data is fresh.
- * Handles connection, disconnection, and error reporting for WebSocket clients.
+ * It leverages Quarkus's built-in caching and a custom JSON encoder for serialization.
  */
-@ServerEndpoint("/ws/dashboard")
+@ServerEndpoint(value = "/ws/dashboard", encoders = {JsonEncoder.class})
 @ApplicationScoped
 public class DashboardWebSocket {
 
     private static final Logger LOG = Logger.getLogger(DashboardWebSocket.class);
 
-    private final Set<Session> sessions = ConcurrentHashMap.<Session>newKeySet();
-
-    // Cache for RPC data
-    private final AtomicReference<CachedMessage> cachedMessage = new AtomicReference<>();
-    private volatile Uni<CachedMessage> inFlightRequest;
+    private final Set<Session> sessions = ConcurrentHashMap.newKeySet();
 
     @Inject
-    DashboardDataProvider rpcServices;
-
-    @Inject
-    ObjectMapper objectMapper;
-
-    @ConfigProperty(name = "dashboard.polling.interval.seconds", defaultValue = "5")
-    int pollingIntervalSeconds;
-
-    @ConfigProperty(name = "dashboard.cache.validity-buffer-ms", defaultValue = "100")
-    int cacheValidityBufferMs;
-
-    private long cacheValidityMs;
+    DashboardDataProvider dataProvider;
 
     /**
-     * Initializes the cache validity duration after construction.
+     * Creates a Uni that emits a unified Object payload.
+     * On success, it emits the GlobalResponse.
+     * On failure, it emits a Map representing the error.
+     * This robustly handles type differences between success and failure paths.
+     *
+     * @return A Uni<Object> ready to be sent via WebSocket.
      */
-    @PostConstruct
-    void init() {
-        // Pre-calculate cache validity to avoid recalculation on each fetch
-        long pollingIntervalMs = pollingIntervalSeconds * 1000L;
-        this.cacheValidityMs = Math.max(100, pollingIntervalMs - cacheValidityBufferMs);
+    private Uni<Object> getUnifiedDashboardData() {
+        return Uni.createFrom().emitter(emitter ->
+                dataProvider.getData().subscribe().with(
+                        emitter::complete,
+                        failure -> emitter.complete(createErrorPayload(failure))
+                )
+        );
     }
 
     /**
-     * Periodically broadcasts the latest dashboard data to all connected WebSocket clients.
+     * Periodically fetches and broadcasts the latest dashboard data to all connected WebSocket clients.
      */
     @Scheduled(every = "${dashboard.polling.interval.seconds}s", identity = "dashboard-broadcast")
     void scheduledBroadcast() {
         if (sessions.isEmpty()) {
             return;
         }
-        fetchAndCacheMessage()
+        getUnifiedDashboardData()
                 .subscribe().with(
-                        message -> {
-                            String json = message.serializedJson();
-                            if (json != null) {
-                                broadcastMessage(json); // diffuse la même chaîne à tous
-                            } else {
-                                LOG.error("No JSON to broadcast");
-                            }
-                        },
-                        failure -> LOG.errorf("Failed to fetch and broadcast message: %s", failure.getMessage())
+                        this::broadcastMessage,
+                        failure -> LOG.error("Failed to subscribe for broadcast.", failure)
                 );
     }
 
-    /**
-     * Handles a new WebSocket connection.
-     *
-     * @param session the new WebSocket session
-     */
+
     @OnOpen
     public void onOpen(Session session) {
         sessions.add(session);
@@ -97,11 +74,6 @@ public class DashboardWebSocket {
         sendDataToSession(session);
     }
 
-    /**
-     * Handles the closure of a WebSocket connection.
-     *
-     * @param session the closed WebSocket session
-     */
     @OnClose
     public void onClose(Session session) {
         sessions.remove(session);
@@ -110,8 +82,6 @@ public class DashboardWebSocket {
 
     /**
      * Sends the latest dashboard data to a specific WebSocket session.
-     *
-     * @param session the WebSocket session to send data to
      */
     private void sendDataToSession(Session session) {
         if (session == null || !session.isOpen()) {
@@ -119,146 +89,74 @@ public class DashboardWebSocket {
             return;
         }
 
-        fetchAndCacheMessage()
+        getUnifiedDashboardData()
+                .onItem().transformToUni(data -> sendMessage(session, data))
                 .subscribe().with(
-                        message -> safeSend(session, message),
-                        failure -> handleSendError(session, failure)
+                        _ -> LOG.debugf("Initial data sent to session %s", session.getId()),
+                        failure -> LOG.errorf(failure, "Failed to send initial data to session %s", session.getId())
                 );
     }
 
     /**
-     * Safely sends a message to a WebSocket session, handling errors and nulls.
-     *
-     * @param session the WebSocket session
-     * @param message the cached message to send
+     * Broadcasts a message object to all connected and open WebSocket sessions concurrently.
      */
-    private void safeSend(Session session, CachedMessage message) {
-        try {
-            if (message == null || message.serializedJson() == null) {
-                LOG.errorf("Fetched message or its JSON is null for session %s", session.getId());
-                sendErrorJson(session, new ErrorResponse("No data available"));
+    private void broadcastMessage(Object message) {
+        if (message == null) return;
+        LOG.debugf("Broadcasting to %d sessions", sessions.size());
+        Multi.createFrom().iterable(sessions)
+                .filter(Session::isOpen)
+                .onItem().transformToUniAndMerge(session ->
+                        sendMessage(session, message)
+                                .onFailure().recoverWithNull()
+                )
+                .collect().asList()
+                .subscribe().with(
+                        _ -> LOG.debug("Broadcast complete."),
+                        failure -> LOG.error("An unexpected error occurred during broadcast.", failure)
+                );
+    }
+
+    /**
+     * Sends a message object to a single WebSocket session using a callback-based approach
+     * wrapped in a Mutiny Uni. This is the robust way to bridge the imperative WebSocket API
+     * with the reactive world, avoiding threading issues.
+     *
+     * @param session the session to send the message to
+     * @param message the object to send
+     * @return a Uni<Void> that completes on success or fails
+     */
+    private Uni<Void> sendMessage(Session session, Object message) {
+        // Create the Uni and explicitly type it to Uni<Void> to resolve compiler inference issues.
+        Uni<Void> sendUni = Uni.createFrom().emitter(emitter -> {
+            session.getAsyncRemote().sendObject(message, result -> {
+                if (result.isOK()) {
+                    emitter.complete(null);
+                } else {
+                    emitter.fail(result.getException());
+                }
+            });
+        });
+
+        // Apply the side-effect on failure to the correctly typed Uni.
+        return sendUni.onFailure().invoke(failure -> {
+            if (failure instanceof IOException) {
+                LOG.debugf("Client %s disconnected, removing session.", session.getId());
             } else {
-                session.getAsyncRemote().sendText(message.serializedJson());
+                LOG.warnf(failure, "Failed to send message to session %s, removing.", session.getId());
             }
-        } catch (Exception e) {
-            LOG.errorf(e, "Exception while sending data to session %s", session.getId());
-            sendErrorJson(session, new ErrorResponse("Internal error while sending data"));
-        }
+            sessions.remove(session);
+        });
     }
 
     /**
-     * Handles errors that occur when sending data to a WebSocket session.
-     *
-     * @param session the WebSocket session
-     * @param failure the error that occurred
+     * Creates a standard error payload map when data fetching fails.
      */
-    private void handleSendError(Session session, Throwable failure) {
-        LOG.errorf(failure, "Failed to send initial data to session %s: %s", session.getId(), failure.getMessage());
-        String msg = (failure.getMessage() != null) ? failure.getMessage() : "unknown error";
-        sendErrorJson(session, new ErrorResponse(String.format("Failed to fetch data: %s", msg)));
-    }
-
-    /**
-     * Sends an error message as JSON to a WebSocket session.
-     *
-     * @param session the WebSocket session
-     * @param errorResponse the error response to send
-     */
-    private void sendErrorJson(Session session, ErrorResponse errorResponse) {
-        if (session != null && session.isOpen()) {
-            try {
-                session.getAsyncRemote().sendText(objectMapper.writeValueAsString(errorResponse));
-            } catch (Exception e) {
-                LOG.errorf(e, "Exception while sending error message to session %s", session.getId());
-            }
-        }
-    }
-
-    /**
-     * Fetches the latest dashboard data, using the cache if valid.
-     *
-     * @return a {@link Uni} emitting the cached or fresh message
-     */
-    private Uni<CachedMessage> fetchAndCacheMessage() {
-        CachedMessage currentCache = cachedMessage.get();
-        if (currentCache != null && currentCache.isValid(cacheValidityMs)) {
-            return Uni.createFrom().item(currentCache);
-        }
-        return getFreshMessage();
-    }
-
-    /**
-     * Fetches a fresh dashboard message from the backend and updates the cache.
-     *
-     * @return a {@link Uni} emitting the fresh message
-     */
-    private Uni<CachedMessage> getFreshMessage() {
-        synchronized (this) {
-            if (inFlightRequest != null) {
-                return inFlightRequest;
-            }
-            inFlightRequest = rpcServices.getData()
-                .onItem().transform(data -> {
-                    try {
-                        String json = objectMapper.writeValueAsString(data);
-                        return CachedMessage.success(data, json);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .onFailure().recoverWithItem(e -> {
-                    LOG.warnf("RPC call failed: %s", e.getMessage());
-                    String msg = (e.getCause() != null && e.getCause().getMessage() != null) ? e.getCause().getMessage() : e.getMessage();
-                    if (msg == null) msg = "Unknown error";
-                    Map<String, Object> errorMap = new HashMap<>();
-                    errorMap.put("rpcConnected", false);
-                    errorMap.put("errorMessage", msg);
-                    String errorJson;
-                    try {
-                        errorJson = objectMapper.writeValueAsString(errorMap);
-                    } catch (Exception jsonEx) {
-                        LOG.errorf(jsonEx, "Failed to serialize error map to JSON for WebSocket client");
-                        errorJson = "{\"rpcConnected\": false, \"errorMessage\": \"Internal server error during error serialization\"}";
-                    }
-                    return CachedMessage.error(msg, errorJson);
-                })
-                .onItem().invoke(message -> {
-                    cachedMessage.set(message);
-                })
-                .onTermination().invoke(() -> {
-                    synchronized (this) {
-                        inFlightRequest = null;
-                    }
-                })
-                .memoize().indefinitely();
-            return inFlightRequest;
-        }
-    }
-
-    /**
-     * Broadcasts a message to all connected WebSocket sessions.
-     *
-     * @param message the message to broadcast
-     */
-    private void broadcastMessage(String message) {
-        // Iterate over a snapshot to avoid ConcurrentModification and keep predicate side-effect free
-        var snapshot = Set.copyOf(sessions);
-        for (Session session : snapshot) {
-            if (session == null || !session.isOpen()) {
-                sessions.remove(session);
-                continue;
-            }
-            try {
-                session.getAsyncRemote().sendText(message, result -> {
-                    if (result == null || !result.isOK()) {
-                        LOG.warnf("Failed to send message to session %s: %s", session.getId(), result == null ? "unknown" : result.getException());
-                        sessions.remove(session);
-                    }
-                });
-            } catch (Exception e) {
-                LOG.warnf(e, "Failed to send message to session %s", session.getId());
-                sessions.remove(session);
-            }
-        }
+    private Map<String, Object> createErrorPayload(Throwable throwable) {
+        LOG.error("An error occurred while fetching data for WebSocket", throwable);
+        String errorMessage = throwable.getMessage() != null ? throwable.getMessage() : "An unknown error occurred.";
+        return Map.of(
+                "rpcConnected", false,
+                "errorMessage", "Failed to fetch data: " + errorMessage
+        );
     }
 }

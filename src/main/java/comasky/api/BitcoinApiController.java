@@ -30,11 +30,17 @@ public class BitcoinApiController {
         this.rpcServices = rpcServices;
     }
 
+    /**
+     * Retrieves the complete dashboard data.
+     *
+     * @return a {@link Uni} emitting the global dashboard response
+     */
     @GET
     @Path("dashboard")
     public Uni<GlobalResponse> getDashboardData() {
         return rpcServices.getData();
     }
+
     /**
      * Retrieves network information about the Bitcoin node.
      *
@@ -55,8 +61,8 @@ public class BitcoinApiController {
     @GET
     @Path("getblock/{hash}")
     public Uni<BlockInfoResponse> getBlockInfo(@PathParam("hash") String hash) {
-        if (hash == null || hash.isBlank()) {
-            return Uni.createFrom().failure(new IllegalArgumentException("Block hash must not be null or blank"));
+        if (hash == null || hash.isBlank() || !hash.matches("^[0-9a-fA-F]{64}$")) {
+            return Uni.createFrom().failure(new IllegalArgumentException("Invalid block hash format"));
         }
         return rpcServices.getBlockInfo(hash);
     }

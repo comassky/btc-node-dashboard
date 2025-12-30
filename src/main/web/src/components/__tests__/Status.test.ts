@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import Status from '@components/Status.vue';
 import type { BlockChainInfo, BlockInfoResponse } from '@types';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 const mockBlockchain: BlockChainInfo = {
   blocks: 100,
@@ -20,13 +21,19 @@ const mockBlockchain: BlockChainInfo = {
 };
 
 const mockBlock: BlockInfoResponse = {
-  time: Math.floor(Date.now() / 1000) - 300, // 5 minutes ago
+  time: Math.floor(Date.now() / 1000) - 300,
   nTx: 2500,
   hash: '00000000000000000001234567890abcdef',
 };
 
+const mountOptions = {
+  global: {
+    components: { FontAwesomeIcon },
+  },
+};
+
 describe('Status.vue', () => {
-  it('should render correctly', () => {
+  it('should display connected statuses', () => {
     const wrapper = mount(Status, {
       props: {
         isConnected: true,
@@ -36,94 +43,67 @@ describe('Status.vue', () => {
         blockchain: mockBlockchain,
         block: mockBlock,
       },
+      ...mountOptions,
     });
 
-    expect(wrapper.exists()).toBe(true);
+    const text = wrapper.text();
+    expect(text).toContain('WebSocket: CONNECTED');
+    expect(text).toContain('Node RPC: ONLINE');
   });
 
-  it('should display connected status when both connections are active', () => {
+  it('should display disconnected statuses', () => {
+    const wrapper = mount(Status, {
+      props: {
+        isConnected: false,
+        rpcConnected: false,
+        errorMessage: 'Disconnected',
+        outboundPeers: 10,
+        blockchain: mockBlockchain,
+        block: mockBlock,
+      },
+      ...mountOptions,
+    });
+
+    const text = wrapper.text();
+    expect(text).toContain('WebSocket: DISCONNECTED');
+    expect(text).toContain('Node RPC: OFFLINE');
+  });
+
+  it('should display retrying status and spinner when retrying', () => {
+    const wrapper = mount(Status, {
+      props: {
+        isConnected: false,
+        rpcConnected: false,
+        errorMessage: 'Retrying...',
+        isRetrying: true,
+        outboundPeers: 10,
+        blockchain: mockBlockchain,
+        block: mockBlock,
+      },
+      ...mountOptions,
+    });
+
+    expect(wrapper.text()).toContain('Reconnecting...');
+    const spinnerIcon = wrapper.find('[data-icon="spinner"]');
+    expect(spinnerIcon.exists()).toBe(true);
+    expect(spinnerIcon.classes()).toContain('animate-spin');
+  });
+
+  it('should display warning for low outbound peers', () => {
     const wrapper = mount(Status, {
       props: {
         isConnected: true,
         rpcConnected: true,
         errorMessage: null,
-        outboundPeers: 10,
+        outboundPeers: 2, // Low number of peers
         blockchain: mockBlockchain,
         block: mockBlock,
       },
+      ...mountOptions,
     });
 
-    const text = wrapper.text();
-    expect(text.toLowerCase()).toContain('connected');
-  });
-
-  it('should display disconnected status when WebSocket is not connected', () => {
-    const wrapper = mount(Status, {
-      props: {
-        isConnected: false,
-        rpcConnected: false,
-        errorMessage: null,
-        outboundPeers: 10,
-        blockchain: mockBlockchain,
-        block: mockBlock,
-      },
-    });
-
-    const text = wrapper.text();
-    expect(text.toLowerCase()).toContain('disconnected');
-  });
-
-  it('should display error message when provided', () => {
-    const errorMsg = 'Connection failed';
-    const wrapper = mount(Status, {
-      props: {
-        isConnected: false,
-        rpcConnected: false,
-        errorMessage: errorMsg,
-        outboundPeers: 10,
-        blockchain: mockBlockchain,
-        block: mockBlock,
-      },
-    });
-
-    expect(wrapper.text()).toContain(errorMsg);
-  });
-
-  it('should show RPC disconnected status when RPC is not connected', () => {
-    const wrapper = mount(Status, {
-      props: {
-        isConnected: true,
-        rpcConnected: false,
-        errorMessage: 'RPC unavailable',
-        outboundPeers: 10,
-        blockchain: mockBlockchain,
-        block: mockBlock,
-      },
-    });
-
-    const text = wrapper.text().toLowerCase();
-    expect(text).toContain('rpc');
-  });
-
-  it('should update when props change', async () => {
-    const wrapper = mount(Status, {
-      props: {
-        isConnected: false,
-        rpcConnected: false,
-        errorMessage: null,
-        outboundPeers: 10,
-        blockchain: mockBlockchain,
-        block: mockBlock,
-      },
-    });
-
-    await wrapper.setProps({
-      isConnected: true,
-      rpcConnected: true,
-      errorMessage: null,
-    });
-
-    const text = wrapper.text().toLowerCase();
-    expect(text).toContain('connected');
+    expect(wrapper.text()).toContain('Low outbound peers');
+    const warningIcon = wrapper.find('[data-icon="exclamation-triangle"]');
+    expect(warningIcon.exists()).toBe(true);
   });
 });

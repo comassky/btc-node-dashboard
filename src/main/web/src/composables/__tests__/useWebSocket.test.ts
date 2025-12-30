@@ -6,8 +6,6 @@ let wsInstances: any[] = [];
 let mockWebSocket: any;
 
 describe('useWebSocket', () => {
-
-
   beforeEach(() => {
     vi.useFakeTimers();
     wsInstances = [];
@@ -88,7 +86,11 @@ describe('useWebSocket', () => {
 
   it('should handle RPC error message', async () => {
     const onDataReceived = vi.fn();
-    const { rpcConnected, errorMessage, connect } = useWebSocket('ws://test', onDataReceived, mockWebSocket);
+    const { rpcConnected, errorMessage, connect } = useWebSocket(
+      'ws://test',
+      onDataReceived,
+      mockWebSocket
+    );
 
     connect();
     await vi.runAllTimersAsync();
@@ -105,10 +107,13 @@ describe('useWebSocket', () => {
     expect(errorMessage.value).toBe('RPC connection failed');
   });
 
-
   it('should handle WebSocket error', async () => {
     const onDataReceived = vi.fn();
-    const { isConnected, errorMessage, connect } = useWebSocket('ws://test', onDataReceived, mockWebSocket);
+    const { isConnected, errorMessage, connect } = useWebSocket(
+      'ws://test',
+      onDataReceived,
+      mockWebSocket
+    );
 
     connect();
     await vi.runAllTimersAsync();
@@ -122,7 +127,11 @@ describe('useWebSocket', () => {
 
   it('should disconnect cleanly', async () => {
     const onDataReceived = vi.fn();
-    const { isConnected, connect, disconnect } = useWebSocket('ws://test', onDataReceived, mockWebSocket);
+    const { isConnected, connect, disconnect } = useWebSocket(
+      'ws://test',
+      onDataReceived,
+      mockWebSocket
+    );
 
     connect();
     await vi.runAllTimersAsync();
@@ -151,10 +160,13 @@ describe('useWebSocket', () => {
     expect(onDataReceived).not.toHaveBeenCalled();
   });
 
-
   it('should handle WebSocket close and set isRetrying', async () => {
     const onDataReceived = vi.fn();
-    const { isConnected, rpcConnected, errorMessage, isRetrying, connect } = useWebSocket('ws://test', onDataReceived, mockWebSocket);
+    const { isConnected, rpcConnected, errorMessage, isRetrying, connect } = useWebSocket(
+      'ws://test',
+      onDataReceived,
+      mockWebSocket
+    );
     connect();
     await vi.runAllTimersAsync();
     const ws = wsInstances[0];
@@ -167,7 +179,11 @@ describe('useWebSocket', () => {
 
   it('should reset isRetrying on disconnect', async () => {
     const onDataReceived = vi.fn();
-    const { connect, disconnect, isRetrying } = useWebSocket('ws://test', onDataReceived, mockWebSocket);
+    const { connect, disconnect, isRetrying } = useWebSocket(
+      'ws://test',
+      onDataReceived,
+      mockWebSocket
+    );
     connect();
     await vi.runAllTimersAsync();
     const ws = wsInstances[0];
@@ -191,5 +207,5 @@ describe('useWebSocket', () => {
     connect();
     expect(ws.close).toHaveBeenCalled();
     expect(wsInstances.length).toBeGreaterThan(1);
-  })
+  });
 });

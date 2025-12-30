@@ -1,4 +1,3 @@
-
 /**
  * Provides statistics about the current state of the node's mempool (unconfirmed transactions).
  */

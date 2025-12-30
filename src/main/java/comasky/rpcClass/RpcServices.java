@@ -5,13 +5,15 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
 import comasky.client.RpcRequestDto;
+import comasky.config.DashboardConfig;
 import comasky.exceptions.RpcException;
 import comasky.rpcClass.dto.GeneralStats;
 import comasky.rpcClass.dto.GlobalResponse;
 import comasky.rpcClass.dto.SubverDistribution;
 import comasky.rpcClass.dto.SubverStats;
 import comasky.rpcClass.responses.*;
-import comasky.shared.DashboardConfig;
+import comasky.rpcClass.view.*;
+import comasky.service.CacheProvider;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
 import io.smallrye.mutiny.tuples.Tuple6;
@@ -20,7 +22,10 @@ import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,7 +41,6 @@ import static comasky.shared.Tools.formatUptime;
 public class RpcServices implements DashboardDataProvider {
     private static final Logger LOG = Logger.getLogger(RpcServices.class);
 
-    
     private static final String GET_NETWORK_INFO = "getnetworkinfo";
     private static final String GET_BEST_BLOCK_HASH = "getbestblockhash";
     private static final String GET_BLOCK = "getblock";
@@ -45,12 +49,16 @@ public class RpcServices implements DashboardDataProvider {
     private static final String GET_PEER_INFO = "getpeerinfo";
     private static final String GET_MEMPOOL_INFO = "getmempoolinfo";
 
-    
-    private static final TypeReference<List<PeerInfoResponse>> PEER_INFO_TYPE_REF = new TypeReference<>() {};
+    private static final String JSON_RPC_VERSION = "1.0";
+    private static final String REQUEST_ID_PREFIX = "quarkus-";
 
+    private static final TypeReference<List<PeerInfoResponse>> PEER_INFO_TYPE_REF = new TypeReference<>() {};
 
     @Inject
     DashboardConfig dashboardConfig;
+
+    @Inject
+    CacheProvider cacheProvider;
 
     private final ObjectMapper objectMapper;
     private final RpcClient rpcClient;
@@ -61,117 +69,83 @@ public class RpcServices implements DashboardDataProvider {
         this.rpcClient = rpcClient;
     }
 
-    /**
-     * Retrieves network information about the Bitcoin node.
-     *
-     * @return a {@link Uni} emitting the node network information
-     */
+    @Override
+    public Uni<GlobalResponse> getData() {
+        return cacheProvider.getCachedData(this::fetchFreshData);
+    }
+
+    private Uni<GlobalResponse> fetchFreshData() {
+        LOG.debug("Fetching fresh data from RPC...");
+        Map<String, String> errors = new HashMap<>();
+
+        Uni<List<PeerInfoResponse>> peerInfoUni = addErrorHandling(
+                executePeerInfoRpcCall(), "peerInfo", errors, Collections::emptyList);
+
+        Uni<BlockchainInfoResponse> blockchainInfoUni = addErrorHandling(
+                getBlockchainInfo(), "blockchainInfo", errors, () -> null);
+
+        Uni<NetworkInfoResponse> nodeInfoUni = addErrorHandling(
+                getNetworkInfo(), "networkInfo", errors, () -> null);
+
+        Uni<Long> uptimeUni = addErrorHandling(
+                getUptimeSeconds(), "uptime", errors, () -> 0L);
+
+        Uni<BlockInfoResponse> blockInfoUni = addErrorHandling(getBestBlockHash(), "bestBlockHash", errors, () -> null)
+                .onItem().transformToUni(hash -> {
+                    if (hash == null) {
+                        return Uni.createFrom().nullItem();
+                    }
+                    return addErrorHandling(getBlockInfo(hash), "blockInfo", errors, () -> null);
+                });
+
+        Uni<MempoolInfoResponse> mempoolInfoResponse;
+        if (dashboardConfig != null && dashboardConfig.mempool().disable()) {
+            mempoolInfoResponse = Uni.createFrom().nullItem();
+        } else {
+            mempoolInfoResponse = addErrorHandling(getMempoolInfo(), "mempoolInfo", errors, () -> null);
+        }
+
+        return Uni.combine().all().unis(peerInfoUni, blockchainInfoUni, nodeInfoUni, uptimeUni, blockInfoUni, mempoolInfoResponse)
+                .asTuple()
+                .onItem().transform(tuple -> buildGlobalResponseFromTuple(tuple, errors));
+    }
+
     public Uni<NetworkInfoResponse> getNetworkInfo() {
         return callRpcTyped(GET_NETWORK_INFO, Collections.emptyList(), NetworkInfoResponse.class);
     }
 
-    /**
-     * Retrieves the hash of the best (most recent) block.
-     *
-     * @return a {@link Uni} emitting the best block hash as a string
-     */
     public Uni<String> getBestBlockHash() {
         return callRpcTyped(GET_BEST_BLOCK_HASH, Collections.emptyList(), String.class);
     }
 
-    /**
-     * Retrieves block information for a given block hash with verbosity 1.
-     * Verbosity 1 returns block data without full transaction details, reducing response size.
-     *
-     * @param blockHash the block hash
-     * @return a {@link Uni} emitting the block information
-     */
     public Uni<BlockInfoResponse> getBlockInfo(String blockHash) {
         List<Object> params = List.of(blockHash, 1);
         return callRpcTyped(GET_BLOCK, params, BlockInfoResponse.class);
     }
 
-    /**
-     * Retrieves blockchain information for the Bitcoin node.
-     *
-     * @return a {@link Uni} emitting the blockchain information
-     */
     public Uni<BlockchainInfoResponse> getBlockchainInfo() {
         return callRpcTyped(GET_BLOCKCHAIN_INFO, Collections.emptyList(), BlockchainInfoResponse.class);
     }
 
-    /**
-     * Retrieves mempool information from the Bitcoin node.
-     *
-     * @return a {@link Uni} emitting the mempool information
-     */
-    public Uni<comasky.rpcClass.responses.MempoolInfoResponse> getMempoolInfo() {
-        return callRpcTyped(GET_MEMPOOL_INFO, Collections.emptyList(), comasky.rpcClass.responses.MempoolInfoResponse.class);
+    public Uni<MempoolInfoResponse> getMempoolInfo() {
+        return callRpcTyped(GET_MEMPOOL_INFO, Collections.emptyList(), MempoolInfoResponse.class);
     }
 
-    /**
-     * Retrieves the node uptime in seconds.
-     *
-     * @return a {@link Uni} emitting the uptime in seconds
-     */
     public Uni<Long> getUptimeSeconds() {
         return callRpcTyped(UPTIME, Collections.emptyList(), Long.class);
     }
 
-    /**
-     * Fetches all dashboard data by executing multiple RPC calls in parallel using Mutiny.
-     * This method is fully non-blocking and composes multiple Unis to create a final aggregated response.
-     *
-     * @return a {@link Uni} emitting the aggregated global dashboard response
-     */
-    public Uni<GlobalResponse> getData() {
-        Uni<List<PeerInfoResponse>> peerInfoUni = executePeerInfoRpcCall()
-            .onFailure().invoke(e -> LOG.warnf("PeerInfo RPC failed: %s", e.getMessage()))
-            .onFailure().recoverWithItem(Collections.emptyList());
-
-        Uni<BlockchainInfoResponse> blockchainInfoUni = getBlockchainInfo()
-            .onFailure().invoke(e -> LOG.warnf("BlockchainInfo RPC failed: %s", e.getMessage()))
-            .onFailure().recoverWithItem(() -> null);
-
-        Uni<NetworkInfoResponse> nodeInfoUni = getNetworkInfo()
-            .onFailure().invoke(e -> LOG.warnf("Network info RPC failed: %s", e.getMessage()))
-            .onFailure().recoverWithItem(() -> null);
-
-        Uni<Long> uptimeUni = getUptimeSeconds()
-            .onFailure().invoke(e -> LOG.warnf("Uptime RPC failed: %s", e.getMessage()))
-            .onFailure().recoverWithItem(() -> 0L);
-
-        Uni<BlockInfoResponse> blockInfoUni = getBestBlockHash()
-            .onFailure().invoke(e -> LOG.warnf("BestBlockHash RPC failed: %s", e.getMessage()))
-            .onFailure().recoverWithItem(() -> null)
-            .onItem().transformToUni(hash -> {
-                if (hash == null) return Uni.createFrom().item((BlockInfoResponse) null);
-                return getBlockInfo(hash)
-                .onFailure().invoke(e -> LOG.warnf("BlockInfo RPC failed: %s", e.getMessage()))
-                .onFailure().recoverWithItem(() -> null);
-            });
-
-        Uni<MempoolInfoResponse> mempoolInfoResponse;
-        if (dashboardConfig != null && dashboardConfig.disableMempool()) {
-            mempoolInfoResponse = Uni.createFrom().item((MempoolInfoResponse) null);
-        } else {
-            mempoolInfoResponse = getMempoolInfo()
-                .onFailure().invoke(e -> LOG.warnf("MempoolInfo RPC failed: %s", e.getMessage()))
-                .onFailure().recoverWithItem(() -> null);
-        }
-
-        return Uni.combine().all().unis(peerInfoUni, blockchainInfoUni, nodeInfoUni, uptimeUni, blockInfoUni, mempoolInfoResponse)
-            .asTuple()
-            .onItem().transform(this::buildGlobalResponseFromTuple);
+    private <T> Uni<T> addErrorHandling(Uni<T> uni, String callName, Map<String, String> errors, Supplier<T> defaultValueSupplier) {
+        return uni.onFailure().retry().atMost(3)
+                .onFailure().invoke(e -> {
+                    String errorMessage = e.getMessage() != null ? e.getMessage() : "Unknown error";
+                    LOG.warnf("%s RPC failed: %s", callName, errorMessage);
+                    errors.put(callName, errorMessage);
+                })
+                .onFailure().recoverWithItem(defaultValueSupplier);
     }
 
-    /**
-     * Builds a {@link GlobalResponse} object from a tuple of peer, blockchain, node, uptime, and block info.
-     *
-     * @param tuple a tuple containing all required data
-     * @return the aggregated {@link GlobalResponse}
-     */
-    private GlobalResponse buildGlobalResponseFromTuple(Tuple6<List<PeerInfoResponse>, BlockchainInfoResponse, NetworkInfoResponse, Long, BlockInfoResponse, MempoolInfoResponse> tuple) {
+    private GlobalResponse buildGlobalResponseFromTuple(Tuple6<List<PeerInfoResponse>, BlockchainInfoResponse, NetworkInfoResponse, Long, BlockInfoResponse, MempoolInfoResponse> tuple, Map<String, String> errors) {
         List<PeerInfoResponse> allPeers = tuple.getItem1();
         BlockchainInfoResponse blockchainInfoResponse = tuple.getItem2();
         NetworkInfoResponse nodeInfo = tuple.getItem3();
@@ -180,7 +154,6 @@ public class RpcServices implements DashboardDataProvider {
         MempoolInfoResponse mempoolInfoResponse = tuple.getItem6();
 
         var peersByType = allPeers.stream()
-                .map(e -> e)
                 .collect(Collectors.partitioningBy(PeerInfoResponse::inbound));
         List<PeerInfoResponse> inboundPeers = peersByType.get(true);
         List<PeerInfoResponse> outboundPeers = peersByType.get(false);
@@ -188,36 +161,32 @@ public class RpcServices implements DashboardDataProvider {
         var stats = new SubverDistribution(calculateSubverStats(inboundPeers), calculateSubverStats(outboundPeers));
         var generalStat = new GeneralStats(inboundPeers.size(), outboundPeers.size(), inboundPeers.size() + outboundPeers.size());
 
+        // Map RPC responses to View objects
+        List<PeerInfoView> inboundPeersView = inboundPeers.stream().map(PeerInfoView::from).toList();
+        List<PeerInfoView> outboundPeersView = outboundPeers.stream().map(PeerInfoView::from).toList();
+        BlockchainInfoView blockchainInfoView = BlockchainInfoView.from(blockchainInfoResponse);
+        NetworkInfoView nodeInfoView = NetworkInfoView.from(nodeInfo);
+        BlockInfoView blockInfoView = BlockInfoView.from(blockInfoResponse);
+        MempoolInfoView mempoolInfoView = MempoolInfoView.from(mempoolInfoResponse);
+
         return new GlobalResponse(
-                generalStat,
-                stats,
-                inboundPeers,
-                outboundPeers,
-                blockchainInfoResponse,
-                nodeInfo,
-                formatUptime(uptime),
-                blockInfoResponse,
-                mempoolInfoResponse
+            generalStat,
+            stats,
+            inboundPeersView,
+            outboundPeersView,
+            blockchainInfoView,
+            nodeInfoView,
+            uptime,
+            blockInfoView,
+            mempoolInfoView,
+            errors
         );
     }
 
-    
-    /**
-     * Executes the peer info RPC call and returns the result as a list of peers.
-     *
-     * @return a {@link Uni} emitting the list of peers
-     */
     private Uni<List<PeerInfoResponse>> executePeerInfoRpcCall() {
         return callRpcTyped(GET_PEER_INFO, Collections.emptyList(), PEER_INFO_TYPE_REF);
     }
-    
-    /**
-     * Calculates subversion distribution statistics with percentages for a list of peers.
-     * Uses single-pass stream processing for optimal performance.
-     *
-     * @param peers the list of peers
-     * @return a list of {@link SubverStats} representing the subversion distribution
-     */
+
     private List<SubverStats> calculateSubverStats(List<PeerInfoResponse> peers) {
         if (peers.isEmpty()) {
             return Collections.emptyList();
@@ -236,37 +205,25 @@ public class RpcServices implements DashboardDataProvider {
                 .toList();
     }
 
-    /**
-     * Centralized method for deserializing and handling errors for RPC calls.
-     *
-     * @param method the RPC method name
-     * @param params the parameters for the RPC call
-     * @param type the expected result type (Class or TypeReference)
-     * @return a {@link Uni} emitting the typed result or failing with an exception
-     */
-    private <T> Uni<T> callRpcTyped(String method, List<Object> params, Object type) {
-        final var rpcRequest = new RpcRequestDto(
-            "1.0",
-            "quarkus-" + method,
-            method,
-            params
-        );
+    private <T> Uni<T> callRpcTyped(String method, List<Object> params, Class<T> type) {
+        JavaType resultType = objectMapper.getTypeFactory().constructType(type);
+        return callRpcInternal(method, params, resultType);
+    }
+
+    private <T> Uni<T> callRpcTyped(String method, List<Object> params, TypeReference<T> type) {
+        JavaType resultType = objectMapper.getTypeFactory().constructType(type);
+        return callRpcInternal(method, params, resultType);
+    }
+
+    private <T> Uni<T> callRpcInternal(String method, List<Object> params, JavaType resultType) {
+        final var rpcRequest = new RpcRequestDto(JSON_RPC_VERSION, REQUEST_ID_PREFIX + method, method, params);
+
         return Uni.createFrom().item(() -> {
             long start = System.nanoTime();
             try {
-                final JavaType resultType;
-                if (type instanceof Class<?> clazz) {
-                    resultType = objectMapper.getTypeFactory().constructType(clazz);
-                } else if (type instanceof TypeReference<?> typeRef) {
-                    resultType = objectMapper.getTypeFactory().constructType(typeRef);
-                } else {
-                    throw new IllegalArgumentException("Type must be Class<T> or TypeReference<T>");
-                }
-
                 final var rpcResponseType = objectMapper.getTypeFactory().constructParametricType(RpcResponse.class, resultType);
                 RpcResponse<T> rpcResponse = objectMapper.readValue(rpcClient.executeRpcCall(rpcRequest), rpcResponseType);
 
-                
                 if (rpcResponse.getError() != null) {
                     throw new RpcException("RPC Error for method " + method + ": " + rpcResponse.getError());
                 }
@@ -278,7 +235,7 @@ public class RpcServices implements DashboardDataProvider {
                 return rpcResponse.getResult();
             } catch (Exception e) {
                 long durationMs = (System.nanoTime() - start) / 1_000_000;
-                LOG.debugf("RPC '%s' failed after %d ms: %s", method, durationMs, e.getMessage());
+                LOG.errorf(e, "RPC '%s' failed after %d ms: %s", method, durationMs, e.getMessage());
                 throw new RpcException("Connection failed for method " + method + ": " + e.getMessage(), e);
             }
         }).runSubscriptionOn(Infrastructure.getDefaultWorkerPool());

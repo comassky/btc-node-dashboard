@@ -6,3 +6,5 @@ export type { Peer } from './Peer';
 export type { SubverDistribution } from './SubverDistribution';
 export type { DashboardData } from './DashboardData';
 export type { DashboardConfig } from './DashboardConfig';
+
+export type { MempoolInfoResponse } from './MempoolInfoResponse';

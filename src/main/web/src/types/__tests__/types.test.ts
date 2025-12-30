@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import type { GeneralStats, BlockChainInfo, NetworkInfoResponse, BlockInfoResponse, Peer, SubverDistribution } from '@types';
+import type {
+  GeneralStats,
+  BlockChainInfo,
+  NetworkInfoResponse,
+  BlockInfoResponse,
+  Peer,
+  SubverDistribution,
+} from '@types';
 
 describe('Type Definitions', () => {
   describe('GeneralStats', () => {
@@ -63,7 +70,7 @@ describe('Type Definitions', () => {
         connections: 0,
         networkactive: false,
         networks: [],
-        localaddresses: []
+        localaddresses: [],
       };
 
       expect(nodeInfo.version).toBe(270000);
@@ -177,7 +184,9 @@ describe('Type Definitions', () => {
       ];
 
       expect(distributions.length).toBe(3);
-      expect(distributions.reduce((sum: number, item: SubverDistribution) => sum + item.count, 0)).toBe(20);
+      expect(
+        distributions.reduce((sum: number, item: SubverDistribution) => sum + item.count, 0)
+      ).toBe(20);
     });
 
     it('should validate percentages sum to 100', () => {
@@ -219,7 +228,7 @@ describe('Data Normalization', () => {
       chainwork: '',
       size_on_disk: 0,
       pruned: false,
-      pruneheight: null
+      pruneheight: null,
     };
 
     expect(blockchain.blocks).toBeGreaterThan(0);

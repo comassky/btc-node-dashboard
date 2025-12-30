@@ -6,6 +6,9 @@ import java.util.List;
 
 /**
  * DTO for subversion distribution.
+ *
+ * @param inbound  List of subversion statistics for inbound peers.
+ * @param outbound List of subversion statistics for outbound peers.
  */
 @RegisterForReflection
 public record SubverDistribution(

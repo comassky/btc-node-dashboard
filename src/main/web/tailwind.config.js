@@ -2,10 +2,7 @@
 export default {
   // Dark mode is managed by the 'dark' class on the <html> element
   darkMode: 'class',
-  content: [
-    "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -17,7 +14,7 @@ export default {
         'border-strong': 'var(--border-strong)',
 
         // Couleurs de statut/accent
-        'accent': 'var(--accent)',
+        accent: 'var(--accent)',
         'status-success': 'var(--status-success)',
         'status-error': 'var(--status-error)',
         'status-warning': 'var(--status-warning)',
@@ -25,4 +22,4 @@ export default {
     },
   },
   plugins: [],
-}
+};

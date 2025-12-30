@@ -50,7 +50,7 @@ describe('Number formatters', () => {
   it('should scale hash rate units appropriately', () => {
     const lowDifficulty = formatHashRate(1000);
     const highDifficulty = formatHashRate(100000000000000);
-    
+
     expect(lowDifficulty).not.toBe(highDifficulty);
   });
 });
@@ -63,7 +63,7 @@ describe('Date formatters', () => {
   it('should format Unix timestamp correctly', () => {
     const timestamp = 1733443200;
     const result = formatTimestamp(timestamp);
-    
+
     expect(result).toBeTruthy();
     expect(result).toContain('2024');
   });
@@ -76,7 +76,7 @@ describe('Date formatters', () => {
   it('should handle recent timestamp', () => {
     const recentTimestamp = Math.floor(Date.now() / 1000);
     const result = formatTimestamp(recentTimestamp);
-    
+
     expect(result.length).toBeGreaterThan(0);
     expect(typeof result).toBe('string');
   });

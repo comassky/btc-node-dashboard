@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import * as nodeHealth from '../nodeHealth';
 
 describe('nodeHealth utils', () => {
-
   // Mock complet pour BlockChainInfo
   const baseBlockChainInfo = {
     chain: 'main',
@@ -30,7 +29,9 @@ describe('nodeHealth utils', () => {
   });
 
   it('computes header-block diff', () => {
-    expect(nodeHealth.getHeaderBlockDiff({ ...baseBlockChainInfo, headers: 100, blocks: 95 })).toBe(5);
+    expect(nodeHealth.getHeaderBlockDiff({ ...baseBlockChainInfo, headers: 100, blocks: 95 })).toBe(
+      5
+    );
   });
 
   it('detects block too old', () => {
@@ -45,12 +46,21 @@ describe('nodeHealth utils', () => {
   });
 
   it('detects not fully synced', () => {
-    expect(nodeHealth.isNotFullySynced({ ...baseBlockChainInfo, verificationprogress: 0.9 })).toBe(true);
-    expect(nodeHealth.isNotFullySynced({ ...baseBlockChainInfo, verificationprogress: 0.99999 })).toBe(false);
+    expect(nodeHealth.isNotFullySynced({ ...baseBlockChainInfo, verificationprogress: 0.9 })).toBe(
+      true
+    );
+    expect(
+      nodeHealth.isNotFullySynced({ ...baseBlockChainInfo, verificationprogress: 0.99999 })
+    ).toBe(false);
   });
 
   it('detects node out of sync', () => {
-    const blockchain = { ...baseBlockChainInfo, headers: 100, blocks: 90, verificationprogress: 0.9 };
+    const blockchain = {
+      ...baseBlockChainInfo,
+      headers: 100,
+      blocks: 90,
+      verificationprogress: 0.9,
+    };
     const block = { time: Math.floor(Date.now() / 1000) - 4000, nTx: 2000 };
     expect(nodeHealth.isNodeOutOfSync(blockchain, block)).toBe(true);
   });

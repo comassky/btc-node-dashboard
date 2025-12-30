@@ -6,7 +6,7 @@ describe('Tooltip.vue', () => {
   it('renders slot content', () => {
     const wrapper = mount(Tooltip, {
       props: { text: 'info' },
-      slots: { default: '<button>Hover me</button>' }
+      slots: { default: '<button>Hover me</button>' },
     });
     expect(wrapper.text()).toContain('Hover me');
   });
@@ -14,7 +14,7 @@ describe('Tooltip.vue', () => {
   it('shows tooltip on mouseenter and hides on mouseleave', async () => {
     const wrapper = mount(Tooltip, {
       props: { text: 'info' },
-      slots: { default: '<button>Hover me</button>' }
+      slots: { default: '<button>Hover me</button>' },
     });
     // Trigger mouseenter and check if tooltip is rendered
     await wrapper.trigger('mouseenter');
@@ -27,7 +27,7 @@ describe('Tooltip.vue', () => {
   it('positions tooltip according to prop', async () => {
     const wrapper = mount(Tooltip, {
       props: { text: 'info', position: 'bottom' },
-      slots: { default: '<span>Hover</span>' }
+      slots: { default: '<span>Hover</span>' },
     });
     expect(wrapper.props('position')).toBe('bottom');
   });

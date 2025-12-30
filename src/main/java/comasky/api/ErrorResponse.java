@@ -10,6 +10,10 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
  */
 @RegisterForReflection
 public record ErrorResponse(String message, String code) {
+    /**
+     * Creates an ErrorResponse with just a message.
+     * @param message the error message
+     */
     public ErrorResponse(String message) {
         this(message, null);
     }

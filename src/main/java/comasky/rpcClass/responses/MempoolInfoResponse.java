@@ -1,6 +1,5 @@
 package comasky.rpcClass.responses;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -8,32 +7,30 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Provides statistics about the current state of the node's mempool (unconfirmed transactions).
  */
 public record MempoolInfoResponse(
-        // Information about transactions in the mempool
-        @JsonIgnore @JsonProperty("loaded")
-        boolean loaded, // True if the mempool is fully loaded after startup/restart
+        @JsonProperty("loaded")
+        boolean loaded,
 
         @JsonProperty("size")
-        int size,       // Total number of transactions in the mempool
+        int size,
 
         @JsonProperty("bytes")
-        long bytes,     // Total size (in bytes) of all transactions in the mempool
+        long bytes,
 
         @JsonProperty("usage")
-        long usage,     // Memory (in bytes) used by the mempool (including indexes)
+        long usage,
 
         @JsonProperty("maxmempool")
-        long maxmempool, // Maximum configured size of the mempool (in bytes)
+        long maxmempool,
 
         @JsonProperty("mempoolminfee")
-        double mempoolminfee, // Minimum fee rate (in BTC/kB) for transactions to be accepted into the mempool
+        double mempoolminfee,
 
         @JsonProperty("minrelaytxfee")
-        double minrelaytxfee, // Minimum fee rate to relay a transaction (in BTC/kB)
+        double minrelaytxfee,
 
-        // Replace-by-fee (RBF) counters
         @JsonProperty("unbroadcastcount")
-        int unbroadcastcount, // Number of transactions in the mempool not yet broadcast to peers
+        int unbroadcastcount,
 
         @JsonProperty("total_fee")
-        double totalFee // Total fees (in BTC) of all transactions in the mempool
+        double totalFee
 ) {}

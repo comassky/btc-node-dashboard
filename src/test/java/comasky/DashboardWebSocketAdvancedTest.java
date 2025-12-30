@@ -1,108 +1,147 @@
 package comasky;
 
-import comasky.api.DashboardWebSocket;
-import comasky.rpcClass.RpcServices;
-import comasky.rpcClass.dto.GeneralStats;
-import comasky.rpcClass.dto.GlobalResponse;
-import comasky.rpcClass.dto.SubverDistribution;
-import comasky.rpcClass.responses.BlockInfoResponse;
-import comasky.rpcClass.responses.BlockchainInfoResponse;
-import comasky.rpcClass.responses.MempoolInfoResponse;
+import comasky.client.RpcClient;
+import comasky.client.RpcRequestDto;
 import io.quarkus.test.InjectMock;
+import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.infrastructure.Infrastructure;
-import jakarta.inject.Inject;
-import jakarta.websocket.RemoteEndpoint;
+import jakarta.websocket.ClientEndpoint;
+import jakarta.websocket.ContainerProvider;
+import jakarta.websocket.OnMessage;
 import jakarta.websocket.Session;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatcher;
 
-import java.util.Collections;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @QuarkusTest
 class DashboardWebSocketAdvancedTest {
 
     @InjectMock
-    RpcServices rpcServices;
+    RpcClient rpcClient;
 
-    @Inject
-    DashboardWebSocket webSocket;
+    @TestHTTPResource("/ws/dashboard")
+    URI uri;
 
-    @Test
-    void testConcurrentAccess_singleRpcCall() throws InterruptedException {
-        GlobalResponse mockResponse = createMockGlobalResponse();
-        when(rpcServices.getData()).thenReturn(Uni.createFrom().item(mockResponse).emitOn(Infrastructure.getDefaultExecutor()));
+    private static CountDownLatch latch;
 
-        int concurrentClients = 5;
-        CountDownLatch latch = new CountDownLatch(concurrentClients);
+    /**
+     * A custom Mockito ArgumentMatcher to safely match RPC requests by method name.
+     * This avoids NullPointerExceptions that can occur with lambda matchers.
+     */
+    private static class RpcMethodMatcher implements ArgumentMatcher<RpcRequestDto> {
+        private final String methodName;
 
-        
-        for (int i = 0; i < concurrentClients; i++) {
-            Session mockSession = mock(Session.class);
-            RemoteEndpoint.Async mockAsync = mock(RemoteEndpoint.Async.class);
-            when(mockSession.getId()).thenReturn("session-" + i);
-            when(mockSession.isOpen()).thenReturn(true);
-            when(mockSession.getAsyncRemote()).thenReturn(mockAsync);
-
-            doAnswer(invocation -> {
-                latch.countDown();
-                return null;
-            }).when(mockAsync).sendText(anyString());
-
-            webSocket.onOpen(mockSession);
+        private RpcMethodMatcher(String methodName) {
+            this.methodName = methodName;
         }
 
-        
-        latch.await(5, TimeUnit.SECONDS);
+        @Override
+        public boolean matches(RpcRequestDto request) {
+            // Guard against nulls that Mockito might pass internally during setup
+            return request != null && methodName.equals(request.method());
+        }
 
-        
-        verify(rpcServices, times(1)).getData();
+        @Override
+        public String toString() {
+            return "A RpcRequestDto with method: " + methodName;
+        }
     }
 
-    private GlobalResponse createMockGlobalResponse() {
-        return new GlobalResponse(
-            new GeneralStats(0, 0, 0),
-            new SubverDistribution(Collections.emptyList(), Collections.emptyList()),
-            Collections.emptyList(),
-            Collections.emptyList(),
-            new BlockchainInfoResponse(
-                "", // chain
-                0,  // blocks
-                0,  // headers
-                "", // bestblockhash
-                0.0, // difficulty
-                0L, // time
-                0L, // mediantime
-                0.0, // verificationprogress
-                false, // initialblockdownload
-                "", // chainwork
-                0L, // size_on_disk
-                false, // pruned
-                null // pruneheight
-            ),
-            new comasky.rpcClass.responses.NetworkInfoResponse(
-                0, // version
-                "", // subversion
-                0, // protocolversion
-                "", // localservices
-                Collections.emptyList(), // localservicesnames
-                false, // localrelay
-                0, // timeoffset
-                0, // connections
-                false, // networkactive
-                Collections.emptyList(), // networks
-                Collections.emptyList() // localaddresses
-            ),
-            "0s",
-            new BlockInfoResponse(null, 0, 0, 0, 0, 0, 0, null, null, 0, 0, 0, null, 0, null, 0, null, null),
-            new MempoolInfoResponse(
-                true, 0, 0L, 0L, 0L, 0.0, 0.0, 0, 0.0
-            )
-        );
+    @BeforeEach
+    public void setup() {
+        reset(rpcClient);
+        setupRpcClientMocks();
+    }
+
+    private void setupRpcClientMocks() {
+        try {
+            when(rpcClient.executeRpcCall(argThat(new RpcMethodMatcher("getblockchaininfo"))))
+                .thenReturn("{\"result\": {\"chain\": \"main\", \"blocks\": 123}, \"error\": null, \"id\": \"1\"}");
+
+            when(rpcClient.executeRpcCall(argThat(new RpcMethodMatcher("getnetworkinfo"))))
+                .thenReturn("{\"result\": {\"version\": 70016, \"subversion\": \"/Satoshi:27.0.0/\"}, \"error\": null, \"id\": \"1\"}");
+
+            when(rpcClient.executeRpcCall(argThat(new RpcMethodMatcher("getpeerinfo"))))
+                .thenReturn("{\"result\": [], \"error\": null, \"id\": \"1\"}");
+
+            when(rpcClient.executeRpcCall(argThat(new RpcMethodMatcher("uptime"))))
+                .thenReturn("{\"result\": 1000, \"error\": null, \"id\": \"1\"}");
+
+            when(rpcClient.executeRpcCall(argThat(new RpcMethodMatcher("getbestblockhash"))))
+                .thenReturn("{\"result\": \"some_hash\", \"error\": null, \"id\": \"1\"}");
+
+            when(rpcClient.executeRpcCall(argThat(new RpcMethodMatcher("getblock"))))
+                .thenReturn("{\"result\": {\"time\": 12345, \"nTx\": 10}, \"error\": null, \"id\": \"1\"}");
+
+            when(rpcClient.executeRpcCall(argThat(new RpcMethodMatcher("getmempoolinfo"))))
+                .thenReturn("{\"result\": {\"size\": 1}, \"error\": null, \"id\": \"1\"}");
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to setup mocks", e);
+        }
+    }
+
+    @Test
+    void testConcurrentConnections_triggersSingleRpcCallDueToCache() throws Exception {
+        int concurrentClients = 5;
+        latch = new CountDownLatch(concurrentClients);
+
+        ExecutorService executor = Executors.newFixedThreadPool(concurrentClients);
+        List<Session> sessions = new ArrayList<>();
+
+        try {
+            for (int i = 0; i < concurrentClients; i++) {
+                executor.submit(() -> {
+                    try {
+                        sessions.add(ContainerProvider.getWebSocketContainer().connectToServer(Client.class, uri));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+
+            boolean allMessagesReceived = latch.await(10, TimeUnit.SECONDS);
+            assertTrue(allMessagesReceived, "All clients should have received a message");
+
+            // Verify that each RPC method was called only ONCE, proving the cache works.
+            verify(rpcClient, times(1)).executeRpcCall(argThat(new RpcMethodMatcher("getblockchaininfo")));
+            verify(rpcClient, times(1)).executeRpcCall(argThat(new RpcMethodMatcher("getnetworkinfo")));
+            verify(rpcClient, times(1)).executeRpcCall(argThat(new RpcMethodMatcher("getpeerinfo")));
+            verify(rpcClient, times(1)).executeRpcCall(argThat(new RpcMethodMatcher("uptime")));
+            verify(rpcClient, times(1)).executeRpcCall(argThat(new RpcMethodMatcher("getbestblockhash")));
+            verify(rpcClient, times(1)).executeRpcCall(argThat(new RpcMethodMatcher("getblock")));
+            verify(rpcClient, atMost(1)).executeRpcCall(argThat(new RpcMethodMatcher("getmempoolinfo")));
+
+        } finally {
+            sessions.forEach(session -> {
+                if (session.isOpen()) {
+                    try {
+                        session.close();
+                    } catch (Exception e) { /* ignore */ }
+                }
+            });
+            executor.shutdownNow();
+        }
+    }
+
+    @ClientEndpoint
+    public static class Client {
+        @OnMessage
+        void message(String msg) {
+            if (latch != null) {
+                latch.countDown();
+            }
+        }
     }
 }

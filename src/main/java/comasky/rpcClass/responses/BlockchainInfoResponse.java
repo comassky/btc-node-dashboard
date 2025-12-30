@@ -1,39 +1,52 @@
-
 package comasky.rpcClass.responses;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
+/**
+ * Response wrapper for the 'getblockchaininfo' RPC call.
+ * Provides information about the current state of the blockchain.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @RegisterForReflection
 public record BlockchainInfoResponse(
         @JsonProperty("chain")
         String chain,
+
         @JsonProperty("blocks")
         int blocks,
+
         @JsonProperty("headers")
         int headers,
-        @JsonIgnore @JsonProperty("bestblockhash")
+
+        @JsonProperty("bestblockhash")
         String bestblockhash,
+
         @JsonProperty("difficulty")
         double difficulty,
+
         @JsonProperty("time")
         long time,
+
         @JsonProperty("mediantime")
         long mediantime,
+
         @JsonProperty("verificationprogress")
         double verificationprogress,
+
         @JsonProperty("initialblockdownload")
         boolean initialblockdownload,
+
         @JsonProperty("chainwork")
         String chainwork,
+
         @JsonProperty("size_on_disk")
         long size_on_disk,
-        @JsonIgnore @JsonProperty("pruned")
+
+        @JsonProperty("pruned")
         boolean pruned,
 
-        @JsonIgnore @JsonProperty("pruneheight")
+        @JsonProperty("pruneheight")
         Long pruneheight
 ) {}

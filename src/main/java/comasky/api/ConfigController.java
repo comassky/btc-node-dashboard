@@ -1,7 +1,6 @@
-
 package comasky.api;
 
-import comasky.shared.DashboardConfig;
+import comasky.config.DashboardConfig;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -27,15 +26,12 @@ public class ConfigController {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-
     public Uni<DashboardConfigResponse> getConfig() {
         int minPeers = 0;
         boolean disableMempool = false;
         if (config != null) {
-            if (config.health() != null && config.health().min() != null && config.health().min().outbound() != null) {
-                minPeers = config.health().min().outbound().peers();
-            }
-            disableMempool = config.disableMempool();
+                minPeers = config.peers().minOutbound();
+                disableMempool = config.mempool().disable();
         }
         return Uni.createFrom().item(new DashboardConfigResponse(minPeers, disableMempool));
     }
@@ -43,6 +39,7 @@ public class ConfigController {
     /**
      * DTO for dashboard configuration response.
      * @param minOutboundPeers minimum number of outbound peers required
+     * @param disableMempool whether mempool display is disabled
      */
     public record DashboardConfigResponse(int minOutboundPeers, boolean disableMempool) {}
 }

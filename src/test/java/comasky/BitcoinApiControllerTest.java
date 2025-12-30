@@ -6,12 +6,16 @@ import comasky.rpcClass.dto.GeneralStats;
 import comasky.rpcClass.dto.GlobalResponse;
 import comasky.rpcClass.dto.SubverDistribution;
 import comasky.rpcClass.dto.SubverStats;
-import comasky.rpcClass.responses.*;
+import comasky.rpcClass.responses.BlockInfoResponse;
+import comasky.rpcClass.responses.BlockchainInfoResponse;
+import comasky.rpcClass.responses.NetworkInfoResponse;
+import comasky.rpcClass.view.*;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
@@ -21,6 +25,9 @@ import static org.mockito.Mockito.when;
 
 @QuarkusTest
 class BitcoinApiControllerTest {
+
+    @InjectMock
+    RpcServices rpcServices;
 
     @Test
     void testGetNetworkInfo() {
@@ -38,7 +45,7 @@ class BitcoinApiControllerTest {
 
     @Test
     void testGetBlockInfo() {
-        String hash = "0000000000000000000dummyhash";
+        String hash = "0000000000000000000a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e";
         BlockInfoResponse mockBlock = new BlockInfoResponse(hash, 1, 0, 0, 0, 870000, 1, "", "", 1733443200L, 0L, 0L, "", 1.0, "", 2500, "", "");
         when(rpcServices.getBlockInfo(hash)).thenReturn(Uni.createFrom().item(mockBlock));
 
@@ -76,78 +83,63 @@ class BitcoinApiControllerTest {
             .body("chain", is("main"));
     }
 
-    @InjectMock
-    RpcServices rpcServices;
-
-
     @Test
     void testInstantiationWithMock() {
-        comasky.rpcClass.RpcServices rpcServices = org.mockito.Mockito.mock(comasky.rpcClass.RpcServices.class);
-        BitcoinApiController controller = new BitcoinApiController(rpcServices);
+        RpcServices mockRpcServices = org.mockito.Mockito.mock(RpcServices.class);
+        BitcoinApiController controller = new BitcoinApiController(mockRpcServices);
         assertNotNull(controller);
+    }
+
+    @Test
+    void testGetDashboardData() {
+        GlobalResponse mockResponse = createMockGlobalResponse();
+        when(rpcServices.getData()).thenReturn(Uni.createFrom().item(mockResponse));
+
+        given()
+            .when().get("/api/dashboard")
+            .then()
+            .statusCode(200)
+            .body("generalStats.totalPeers", is(10));
     }
 
     private GlobalResponse createMockGlobalResponse() {
         GeneralStats generalStats = new GeneralStats(2, 8, 10);
 
-        BlockchainInfoResponse blockchainInfoResponse = new BlockchainInfoResponse(
-            "main", // chain
-            870000,  // blocks
-            870000,  // headers
-            "0000000000000000000dummyhash", // bestblockhash
-            0.9999,  // difficulty
-            1700000000L, // time
-            1700000000L, // mediantime
-            0.9999,  // verificationprogress
-            false,   // initialblockdownload
-            "0000000000000000000000000000000000000000000000000000000000000000", // chainwork
-            1000000000L, // size_on_disk
-            false,   // pruned
-            null     // pruneheight
+        BlockchainInfoView blockchainInfoView = new BlockchainInfoView(
+            "main", 870000, 870000, 0.9999, 1700000000L, 1700000000L, 0.9999, false,
+            "0000000000000000000000000000000000000000000000000000000000000000", 1000000000L
         );
 
-        NetworkInfoResponse nodeInfo = new NetworkInfoResponse(
-            70016, // version
-            "/Satoshi:27.0.0/", // subversion
-            270000, // protocolversion
-            "0000000000000000", // localservices
-            java.util.Collections.emptyList(), // localservicesnames
-            true, // localrelay
-            0, // timeoffset
-            10, // connections
-            true, // networkactive
-            java.util.Collections.emptyList(), // networks
-            java.util.Collections.emptyList() // localaddresses
+        NetworkInfoView nodeInfoView = new NetworkInfoView(
+            70016, "/Satoshi:27.0.0/", 270000, java.util.Collections.emptyList(), java.util.Collections.emptyList()
         );
 
-        PeerInfoResponse peer1 = new PeerInfoResponse(1, "192.168.1.1:8333", null, null, 0, 0, 0, 2000000L, 1000000L, null, null, 0, 0, 0, 0, "/Satoshi:27.0.0/", true, null, 0, null, null, 0);
-        PeerInfoResponse peer2 = new PeerInfoResponse(2, "192.168.1.2:8333", null, null, 0, 0, 0, 1500000L, 500000L, null, null, 0, 0, 0, 0, "/Satoshi:26.0.0/", false, null, 0, null, null, 0);
+        PeerInfoView peer1 = new PeerInfoView(1, "192.168.1.1:8333", 0, 2000000L, 1000000L, 0, 0, 0, "/Satoshi:27.0.0/", true, null, null);
+        PeerInfoView peer2 = new PeerInfoView(2, "192.168.1.2:8333", 0, 1500000L, 500000L, 0, 0, 0, "/Satoshi:26.0.0/", false, null, null);
 
-        List<PeerInfoResponse> inboundPeers = List.of(peer1, peer1);
-        List<PeerInfoResponse> outboundPeers = List.of(peer2, peer2, peer2, peer2, peer2, peer2, peer2, peer2);
+        List<PeerInfoView> inboundPeers = List.of(peer1, peer1);
+        List<PeerInfoView> outboundPeers = List.of(peer2, peer2, peer2, peer2, peer2, peer2, peer2, peer2);
 
         SubverStats inboundStats = new SubverStats("/Satoshi:27.0.0/", 100.0);
         SubverStats outboundStats = new SubverStats("/Satoshi:26.0.0/", 100.0);
 
-        SubverDistribution distribution = new SubverDistribution(
-                List.of(inboundStats),
-                List.of(outboundStats)
-        );
+        SubverDistribution distribution = new SubverDistribution(List.of(inboundStats), List.of(outboundStats));
 
-        BlockInfoResponse blockInfoResponse = new BlockInfoResponse(null, 0, 0, 0, 0, 0, 0, null, null, System.currentTimeMillis() / 1000, 0, 0, null, 0, null, 2500, null, null);
+        BlockInfoView blockInfoView = new BlockInfoView(System.currentTimeMillis() / 1000, 2500);
+
+        MempoolInfoView mempoolInfoView = new MempoolInfoView(0, 0L, 0L, 0L, 0.0, 0.0, 0, 0.0);
 
         return new GlobalResponse(
                 generalStats,
                 distribution,
                 inboundPeers,
                 outboundPeers,
-                blockchainInfoResponse,
-                nodeInfo,
-                "5 days 3 hours",
-                blockInfoResponse,
-                new MempoolInfoResponse(
-                        true, 0, 0L, 0L, 0L, 0.0, 0.0, 0, 0.0
-                )
+                blockchainInfoView,
+                nodeInfoView,
+                446400L,
+                blockInfoView,
+                mempoolInfoView,
+                Collections.emptyMap()
         );
     }
 }

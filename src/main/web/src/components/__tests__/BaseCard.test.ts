@@ -5,7 +5,7 @@ import { describe, it, expect } from 'vitest';
 describe('BaseCard.vue', () => {
   it('renders slot content', () => {
     const wrapper = mount(BaseCard, {
-      slots: { default: '<div>Card content</div>' }
+      slots: { default: '<div>Card content</div>' },
     });
     expect(wrapper.text()).toContain('Card content');
   });
@@ -13,7 +13,7 @@ describe('BaseCard.vue', () => {
   it('applies interactive class when prop is set', () => {
     const wrapper = mount(BaseCard, {
       props: { interactive: true },
-      slots: { default: '<div>Card</div>' }
+      slots: { default: '<div>Card</div>' },
     });
     expect(wrapper.classes()).toContain('dashboard-card-interactive');
   });
@@ -21,8 +21,8 @@ describe('BaseCard.vue', () => {
   it('applies correct status class', () => {
     const wrapper = mount(BaseCard, {
       props: { status: 'error' },
-      slots: { default: '<div>Card</div>' }
+      slots: { default: '<div>Card</div>' },
     });
-    expect(wrapper.classes().some(c => c.includes('status-error'))).toBe(true);
+    expect(wrapper.classes().some((c) => c.includes('status-error'))).toBe(true);
   });
 });

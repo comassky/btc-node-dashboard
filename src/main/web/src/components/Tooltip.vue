@@ -12,14 +12,22 @@
         ref="tooltipEl"
         :style="tooltipStyle"
         :class="[
-          'fixed px-3 py-2 bg-bg-card text-text-primary text-sm rounded-lg opacity-100 visible whitespace-nowrap z-[99999] pointer-events-auto shadow-xl border border-border-strong',
+          'pointer-events-auto visible fixed z-[99999] whitespace-nowrap rounded-lg border border-border-strong bg-bg-card px-3 py-2 text-sm text-text-primary opacity-100 shadow-xl',
         ]"
       >
         {{ text }}
-        <div 
+        <div
           :class="[
             'absolute border-4 border-transparent',
-            position === 'bottom' ? 'bottom-full -mb-1 border-b-bg-card left-1/2 -translate-x-1/2' : position === 'top' ? 'top-full -mt-1 border-t-bg-card left-1/2 -translate-x-1/2' : position === 'left' ? 'left-full -ml-1 border-l-bg-card top-1/2 -translate-y-1/2' : position === 'right' ? 'right-full -mr-1 border-r-bg-card top-1/2 -translate-y-1/2' : ''
+            position === 'bottom'
+              ? 'bottom-full left-1/2 -mb-1 -translate-x-1/2 border-b-bg-card'
+              : position === 'top'
+                ? 'left-1/2 top-full -mt-1 -translate-x-1/2 border-t-bg-card'
+                : position === 'left'
+                  ? 'left-full top-1/2 -ml-1 -translate-y-1/2 border-l-bg-card'
+                  : position === 'right'
+                    ? 'right-full top-1/2 -mr-1 -translate-y-1/2 border-r-bg-card'
+                    : '',
           ]"
         ></div>
       </div>
@@ -28,18 +36,15 @@
 </template>
 
 <script setup lang="ts">
-
-
 import { ref, onUnmounted, watch, nextTick } from 'vue';
 
-
-
-const props = withDefaults(defineProps<{
-  text: string;
-  position?: 'top' | 'bottom' | 'left' | 'right';
-}>(), { position: 'top' });
-
-
+const props = withDefaults(
+  defineProps<{
+    text: string;
+    position?: 'top' | 'bottom' | 'left' | 'right';
+  }>(),
+  { position: 'top' }
+);
 
 const isHovered = ref(false);
 // Expose pour les tests unitaires
@@ -48,9 +53,12 @@ const triggerEl = ref<HTMLElement>();
 const tooltipEl = ref<HTMLElement>();
 const tooltipStyle = ref({ top: '0px', left: '0px', maxWidth: '100vw' });
 
-
-
-function getTooltipCoords(position: string, triggerRect: DOMRect, tooltipRect: DOMRect, padding: number) {
+function getTooltipCoords(
+  position: string,
+  triggerRect: DOMRect,
+  tooltipRect: DOMRect,
+  padding: number
+) {
   const centerX = triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2;
   const centerY = triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2;
   switch (position) {
@@ -93,11 +101,9 @@ function updateTooltipPosition() {
   tooltipStyle.value = {
     top: `${top}px`,
     left: `${left}px`,
-    maxWidth: `calc(100vw - ${2 * padding}px)`
+    maxWidth: `calc(100vw - ${2 * padding}px)`,
   };
 }
-
-
 
 const handleMouseEnter = () => {
   isHovered.value = true;
@@ -107,11 +113,9 @@ const handleMouseLeave = () => {
   isHovered.value = false;
 };
 
-
-
-watch(isHovered, val => { if (val) nextTick(updateTooltipPosition); });
-
-
+watch(isHovered, (val) => {
+  if (val) nextTick(updateTooltipPosition);
+});
 
 onUnmounted(() => {
   triggerEl.value = undefined;

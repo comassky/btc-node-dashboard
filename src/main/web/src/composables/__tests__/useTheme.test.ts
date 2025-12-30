@@ -1,26 +1,18 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { useTheme } from '@composables/useTheme';
-import { defineComponent, h } from 'vue';
-import { mount } from '@vue/test-utils';
+import { nextTick } from 'vue';
 
 describe('useTheme', () => {
   beforeEach(() => {
     localStorage.clear();
-    document.documentElement.classList.remove('dark');
-    document.documentElement.style.removeProperty('--status-error-rgb');
-    
-    // Mock matchMedia
+    document.documentElement.className = '';
+
+    // Mock matchMedia for consistent testing
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
       value: vi.fn().mockImplementation((query: string) => ({
         matches: query === '(prefers-color-scheme: dark)',
         media: query,
-        onchange: null,
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
       })),
     });
   });
@@ -29,128 +21,49 @@ describe('useTheme', () => {
     vi.restoreAllMocks();
   });
 
-  const createWrapper = () => {
-    let composableResult: any;
-    
-    const TestComponent = defineComponent({
-      setup() {
-        composableResult = useTheme();
-        return () => h('div');
-      }
-    });
-    
-    const wrapper = mount(TestComponent);
-    return { wrapper, result: composableResult };
-  };
-
-  it('should initialize with dark mode by default', async () => {
-    const { result, wrapper } = createWrapper();
-    await wrapper.vm.$nextTick();
-    
-    expect(result.isDarkMode.value).toBe(true);
+  it('should initialize with dark mode if system preference is dark', () => {
+    const { theme } = useTheme();
+    expect(theme.value).toBe('dark');
     expect(document.documentElement.classList.contains('dark')).toBe(true);
   });
 
-  it('should toggle dark mode', async () => {
-    const { result, wrapper } = createWrapper();
-    await wrapper.vm.$nextTick();
+  it('should initialize with light mode if system preference is light', () => {
+    window.matchMedia = vi.fn().mockReturnValue({ matches: false });
+    const { theme } = useTheme();
+    expect(theme.value).toBe('light');
+    expect(document.documentElement.classList.contains('light')).toBe(true);
+  });
 
-    // Initial state: dark
-    expect(result.theme.value).toBe('dark');
+  it('should load saved theme from localStorage over system preference', () => {
+    localStorage.setItem('theme', 'gray');
+    const { theme } = useTheme();
+    expect(theme.value).toBe('gray');
+    expect(document.documentElement.classList.contains('gray')).toBe(true);
+  });
 
-    // 1st toggle: dark -> gray
-    result.toggleDarkMode();
-    expect(result.theme.value).toBe('gray');
+  it('should cycle through themes: light -> dark -> gray -> light', async () => {
+    const { theme, cycleTheme } = useTheme();
+
+    // Set initial state to light for predictable cycling
+    theme.value = 'light';
+    await nextTick(); // Allow watchEffect to run
+
+    // Cycle 1: light -> dark
+    cycleTheme();
+    await nextTick();
+    expect(theme.value).toBe('dark');
+    expect(localStorage.getItem('theme')).toBe('dark');
+
+    // Cycle 2: dark -> gray
+    cycleTheme();
+    await nextTick();
+    expect(theme.value).toBe('gray');
     expect(localStorage.getItem('theme')).toBe('gray');
 
-    // 2nd toggle: gray -> light
-    result.toggleDarkMode();
-    expect(result.theme.value).toBe('light');
+    // Cycle 3: gray -> light
+    cycleTheme();
+    await nextTick();
+    expect(theme.value).toBe('light');
     expect(localStorage.getItem('theme')).toBe('light');
-
-    // 3rd toggle: light -> dark
-    result.toggleDarkMode();
-    expect(result.theme.value).toBe('dark');
-    expect(localStorage.getItem('theme')).toBe('dark');
-  });
-
-  it('should save theme preference to localStorage', async () => {
-    const { result, wrapper } = createWrapper();
-    await wrapper.vm.$nextTick();
-    
-    result.toggleDarkMode();
-    const theme1 = localStorage.getItem('theme');
-    
-    result.toggleDarkMode();
-    const theme2 = localStorage.getItem('theme');
-    
-    expect(theme1).not.toBe(theme2);
-  });
-
-  it('should add dark class to document when dark mode is enabled', async () => {
-    const { result, wrapper } = createWrapper();
-    await wrapper.vm.$nextTick();
-    
-    // Ensure we're in dark mode
-    if (!result.isDarkMode.value) {
-      result.toggleDarkMode();
-    }
-    
-    expect(document.documentElement.classList.contains('dark')).toBe(true);
-  });
-
-  it('should remove dark class when dark mode is disabled', async () => {
-    const { result, wrapper } = createWrapper();
-    await wrapper.vm.$nextTick();
-    
-    // Ensure we're in light mode
-    if (result.isDarkMode.value) {
-      result.toggleDarkMode();
-    }
-    
-    expect(document.documentElement.classList.contains('dark')).toBe(false);
-  });
-
-  it('should update error pulse RGB color based on theme', async () => {
-    const { result, wrapper } = createWrapper();
-    await wrapper.vm.$nextTick();
-    
-    result.toggleDarkMode();
-    
-    const errorColor = document.documentElement.style.getPropertyValue('--status-error-rgb');
-    expect(errorColor).toBeTruthy();
-    expect(errorColor).toMatch(/\d+,\s*\d+,\s*\d+/);
-  });
-
-  it('should load saved theme from localStorage', async () => {
-    localStorage.setItem('theme', 'light');
-    
-    const { result, wrapper } = createWrapper();
-    await wrapper.vm.$nextTick();
-    
-    expect(result.isDarkMode.value).toBe(false);
-    expect(document.documentElement.classList.contains('dark')).toBe(false);
-  });
-
-  it('should respect prefers-color-scheme when no saved theme', async () => {
-    const { result, wrapper } = createWrapper();
-    await wrapper.vm.$nextTick();
-    
-    // No saved theme + matchMedia returns true for dark mode
-    expect(result.isDarkMode.value).toBe(true);
-    expect(document.documentElement.classList.contains('dark')).toBe(true);
-  });
-
-  it('should persist theme across multiple toggles', async () => {
-    const { result, wrapper } = createWrapper();
-    await wrapper.vm.$nextTick();
-    
-    result.toggleDarkMode();
-    const theme1 = localStorage.getItem('theme');
-    
-    result.toggleDarkMode();
-    const theme2 = localStorage.getItem('theme');
-    
-    expect(theme1).not.toBe(theme2);
   });
 });
