@@ -7,17 +7,16 @@ name: Main / Docker (JVM)
 
 on:
   push:
-    branches: [ "main" ]
-    tags: [ '*.*.*' ]
+    branches: ["main"]
+    tags: ["*.*.*"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
-
 
 jobs:
   test:
@@ -31,8 +30,8 @@ jobs:
       - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
-          java-version: '25'
-          distribution: 'temurin'
+          java-version: "25"
+          distribution: "temurin"
           cache: maven
 
       - name: Run backend tests
@@ -41,17 +40,22 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
-          cache: 'npm'
+          node-version: "v24.12.0"
+          cache: "npm"
           cache-dependency-path: src/main/web/package-lock.json
 
       - name: Install frontend dependencies
         working-directory: src/main/web
-        run: npm ci
+        run: npm install -g pnpm@10.26.2
+      - name: Install dependencies (pnpm)
+        run: pnpm install
+
+      - name: Install Node.js and pnpm (frontend-maven-plugin)
+        run: mvn frontend:install-node-and-pnpm
 
       - name: Run frontend tests
         working-directory: src/main/web
-        run: npm test -- --run
+        run: pnpm test -- --run
 
   build:
     name: Build Docker Image
@@ -74,7 +78,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@v4.0.0 #v3.5.0
         with:
-          cosign-release: 'v3.0.3'
+          cosign-release: "v3.0.3"
 
       # Set up BuildKit Docker container builder to be able to build
       # multi-platform images and export cache
