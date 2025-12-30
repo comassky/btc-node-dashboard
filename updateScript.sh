@@ -25,6 +25,7 @@ latest_node=$(curl -s https://nodejs.org/dist/index.json | jq -r '.[] | select(.
 if [ -n "$latest_node" ]; then
     # Pour pom.xml, garder le 'v' devant
     sed -i '' "s|<node.lts.version>v[0-9.]*</node.lts.version>|<node.lts.version>${latest_node}</node.lts.version>|" pom.xml
+    sed -i '' "s|<node.lts.version></node.lts.version>|<node.lts.version>${latest_node}</node.lts.version>|" pom.xml
     echo -e "\033[1;32m[UPDATED]\033[0m Node.js LTS version: ${latest_node} (pom.xml)"
     # Pour les workflows, retirer le 'v' éventuel
     latest_node_nov=$(echo "$latest_node" | sed 's/^v//')
