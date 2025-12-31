@@ -38,7 +38,7 @@ jobs:
           cache-dependency-path: src/main/web/pnpm-lock.yaml
       - name: Install pnpm globally
         working-directory: src/main/web
-        run: npm install -g pnpm@10.26.2
+        run: npm install -g pnpm@10.27.0
       - name: Install dependencies (pnpm)
         working-directory: src/main/web
         run: pnpm install
