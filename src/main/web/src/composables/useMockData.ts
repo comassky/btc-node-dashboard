@@ -62,6 +62,13 @@ export function useMockData() {
   const generateMockData = (): DashboardData => {
     const now = Math.floor(Date.now() / 1000);
 
+    // Values for the outOfSync scenario
+    const isOutOfSync = mockScenario.value === 'outOfSync';
+    const blocks = isOutOfSync ? 875432 : 875432;
+    const headers = isOutOfSync ? 875450 : 875432; // diff = 18 > 2
+    const blockTime = isOutOfSync ? now - 4000 : now - 120; // 4000s > 1h
+    const verificationprogress = isOutOfSync ? 0.9987 : 0.999998;
+
     return {
       generalStats: {
         inboundCount: mockScenario.value === 'lowPeers' ? 5 : 45,
@@ -69,10 +76,10 @@ export function useMockData() {
         totalPeers: mockScenario.value === 'lowPeers' ? 8 : 53,
       },
       blockchainInfoResponse: {
-        blocks: 875432,
-        headers: mockScenario.value === 'outOfSync' ? 875532 : 875432,
+        blocks,
+        headers,
         chain: 'main',
-        verificationprogress: mockScenario.value === 'outOfSync' ? 0.9987 : 0.999998,
+        verificationprogress,
         difficulty: 103919634711492.2,
         bestblockhash: '',
         time: 0,
@@ -139,7 +146,7 @@ export function useMockData() {
         ],
       },
       block: {
-        time: mockScenario.value === 'outOfSync' ? now - 3600 : now - 120,
+        time: blockTime,
         nTx: 2834,
         hash: '00000000000000000002a7c4c1e48d76c5a37902165a270156b7a8d72728a054',
       },

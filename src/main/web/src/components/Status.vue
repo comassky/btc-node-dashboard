@@ -35,13 +35,15 @@ const isHealthy = computed(() => isConnectedAndRpc.value && !hasWarnings.value);
 
 const statusClass = computed(() => {
   if (isHealthy.value) return 'bg-status-success/10 border border-status-success text-status-success';
-  if (isConnectedAndRpc.value && hasWarnings.value) return 'bg-status-warning/10 border border-status-warning text-status-warning';
+  if (isConnectedAndRpc.value && isOutOfSync.value) return 'bg-status-error/10 border border-status-error text-status-error pulse-error';
+  if (isConnectedAndRpc.value && hasLowOutbound.value) return 'bg-status-warning/10 border border-status-warning text-status-warning';
   return 'bg-status-error/10 border border-status-error text-status-error pulse-error';
 });
 
 const badgeTextClass = computed(() => {
   if (isHealthy.value) return 'text-status-success';
-  if (isConnectedAndRpc.value && hasWarnings.value) return 'text-status-warning';
+  if (isConnectedAndRpc.value && isOutOfSync.value) return 'text-status-error';
+  if (isConnectedAndRpc.value && hasLowOutbound.value) return 'text-status-warning';
   return 'text-status-error';
 });
 </script>

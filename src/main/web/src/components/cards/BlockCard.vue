@@ -12,58 +12,63 @@
       </div>
       <div class="text-xs font-medium uppercase text-text-secondary">Current Block</div>
     </div>
-    <Tooltip
-      :text="'Current height of the blockchain. This is the number of blocks in the chain. Click to view on mempool.org.'"
-      position="bottom"
-      horizontal="center"
-    >
-      <a
-        :href="`https://mempool.space/block/${blockchain.blocks}`"
-        target="_blank"
-        rel="noopener noreferrer"
-        :class="[
-          'text-4xl',
-          'sm:text-5xl',
-          'font-light',
-          'mt-2',
-          'sm:mt-3',
-          'block',
-          'focus:text-status-warning',
-          'transition-colors',
-          'duration-150',
-          'outline-none',
-          isOutOfSync
-            ? 'text-status-error hover:text-accent'
-            : 'text-status-success hover:text-accent',
-        ]"
-      >
-        {{ formattedBlockCount }}
-      </a>
-    </Tooltip>
+    <div class="flex items-center mt-2 sm:mt-3 w-full">
+      <div class="flex-1 min-w-0">
+        <Tooltip
+          :text="isOutOfSync ? syncWarningMessage : 'Current height of the blockchain. This is the number of blocks in the chain. Click to view on mempool.org.'"
+          position="bottom"
+          horizontal="center"
+        >
+          <a
+            :href="`https://mempool.space/block/${blockchain.blocks}`"
+            target="_blank"
+            rel="noopener noreferrer"
+            :class="[
+              'text-4xl',
+              'sm:text-5xl',
+              'font-light',
+              'block',
+              'focus:text-status-warning',
+              'transition-colors',
+              'duration-150',
+              'outline-none',
+              isOutOfSync ? 'text-status-error animate-breathe' : 'text-status-success',
+            ]"
+          >
+            {{ formattedBlockCount }}
+          </a>
+        </Tooltip>
+      </div>
+      <!-- Icon removed as requested -->
+    </div>
     <div
       class="mt-1 overflow-visible border-t border-border-strong pt-1 text-xs text-text-secondary sm:mt-2 sm:pt-2 sm:text-sm"
     >
       <div class="flex items-center justify-between gap-3">
         <div class="flex-1">
-          <p class="mb-0.5 sm:mb-1">
-            <Tooltip
-              :text="'Number of block headers known to the node.'"
-              position="bottom"
-              horizontal="left"
-            >
-              <font-awesome-icon :icon="['fas', 'list-ol']" class="mr-1" />
-            </Tooltip>
-            Headers:
-            <span
-              class="font-bold text-text-primary"
-              :class="isSyncingComputed ? 'text-status-warning' : ''"
-            >
-              {{ blockchain.headers }}
-              <span v-if="isSyncingComputed && headerBlockDiff !== 0" class="text-status-warning">
-                (+{{ headerBlockDiff }})</span
+          <div class="mb-0.5 sm:mb-1">
+            <div class="flex items-center w-full min-w-0">
+              <Tooltip
+                :text="'Number of block headers known to the node.'"
+                position="bottom"
+                horizontal="left"
               >
-            </span>
-          </p>
+                <font-awesome-icon :icon="['fas', 'list-ol']" class="mr-1" />
+              </Tooltip>
+              <span class="truncate">
+                Headers:
+                <span
+                  class="font-bold text-text-primary"
+                  :class="isSyncingComputed ? 'text-status-warning' : ''"
+                >
+                  {{ blockchain.headers }}
+                  <span v-show="isSyncingComputed && headerBlockDiff !== 0" class="ml-1 text-status-error font-bold whitespace-nowrap text-xs sm:text-sm animate-breathe">
+                    (+{{ headerBlockDiff }})
+                  </span>
+                </span>
+              </span>
+            </div>
+          </div>
           <p class="mb-0.5 sm:mb-1">
             <Tooltip
               :text="'Time since the last block was found.'"
@@ -89,14 +94,6 @@
             <span class="font-bold text-text-primary">{{ block.nTx }}</span>
           </p>
         </div>
-        <Tooltip v-if="isOutOfSync" :text="syncWarningMessage" position="bottom" horizontal="right">
-          <div
-            class="bg-status-error/10 border-status-error/30 animate-breathe flex flex-shrink-0 cursor-help items-center gap-1 rounded border p-2 text-status-error"
-          >
-            <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="text-xs" />
-            <span class="text-xs font-medium">Node out of sync</span>
-          </div>
-        </Tooltip>
       </div>
     </div>
   </BaseCard>

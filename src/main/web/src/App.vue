@@ -5,6 +5,9 @@ import { useTheme } from '@composables/useTheme';
 import { useMockData } from '@composables/useMockData';
 import { storeToRefs } from 'pinia';
 
+import { setMinOutboundPeers } from '@utils/nodeHealth';
+import { watch } from 'vue';
+
 // Async Components
 const PeersCard = defineAsyncComponent(() => import('@components/cards/PeersCard.vue'));
 const BlockCard = defineAsyncComponent(() => import('@components/cards/BlockCard.vue'));
@@ -75,12 +78,25 @@ const themeIcon = computed(() => themeIcons[theme.value] || themeIcons.gray);
 
 onMounted(() => {
   if (MOCK_MODE.value) {
+    // Apply the minimum peer threshold for mock (8 by default)
+    setMinOutboundPeers(8);
     Object.assign(dataState.value, generateMockData());
-    startAutoCycle(8000);
+    // Ne pas initialiser le dashboardStore en mode mock
+    // No startAutoCycle: scenario changes only on click
   } else {
     dashboardStore.initialize();
   }
 });
+
+// Update mocked data on every scenario change
+if (MOCK_MODE.value) {
+  watch(
+    () => mockScenario.value,
+    () => {
+      Object.assign(dataState.value, generateMockData());
+    }
+  );
+}
 
 onBeforeUnmount(() => {
   if (!MOCK_MODE.value) {
@@ -149,10 +165,15 @@ onBeforeUnmount(() => {
           <div
             class="xs:grid-cols-2 xs:gap-3 grid grid-cols-1 gap-2 sm:gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4"
           >
-            <PeersCard :stats="dataState.generalStats" class="col-span-1" />
+            <PeersCard
+              :stats="dataState.generalStats"
+              :forceLowPeers="MOCK_MODE.value && mockScenario === 'lowPeers'"
+              class="col-span-1"
+            />
             <BlockCard
               :blockchain="dataState.blockchainInfoResponse"
               :block="dataState.block"
+              :forceOutOfSync="MOCK_MODE.value && mockScenario === 'outOfSync'"
               class="col-span-1"
             />
             <NodeCard

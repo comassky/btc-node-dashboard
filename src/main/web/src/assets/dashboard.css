@@ -88,7 +88,7 @@ body {
   }
 }
 
-/* Utilitaires personnalisés */
+/* Custom utilities */
 @layer components {
   .btn {
     @apply rounded px-3 py-1.5 font-medium shadow transition-all hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2;
@@ -133,7 +133,7 @@ body {
   max-height: 90%;
 }
 
-/* Décale la légende à droite du pie */
+/* Move the legend to the right of the pie chart */
 .chartjs-render-monitor + .chartjs-legend {
   margin-left: 36px !important;
 }

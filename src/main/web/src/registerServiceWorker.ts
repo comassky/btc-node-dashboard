@@ -10,5 +10,5 @@
 //     onOfflineReady() {},
 //   });
 // }
-// Service worker désactivé
+// Service worker disabled
 //}
