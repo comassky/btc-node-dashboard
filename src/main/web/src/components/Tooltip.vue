@@ -53,7 +53,6 @@ const triggerEl = ref<HTMLElement>();
 const tooltipEl = ref<HTMLElement>();
 const tooltipStyle = ref({ top: '0px', left: '0px', maxWidth: '100vw' });
 
-
 function getTooltipCoords(
   position: 'top' | 'bottom' | 'left' | 'right',
   triggerRect: DOMRect,
@@ -63,12 +62,13 @@ function getTooltipCoords(
   const centerX = triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2;
   const centerY = triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2;
   if (position === 'bottom') return { top: triggerRect.bottom + padding, left: centerX };
-  if (position === 'top') return { top: triggerRect.top - tooltipRect.height - padding, left: centerX };
-  if (position === 'left') return { top: centerY, left: triggerRect.left - tooltipRect.width - padding };
+  if (position === 'top')
+    return { top: triggerRect.top - tooltipRect.height - padding, left: centerX };
+  if (position === 'left')
+    return { top: centerY, left: triggerRect.left - tooltipRect.width - padding };
   if (position === 'right') return { top: centerY, left: triggerRect.right + padding };
   return { top: triggerRect.bottom + padding, left: centerX };
 }
-
 
 function updateTooltipPosition() {
   if (!triggerEl.value || !tooltipEl.value) return;
@@ -99,7 +99,6 @@ function updateTooltipPosition() {
     maxWidth: `calc(100vw - ${2 * padding}px)`,
   };
 }
-
 
 const handleMouseEnter = () => {
   isHovered.value = true;

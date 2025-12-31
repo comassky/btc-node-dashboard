@@ -31,24 +31,27 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-const props = withDefaults(defineProps<{
-  size?: number | string; // px or tailwind class
-  accentColor?: string;
-  bgColor?: string;
-  colorClass?: string;
-}>(), {
-  size: 48,
-  accentColor: '#f7931a',
-  bgColor: '#fff',
-  colorClass: 'text-accent',
-});
+const props = withDefaults(
+  defineProps<{
+    size?: number | string; // px or tailwind class
+    accentColor?: string;
+    bgColor?: string;
+    colorClass?: string;
+  }>(),
+  {
+    size: 48,
+    accentColor: '#f7931a',
+    bgColor: '#fff',
+    colorClass: 'text-accent',
+  }
+);
 
-const sizePx = computed(() => typeof props.size === 'number' ? props.size : 48);
-const sizeClass = computed(() => typeof props.size === 'string' ? props.size : `h-12 w-12`);
+const sizePx = computed(() => (typeof props.size === 'number' ? props.size : 48));
+const sizeClass = computed(() => (typeof props.size === 'string' ? props.size : `h-12 w-12`));
 </script>
 
 <style scoped>
-svg[role="status"] {
+svg[role='status'] {
   display: inline-block;
 }
 </style>

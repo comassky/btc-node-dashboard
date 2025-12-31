@@ -34,9 +34,12 @@ const isConnectedAndRpc = computed(() => props.isConnected && props.rpcConnected
 const isHealthy = computed(() => isConnectedAndRpc.value && !hasWarnings.value);
 
 const statusClass = computed(() => {
-  if (isHealthy.value) return 'bg-status-success/10 border border-status-success text-status-success';
-  if (isConnectedAndRpc.value && isOutOfSync.value) return 'bg-status-error/10 border border-status-error text-status-error pulse-error';
-  if (isConnectedAndRpc.value && hasLowOutbound.value) return 'bg-status-warning/10 border border-status-warning text-status-warning';
+  if (isHealthy.value)
+    return 'bg-status-success/10 border border-status-success text-status-success';
+  if (isConnectedAndRpc.value && isOutOfSync.value)
+    return 'bg-status-error/10 border border-status-error text-status-error pulse-error';
+  if (isConnectedAndRpc.value && hasLowOutbound.value)
+    return 'bg-status-warning/10 border border-status-warning text-status-warning';
   return 'bg-status-error/10 border border-status-error text-status-error pulse-error';
 });
 
@@ -84,7 +87,8 @@ const badgeTextClass = computed(() => {
     </p>
     <div v-if="props.rpcConnected && hasWarnings" class="flex flex-wrap items-center gap-3 text-sm">
       <span v-if="hasLowOutbound" class="flex items-center">
-        <font-awesome-icon :icon="['fas', 'exclamation-triangle']" class="mr-2" /> Low outbound peers ({{ props.outboundPeers }})
+        <font-awesome-icon :icon="['fas', 'exclamation-triangle']" class="mr-2" /> Low outbound
+        peers ({{ props.outboundPeers }})
       </span>
       <span v-if="isOutOfSync" class="flex items-center">
         <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="mr-2" /> Node out of sync

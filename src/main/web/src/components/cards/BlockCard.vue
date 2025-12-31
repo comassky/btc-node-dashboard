@@ -12,10 +12,14 @@
       </div>
       <div class="text-xs font-medium uppercase text-text-secondary">Current Block</div>
     </div>
-    <div class="flex items-center mt-2 sm:mt-3 w-full">
-      <div class="flex-1 min-w-0">
+    <div class="mt-2 flex w-full items-center sm:mt-3">
+      <div class="min-w-0 flex-1">
         <Tooltip
-          :text="isOutOfSync ? syncWarningMessage : 'Current height of the blockchain. This is the number of blocks in the chain. Click to view on mempool.org.'"
+          :text="
+            isOutOfSync
+              ? syncWarningMessage
+              : 'Current height of the blockchain. This is the number of blocks in the chain. Click to view on mempool.org.'
+          "
           position="bottom"
           horizontal="center"
         >
@@ -32,7 +36,7 @@
               'transition-colors',
               'duration-150',
               'outline-none',
-              isOutOfSync ? 'text-status-error animate-breathe' : 'text-status-success',
+              isOutOfSync ? 'animate-breathe text-status-error' : 'text-status-success',
             ]"
           >
             {{ formattedBlockCount }}
@@ -47,7 +51,7 @@
       <div class="flex items-center justify-between gap-3">
         <div class="flex-1">
           <div class="mb-0.5 sm:mb-1">
-            <div class="flex items-center w-full min-w-0">
+            <div class="flex w-full min-w-0 items-center">
               <Tooltip
                 :text="'Number of block headers known to the node.'"
                 position="bottom"
@@ -62,7 +66,10 @@
                   :class="isSyncingComputed ? 'text-status-warning' : ''"
                 >
                   {{ blockchain.headers }}
-                  <span v-show="isSyncingComputed && headerBlockDiff !== 0" class="ml-1 text-status-error font-bold whitespace-nowrap text-xs sm:text-sm animate-breathe">
+                  <span
+                    v-show="isSyncingComputed && headerBlockDiff !== 0"
+                    class="animate-breathe ml-1 whitespace-nowrap text-xs font-bold text-status-error sm:text-sm"
+                  >
                     (+{{ headerBlockDiff }})
                   </span>
                 </span>

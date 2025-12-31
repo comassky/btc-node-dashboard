@@ -12,7 +12,7 @@
       </div>
       <div class="text-xs font-medium uppercase text-text-secondary">Total Peers</div>
     </div>
-    <div class="flex items-center mt-2 sm:mt-3 w-full">
+    <div class="mt-2 flex w-full items-center sm:mt-3">
       <Tooltip :text="'Total number of peers currently connected to your node.'">
         <div class="text-4xl font-light text-text-primary sm:text-5xl">
           {{ stats.totalPeers }}

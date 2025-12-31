@@ -39,20 +39,14 @@ const outboundCount = computed(() => dataState.value.generalStats.outboundCount)
 const { theme, isDarkMode, cycleTheme } = useTheme();
 
 // Mock Data (for development/demo)
-const {
-  MOCK_MODE,
-  mockScenario,
-  cycleMockScenario,
-  generateMockData,
-  getMockConnectionState,
-  startAutoCycle,
-} = useMockData();
+const { MOCK_MODE, mockScenario, cycleMockScenario, generateMockData, getMockConnectionState } =
+  useMockData();
 
 // Computed properties for cleaner template logic
 const shouldShowContent = computed(() => MOCK_MODE.value || rpcConnected.value);
 
 const connectionState = computed(() => {
-  if (MOCK_MODE.value) {
+  if (MOCK_MODE) {
     const mockState = getMockConnectionState();
     return {
       isConnected: mockState.isConnected,
@@ -99,7 +93,7 @@ if (MOCK_MODE.value) {
 }
 
 onBeforeUnmount(() => {
-  if (!MOCK_MODE.value) {
+  if (!MOCK_MODE) {
     dashboardStore.disconnect();
   }
 });
@@ -167,13 +161,13 @@ onBeforeUnmount(() => {
           >
             <PeersCard
               :stats="dataState.generalStats"
-              :forceLowPeers="MOCK_MODE.value && mockScenario === 'lowPeers'"
+              :forceLowPeers="MOCK_MODE && mockScenario === 'lowPeers'"
               class="col-span-1"
             />
             <BlockCard
               :blockchain="dataState.blockchainInfoResponse"
               :block="dataState.block"
-              :forceOutOfSync="MOCK_MODE.value && mockScenario === 'outOfSync'"
+              :forceOutOfSync="MOCK_MODE && mockScenario === 'outOfSync'"
               class="col-span-1"
             />
             <NodeCard

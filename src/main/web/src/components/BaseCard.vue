@@ -23,8 +23,10 @@ const props = withDefaults(
 
 const statusClasses = {
   error: 'border-status-error bg-status-error/20 hover:border-status-error hover:shadow-2xl',
-  warning: 'border-status-warning bg-status-warning/20 hover:border-status-warning hover:shadow-2xl',
-  success: 'border-status-success bg-status-success/20 hover:border-status-success hover:shadow-2xl',
+  warning:
+    'border-status-warning bg-status-warning/20 hover:border-status-warning hover:shadow-2xl',
+  success:
+    'border-status-success bg-status-success/20 hover:border-status-success hover:shadow-2xl',
 };
 
 const statusClass = computed(() => statusClasses[props.status] || statusClasses.success);
