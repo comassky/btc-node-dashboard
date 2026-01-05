@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue';
 import { useDashboardStore } from '@/stores/dashboard';
 import { useTheme } from '@composables/useTheme';
 import { useMockData } from '@composables/useMockData';
@@ -123,20 +122,10 @@ onBeforeUnmount(() => {
 
     <!-- Navigation Menu -->
     <div class="fixed top-3 right-16 z-40 flex flex-row gap-2 sm:top-4 sm:right-20">
-      <a
-        href="#overview"
-        class="btn btn-secondary"
-        title="Overview"
-        aria-label="Go to overview"
-      >
+      <a href="#overview" class="btn btn-secondary" title="Overview" aria-label="Go to overview">
         <IconDiagramProject />
       </a>
-      <a
-        href="#mempool"
-        class="btn btn-secondary"
-        title="Mempool"
-        aria-label="Go to mempool info"
-      >
+      <a href="#mempool" class="btn btn-secondary" title="Mempool" aria-label="Go to mempool info">
         <IconLayerGroup />
       </a>
       <a

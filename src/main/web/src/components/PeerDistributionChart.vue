@@ -4,14 +4,14 @@ import {
   ArcElement,
   Tooltip,
   Legend,
-  PieController,
+  DoughnutController,
   type TooltipItem,
   type ChartOptions,
 } from 'chart.js';
 import { type SubverDistribution } from '@types';
 import { IconArrowDown, IconArrowUp } from '@/icons';
 
-Chart.register(ArcElement, Tooltip, Legend, PieController);
+Chart.register(ArcElement, Tooltip, Legend, DoughnutController);
 
 // --- Color utilities ---
 

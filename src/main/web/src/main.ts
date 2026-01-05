@@ -12,5 +12,3 @@ const pinia = createPinia();
 app.use(pinia);
 app.use(MotionPlugin);
 app.mount('#app');
-
-//registerServiceWorker();

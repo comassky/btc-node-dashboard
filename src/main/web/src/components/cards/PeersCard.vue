@@ -14,7 +14,10 @@
     </div>
     <div class="mt-2 flex w-full items-center sm:mt-3">
       <Tooltip :text="'Total number of peers currently connected to your node.'">
-        <div class="text-4xl font-light sm:text-5xl" :class="hasLowOutbound ? 'text-status-warning animate-breathe' : 'text-text-primary'">
+        <div
+          class="text-4xl font-light sm:text-5xl"
+          :class="hasLowOutbound ? 'text-status-warning animate-breathe' : 'text-text-primary'"
+        >
           {{ stats.totalPeers }}
         </div>
       </Tooltip>
@@ -37,15 +40,19 @@
     >
       <Tooltip :text="'Inbound connections: other nodes connecting to you.'">
         <p class="mb-0.5 flex items-center sm:mb-1">
-          <IconArrowRightToBracket class="mr-1 flex-shrink-0" /> Inbound: <span class="ml-1">{{ stats.inboundCount }}</span>
+          <IconArrowRightToBracket class="mr-1 flex-shrink-0" /> Inbound:
+          <span class="ml-1">{{ stats.inboundCount }}</span>
         </p>
       </Tooltip>
       <div class="flex items-center justify-between gap-3">
         <Tooltip :text="'Outbound connections: your node connecting to others.'">
           <p class="mb-0.5 flex items-center sm:mb-1">
-            <IconArrowRightFromBracket class="mr-1 flex-shrink-0" /> Outbound: <span class="ml-1" :class="hasLowOutbound ? 'text-status-warning font-bold animate-breathe' : ''">{{
-              stats.outboundCount
-            }}</span>
+            <IconArrowRightFromBracket class="mr-1 flex-shrink-0" /> Outbound:
+            <span
+              class="ml-1"
+              :class="hasLowOutbound ? 'text-status-warning animate-breathe font-bold' : ''"
+              >{{ stats.outboundCount }}</span
+            >
           </p>
         </Tooltip>
       </div>

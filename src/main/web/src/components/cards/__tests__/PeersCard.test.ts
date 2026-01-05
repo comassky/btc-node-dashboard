@@ -11,7 +11,14 @@ describe('PeersCard.vue', () => {
     const wrapper = mount(PeersCard, {
       props: { stats },
       global: {
-        stubs: { Tooltip: slotStub, BaseCard: slotStub, IconUserGroup: true, IconTriangleExclamation: true, IconArrowRightToBracket: true, IconArrowRightFromBracket: true },
+        stubs: {
+          Tooltip: slotStub,
+          BaseCard: slotStub,
+          IconUserGroup: true,
+          IconTriangleExclamation: true,
+          IconArrowRightToBracket: true,
+          IconArrowRightFromBracket: true,
+        },
       },
     });
     expect(wrapper.text()).toContain('Total Peers');
@@ -24,7 +31,14 @@ describe('PeersCard.vue', () => {
     const wrapper = mount(PeersCard, {
       props: { stats, forceLowPeers: true },
       global: {
-        stubs: { Tooltip: slotStub, BaseCard: slotStub, IconUserGroup: true, IconTriangleExclamation: true, IconArrowRightToBracket: true, IconArrowRightFromBracket: true },
+        stubs: {
+          Tooltip: slotStub,
+          BaseCard: slotStub,
+          IconUserGroup: true,
+          IconTriangleExclamation: true,
+          IconArrowRightToBracket: true,
+          IconArrowRightFromBracket: true,
+        },
       },
     });
     expect(wrapper.text()).toContain('Low outbound connections');

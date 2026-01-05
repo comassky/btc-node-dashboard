@@ -34,7 +34,13 @@ describe('BlockCard.vue', () => {
     const wrapper = mount(BlockCard, {
       props: { blockchain, block },
       global: {
-        stubs: { BaseCard: slotStub, IconCubes: true, IconListOl: true, IconClock: true, IconArrowRightArrowLeft: true },
+        stubs: {
+          BaseCard: slotStub,
+          IconCubes: true,
+          IconListOl: true,
+          IconClock: true,
+          IconArrowRightArrowLeft: true,
+        },
         components: { Tooltip },
       },
     });
@@ -47,7 +53,13 @@ describe('BlockCard.vue', () => {
     const wrapper = mount(BlockCard, {
       props: { blockchain, block, forceOutOfSync: true },
       global: {
-        stubs: { BaseCard: slotStub, IconCubes: true, IconListOl: true, IconClock: true, IconArrowRightArrowLeft: true },
+        stubs: {
+          BaseCard: slotStub,
+          IconCubes: true,
+          IconListOl: true,
+          IconClock: true,
+          IconArrowRightArrowLeft: true,
+        },
         components: { Tooltip },
       },
     });

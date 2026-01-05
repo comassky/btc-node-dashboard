@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import tailwindcss from '@tailwindcss/vite';
-// import { VitePWA } from 'vite-plugin-pwa';
 import { visualizer } from 'rollup-plugin-visualizer';
 import viteCompression from 'vite-plugin-compression';
 import AutoImport from 'unplugin-auto-import/vite';
@@ -34,6 +33,9 @@ export default defineConfig(({ mode }) => ({
         'pinia',
         '@vueuse/core',
         {
+          vue: ['defineAsyncComponent'],
+        },
+        {
           '@vueuse/motion': [
             'useMotion',
             'useMotionControls',
@@ -52,7 +54,6 @@ export default defineConfig(({ mode }) => ({
       autoInstall: false,
     }),
     Inspect(),
-    // VitePWA disabled
     ...(mode === 'production'
       ? [
           visualizer({
@@ -84,7 +85,7 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: 'dist',
     minify: 'esbuild', // esbuild is 20-40x faster than terser with comparable results
-    cssMinify: true,
+    cssMinify: 'lightningcss',
     cssCodeSplit: true,
     chunkSizeWarningLimit: 600,
     sourcemap: false,
@@ -95,6 +96,9 @@ export default defineConfig(({ mode }) => ({
       drop: mode === 'production' ? ['console', 'debugger'] : [],
       legalComments: 'none',
       treeShaking: true,
+      minifyIdentifiers: true,
+      minifySyntax: true,
+      minifyWhitespace: true,
     },
     rollupOptions: {
       output: {
@@ -128,8 +132,7 @@ export default defineConfig(({ mode }) => ({
 
   // Optimize pre-bundled dependencies
   optimizeDeps: {
-    include: ['vue', 'pinia', 'chart.js', 'date-fns', 'ky'],
-    exclude: ['@vueuse/core'],
+    include: ['vue', 'pinia', 'chart.js', 'date-fns'],
   },
 
   server: {

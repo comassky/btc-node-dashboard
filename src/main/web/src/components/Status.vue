@@ -75,15 +75,16 @@ const badgeTextClass = computed(() => {
         {{ props.rpcConnected ? 'ONLINE' : 'OFFLINE' }}
       </span>
     </Tooltip>
-    <p v-if="props.errorMessage && !props.isRetrying" class="mt-1 flex items-center pt-1 text-sm font-light">
+    <p
+      v-if="props.errorMessage && !props.isRetrying"
+      class="mt-1 flex items-center pt-1 text-sm font-light"
+    >
       <IconCircleExclamation class="mr-2 flex-shrink-0" />
       {{ props.errorMessage }}
     </p>
     <div v-if="props.rpcConnected && hasWarnings" class="flex flex-wrap items-center gap-3 text-sm">
       <span v-if="hasLowOutbound" class="flex items-center">
-        <IconTriangleExclamation class="mr-2" /> Low outbound peers ({{
-          props.outboundPeers
-        }})
+        <IconTriangleExclamation class="mr-2" /> Low outbound peers ({{ props.outboundPeers }})
       </span>
       <span v-if="isOutOfSync" class="flex items-center">
         <IconCircleExclamation class="mr-2" /> Node out of sync

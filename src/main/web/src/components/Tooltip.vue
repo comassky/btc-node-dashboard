@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useFloating, autoUpdate, offset, flip, shift, arrow } from '@floating-ui/vue';
 import { useElementHover } from '@vueuse/core';
 
@@ -41,10 +41,22 @@ const isOpen = useElementHover(reference);
 // Expose for unit tests
 defineExpose({ isHovered: isOpen });
 
-const { floatingStyles, middlewareData } = useFloating(reference, floating, {
+const { floatingStyles, middlewareData, update } = useFloating(reference, floating, {
   placement: props.position,
   middleware: [offset(8), flip(), shift({ padding: 8 }), arrow({ element: arrowRef })],
-  whileElementsMounted: autoUpdate,
+  whileElementsMounted: (...args) => {
+    // Only run autoUpdate when tooltip is actually open
+    if (isOpen.value) {
+      return autoUpdate(...args);
+    }
+  },
+});
+
+// Manual update when opening to ensure correct initial position
+watch(isOpen, (open) => {
+  if (open) {
+    update();
+  }
 });
 
 const arrowStyles = computed(() => {
