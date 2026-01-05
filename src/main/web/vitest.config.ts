@@ -1,11 +1,16 @@
 import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
 import AutoImport from 'unplugin-auto-import/vite';
+import Icons from 'unplugin-icons/vite';
 import path from 'path';
 
 export default defineConfig({
   plugins: [
     vue(),
+    Icons({
+      compiler: 'vue3',
+      autoInstall: false,
+    }),
     AutoImport({
       imports: [
         'vue',
