@@ -109,13 +109,13 @@ const updateReadme = () => {
   
   // Update Backend table
   readme = readme.replace(
-    /\| \*\*Java\*\* \s+\| \d+ /,
-    `| **Java**                     | ${backendVersions.javaVersion.padEnd(17)} `
+    /(^\| \*\*Java\*\*\s+\| )\d+(\s+\|)/m,
+    `$1${backendVersions.javaVersion}$2`
   );
   
   readme = readme.replace(
-    /\| \*\*Quarkus\*\* \s+\| [\d.]+ /,
-    `| **Quarkus**                  | ${backendVersions.quarkusVersion.padEnd(17)} `
+    /(^\| \*\*Quarkus\*\*\s+\| )[\d.]+(\s+\|)/m,
+    `$1${backendVersions.quarkusVersion}$2`
   );
   
   // Update Frontend Runtime Dependencies table
@@ -131,8 +131,8 @@ const updateReadme = () => {
   
   runtimeDeps.forEach(([name, version]) => {
     const escapedName = name.replace(/\./g, '\\.');
-    const regex = new RegExp(`\\| \\*\\*${escapedName}\\*\\*\\s+\\| [\\d.]+ `, 'g');
-    readme = readme.replace(regex, `| **${name}**           | ${version.padEnd(7)} `);
+    const regex = new RegExp(`(^\\| \\*\\*${escapedName}\\*\\*\\s+\\| )[\\d.]+( \\|)`, 'gm');
+    readme = readme.replace(regex, `$1${version}$2`);
   });
   
   // Update Frontend Build Tools table
@@ -146,8 +146,8 @@ const updateReadme = () => {
   
   buildTools.forEach(([name, version]) => {
     const escapedName = name.replace(/\./g, '\\.');
-    const regex = new RegExp(`\\| \\*\\*${escapedName}\\*\\*\\s+\\| [\\d.]+ `, 'g');
-    readme = readme.replace(regex, `| **${name}**           | ${version.padEnd(7)} `);
+    const regex = new RegExp(`(^\\| \\*\\*${escapedName}\\*\\*\\s+\\| )[\\d.]+( \\|)`, 'gm');
+    readme = readme.replace(regex, `$1${version}$2`);
   });
   
   // Update Build & Deploy section
