@@ -208,7 +208,9 @@ onBeforeUnmount(() => {
         :leave="{ opacity: 0, transition: { duration: 15 } }"
         class="dashboard-card lg:col-span-2"
       >
-        <h2 class="xs:text-xl mb-3 flex items-center text-lg font-medium break-words sm:mb-4 sm:text-2xl md:mb-6">
+        <h2
+          class="xs:text-xl mb-3 flex items-center text-lg font-medium break-words sm:mb-4 sm:text-2xl md:mb-6"
+        >
           <Icon icon="fa6-solid:chart-pie" class="text-accent mr-2" />
           <span class="hidden sm:inline">Peer Software Distribution</span>
           <span class="sm:hidden">Peers Distribution</span>
@@ -239,7 +241,9 @@ onBeforeUnmount(() => {
         class="dashboard-card overflow-x-auto lg:col-span-2"
         key="table"
       >
-        <h2 class="xs:text-xl mb-3 flex items-center text-lg font-medium break-words sm:mb-4 sm:text-2xl md:mb-6">
+        <h2
+          class="xs:text-xl mb-3 flex items-center text-lg font-medium break-words sm:mb-4 sm:text-2xl md:mb-6"
+        >
           <Icon icon="fa6-solid:table" class="text-accent mr-2" /> Connection Details
         </h2>
         <PeerTable :peers="inboundPeers" type="inbound" />

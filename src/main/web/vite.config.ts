@@ -124,14 +124,7 @@ export default defineConfig(({ mode }) => ({
 
   // Optimize pre-bundled dependencies
   optimizeDeps: {
-    include: [
-      'vue',
-      'pinia',
-      'chart.js',
-      '@iconify/vue',
-      'date-fns',
-      'ky',
-    ],
+    include: ['vue', 'pinia', 'chart.js', '@iconify/vue', 'date-fns', 'ky'],
     exclude: ['@vueuse/core'],
   },
 

@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 public class RpcServices implements DashboardDataProvider {
     private static final Logger LOG = Logger.getLogger(RpcServices.class);
 
+    // RPC method names
     private static final String GET_NETWORK_INFO = "getnetworkinfo";
     private static final String GET_BEST_BLOCK_HASH = "getbestblockhash";
     private static final String GET_BLOCK = "getblock";
@@ -46,8 +47,14 @@ public class RpcServices implements DashboardDataProvider {
     private static final String GET_PEER_INFO = "getpeerinfo";
     private static final String GET_MEMPOOL_INFO = "getmempoolinfo";
 
+    // RPC protocol constants
     private static final String JSON_RPC_VERSION = "1.0";
     private static final String REQUEST_ID_PREFIX = "quarkus-";
+
+    // Performance tuning
+    private static final int PARALLEL_STREAM_THRESHOLD = 100;
+    private static final int MAX_RETRY_ATTEMPTS = 3;
+    private static final long NANOS_TO_MILLIS = 1_000_000L;
 
     private static final TypeReference<List<PeerInfoResponse>> PEER_INFO_TYPE_REF = new TypeReference<>() {};
 
@@ -133,7 +140,7 @@ public class RpcServices implements DashboardDataProvider {
     }
 
     private <T> Uni<T> addErrorHandling(Uni<T> uni, String callName, Map<String, String> errors, Supplier<T> defaultValueSupplier) {
-        return uni.onFailure().retry().atMost(3)
+        return uni.onFailure().retry().atMost(MAX_RETRY_ATTEMPTS)
                 .onFailure().invoke(e -> {
                     String errorMessage = e.getMessage() != null ? e.getMessage() : "Unknown error";
                     LOG.warnf("%s RPC failed: %s", callName, errorMessage);
@@ -155,14 +162,15 @@ public class RpcServices implements DashboardDataProvider {
         List<PeerInfoResponse> inboundPeers = peersByType.get(true);
         List<PeerInfoResponse> outboundPeers = peersByType.get(false);
 
+        int inboundCount = inboundPeers.size();
+        int outboundCount = outboundPeers.size();
+
         var stats = new SubverDistribution(calculateSubverStats(inboundPeers), calculateSubverStats(outboundPeers));
-        var generalStat = new GeneralStats(inboundPeers.size(), outboundPeers.size(), inboundPeers.size() + outboundPeers.size());
+        var generalStat = new GeneralStats(inboundCount, outboundCount, inboundCount + outboundCount);
 
         // Map RPC responses to View objects - use parallel streams for larger datasets
-        List<PeerInfoView> inboundPeersView = (inboundPeers.size() > 100 ? inboundPeers.parallelStream() : inboundPeers.stream())
-                .map(PeerInfoView::from).toList();
-        List<PeerInfoView> outboundPeersView = (outboundPeers.size() > 100 ? outboundPeers.parallelStream() : outboundPeers.stream())
-                .map(PeerInfoView::from).toList();
+        List<PeerInfoView> inboundPeersView = mapPeersToView(inboundPeers);
+        List<PeerInfoView> outboundPeersView = mapPeersToView(outboundPeers);
         BlockchainInfoView blockchainInfoView = BlockchainInfoView.from(blockchainInfoResponse);
         NetworkInfoView nodeInfoView = NetworkInfoView.from(nodeInfo);
         BlockInfoView blockInfoView = BlockInfoView.from(blockInfoResponse);
@@ -186,13 +194,18 @@ public class RpcServices implements DashboardDataProvider {
         return callRpcTyped(GET_PEER_INFO, Collections.emptyList(), PEER_INFO_TYPE_REF);
     }
 
+    private List<PeerInfoView> mapPeersToView(List<PeerInfoResponse> peers) {
+        return (peers.size() > PARALLEL_STREAM_THRESHOLD ? peers.parallelStream() : peers.stream())
+                .map(PeerInfoView::from)
+                .toList();
+    }
+
     private List<SubverStats> calculateSubverStats(List<PeerInfoResponse> peers) {
         if (peers.isEmpty()) {
             return Collections.emptyList();
         }
         final double totalPeers = peers.size();
-        // Use parallel stream only for larger datasets (threshold: 100+)
-        final var stream = peers.size() > 100 ? peers.parallelStream() : peers.stream();
+        final var stream = peers.size() > PARALLEL_STREAM_THRESHOLD ? peers.parallelStream() : peers.stream();
         return stream
                 .filter(p -> p.subver() != null)
                 .collect(Collectors.groupingByConcurrent(PeerInfoResponse::subver, Collectors.counting()))
@@ -229,13 +242,15 @@ public class RpcServices implements DashboardDataProvider {
                 }
 
                 if (LOG.isDebugEnabled()) {
-                    long durationMs = (System.nanoTime() - start) / 1_000_000;
+                    long durationMs = (System.nanoTime() - start) / NANOS_TO_MILLIS;
                     LOG.debugf("RPC '%s' executed in %d ms", method, durationMs);
                 }
                 return rpcResponse.getResult();
+            } catch (RpcException e) {
+                throw e; // Re-throw RPC exceptions as-is
             } catch (Exception e) {
-                long durationMs = (System.nanoTime() - start) / 1_000_000;
-                LOG.errorf(e, "RPC '%s' failed after %d ms: %s", method, durationMs, e.getMessage());
+                long durationMs = (System.nanoTime() - start) / NANOS_TO_MILLIS;
+                LOG.errorf(e, "RPC '%s' failed after %d ms", method, durationMs);
                 throw new RpcException("Connection failed for method " + method + ": " + e.getMessage(), e);
             }
         }).runSubscriptionOn(Infrastructure.getDefaultWorkerPool());

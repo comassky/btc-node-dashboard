@@ -20,7 +20,7 @@ describe('useWebSocket', () => {
       onmessage: ((event: MessageEvent) => void) | null = null;
       close = vi.fn();
       send = vi.fn();
-      
+
       static CONNECTING = 0;
       static OPEN = 1;
       static CLOSING = 2;
@@ -35,7 +35,7 @@ describe('useWebSocket', () => {
           this.onopen?.(new Event('open'));
         }, 0);
       }
-      
+
       addEventListener(event: string, handler: any) {
         if (event === 'open') this.onopen = handler;
         if (event === 'close') this.onclose = handler;
@@ -124,7 +124,7 @@ describe('useWebSocket', () => {
       'ws://test',
       onDataReceived
     );
-    
+
     connect();
     await vi.runAllTimersAsync();
     await nextTick();
@@ -162,7 +162,7 @@ describe('useWebSocket', () => {
   it('should handle invalid JSON gracefully', async () => {
     const onDataReceived = vi.fn();
     const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    
+
     const { connect } = useWebSocket('ws://test', onDataReceived);
 
     connect();
@@ -174,28 +174,28 @@ describe('useWebSocket', () => {
     await nextTick();
 
     expect(onDataReceived).not.toHaveBeenCalled();
-    
+
     consoleWarnSpy.mockRestore();
   });
 
   it('should reset isRetrying on disconnect', async () => {
     const onDataReceived = vi.fn();
     const { connect, disconnect, isRetrying } = useWebSocket('ws://test', onDataReceived);
-    
+
     connect();
     await vi.runAllTimersAsync();
     await nextTick();
-    
+
     const ws = wsInstances[0];
     ws.readyState = 3; // CLOSED
     ws.onclose?.(new CloseEvent('close'));
     await nextTick();
-    
+
     expect(isRetrying.value).toBe(true);
-    
+
     disconnect();
     await nextTick();
-    
+
     expect(isRetrying.value).toBe(false);
   });
 });

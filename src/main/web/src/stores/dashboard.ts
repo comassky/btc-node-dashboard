@@ -78,16 +78,16 @@ export const useDashboardStore = defineStore('dashboard', () => {
 
     try {
       const { data, error } = await useFetch('/api/config').get().json<DashboardConfig>();
-      
+
       if (error.value) {
         throw new Error('Failed to fetch config');
       }
-      
+
       if (data.value) {
         setMinOutboundPeers(data.value.minOutboundPeers);
         disableMempool.value = !!data.value.disableMempool;
       }
-      
+
       configLoaded.value = true;
     } catch (error) {
       console.error('Failed to load dashboard configuration:', error);

@@ -37,7 +37,7 @@
     >
       <Tooltip :text="'Inbound connections: other nodes connecting to you.'">
         <p class="mb-0.5 sm:mb-1">
-            <Icon icon="fa6-solid:arrow-right-to-bracket" class="mr-1" /> Inbound:
+          <Icon icon="fa6-solid:arrow-right-to-bracket" class="mr-1" /> Inbound:
           {{ stats.inboundCount }}
         </p>
       </Tooltip>

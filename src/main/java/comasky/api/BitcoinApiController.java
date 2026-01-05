@@ -26,6 +26,8 @@ import java.util.Map;
 @Produces(MediaType.APPLICATION_JSON)
 public class BitcoinApiController {
 
+    private static final String BLOCK_HASH_PATTERN = "^[0-9a-fA-F]{64}$";
+
     private final RpcServices rpcServices;
     private final CacheProvider cacheProvider;
 
@@ -66,8 +68,10 @@ public class BitcoinApiController {
     @GET
     @Path("getblock/{hash}")
     public Uni<BlockInfoResponse> getBlockInfo(@PathParam("hash") String hash) {
-        if (hash == null || hash.isBlank() || !hash.matches("^[0-9a-fA-F]{64}$")) {
-            return Uni.createFrom().failure(new IllegalArgumentException("Invalid block hash format"));
+        if (hash == null || hash.isBlank() || !hash.matches(BLOCK_HASH_PATTERN)) {
+            return Uni.createFrom().failure(
+                new IllegalArgumentException("Invalid block hash format. Expected 64 hexadecimal characters.")
+            );
         }
         return rpcServices.getBlockInfo(hash);
     }

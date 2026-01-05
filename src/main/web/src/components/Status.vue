@@ -74,8 +74,9 @@ const badgeTextClass = computed(() => {
     </p>
     <div v-if="props.rpcConnected && hasWarnings" class="flex flex-wrap items-center gap-3 text-sm">
       <span v-if="hasLowOutbound" class="flex items-center">
-        <Icon icon="fa6-solid:triangle-exclamation" class="mr-2" /> Low outbound
-        peers ({{ props.outboundPeers }})
+        <Icon icon="fa6-solid:triangle-exclamation" class="mr-2" /> Low outbound peers ({{
+          props.outboundPeers
+        }})
       </span>
       <span v-if="isOutOfSync" class="flex items-center">
         <Icon icon="fa6-solid:circle-exclamation" class="mr-2" /> Node out of sync
