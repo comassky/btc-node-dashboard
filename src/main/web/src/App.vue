@@ -110,18 +110,8 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="bg-bg-app min-h-screen p-3 sm:p-4 md:p-6">
-    <button
-      @click="cycleTheme"
-      class="btn btn-secondary fixed top-3 right-3 z-50 sm:top-4 sm:right-4"
-      title="Cycle theme (light, dark, gray)"
-      aria-label="Cycle theme"
-      :aria-pressed="theme === 'dark' || theme === 'gray'"
-    >
-      <component :is="themeIcon" />
-    </button>
-
     <!-- Navigation Menu -->
-    <nav class="fixed top-3 right-16 z-40 flex flex-row gap-2 backdrop-blur-lg bg-bg-card/80 rounded-lg p-1.5 shadow-lg border border-border-strong/50 sm:top-4 sm:right-20">
+    <nav class="fixed top-3 right-3 z-40 flex flex-row items-center gap-2 backdrop-blur-lg bg-bg-card/80 rounded-lg p-1.5 shadow-lg border border-border-strong/50 sm:top-4 sm:right-4">
       <a href="#overview" class="btn-nav" title="Overview" aria-label="Go to overview">
         <IconDiagramProject />
       </a>
@@ -144,6 +134,18 @@ onBeforeUnmount(() => {
       >
         <IconTable />
       </a>
+      
+      <div class="h-6 w-px bg-border-strong"></div>
+      
+      <button
+        @click="cycleTheme"
+        class="btn-nav"
+        title="Cycle theme (light, dark, gray)"
+        aria-label="Cycle theme"
+        :aria-pressed="theme === 'dark' || theme === 'gray'"
+      >
+        <component :is="themeIcon" />
+      </button>
     </nav>
 
     <div
@@ -160,11 +162,11 @@ onBeforeUnmount(() => {
     </div>
 
     <transition name="fade" mode="out-in">
-      <div class="mt-12 mb-6 text-center sm:mt-4 sm:mb-8 md:mb-12" key="header">
+      <div class="mt-4 mb-6 text-center sm:mb-8 md:mb-10" key="header">
         <h1
-          class="card-title text-accent px-2 text-2xl font-extralight tracking-wide uppercase sm:text-3xl sm:tracking-widest md:text-4xl lg:text-5xl"
+          class="text-accent flex items-center justify-center gap-2 px-2 text-2xl font-extralight uppercase tracking-wide sm:gap-3 sm:text-3xl sm:tracking-widest md:text-4xl lg:text-5xl"
         >
-          <IconBitcoin class="mr-1 sm:mr-2" />
+          <IconBitcoin class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl" />
           <span class="hidden sm:inline">Bitcoin Node Dashboard</span>
           <span class="sm:hidden">BTC Dashboard</span>
         </h1>

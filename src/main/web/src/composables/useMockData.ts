@@ -147,13 +147,15 @@ export function useMockData() {
         const randomDays = Math.floor((seed * 2) % 7);
         const connOffset = randomDays * 86400 + randomHours * 3600 + randomMinutes * 60 + seed * 10;
         
+        const timeoffset = ((seed * 17) % 11) - 5;
+        
         return {
           id: i,
           addr: `192.168.1.${i + 10}:8333`,
           subver:
             i % 3 === 0 ? '/Satoshi:27.0.0/' : i % 3 === 1 ? '/Satoshi:26.0.0/' : '/Satoshi:25.0.0/',
           version: 270000,
-          timeoffset: 0,
+          timeoffset,
           conntime: now - connOffset,
           network: i % 7 === 0 ? 'onion' : i % 11 === 0 ? 'ipv6' : 'ipv4',
           connection_type: 'inbound',
@@ -168,13 +170,14 @@ export function useMockData() {
         const randomHours = Math.floor((seed * 5) % 96);
         const randomDays = Math.floor((seed * 3) % 14);
         const connOffset = randomDays * 86400 + randomHours * 3600 + randomMinutes * 60 + seed * 15;
+        const timeoffset = ((seed * 13) % 11) - 5;
         
         return {
           id: i + 100,
           addr: `172.16.0.${i + 10}:8333`,
           subver: i % 4 === 0 ? '/Satoshi:26.0.0/' : '/Satoshi:27.0.0/',
           version: 270000,
-          timeoffset: 0,
+          timeoffset,
           conntime: now - connOffset,
           network: i % 5 === 0 ? 'onion' : i % 7 === 0 ? 'ipv6' : 'ipv4',
           connection_type: 'outbound-full-relay',

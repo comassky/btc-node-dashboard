@@ -62,10 +62,7 @@ const getChartOptions = (): ChartOptions<'doughnut'> => {
   return {
     responsive: true,
     maintainAspectRatio: false,
-    animation: {
-      duration: 800,
-      easing: 'easeInOutQuart'
-    },
+    animation: false,
     color: textPrimary,
     borderColor: borderStrong,
     layout: { padding: 0 },

@@ -6,21 +6,21 @@
 /* --- Light Mode (Default) Variables --- */
 :root {
   /* Backgrounds */
-  --bg-app: #f7f7f7;
+  --bg-app: #fafafa;
   --bg-card: #ffffff;
   /* Text & Borders */
-  --text-primary: #1f2937;
-  --text-secondary: #6b7280;
-  --border-strong: #e5e7eb;
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c9a;
+  --border-strong: #e8eaed;
 
   /* Accent & Status Colors */
-  --accent: #ff9900;
-  --status-success: #10b981;
-  --status-error: #ef4444;
-  --status-warning: #f59e0b;
+  --accent: #f59e0b;
+  --status-success: #059669;
+  --status-error: #dc2626;
+  --status-warning: #d97706;
 
   /* RGB color for pulse animation */
-  --status-error-rgb: 239, 68, 68;
+  --status-error-rgb: 220, 38, 38;
 }
 
 /* --- Dark Mode Variables --- */

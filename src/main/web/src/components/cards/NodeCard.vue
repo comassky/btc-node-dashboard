@@ -93,8 +93,10 @@ import {
   IconShieldHalved,
   IconHardDrive,
   IconNetworkWired,
+  IconEthernet,
+  IconRoute,
   IconDiagramProject,
-  IconMask,
+  IconTorProject,
   IconLayerGroup,
   IconCloud,
   IconCircleQuestion,
@@ -118,9 +120,9 @@ function formatUptime(totalSeconds: number): string {
 }
 
 const networkIconsMap: Record<string, any> = {
-  ipv4: IconNetworkWired,
-  ipv6: IconDiagramProject,
-  onion: IconMask,
+  ipv4: IconEthernet,
+  ipv6: IconRoute,
+  onion: IconTorProject,
   i2p: IconLayerGroup,
   cjdns: IconCloud,
 };

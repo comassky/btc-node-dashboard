@@ -31,7 +31,8 @@
               'sm:text-5xl',
               'font-light',
               'block',
-              'focus:text-status-warning',
+              'hover:text-accent',
+              'focus:text-accent',
               'transition-colors',
               'duration-150',
               'outline-none',
@@ -52,7 +53,7 @@
           <div class="mb-0.5 sm:mb-1">
             <div class="flex w-full min-w-0 items-center">
               <Tooltip :text="'Number of block headers known to the node.'" position="bottom">
-                <IconListOl class="mr-1" />
+                <IconListOl class="mr-1 inline-flex items-center" />
               </Tooltip>
               <span class="truncate">
                 Headers:
@@ -71,21 +72,25 @@
               </span>
             </div>
           </div>
-          <p class="mb-0.5 sm:mb-1">
+          <p class="mb-0.5 flex items-center sm:mb-1">
             <Tooltip :text="'Time since the last block was found.'" position="bottom">
-              <IconClock class="mr-1" />
+              <IconClock class="mr-1 inline-flex items-center" />
             </Tooltip>
-            Time:
-            <span class="text-text-primary font-bold">
-              {{ formatDistanceToNow(new Date(block.time * 1000), { addSuffix: true }) }}
+            <span class="truncate">
+              Time:
+              <span class="text-text-primary font-bold">
+                {{ formatDistanceToNow(new Date(block.time * 1000), { addSuffix: true }) }}
+              </span>
             </span>
           </p>
-          <p class="mb-0.5 sm:mb-1">
+          <p class="mb-0.5 flex items-center sm:mb-1">
             <Tooltip :text="'Number of transactions in the current block.'" position="bottom">
-              <IconArrowRightArrowLeft class="mr-1" />
+              <IconArrowRightArrowLeft class="mr-1 inline-flex items-center" />
             </Tooltip>
-            Tx Count:
-            <span class="text-text-primary font-bold">{{ block.nTx }}</span>
+            <span class="truncate">
+              Tx Count:
+              <span class="text-text-primary font-bold">{{ block.nTx }}</span>
+            </span>
           </p>
         </div>
       </div>

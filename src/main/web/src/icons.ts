@@ -16,6 +16,7 @@ export { default as IconCircleQuestion } from '~icons/fa6-solid/circle-question'
 export { default as IconCloud } from '~icons/fa6-solid/cloud';
 export { default as IconCubes } from '~icons/fa6-solid/cubes';
 export { default as IconDiagramProject } from '~icons/fa6-solid/diagram-project';
+export { default as IconEthernet } from '~icons/fa6-solid/ethernet';
 export { default as IconHardDrive } from '~icons/fa6-solid/hard-drive';
 export { default as IconHelmetSafety } from '~icons/fa6-solid/helmet-safety';
 export { default as IconLayerGroup } from '~icons/fa6-solid/layer-group';
@@ -23,6 +24,7 @@ export { default as IconListOl } from '~icons/fa6-solid/list-ol';
 export { default as IconMask } from '~icons/fa6-solid/mask';
 export { default as IconMoon } from '~icons/fa6-solid/moon';
 export { default as IconNetworkWired } from '~icons/fa6-solid/network-wired';
+export { default as IconRoute } from '~icons/fa6-solid/route';
 export { default as IconServer } from '~icons/fa6-solid/server';
 export { default as IconShieldHalved } from '~icons/fa6-solid/shield-halved';
 export { default as IconSpinner } from '~icons/fa6-solid/spinner';
@@ -30,3 +32,6 @@ export { default as IconSun } from '~icons/fa6-solid/sun';
 export { default as IconTable } from '~icons/fa6-solid/table';
 export { default as IconTriangleExclamation } from '~icons/fa6-solid/triangle-exclamation';
 export { default as IconUserGroup } from '~icons/fa6-solid/user-group';
+export { default as IconUserSecret } from '~icons/fa6-solid/user-secret';
+
+export { default as IconTorProject } from '~icons/simple-icons/torproject';

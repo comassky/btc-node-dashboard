@@ -114,15 +114,20 @@
               class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('bytesrecv')"
             >
-              <IconArrowDown class="text-status-success" />
-              Received
+              <span class="inline-flex items-center gap-1">
+                <IconArrowDown class="text-status-success" />
+                Received
+              </span>
               <span v-if="sortKey === 'bytesrecv'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             </th>
             <th
               class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('bytessent')"
             >
-              <IconArrowUp class="text-accent" /> Sent
+              <span class="inline-flex items-center gap-1">
+                <IconArrowUp class="text-accent" />
+                Sent
+              </span>
               <span v-if="sortKey === 'bytessent'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             </th>
           </tr>
