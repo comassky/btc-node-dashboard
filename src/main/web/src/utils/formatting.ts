@@ -2,9 +2,6 @@ import { filesize } from 'filesize';
 import { intervalToDuration, formatDuration } from 'date-fns';
 
 // Time constants
-const SECONDS_IN_MINUTE = 60;
-const SECONDS_IN_HOUR = 3600;
-const SECONDS_IN_DAY = 86400;
 const MS_TIMESTAMP_THRESHOLD = 1_000_000_000_000;
 const UNIX_TIMESTAMP_THRESHOLD = 1_000_000_000;
 

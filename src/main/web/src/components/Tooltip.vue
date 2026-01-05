@@ -49,6 +49,7 @@ const { floatingStyles, middlewareData, update } = useFloating(reference, floati
     if (isOpen.value) {
       return autoUpdate(...args);
     }
+    return () => {};
   },
 });
 
