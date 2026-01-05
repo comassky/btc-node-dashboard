@@ -24,7 +24,7 @@
             rel="noopener noreferrer"
             class="hover:text-accent"
           >
-            <font-awesome-icon :icon="['fab', 'github']" class="text-lg" />
+            <Icon icon="fa6-brands:github" class="text-lg" />
           </a>
         </div>
       </div>
@@ -33,13 +33,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faGithub } from '@fortawesome/free-brands-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-
-library.add(faGithub);
-
 const props = withDefaults(defineProps<{ version?: string }>(), {
   version: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev',
 });

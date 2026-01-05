@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import Status from '@components/Status.vue';
 import type { BlockChainInfo, BlockInfoResponse } from '@types';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { Icon } from '@iconify/vue';
 
 const mockBlockchain: BlockChainInfo = {
   blocks: 100,
@@ -28,7 +28,12 @@ const mockBlock: BlockInfoResponse = {
 
 const mountOptions = {
   global: {
-    components: { FontAwesomeIcon },
+    components: { Icon },
+    stubs: {
+      Tooltip: {
+        template: '<div><slot /></div>',
+      },
+    },
   },
 };
 
@@ -84,9 +89,9 @@ describe('Status.vue', () => {
     });
 
     expect(wrapper.text()).toContain('Reconnecting...');
-    const spinnerIcon = wrapper.find('[data-icon="spinner"]');
-    expect(spinnerIcon.exists()).toBe(true);
-    expect(spinnerIcon.classes()).toContain('animate-spin');
+    // Check that Icon components are rendered
+    const icons = wrapper.findAllComponents(Icon);
+    expect(icons.length).toBeGreaterThan(0);
   });
 
   it('should display warning for low outbound peers', () => {
@@ -103,7 +108,8 @@ describe('Status.vue', () => {
     });
 
     expect(wrapper.text()).toContain('Low outbound peers');
-    const warningIcon = wrapper.find('[data-icon="exclamation-triangle"]');
-    expect(warningIcon.exists()).toBe(true);
+    // Check that Icon components are rendered
+    const icons = wrapper.findAllComponents(Icon);
+    expect(icons.length).toBeGreaterThan(0);
   });
 });

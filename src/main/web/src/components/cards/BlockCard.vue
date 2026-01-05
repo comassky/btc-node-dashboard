@@ -8,7 +8,7 @@
           isOutOfSync ? 'text-status-error' : 'text-status-success',
         ]"
       >
-        <font-awesome-icon :icon="['fas', 'cubes']" />
+        <Icon icon="fa6-solid:cubes" />
       </div>
       <div class="text-text-secondary text-xs font-medium uppercase">Current Block</div>
     </div>
@@ -52,7 +52,7 @@
           <div class="mb-0.5 sm:mb-1">
             <div class="flex w-full min-w-0 items-center">
               <Tooltip :text="'Number of block headers known to the node.'" position="bottom">
-                <font-awesome-icon :icon="['fas', 'list-ol']" class="mr-1" />
+                <Icon icon="fa6-solid:list-ol" class="mr-1" />
               </Tooltip>
               <span class="truncate">
                 Headers:
@@ -73,7 +73,7 @@
           </div>
           <p class="mb-0.5 sm:mb-1">
             <Tooltip :text="'Time since the last block was found.'" position="bottom">
-              <font-awesome-icon :icon="['far', 'clock']" class="mr-1" />
+              <Icon icon="fa6-regular:clock" class="mr-1" />
             </Tooltip>
             Time:
             <span class="text-text-primary font-bold">
@@ -82,7 +82,7 @@
           </p>
           <p class="mb-0.5 sm:mb-1">
             <Tooltip :text="'Number of transactions in the current block.'" position="bottom">
-              <font-awesome-icon :icon="['fas', 'exchange-alt']" class="mr-1" />
+              <Icon icon="fa6-solid:arrow-right-arrow-left" class="mr-1" />
             </Tooltip>
             Tx Count:
             <span class="text-text-primary font-bold">{{ block.nTx }}</span>

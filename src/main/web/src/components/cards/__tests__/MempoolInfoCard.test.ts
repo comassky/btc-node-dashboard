@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import MempoolInfoCard from '../MempoolInfoCard.vue';
 import { describe, it, expect } from 'vitest';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { Icon } from '@iconify/vue';
 import type { MempoolInfoResponse } from '../../../types/MempoolInfoResponse';
 
 describe('MempoolInfoCard.vue', () => {
@@ -24,7 +24,7 @@ describe('MempoolInfoCard.vue', () => {
       props: { mempoolInfo },
       global: {
         stubs: { BaseCard: slotStub },
-        components: { FontAwesomeIcon },
+        components: { Icon },
       },
     });
     expect(wrapper.text()).toContain('Transactions');
@@ -34,6 +34,6 @@ describe('MempoolInfoCard.vue', () => {
     expect(wrapper.text()).toMatch(/488(.|,)?28\s?KiB/);
     expect(wrapper.text()).toContain('Total Fees');
     expect(wrapper.text()).toContain('0.5 BTC');
-    expect(wrapper.findComponent(FontAwesomeIcon).exists()).toBe(true);
+    expect(wrapper.findComponent(Icon).exists()).toBe(true);
   });
 });

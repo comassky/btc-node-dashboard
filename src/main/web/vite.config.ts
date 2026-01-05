@@ -111,7 +111,7 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           'vue-vendor': ['vue', 'pinia'],
           'chart-vendor': ['chart.js'],
-          'icons-vendor': ['@fortawesome/fontawesome-svg-core', '@fortawesome/vue-fontawesome'],
+          'icons-vendor': ['@iconify/vue'],
         },
       },
       // Improve tree-shaking
@@ -128,8 +128,7 @@ export default defineConfig(({ mode }) => ({
       'vue',
       'pinia',
       'chart.js',
-      '@fortawesome/fontawesome-svg-core',
-      '@fortawesome/vue-fontawesome',
+      '@iconify/vue',
       'date-fns',
       'ky',
     ],

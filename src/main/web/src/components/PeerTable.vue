@@ -116,7 +116,7 @@ formatTimestampToLocale } from '@utils/formatting';
               class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('bytesrecv')"
             >
-              <font-awesome-icon :icon="['fas', 'arrow-down']" class="text-status-success" />
+              <Icon icon="fa6-solid:arrow-down" class="text-status-success" />
               Received
               <span v-if="sortKey === 'bytesrecv'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             </th>
@@ -124,7 +124,7 @@ formatTimestampToLocale } from '@utils/formatting';
               class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('bytessent')"
             >
-              <font-awesome-icon :icon="['fas', 'arrow-up']" class="text-accent" /> Sent
+              <Icon icon="fa6-solid:arrow-up" class="text-accent" /> Sent
               <span v-if="sortKey === 'bytessent'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             </th>
           </tr>
@@ -146,17 +146,12 @@ formatTimestampToLocale } from '@utils/formatting';
 <script setup lang="ts">
 import PeerTableRow from './PeerTableRow.vue';
 import type { Peer } from '../types';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import {
   formatBytesIEC,
   formatPingSmart,
   formatSecondsWithSuffix,
   formatRelativeTimeSince,
 } from '@/utils/formatting';
-
-library.add(faArrowDown, faArrowUp);
 
 const props = defineProps<{ peers: Peer[]; type: 'inbound' | 'outbound' }>();
 const headerColor = props.type === 'inbound' ? 'status-success' : 'accent';

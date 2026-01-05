@@ -4,18 +4,6 @@ import { hasLowOutboundPeers, isNodeOutOfSync } from '@utils/nodeHealth';
 
 import Tooltip from '@components/Tooltip.vue';
 
-import { library } from '@fortawesome/fontawesome-svg-core';
-import {
-  faNetworkWired,
-  faSpinner,
-  faServer,
-  faExclamationCircle,
-  faExclamationTriangle,
-} from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-
-library.add(faNetworkWired, faSpinner, faServer, faExclamationCircle, faExclamationTriangle);
-
 const props = defineProps<{
   isConnected: boolean;
   rpcConnected: boolean;
@@ -60,14 +48,14 @@ const badgeTextClass = computed(() => {
       position="bottom"
     >
       <span class="flex items-center">
-        <font-awesome-icon :icon="['fas', 'network-wired']" class="mr-2 text-xl" /> WebSocket:
+        <Icon icon="fa6-solid:network-wired" class="mr-2 text-xl" /> WebSocket:
         {{ props.isConnected ? 'CONNECTED' : 'DISCONNECTED' }}
         <span
           v-if="props.isRetrying"
           :class="['ml-3 flex items-center text-sm', badgeTextClass]"
           aria-live="polite"
         >
-          <font-awesome-icon :icon="['fas', 'spinner']" class="mr-2 animate-spin" /> Reconnecting...
+          <Icon icon="fa6-solid:spinner" class="mr-2 animate-spin" /> Reconnecting...
         </span>
       </span>
     </Tooltip>
@@ -76,21 +64,21 @@ const badgeTextClass = computed(() => {
       position="bottom"
     >
       <span class="flex items-center">
-        <font-awesome-icon :icon="['fas', 'server']" class="mr-2 text-xl" /> Node RPC:
+        <Icon icon="fa6-solid:server" class="mr-2 text-xl" /> Node RPC:
         {{ props.rpcConnected ? 'ONLINE' : 'OFFLINE' }}
       </span>
     </Tooltip>
     <p v-if="props.errorMessage && !props.isRetrying" class="mt-1 pt-1 text-sm font-light">
-      <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="mr-2" />
+      <Icon icon="fa6-solid:circle-exclamation" class="mr-2" />
       {{ props.errorMessage }}
     </p>
     <div v-if="props.rpcConnected && hasWarnings" class="flex flex-wrap items-center gap-3 text-sm">
       <span v-if="hasLowOutbound" class="flex items-center">
-        <font-awesome-icon :icon="['fas', 'exclamation-triangle']" class="mr-2" /> Low outbound
+        <Icon icon="fa6-solid:triangle-exclamation" class="mr-2" /> Low outbound
         peers ({{ props.outboundPeers }})
       </span>
       <span v-if="isOutOfSync" class="flex items-center">
-        <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="mr-2" /> Node out of sync
+        <Icon icon="fa6-solid:circle-exclamation" class="mr-2" /> Node out of sync
       </span>
     </div>
   </div>

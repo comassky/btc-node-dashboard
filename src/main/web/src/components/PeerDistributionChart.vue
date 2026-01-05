@@ -9,11 +9,6 @@ import {
   type ChartOptions,
 } from 'chart.js';
 import { type SubverDistribution } from '@types';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-
-library.add(faArrowDown, faArrowUp);
 
 Chart.register(ArcElement, Tooltip, Legend, PieController);
 
@@ -216,11 +211,13 @@ const headerColor = props.type === 'inbound' ? 'status-success' : 'accent';
       class="border-b-2 pb-2 text-center text-lg font-bold tracking-wider uppercase"
       :class="[`border-${headerColor}`, `text-${headerColor}`]"
     >
-      <font-awesome-icon
-        :icon="['fas', type === 'inbound' ? 'arrow-down' : 'arrow-up']"
-        class="mr-1"
-      />
-      {{ type === 'inbound' ? 'Inbound Peers' : 'Outbound Peers' }} ({{ count }})
+      <span class="inline-flex items-center justify-center">
+        <Icon
+          :icon="type === 'inbound' ? 'fa6-solid:arrow-down' : 'fa6-solid:arrow-up'"
+          class="mr-1"
+        />
+        {{ type === 'inbound' ? 'Inbound Peers' : 'Outbound Peers' }} ({{ count }})
+      </span>
     </h4>
     <div class="flex h-full w-full flex-col items-center justify-center">
       <div class="chart-container">

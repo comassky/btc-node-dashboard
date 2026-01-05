@@ -2,7 +2,7 @@
   <BaseCard status="success" interactive>
     <div class="flex items-center justify-between">
       <div class="text-accent text-2xl sm:text-3xl">
-        <font-awesome-icon :icon="['fas', 'hard-hat']" />
+        <Icon icon="fa6-solid:helmet-safety" />
       </div>
       <div class="text-text-secondary text-xs font-medium uppercase">Node Details</div>
     </div>
@@ -41,7 +41,7 @@
             position="bottom"
           >
             <p class="flex flex-wrap items-center gap-1">
-              <font-awesome-icon :icon="['fas', 'shield-alt']" class="text-status-success" />
+              <Icon icon="fa6-solid:shield-halved" class="text-status-success" />
               <span>Verification Progress:</span>
               <span class="text-text-primary font-bold"
                 >{{ (blockchain.verificationprogress * 100).toFixed(4) }}%</span
@@ -55,7 +55,7 @@
             >
               <p class="flex items-center gap-1">
                 <span class="inline-flex h-5 w-5 items-center justify-center">
-                  <font-awesome-icon :icon="['fas', 'hdd']" class="text-text-secondary text-base" />
+                  <Icon icon="fa6-solid:hard-drive" class="text-text-secondary text-base" />
                 </span>
                 <span>Size on disk:</span>
                 <span class="text-text-primary font-bold">{{
@@ -68,7 +68,7 @@
         <div class="mt-4 flex gap-2 sm:mt-0 sm:ml-6">
           <template v-for="net in node.networks" :key="net.name">
             <Tooltip :text="netLabel(net)" position="bottom">
-              <font-awesome-icon
+              <Icon
                 :icon="networkIcon(net.name)"
                 :class="net.reachable ? 'text-status-success' : 'text-status-error'"
               />
@@ -106,14 +106,14 @@ function formatUptime(totalSeconds: number): string {
   return `${days}${hours}:${minutes}:${seconds}`;
 }
 
-const networkIcons: Record<string, string[]> = {
-  ipv4: ['fas', 'network-wired'],
-  ipv6: ['fas', 'project-diagram'],
-  onion: ['fas', 'mask'],
-  i2p: ['fas', 'layer-group'],
-  cjdns: ['fas', 'cloud'], // Assuming 'cloud' is for cjdns or similar
+const networkIcons: Record<string, string> = {
+  ipv4: 'fa6-solid:network-wired',
+  ipv6: 'fa6-solid:diagram-project',
+  onion: 'fa6-solid:mask',
+  i2p: 'fa6-solid:layer-group',
+  cjdns: 'fa6-solid:cloud',
 };
-const defaultNetworkIcon = ['fas', 'question-circle'];
+const defaultNetworkIcon = 'fa6-solid:circle-question';
 
 function networkIcon(name: string) {
   return networkIcons[name] || defaultNetworkIcon;
