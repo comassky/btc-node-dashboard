@@ -79,6 +79,10 @@ src/main/web/dist/
 src/main/web/dist-ssr/
 src/main/web/stats.html
 
+# Auto-generated files
+src/main/web/src/auto-imports.d.ts
+src/main/web/.eslintrc-auto-import.json
+
 # Test coverage
 src/main/web/coverage/
 

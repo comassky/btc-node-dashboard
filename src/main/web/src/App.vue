@@ -190,54 +190,63 @@ onBeforeUnmount(() => {
       </transition>
 
       <!-- Mempool Info -->
-      <transition name="fade" mode="out-in">
-        <MempoolInfoCard
-          v-if="shouldShowContent && !disableMempool"
-          :mempool-info="dataState.mempoolInfo"
-          class="dashboard-card lg:col-span-2"
-        />
-      </transition>
+      <MempoolInfoCard
+        v-if="shouldShowContent && !disableMempool"
+        v-motion
+        :initial="{ opacity: 0 }"
+        :enter="{ opacity: 1, transition: { duration: 20 } }"
+        :leave="{ opacity: 0, transition: { duration: 15 } }"
+        :mempool-info="dataState.mempoolInfo"
+        class="dashboard-card lg:col-span-2"
+      />
 
       <!-- Peer Software Distribution -->
-      <transition name="fade" mode="out-in">
-        <div v-if="shouldShowContent" class="dashboard-card lg:col-span-2">
-          <h2 class="xs:text-xl mb-3 break-words text-lg font-medium sm:mb-4 sm:text-2xl md:mb-6">
-            <font-awesome-icon :icon="['fas', 'chart-pie']" class="mr-2 text-accent" />
-            <span class="hidden sm:inline">Peer Software Distribution</span>
-            <span class="sm:hidden">Peers Distribution</span>
-          </h2>
-          <div class="mt-2 flex flex-col gap-4 sm:mt-3 sm:gap-6 md:mt-4 md:flex-row md:gap-8">
-            <PeerDistributionChart
-              :peers="subverInbound"
-              type="inbound"
-              :count="inboundCount"
-              :isDarkMode="isDarkMode"
-            />
-            <PeerDistributionChart
-              :peers="subverOutbound"
-              type="outbound"
-              :count="outboundCount"
-              :isDarkMode="isDarkMode"
-            />
-          </div>
+      <div
+        v-if="shouldShowContent"
+        v-motion
+        :initial="{ opacity: 0 }"
+        :enter="{ opacity: 1, transition: { duration: 20 } }"
+        :leave="{ opacity: 0, transition: { duration: 15 } }"
+        class="dashboard-card lg:col-span-2"
+      >
+        <h2 class="xs:text-xl mb-3 break-words text-lg font-medium sm:mb-4 sm:text-2xl md:mb-6">
+          <font-awesome-icon :icon="['fas', 'chart-pie']" class="mr-2 text-accent" />
+          <span class="hidden sm:inline">Peer Software Distribution</span>
+          <span class="sm:hidden">Peers Distribution</span>
+        </h2>
+        <div class="mt-2 flex flex-col gap-4 sm:mt-3 sm:gap-6 md:mt-4 md:flex-row md:gap-8">
+          <PeerDistributionChart
+            :peers="subverInbound"
+            type="inbound"
+            :count="inboundCount"
+            :isDarkMode="isDarkMode"
+          />
+          <PeerDistributionChart
+            :peers="subverOutbound"
+            type="outbound"
+            :count="outboundCount"
+            :isDarkMode="isDarkMode"
+          />
         </div>
-      </transition>
+      </div>
 
       <!-- Peer Table -->
-      <transition name="fade" mode="out-in">
-        <div
-          v-if="shouldShowContent"
-          class="dashboard-card overflow-x-auto lg:col-span-2"
-          key="table"
-        >
-          <h2 class="xs:text-xl mb-3 break-words text-lg font-medium sm:mb-4 sm:text-2xl md:mb-6">
-            <font-awesome-icon :icon="['fas', 'table']" class="mr-2 text-accent" /> Connection
-            Details
-          </h2>
-          <PeerTable :peers="inboundPeers" type="inbound" />
-          <PeerTable :peers="outboundPeers" type="outbound" />
-        </div>
-      </transition>
+      <div
+        v-if="shouldShowContent"
+        v-motion
+        :initial="{ opacity: 0 }"
+        :enter="{ opacity: 1, transition: { duration: 20 } }"
+        :leave="{ opacity: 0, transition: { duration: 15 } }"
+        class="dashboard-card overflow-x-auto lg:col-span-2"
+        key="table"
+      >
+        <h2 class="xs:text-xl mb-3 break-words text-lg font-medium sm:mb-4 sm:text-2xl md:mb-6">
+          <font-awesome-icon :icon="['fas', 'table']" class="mr-2 text-accent" /> Connection
+          Details
+        </h2>
+        <PeerTable :peers="inboundPeers" type="inbound" />
+        <PeerTable :peers="outboundPeers" type="outbound" />
+      </div>
     </div>
 
     <Footer />

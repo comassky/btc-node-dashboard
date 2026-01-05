@@ -3,6 +3,8 @@ import vue from '@vitejs/plugin-vue';
 // import { VitePWA } from 'vite-plugin-pwa';
 import { visualizer } from 'rollup-plugin-visualizer';
 import viteCompression from 'vite-plugin-compression';
+import AutoImport from 'unplugin-auto-import/vite';
+import Inspect from 'vite-plugin-inspect';
 import path from 'path';
 
 // @ts-expect-error - Type incompatibility between plugin versions, safe to ignore
@@ -23,6 +25,21 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     vue(),
+    AutoImport({
+      imports: [
+        'vue',
+        'pinia',
+        '@vueuse/core',
+        {
+          '@vueuse/motion': ['useMotion', 'useMotionControls', 'useMotionProperties', 'useMotionVariants'],
+        },
+      ],
+      dts: 'src/auto-imports.d.ts',
+      eslintrc: {
+        enabled: true,
+      },
+    }),
+    Inspect(),
     // VitePWA disabled
     ...(mode === 'production'
       ? [
