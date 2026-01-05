@@ -15,10 +15,14 @@ const formatConnectionTime = (seconds?: number | null): string => {
   let s = seconds;
   let out = [];
   for (let i = 0; i < d.length; i++) {
-    const v = Math.floor(s! / d[i]);
-    if (v > 0 || (i === d.length - 1 && out.length === 0)) out.push(`${v}${n[i]}`);
-    s = s! % d[i];
-    if (i === 1 && out.length > 0) break; // Limit to 2 units (date-fns)
+    const divisor = d[i];
+    const unit = n[i];
+    if (divisor !== undefined && unit !== undefined) {
+      const v = Math.floor(s! / divisor);
+      if (v > 0 || (i === d.length - 1 && out.length === 0)) out.push(`${v}${unit}`);
+      s = s! % divisor;
+      if (i === 1 && out.length > 0) break; // Limit to 2 units (date-fns)
+    }
   }
   return out.join(' ');
 };

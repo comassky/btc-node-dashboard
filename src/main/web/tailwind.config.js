@@ -22,4 +22,8 @@ export default {
     },
   },
   plugins: [],
+  // Additional optimization
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
 };

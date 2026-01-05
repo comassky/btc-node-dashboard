@@ -16,31 +16,31 @@ formatTimestampToLocale } from '@utils/formatting';
       <div class="flex min-w-[120px] flex-col items-start">
         <span class="mb-1 text-xs text-text-secondary">Average Ping</span>
         <span class="text-lg font-semibold text-status-success text-text-primary">{{
-          avgMinPing !== null ? formatPingSmart(avgMinPing) : 'N/A'
+          peerAverages.minping !== null ? formatPingSmart(peerAverages.minping) : 'N/A'
         }}</span>
       </div>
       <div class="flex min-w-[120px] flex-col items-start">
         <span class="mb-1 text-xs text-text-secondary">Average Received</span>
         <span class="text-lg font-semibold text-status-success text-text-primary">{{
-          avgBytesRecv !== null ? formatBytesIEC(avgBytesRecv) : 'N/A'
+          peerAverages.bytesrecv !== null ? formatBytesIEC(peerAverages.bytesrecv) : 'N/A'
         }}</span>
       </div>
       <div class="flex min-w-[120px] flex-col items-start">
         <span class="mb-1 text-xs text-text-secondary">Average Sent</span>
         <span class="text-lg font-semibold text-status-success text-text-primary">{{
-          avgBytesSent !== null ? formatBytesIEC(avgBytesSent) : 'N/A'
+          peerAverages.bytessent !== null ? formatBytesIEC(peerAverages.bytessent) : 'N/A'
         }}</span>
       </div>
       <div class="flex min-w-[120px] flex-col items-start">
         <span class="mb-1 text-xs text-text-secondary">Average Time Offset</span>
         <span class="text-lg font-semibold text-status-success text-text-primary">{{
-          avgTimeOffset !== null ? formatSecondsWithSuffix(avgTimeOffset) : 'N/A'
+          peerAverages.timeoffset !== null ? formatSecondsWithSuffix(peerAverages.timeoffset) : 'N/A'
         }}</span>
       </div>
       <div class="flex min-w-[120px] flex-col items-start">
         <span class="mb-1 text-xs text-text-secondary">Average Connection Time</span>
         <span class="text-lg font-semibold text-status-success text-text-primary">{{
-          avgConnTime !== null ? formatRelativeTimeSince(avgConnTime) : 'N/A'
+          peerAverages.conntime !== null ? formatRelativeTimeSince(peerAverages.conntime) : 'N/A'
         }}</span>
       </div>
     </div>
@@ -142,7 +142,8 @@ formatTimestampToLocale } from '@utils/formatting';
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, toRef } from 'vue';
+import { useSorted } from '@vueuse/core';
 import PeerTableRow from './PeerTableRow.vue';
 import type { Peer } from '../types';
 import { library } from '@fortawesome/fontawesome-svg-core';
@@ -171,32 +172,52 @@ function setSort(key: keyof Peer) {
   }
 }
 
-function compare(a: unknown, b: unknown, order: 'asc' | 'desc') {
-  if (a == null && b == null) return 0;
-  if (a == null) return 1;
-  if (b == null) return -1;
-  if (typeof a === 'number' && typeof b === 'number') {
-    return order === 'asc' ? a - b : b - a;
+// Use VueUse's useSorted for reactive sorting
+const sortedPeers = useSorted(
+  toRef(props, 'peers'),
+  (a, b) => {
+    const key = sortKey.value;
+    const valA = a[key];
+    const valB = b[key];
+    
+    if (valA == null && valB == null) return 0;
+    if (valA == null) return 1;
+    if (valB == null) return -1;
+    
+    let comparison = 0;
+    if (typeof valA === 'number' && typeof valB === 'number') {
+      comparison = valA - valB;
+    } else {
+      comparison = String(valA).localeCompare(String(valB));
+    }
+    
+    return sortOrder.value === 'asc' ? comparison : -comparison;
   }
-  return order === 'asc' ? String(a).localeCompare(String(b)) : String(b).localeCompare(String(a));
+);
+
+// Averages for relevant numeric columns - optimized single-pass calculation
+
+function average(arr: number[]): number | null {
+  return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
 }
 
-const sortedPeers = computed(() => {
-  const key = sortKey.value;
-  const order = sortOrder.value;
-  return [...props.peers].sort((a, b) => compare(a[key], b[key], order));
+const peerAverages = computed(() => {
+  const stats = { minping: [] as number[], bytesrecv: [] as number[], bytessent: [] as number[], timeoffset: [] as number[], conntime: [] as number[] };
+  
+  for (const peer of props.peers) {
+    if (typeof peer.minping === 'number' && !isNaN(peer.minping)) stats.minping.push(peer.minping);
+    if (typeof peer.bytesrecv === 'number' && !isNaN(peer.bytesrecv)) stats.bytesrecv.push(peer.bytesrecv);
+    if (typeof peer.bytessent === 'number' && !isNaN(peer.bytessent)) stats.bytessent.push(peer.bytessent);
+    if (typeof peer.timeoffset === 'number' && !isNaN(peer.timeoffset)) stats.timeoffset.push(peer.timeoffset);
+    if (typeof peer.conntime === 'number' && !isNaN(peer.conntime)) stats.conntime.push(peer.conntime);
+  }
+  
+  return {
+    minping: average(stats.minping),
+    bytesrecv: average(stats.bytesrecv),
+    bytessent: average(stats.bytessent),
+    timeoffset: average(stats.timeoffset),
+    conntime: average(stats.conntime),
+  };
 });
-
-// Averages for relevant numeric columns
-
-function average(arr: Array<number | null | undefined>): number | null {
-  const nums = arr.filter((v): v is number => typeof v === 'number' && !isNaN(v));
-  return nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : null;
-}
-
-const avgMinPing = computed(() => average(props.peers.map((p) => p.minping)));
-const avgBytesRecv = computed(() => average(props.peers.map((p) => p.bytesrecv)));
-const avgBytesSent = computed(() => average(props.peers.map((p) => p.bytessent)));
-const avgTimeOffset = computed(() => average(props.peers.map((p) => p.timeoffset)));
-const avgConnTime = computed(() => average(props.peers.map((p) => p.conntime)));
 </script>

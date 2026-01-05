@@ -23,7 +23,7 @@
         v-if="hasLowOutbound"
         text="Low outbound connections can reduce the security and reliability of your Bitcoin node. Make sure your firewall allows outbound connections."
         position="bottom"
-        horizontal="right"
+       
       >
         <div
           class="bg-status-warning/10 border-status-warning/30 animate-breathe flex flex-shrink-0 cursor-help items-center gap-1 rounded border p-2 text-status-warning"

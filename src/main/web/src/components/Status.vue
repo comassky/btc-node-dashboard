@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { BlockChainInfo, BlockInfoResponse } from '@types';
+import type { BlockChainInfo, BlockInfoResponse } from '@types';
 import { hasLowOutboundPeers, isNodeOutOfSync } from '@utils/nodeHealth';
 
 import Tooltip from '@components/Tooltip.vue';

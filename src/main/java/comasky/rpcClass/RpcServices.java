@@ -27,9 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static comasky.shared.Tools.formatUptime;
 
 /**
  * Service for executing RPC calls to the Bitcoin Core node using a reactive approach with Mutiny.
@@ -76,21 +73,21 @@ public class RpcServices implements DashboardDataProvider {
 
     private Uni<GlobalResponse> fetchFreshData() {
         LOG.debug("Fetching fresh data from RPC...");
-        Map<String, String> errors = new HashMap<>();
+        final Map<String, String> errors = new HashMap<>();
 
-        Uni<List<PeerInfoResponse>> peerInfoUni = addErrorHandling(
+        final Uni<List<PeerInfoResponse>> peerInfoUni = addErrorHandling(
                 executePeerInfoRpcCall(), "peerInfo", errors, Collections::emptyList);
 
-        Uni<BlockchainInfoResponse> blockchainInfoUni = addErrorHandling(
+        final Uni<BlockchainInfoResponse> blockchainInfoUni = addErrorHandling(
                 getBlockchainInfo(), "blockchainInfo", errors, () -> null);
 
-        Uni<NetworkInfoResponse> nodeInfoUni = addErrorHandling(
+        final Uni<NetworkInfoResponse> nodeInfoUni = addErrorHandling(
                 getNetworkInfo(), "networkInfo", errors, () -> null);
 
-        Uni<Long> uptimeUni = addErrorHandling(
+        final Uni<Long> uptimeUni = addErrorHandling(
                 getUptimeSeconds(), "uptime", errors, () -> 0L);
 
-        Uni<BlockInfoResponse> blockInfoUni = addErrorHandling(getBestBlockHash(), "bestBlockHash", errors, () -> null)
+        final Uni<BlockInfoResponse> blockInfoUni = addErrorHandling(getBestBlockHash(), "bestBlockHash", errors, () -> null)
                 .onItem().transformToUni(hash -> {
                     if (hash == null) {
                         return Uni.createFrom().nullItem();
@@ -98,7 +95,7 @@ public class RpcServices implements DashboardDataProvider {
                     return addErrorHandling(getBlockInfo(hash), "blockInfo", errors, () -> null);
                 });
 
-        Uni<MempoolInfoResponse> mempoolInfoResponse;
+        final Uni<MempoolInfoResponse> mempoolInfoResponse;
         if (dashboardConfig != null && dashboardConfig.mempool().disable()) {
             mempoolInfoResponse = Uni.createFrom().nullItem();
         } else {
@@ -161,9 +158,11 @@ public class RpcServices implements DashboardDataProvider {
         var stats = new SubverDistribution(calculateSubverStats(inboundPeers), calculateSubverStats(outboundPeers));
         var generalStat = new GeneralStats(inboundPeers.size(), outboundPeers.size(), inboundPeers.size() + outboundPeers.size());
 
-        // Map RPC responses to View objects
-        List<PeerInfoView> inboundPeersView = inboundPeers.stream().map(PeerInfoView::from).toList();
-        List<PeerInfoView> outboundPeersView = outboundPeers.stream().map(PeerInfoView::from).toList();
+        // Map RPC responses to View objects - use parallel streams for larger datasets
+        List<PeerInfoView> inboundPeersView = (inboundPeers.size() > 100 ? inboundPeers.parallelStream() : inboundPeers.stream())
+                .map(PeerInfoView::from).toList();
+        List<PeerInfoView> outboundPeersView = (outboundPeers.size() > 100 ? outboundPeers.parallelStream() : outboundPeers.stream())
+                .map(PeerInfoView::from).toList();
         BlockchainInfoView blockchainInfoView = BlockchainInfoView.from(blockchainInfoResponse);
         NetworkInfoView nodeInfoView = NetworkInfoView.from(nodeInfo);
         BlockInfoView blockInfoView = BlockInfoView.from(blockInfoResponse);
@@ -192,26 +191,27 @@ public class RpcServices implements DashboardDataProvider {
             return Collections.emptyList();
         }
         final double totalPeers = peers.size();
-        Stream<PeerInfoResponse> stream = peers.size() > 1000 ? peers.parallelStream() : peers.stream();
+        // Use parallel stream only for larger datasets (threshold: 100+)
+        final var stream = peers.size() > 100 ? peers.parallelStream() : peers.stream();
         return stream
                 .filter(p -> p.subver() != null)
-                .collect(Collectors.groupingBy(PeerInfoResponse::subver, Collectors.counting()))
+                .collect(Collectors.groupingByConcurrent(PeerInfoResponse::subver, Collectors.counting()))
                 .entrySet().stream()
                 .map(entry -> {
-                    double rawPercentage = (entry.getValue() / totalPeers) * 100.0;
-                    double roundedPercentage = Math.round(rawPercentage * 100.0) / 100.0;
+                    final double rawPercentage = (entry.getValue() / totalPeers) * 100.0;
+                    final double roundedPercentage = Math.round(rawPercentage * 100.0) / 100.0;
                     return new SubverStats(entry.getKey(), roundedPercentage);
                 })
                 .toList();
     }
 
     private <T> Uni<T> callRpcTyped(String method, List<Object> params, Class<T> type) {
-        JavaType resultType = objectMapper.getTypeFactory().constructType(type);
+        var resultType = objectMapper.getTypeFactory().constructType(type);
         return callRpcInternal(method, params, resultType);
     }
 
     private <T> Uni<T> callRpcTyped(String method, List<Object> params, TypeReference<T> type) {
-        JavaType resultType = objectMapper.getTypeFactory().constructType(type);
+        var resultType = objectMapper.getTypeFactory().constructType(type);
         return callRpcInternal(method, params, resultType);
     }
 

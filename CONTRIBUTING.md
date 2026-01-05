@@ -1,26 +1,26 @@
-# 🧩 Monorepo & Développement Frontend
+# 🧩 Monorepo & Frontend Development
 
-Le projet utilise un workspace pnpm pour la gestion des dépendances frontend (voir `src/main/web/pnpm-workspace.yaml`).
+The project uses a pnpm workspace for frontend dependency management (see `src/main/web/pnpm-workspace.yaml`).
 
-## Installation des dépendances frontend
+## Installing frontend dependencies
 
 ```bash
 cd src/main/web
 pnpm install
-# ou, si pnpm n'est pas installé :
-npm install -g pnpm@10.26.2
+# or, if pnpm is not installed:
+npm install -g pnpm@10.27.0
 pnpm install
 ```
 
-## Scripts utiles
+## Useful Scripts
 
-- `pnpm dev` : serveur de développement Vite
-- `pnpm build` : build de production
-- `pnpm test` : tests unitaires frontend (Vitest)
-- `pnpm test:ui` : UI de tests
-- `pnpm coverage` : couverture de tests
+- `pnpm dev` : Vite development server
+- `pnpm build` : production build
+- `pnpm test` : frontend unit tests (Vitest)
+- `pnpm test:ui` : test UI
+- `pnpm coverage` : test coverage
 
-Les workflows CI utilisent pnpm pour garantir la cohérence des dépendances.
+CI workflows use pnpm to ensure dependency consistency.
 
 ---
 # Versions used
@@ -28,6 +28,7 @@ Les workflows CI utilisent pnpm pour garantir la cohérence des dépendances.
 - Java 25
 - Quarkus 3.30.5
 - Node.js v24.12.0
+- pnpm 10.27.0
 - npm 11.6.2
 
 # 🛠️ CI & Quality

@@ -6,6 +6,7 @@ import comasky.rpcClass.responses.BlockInfoResponse;
 import comasky.rpcClass.responses.BlockchainInfoResponse;
 import comasky.rpcClass.responses.MempoolInfoResponse;
 import comasky.rpcClass.responses.NetworkInfoResponse;
+import comasky.service.CacheProvider;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -13,6 +14,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+
+import java.util.Map;
 
 /**
  * REST API controller exposing endpoints to retrieve Bitcoin node and dashboard data.
@@ -24,10 +27,12 @@ import jakarta.ws.rs.core.MediaType;
 public class BitcoinApiController {
 
     private final RpcServices rpcServices;
+    private final CacheProvider cacheProvider;
 
     @Inject
-    public BitcoinApiController(RpcServices rpcServices) {
+    public BitcoinApiController(RpcServices rpcServices, CacheProvider cacheProvider) {
         this.rpcServices = rpcServices;
+        this.cacheProvider = cacheProvider;
     }
 
     /**
@@ -100,5 +105,16 @@ public class BitcoinApiController {
     @Path("getmempoolinfo")
     public Uni<MempoolInfoResponse> getMempoolInfo() {
         return rpcServices.getMempoolInfo();
+    }
+
+    /**
+     * Retrieves cache statistics.
+     *
+     * @return a {@link Uni} emitting a Map containing cache performance metrics
+     */
+    @GET
+    @Path("cache/stats")
+    public Uni<Map<String, Object>> getCacheStats() {
+        return cacheProvider.getCacheStats();
     }
 }

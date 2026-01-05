@@ -1,6 +1,10 @@
 import { filesize } from 'filesize';
 import { intervalToDuration, formatDuration } from 'date-fns';
 
+// Memoization cache for formatted bytes (LRU-like with max size)
+const bytesCache = new Map<string, string>();
+const MAX_CACHE_SIZE = 100;
+
 /**
  * Format bytes with locale-specific separators (space, dot, etc) for tooltips and display.
  * @param bytes Number of bytes
@@ -13,9 +17,19 @@ export function formatBytesLocale(bytes?: number | null): string {
 
 /**
  * Format a number with a space as thousands separator (e.g. 1234567 => '1 234 567')
+ * Cached for performance with frequently used values
  */
+const numberCache = new Map<number, string>();
 export function formatNumberWithSpace(n: number | string): string {
-  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  const num = typeof n === 'string' ? parseFloat(n) : n;
+  if (numberCache.has(num)) {
+    return numberCache.get(num)!;
+  }
+  const result = String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  if (numberCache.size < MAX_CACHE_SIZE) {
+    numberCache.set(num, result);
+  }
+  return result;
 }
 
 /**
@@ -43,14 +57,26 @@ export const formatDurationOrTimestamp = (input?: number | null): string => {
 
 /**
  * Formats bytes into human-readable units (B, KiB, MiB, ...).
+ * Cached for frequently used values.
  * @param bytes Number of bytes
  * @param decimals Number of decimal places (default: 2)
  * @returns Formatted string with appropriate unit
  */
 export const formatBytesIEC = (bytes: number, decimals = 2): string => {
-  if (bytes == null || isNaN(bytes)) return 'N/A';
-  if (bytes === 0) return '0 B';
-  return filesize(bytes, { standard: 'iec', base: decimals });
+  const cacheKey = `${bytes}_${decimals}`;
+  if (bytesCache.has(cacheKey)) {
+    return bytesCache.get(cacheKey)!;
+  }
+  
+  const result = filesize(bytes, { base: 2, standard: 'iec', round: decimals }) as string;
+  
+  if (bytesCache.size >= MAX_CACHE_SIZE) {
+    // Simple LRU: delete first entry when cache is full
+    const firstKey = bytesCache.keys().next().value;
+    if (firstKey) bytesCache.delete(firstKey);
+  }
+  bytesCache.set(cacheKey, result);
+  return result;
 };
 
 /**

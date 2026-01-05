@@ -29,7 +29,7 @@
 # Frontend only
 cd src/main/web && pnpm test
 
-# Avec couverture
+# With coverage
 cd src/main/web && pnpm coverage
 ```
 
@@ -47,23 +47,32 @@ cd src/main/web && pnpm coverage
 - `SubverStatsCalculationTest` - Version distribution
 - `ToolsTest` - Utility functions
 - `BtcApiAppTest` - Application lifecycle
+- `CacheProviderTest` (7 tests) - Cache behavior, invalidation, expiration
+- `DashboardConfigTest` (7 tests) - Configuration validation and defaults
+- `RpcExceptionTest` (7 tests) - Exception creation, cause propagation, stack traces
 
 ## 🎨 Frontend Tests (67)
 
 **Test Files**:
 
-- `useWebSocket.test.ts` (9) - Connection, messaging, reconnection
-- `useTheme.test.ts` (9) - Dark/light mode, localStorage
-- `useMockData.test.ts` (9) - Mock scenarios, auto-cycle
-- `Status.test.ts` (6) - Component rendering, states
-- `types.test.ts` (15) - Interfaces, data validation
-- `formatters.test.ts` (12) - Number/date formatting
-- `logic.test.ts` (16) - Business logic, calculations
+- `useWebSocket.test.ts` - Connection, messaging, reconnection
+- `useTheme.test.ts` - Dark/light mode, localStorage
+- `Status.test.ts` - Component rendering, states
+- `types.test.ts` - Interfaces, data validation
+- `formatters.test.ts` - Number/date formatting
+- `logic.test.ts` - Business logic, calculations
+- `nodeHealth.test.ts` - Node health checks
+- `formatting.test.ts` - Text formatting utilities
+- `Tooltip.test.ts` - Tooltip component
+- `BaseCard.test.ts` - Base card component
+- `PeersCard.test.ts` - Peers card component
+- `BlockCard.test.ts` - Block card component
+- `MempoolInfoCard.test.ts` - Mempool info card component
 
 
-**Outils et librairies principaux :**
+**Main tools and libraries:**
 
-- **pnpm** (gestionnaire de paquets frontend, workspace monorepo)
+- **pnpm** 10.27.0 (frontend package manager, monorepo workspace)
 - **Vitest** 4.0.16 (tests unitaires frontend)
 - **Vue Test Utils** 2.4.6, **Happy DOM** 20.0.11, **Vite** 7.3.0, **TypeScript** 5.9.3, **Chart.js** 4.5.1, **Font Awesome** 7.1.0, **ky** 1.14.2, **Tailwind CSS** 3.4.19, **vite-plugin-pwa** 1.2.0, **vite-plugin-compression** 0.5.1, **rollup-plugin-visualizer** 6.0.5, **sirv-cli** 3.0.1, **autoprefixer** 10.4.23, **postcss** 8.5.6, **vue-tsc** 3.2.1, **workbox-window** 7.4.0, **reconnecting-websocket** 4.4.0
 
@@ -97,13 +106,13 @@ class MyServiceTest {
 ```
 
 
-### Scripts de test frontend
+### Frontend test scripts
 
-- `pnpm test` : tests unitaires (Vitest)
-- `pnpm test:ui` : UI de tests interactive
-- `pnpm coverage` : rapport de couverture
+- `pnpm test` : unit tests (Vitest)
+- `pnpm test:ui` : interactive test UI
+- `pnpm coverage` : coverage report
 
-### Exemple de test frontend
+### Frontend Test Example
 
 ```typescript
 import { describe, it, expect, vi } from "vitest";
@@ -143,13 +152,13 @@ cd src/main/web && npm run test:ui
 ## 🔄 Continuous Integration
 
 
-### Workflows GitHub Actions
+### GitHub Actions Workflows
 
-Les workflows CI utilisent pnpm pour installer les dépendances frontend et exécuter les tests (voir `.github/workflows/docker.yml`, `docker-native.yml`, `docker-dev-native.yml`).
+CI workflows use pnpm to install frontend dependencies and run tests (see `.github/workflows/docker.yml`, `docker-native.yml`, `docker-dev-native.yml`).
 
-Avant chaque build d'image Docker :
-- ✅ Les tests backend sont exécutés
-- ✅ Les tests frontend sont exécutés (pnpm test, pnpm coverage)
-- ❌ Le build est annulé si un test échoue
+Before each Docker image build:
+- ✅ Backend tests are executed
+- ✅ Frontend tests are executed (pnpm test, pnpm coverage)
+- ❌ Build is cancelled if any test fails
 
-Cela garantit que seules les versions testées sont déployées.
+This ensures only tested versions are deployed.

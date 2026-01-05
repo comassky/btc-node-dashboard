@@ -10,17 +10,17 @@ https://github.com/comassky/btc-node-dashboard/pkgs/container/btc-node-dashboard
 
 ---
 
-**Note CI :** Les workflows GitHub Actions utilisent `pnpm` pour installer les dépendances frontend avant de builder les images Docker. Voir `.github/workflows/docker.yml`, `docker-native.yml` et `docker-dev-native.yml`.
+**CI Note:** GitHub Actions workflows use `pnpm` to install frontend dependencies before building Docker images. See `.github/workflows/docker.yml`, `docker-native.yml` and `docker-dev-native.yml`.
 
 
 ### Run Native Image (Recommended)
 
 ```bash
 docker run -d -p 8080:8080 \
-  -e RPC_HOST=<HOST> \
-  -e RPC_PORT=<PORT> \
-  -e RPC_USER=<USER> \
-  -e RPC_PASS=<PASSWORD> \
+  -e BITCOIN_RPC_HOST=<HOST> \
+  -e BITCOIN_RPC_PORT=<PORT> \
+  -e BITCOIN_RPC_USER=<USER> \
+  -e BITCOIN_RPC_PASSWORD=<PASSWORD> \
   -e WS_POLLING_INTERVAL=5 \
   -e MIN_OUTBOUND_PEERS=8 \
   -e LOG_LEVEL=INFO \
@@ -79,7 +79,7 @@ Images are published automatically by the GitHub Actions native workflows:
 Examples:
 
 ```bash
-docker pull ghcr.io/comassky/btc-node-dashboard:1.4.0-SNAPSHOT
+docker pull ghcr.io/comassky/btc-node-dashboard:1.5.0-SNAPSHOT
 docker pull ghcr.io/comassky/btc-node-dashboard:develop
 ```
 

@@ -13,7 +13,7 @@
         <Tooltip
           :text="'Node software version. This identifies the implementation and version your node is running.'"
           position="bottom"
-          horizontal="left"
+         
         >
           <div class="truncate text-xl font-bold text-text-primary sm:text-2xl">
             {{ cleanedSubversion }}
@@ -27,7 +27,7 @@
         <Tooltip
           :text="'Uptime: Time elapsed since the node started.'"
           position="bottom"
-          horizontal="left"
+         
         >
           <div class="text-xl font-bold text-text-primary sm:text-2xl">
             {{ formatUptime(upTime) }}
@@ -44,7 +44,7 @@
           <Tooltip
             :text="'Verification progress: How much of the blockchain has been verified by your node.'"
             position="bottom"
-            horizontal="left"
+           
           >
             <p class="flex flex-wrap items-center gap-1">
               <font-awesome-icon :icon="['fas', 'shield-alt']" class="text-status-success" />
@@ -58,7 +58,7 @@
             <Tooltip
               :text="'Disk space used by the local blockchain (size_on_disk).'"
               position="bottom"
-              horizontal="left"
+             
             >
               <p class="flex items-center gap-1">
                 <span class="inline-flex h-5 w-5 items-center justify-center">
@@ -74,7 +74,7 @@
         </div>
         <div class="mt-4 flex gap-2 sm:ml-6 sm:mt-0">
           <template v-for="net in node.networks" :key="net.name">
-            <Tooltip :text="netLabel(net)" position="bottom" horizontal="left">
+            <Tooltip :text="netLabel(net)" position="bottom">
               <font-awesome-icon
                 :icon="networkIcon(net.name)"
                 :class="net.reachable ? 'text-status-success' : 'text-status-error'"
@@ -94,7 +94,7 @@ import BaseCard from '@components/BaseCard.vue';
 import { computed } from 'vue';
 import { filesize } from 'filesize';
 import { intervalToDuration } from 'date-fns';
-import { BlockChainInfo, NetworkInfoResponse } from '@/types';
+import type { BlockChainInfo, NetworkInfoResponse } from '@/types';
 
 const props = defineProps<{
   node: NetworkInfoResponse;

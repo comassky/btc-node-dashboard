@@ -21,7 +21,7 @@
               : 'Current height of the blockchain. This is the number of blocks in the chain. Click to view on mempool.org.'
           "
           position="bottom"
-          horizontal="center"
+         
         >
           <a
             :href="`https://mempool.space/block/${blockchain.blocks}`"
@@ -55,7 +55,7 @@
               <Tooltip
                 :text="'Number of block headers known to the node.'"
                 position="bottom"
-                horizontal="left"
+               
               >
                 <font-awesome-icon :icon="['fas', 'list-ol']" class="mr-1" />
               </Tooltip>
@@ -80,7 +80,7 @@
             <Tooltip
               :text="'Time since the last block was found.'"
               position="bottom"
-              horizontal="left"
+             
             >
               <font-awesome-icon :icon="['far', 'clock']" class="mr-1" />
             </Tooltip>
@@ -93,7 +93,7 @@
             <Tooltip
               :text="'Number of transactions in the current block.'"
               position="bottom"
-              horizontal="left"
+             
             >
               <font-awesome-icon :icon="['fas', 'exchange-alt']" class="mr-1" />
             </Tooltip>

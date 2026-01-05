@@ -2,6 +2,7 @@ package comasky.service;
 
 import com.github.benmanes.caffeine.cache.AsyncCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import comasky.config.DashboardConfig;
 import comasky.rpcClass.dto.GlobalResponse;
 import io.smallrye.mutiny.Uni;
@@ -9,6 +10,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
@@ -31,6 +34,8 @@ public class CacheProvider {
 
         this.cache = Caffeine.newBuilder()
                 .expireAfterWrite(Duration.ofMillis(cacheDurationMs))
+                .maximumSize(config.cache().maxItems())
+                .recordStats()
                 .buildAsync();
     }
 
@@ -54,5 +59,26 @@ public class CacheProvider {
      */
     public void invalidateAll() {
         cache.synchronous().invalidateAll();
+    }
+
+    /**
+     * Returns cache statistics.
+     * @return Uni containing a Map with cache stats
+     */
+    public Uni<Map<String, Object>> getCacheStats() {
+        return Uni.createFrom().item(() -> {
+            CacheStats stats = cache.synchronous().stats();
+            Map<String, Object> result = new HashMap<>();
+            result.put("hitRate", stats.hitRate());
+            result.put("missRate", stats.missRate());
+            result.put("hitCount", stats.hitCount());
+            result.put("missCount", stats.missCount());
+            result.put("loadSuccessCount", stats.loadSuccessCount());
+            result.put("loadFailureCount", stats.loadFailureCount());
+            result.put("totalLoadTime", stats.totalLoadTime());
+            result.put("averageLoadPenalty", stats.averageLoadPenalty());
+            result.put("evictionCount", stats.evictionCount());
+            return result;
+        });
     }
 }

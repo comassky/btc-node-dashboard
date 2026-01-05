@@ -45,7 +45,10 @@ export function useMockData() {
   const cycleMockScenario = (): void => {
     const scenarios: MockScenario[] = ['normal', 'disconnected', 'lowPeers', 'outOfSync'];
     const currentIndex = scenarios.indexOf(mockScenario.value);
-    mockScenario.value = scenarios[(currentIndex + 1) % scenarios.length];
+    const nextScenario = scenarios[(currentIndex + 1) % scenarios.length];
+    if (nextScenario) {
+      mockScenario.value = nextScenario;
+    }
   };
 
   /**

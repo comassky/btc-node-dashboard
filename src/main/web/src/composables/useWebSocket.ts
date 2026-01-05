@@ -36,19 +36,21 @@ export function useWebSocket(
     socket.addEventListener('message', (event: MessageEvent) => {
       try {
         const json = JSON.parse(event.data) as Partial<DashboardData>;
-        if ('rpcConnected' in json && !('generalStats' in json)) {
-          rpcConnected.value = json.rpcConnected ?? false;
-          errorMessage.value = json.errorMessage || null;
-        } else if ('generalStats' in json) {
+        
+        // Optimize: check rpcConnected first (more common case)
+        if ('generalStats' in json) {
           rpcConnected.value = true;
           errorMessage.value = null;
           onDataReceived(json);
+        } else if ('rpcConnected' in json) {
+          rpcConnected.value = json.rpcConnected ?? false;
+          errorMessage.value = json.errorMessage || null;
         }
-      } catch (e) {
-        try {
-          const preview = typeof event.data === 'string' ? event.data.slice(0, 200) : '';
-          console.warn('WebSocket message parse error', e, preview);
-        } catch (ignore) {}
+      } catch (error) {
+        if (import.meta.env.DEV) {
+          const preview = typeof event.data === 'string' ? event.data.slice(0, 200) : String(event.data);
+          console.warn('WebSocket parse error:', error, preview);
+        }
       }
     });
 

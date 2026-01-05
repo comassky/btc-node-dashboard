@@ -21,6 +21,8 @@ Chart.register(ArcElement, Tooltip, Legend, PieController);
 // --- Color utilities ---
 
 const cssVarCache = new Map<string, string>();
+const paletteCache = new Map<number, readonly string[]>();
+
 const getCssVar = (name: string) => {
   if (!cssVarCache.has(name)) {
     cssVarCache.set(name, getComputedStyle(document.documentElement).getPropertyValue(name).trim());
@@ -29,23 +31,28 @@ const getCssVar = (name: string) => {
 };
 const invalidateCssCache = () => cssVarCache.clear();
 
-const generatePalette = (num: number) =>
-  Array.from({ length: num }, (_, i) => {
-    const baseS = 70,
-      baseL = 50;
-    const hue = Math.round((360 / num) * i + (i % 2 === 0 ? 0 : 180 / num));
-    const sat = baseS + (i % 3 === 0 ? 10 : i % 3 === 1 ? -10 : 0);
-    const light = baseL + (i % 2 === 0 ? 8 : -8);
-    return `hsl(${hue}, ${sat}%, ${light}%)`;
-  });
-const generateColors = (num: number) => {
+const generatePalette = (num: number): readonly string[] => {
+  if (!paletteCache.has(num)) {
+    paletteCache.set(num, Array.from({ length: num }, (_, i) => {
+      const baseS = 70,
+        baseL = 50;
+      const hue = Math.round((360 / num) * i + (i % 2 === 0 ? 0 : 180 / num));
+      const sat = baseS + (i % 3 === 0 ? 10 : i % 3 === 1 ? -10 : 0);
+      const light = baseL + (i % 2 === 0 ? 8 : -8);
+      return `hsl(${hue}, ${sat}%, ${light}%)`;
+    }));
+  }
+  return paletteCache.get(num)!;
+};
+
+const generateColors = (num: number): string[] => {
   const base = [
     getCssVar('--accent') || '#ff9900',
     getCssVar('--status-success') || '#06d6a0',
     getCssVar('--status-warning') || '#ffd166',
     getCssVar('--status-error') || '#ef476f',
   ];
-  return num <= base.length ? base.slice(0, num) : base.concat(generatePalette(num - base.length));
+  return num <= base.length ? base.slice(0, num) : [...base, ...generatePalette(num - base.length)];
 };
 
 // --- Chart.js config ---
@@ -140,8 +147,11 @@ const initChart = (data: SubverDistribution[], colors: string[]): Chart | null =
 const updateChartData = (chart: Chart, data: SubverDistribution[], colors: string[]) => {
   const { labels, percentages, backgroundColors } = extractChartData(data, colors);
   chart.data.labels = labels;
-  chart.data.datasets[0].data = percentages;
-  chart.data.datasets[0].backgroundColor = backgroundColors;
+  const dataset = chart.data.datasets[0];
+  if (dataset) {
+    dataset.data = percentages;
+    dataset.backgroundColor = backgroundColors;
+  }
   chart.update('none');
 };
 
@@ -175,7 +185,7 @@ watch(
         if (!chartInstance) chartInstance = initChart(val, chartColors.value);
       });
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true, flush: 'post' }
 );
 watch(
   () => props.isDarkMode,
@@ -190,7 +200,8 @@ watch(
       }
       chartInstance.update('none');
     }
-  }
+  },
+  { flush: 'post' }
 );
 onBeforeUnmount(destroyChart);
 

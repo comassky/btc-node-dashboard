@@ -5,7 +5,7 @@
       <Tooltip
         :text="`Show Bitnodes page for this node: ${peer.addr}`"
         position="bottom"
-        horizontal="left"
+       
       >
         <a
           class="peer-link"
@@ -18,12 +18,12 @@
       </Tooltip>
     </td>
     <td class="td-cell">
-      <Tooltip :text="peer.subver || '[Empty]'" position="bottom" horizontal="left">
+      <Tooltip :text="peer.subver || '[Empty]'" position="bottom">
         <span class="peer-subver">{{ peer.subver || '[Empty]' }}</span>
       </Tooltip>
     </td>
     <td class="td-cell">
-      <Tooltip :text="`Full version: ${peer.version}`" position="bottom" horizontal="left">
+      <Tooltip :text="`Full version: ${peer.version}`" position="bottom">
         <span>{{ peer.version }}</span>
       </Tooltip>
     </td>
@@ -32,13 +32,13 @@
       <Tooltip
         :text="peer.conntime ? `Connected at: ${formatTimestampToLocale(peer.conntime)}` : 'N/A'"
         position="bottom"
-        horizontal="left"
+       
       >
         <span>{{ formatRelativeTimeSince(peer.conntime) }}</span>
       </Tooltip>
     </td>
     <td class="td-cell">
-      <Tooltip :text="`Network type: ${peer.network || 'N/A'}`" position="bottom" horizontal="left">
+      <Tooltip :text="`Network type: ${peer.network || 'N/A'}`" position="bottom">
         <span>{{ peer.network || 'N/A' }}</span>
       </Tooltip>
     </td>
@@ -50,7 +50,7 @@
       {{ peer.connection_type }}
     </td>
     <td class="td-cell">
-      <Tooltip :text="`Raw ping: ${peer.minping ?? 'N/A'} s`" position="bottom" horizontal="left">
+      <Tooltip :text="`Raw ping: ${peer.minping ?? 'N/A'} s`" position="bottom">
         <span>{{ formatPingSmart(peer.minping) }}</span>
       </Tooltip>
     </td>
@@ -58,7 +58,7 @@
       <Tooltip
         :text="formatBytesLocale(peer.bytesrecv) + ' Bytes'"
         position="bottom"
-        horizontal="left"
+       
       >
         <span>{{ formatBytesIEC(peer.bytesrecv) }}</span>
       </Tooltip>
@@ -67,7 +67,7 @@
       <Tooltip
         :text="formatBytesLocale(peer.bytessent) + ' Bytes'"
         position="bottom"
-        horizontal="left"
+       
       >
         <span>{{ formatBytesIEC(peer.bytessent) }}</span>
       </Tooltip>

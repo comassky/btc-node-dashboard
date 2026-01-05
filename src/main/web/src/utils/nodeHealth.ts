@@ -1,4 +1,4 @@
-import { BlockChainInfo, BlockInfoResponse } from '@types';
+import type { BlockChainInfo, BlockInfoResponse } from '@types';
 
 /**
  * Node health monitoring utilities.
