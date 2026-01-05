@@ -78,30 +78,64 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 1rem;
+  scroll-padding-top: 3rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
   font-family: 'Roboto', sans-serif;
+  transition: background-color 0.3s ease;
 }
 
-/* Pulse Animation for Disconnected state */
+/* Pulse Animation for Disconnected state - more subtle */
 .pulse-error {
-  animation: pulse-error 2s infinite;
+  animation: pulse-error 3s ease-in-out infinite;
 }
 
 @keyframes pulse-error {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--status-error-rgb), 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(var(--status-error-rgb), 0);
+  }
+}
+
+/* Fade-in animation for cards */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-card {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Shimmer animation for skeletons */
+@keyframes shimmer {
   0% {
-    box-shadow: 0 0 0 0 rgba(var(--status-error-rgb), 0.7);
+    background-position: -1000px 0;
   }
-
-  70% {
-    box-shadow: 0 0 0 10px rgba(var(--status-error-rgb), 0);
-  }
-
   100% {
-    box-shadow: 0 0 0 0 rgba(var(--status-error-rgb), 0);
+    background-position: 1000px 0;
   }
+}
+
+.shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    90deg,
+    var(--bg-card) 0%,
+    var(--border-strong) 50%,
+    var(--bg-card) 100%
+  );
+  background-size: 1000px 100%;
 }
 
 /* Custom utilities */
@@ -115,14 +149,17 @@ body {
   .btn-secondary {
     @apply focus:ring-accent border-border-strong bg-bg-card text-text-primary rounded border px-3 py-1.5 font-medium shadow transition-all hover:opacity-80 focus:ring-2 focus:ring-offset-2 focus:outline-none;
   }
+  .btn-nav {
+    @apply text-text-primary hover:text-accent hover:bg-accent/10 rounded-md px-3 py-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent/50;
+  }
   .card-title {
     @apply mb-3 text-lg font-medium break-words sm:mb-4 sm:text-2xl sm:text-xl md:mb-6;
   }
   .dashboard-card {
-    @apply bg-bg-card rounded-xl border-l-4 p-4 shadow-lg transition sm:p-6;
+    @apply bg-bg-card rounded-xl border-l-4 p-4 shadow-lg transition-shadow duration-300 sm:p-6;
   }
   .dashboard-card-interactive {
-    @apply bg-bg-card relative z-10 overflow-visible rounded-xl border-l-4 p-4 shadow-lg transition sm:p-6;
+    @apply bg-bg-card relative z-10 overflow-visible rounded-xl border-l-4 p-4 shadow-lg transition-shadow duration-300 sm:p-6;
   }
   .sub-card {
     @apply bg-bg-card;
@@ -172,6 +209,25 @@ body {
   white-space: nowrap;
 }
 
+/* Striped rows for better readability */
+.peer-table tbody tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.dark .peer-table tbody tr:nth-child(even),
+.gray .peer-table tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.peer-table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+.dark .peer-table tbody tr:hover,
+.gray .peer-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
 /* Responsive Improvements */
 @media (max-width: 600px) {
   .status-bar.is-mobile {
@@ -184,5 +240,17 @@ body {
   .status-bar.is-mobile p {
     width: 100%;
     text-align: left;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 380px) {
+  .dashboard-card,
+  .dashboard-card-interactive {
+    @apply p-3;
+  }
+  
+  .card-title {
+    @apply text-base;
   }
 }

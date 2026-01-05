@@ -121,16 +121,16 @@ onBeforeUnmount(() => {
     </button>
 
     <!-- Navigation Menu -->
-    <div class="fixed top-3 right-16 z-40 flex flex-row gap-2 sm:top-4 sm:right-20">
-      <a href="#overview" class="btn btn-secondary" title="Overview" aria-label="Go to overview">
+    <nav class="fixed top-3 right-16 z-40 flex flex-row gap-2 backdrop-blur-lg bg-bg-card/80 rounded-lg p-1.5 shadow-lg border border-border-strong/50 sm:top-4 sm:right-20">
+      <a href="#overview" class="btn-nav" title="Overview" aria-label="Go to overview">
         <IconDiagramProject />
       </a>
-      <a href="#mempool" class="btn btn-secondary" title="Mempool" aria-label="Go to mempool info">
+      <a href="#mempool" class="btn-nav" title="Mempool" aria-label="Go to mempool info">
         <IconLayerGroup />
       </a>
       <a
         href="#distribution"
-        class="btn btn-secondary"
+        class="btn-nav"
         title="Peer Distribution"
         aria-label="Go to peer distribution"
       >
@@ -138,13 +138,13 @@ onBeforeUnmount(() => {
       </a>
       <a
         href="#connections"
-        class="btn btn-secondary"
+        class="btn-nav"
         title="Connection Details"
         aria-label="Go to connection details"
       >
         <IconTable />
       </a>
-    </div>
+    </nav>
 
     <div
       v-if="MOCK_MODE"
@@ -186,13 +186,13 @@ onBeforeUnmount(() => {
     </transition>
 
     <div
-      class="grid grid-cols-1 gap-2 gap-y-4 sm:gap-4 md:grid-cols-2 md:gap-6 md:gap-y-6 lg:grid-cols-2 lg:gap-8"
+      class="grid grid-cols-1 gap-5 gap-y-5 sm:gap-5 md:grid-cols-2 md:gap-5 md:gap-y-5 lg:grid-cols-2 lg:gap-5"
     >
       <!-- Main Cards -->
       <transition name="fade" mode="out-in">
         <div id="overview" v-if="shouldShowContent" class="lg:col-span-2" key="cards">
           <div
-            class="xs:grid-cols-2 xs:gap-3 grid grid-cols-1 gap-2 sm:gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4"
+            class="xs:grid-cols-2 xs:gap-3 grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-4"
           >
             <PeersCard
               :stats="dataState.generalStats"
@@ -215,11 +215,11 @@ onBeforeUnmount(() => {
         </div>
         <div v-else class="lg:col-span-2" key="skeletons">
           <div
-            class="xs:grid-cols-2 xs:gap-3 grid grid-cols-1 gap-2 sm:gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4"
+            class="xs:grid-cols-2 xs:gap-3 grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-4"
           >
-            <BaseCardSkeleton class="col-span-1" />
-            <BaseCardSkeleton class="col-span-1" />
-            <BaseCardSkeleton class="col-span-1 w-full max-w-full lg:col-span-2" />
+            <BaseCardSkeleton class="col-span-1 shimmer" />
+            <BaseCardSkeleton class="col-span-1 shimmer" />
+            <BaseCardSkeleton class="col-span-1 w-full max-w-full shimmer lg:col-span-2" />
           </div>
         </div>
       </transition>
@@ -228,22 +228,14 @@ onBeforeUnmount(() => {
       <MempoolInfoCard
         id="mempool"
         v-if="shouldShowContent && !disableMempool"
-        v-motion
-        :initial="{ opacity: 0 }"
-        :enter="{ opacity: 1, transition: { duration: 20 } }"
-        :leave="{ opacity: 0, transition: { duration: 15 } }"
-        :mempool-info="dataState.mempoolInfo"
         class="dashboard-card lg:col-span-2"
+        :mempool-info="dataState.mempoolInfo"
       />
 
       <!-- Peer Software Distribution -->
       <div
         id="distribution"
         v-if="shouldShowContent"
-        v-motion
-        :initial="{ opacity: 0 }"
-        :enter="{ opacity: 1, transition: { duration: 20 } }"
-        :leave="{ opacity: 0, transition: { duration: 15 } }"
         class="dashboard-card lg:col-span-2"
       >
         <h2
@@ -273,10 +265,6 @@ onBeforeUnmount(() => {
       <div
         id="connections"
         v-if="shouldShowContent"
-        v-motion
-        :initial="{ opacity: 0 }"
-        :enter="{ opacity: 1, transition: { duration: 20 } }"
-        :leave="{ opacity: 0, transition: { duration: 15 } }"
         class="dashboard-card overflow-x-auto lg:col-span-2"
         key="table"
       >
