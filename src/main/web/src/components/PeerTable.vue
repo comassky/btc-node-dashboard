@@ -1,5 +1,3 @@
-import { formatSecondsWithSuffix, formatPingSmart, formatRelativeTimeSince, formatBytesIEC,
-formatTimestampToLocale } from '@utils/formatting';
 <template>
   <div>
     <h4
@@ -116,7 +114,7 @@ formatTimestampToLocale } from '@utils/formatting';
               class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('bytesrecv')"
             >
-              <Icon icon="fa6-solid:arrow-down" class="text-status-success" />
+              <IconArrowDown class="text-status-success" />
               Received
               <span v-if="sortKey === 'bytesrecv'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             </th>
@@ -124,7 +122,7 @@ formatTimestampToLocale } from '@utils/formatting';
               class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('bytessent')"
             >
-              <Icon icon="fa6-solid:arrow-up" class="text-accent" /> Sent
+              <IconArrowUp class="text-accent" /> Sent
               <span v-if="sortKey === 'bytessent'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             </th>
           </tr>

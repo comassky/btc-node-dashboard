@@ -1,7 +1,7 @@
 <template>
   <BaseCard status="success" interactive>
     <h2 class="mb-4 flex items-center text-xl font-medium sm:text-2xl">
-      <Icon icon="fa6-solid:layer-group" class="text-accent mr-2" />
+      <IconLayerGroup class="text-accent mr-2" />
       Mempool Info
     </h2>
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
@@ -45,6 +45,7 @@
 import { formatBytesIEC } from '@utils/formatting';
 import BaseCard from '@components/BaseCard.vue';
 import type { MempoolInfoResponse } from '@types';
+import { IconLayerGroup } from '@/icons';
 
 const props = defineProps<{ mempoolInfo: MempoolInfoResponse }>();
 </script>

@@ -3,6 +3,15 @@ import { defineAsyncComponent } from 'vue';
 import { useDashboardStore } from '@/stores/dashboard';
 import { useTheme } from '@composables/useTheme';
 import { useMockData } from '@composables/useMockData';
+import {
+  IconBitcoin,
+  IconHelmetSafety,
+  IconSun,
+  IconMoon,
+  IconCloud,
+  IconChartPie,
+  IconTable,
+} from '@/icons';
 
 import { setMinOutboundPeers } from '@utils/nodeHealth';
 
@@ -61,13 +70,13 @@ const connectionState = computed(() => {
   };
 });
 
-const themeIcons: Record<string, string> = {
-  light: 'fa6-solid:sun',
-  dark: 'fa6-solid:moon',
-  gray: 'fa6-solid:cloud',
-  auto: 'fa6-solid:cloud',
-};
-const themeIcon = computed(() => themeIcons[theme.value] ?? 'fa6-solid:cloud');
+const themeIconsMap = {
+  light: IconSun,
+  dark: IconMoon,
+  gray: IconCloud,
+  auto: IconCloud,
+} as const;
+const themeIcon = computed(() => themeIconsMap[theme.value] ?? IconCloud);
 
 onMounted(() => {
   if (MOCK_MODE.value) {
@@ -107,7 +116,7 @@ onBeforeUnmount(() => {
       aria-label="Cycle theme"
       :aria-pressed="theme === 'dark' || theme === 'gray'"
     >
-      <Icon :icon="themeIcon" />
+      <component :is="themeIcon" />
     </button>
 
     <div
@@ -115,7 +124,7 @@ onBeforeUnmount(() => {
       class="dashboard-card border-accent fixed top-3 left-3 z-50 text-xs sm:top-4 sm:left-4"
     >
       <div class="text-accent mb-2 flex items-center gap-2 font-bold">
-        <Icon icon="fa6-solid:helmet-safety" /> MOCK MODE
+        <IconHelmetSafety /> MOCK MODE
       </div>
       <button @click="cycleMockScenario" class="btn btn-accent">Cycle Scenario</button>
       <div class="text-text-secondary mt-2">
@@ -128,7 +137,7 @@ onBeforeUnmount(() => {
         <h1
           class="card-title text-accent px-2 text-2xl font-extralight tracking-wide uppercase sm:text-3xl sm:tracking-widest md:text-4xl lg:text-5xl"
         >
-          <Icon icon="fa6-brands:bitcoin" class="mr-1 sm:mr-2" />
+          <IconBitcoin class="mr-1 sm:mr-2" />
           <span class="hidden sm:inline">Bitcoin Node Dashboard</span>
           <span class="sm:hidden">BTC Dashboard</span>
         </h1>
@@ -211,7 +220,7 @@ onBeforeUnmount(() => {
         <h2
           class="xs:text-xl mb-3 flex items-center text-lg font-medium break-words sm:mb-4 sm:text-2xl md:mb-6"
         >
-          <Icon icon="fa6-solid:chart-pie" class="text-accent mr-2" />
+          <IconChartPie class="text-accent mr-2" />
           <span class="hidden sm:inline">Peer Software Distribution</span>
           <span class="sm:hidden">Peers Distribution</span>
         </h2>
@@ -244,7 +253,7 @@ onBeforeUnmount(() => {
         <h2
           class="xs:text-xl mb-3 flex items-center text-lg font-medium break-words sm:mb-4 sm:text-2xl md:mb-6"
         >
-          <Icon icon="fa6-solid:table" class="text-accent mr-2" /> Connection Details
+          <IconTable class="text-accent mr-2" /> Connection Details
         </h2>
         <PeerTable :peers="inboundPeers" type="inbound" />
         <PeerTable :peers="outboundPeers" type="outbound" />

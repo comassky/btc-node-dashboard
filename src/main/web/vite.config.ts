@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import viteCompression from 'vite-plugin-compression';
 import AutoImport from 'unplugin-auto-import/vite';
+import Icons from 'unplugin-icons/vite';
 import Inspect from 'vite-plugin-inspect';
 import path from 'path';
 
@@ -45,6 +46,10 @@ export default defineConfig(({ mode }) => ({
       eslintrc: {
         enabled: true,
       },
+    }),
+    Icons({
+      compiler: 'vue3',
+      autoInstall: false,
     }),
     Inspect(),
     // VitePWA disabled
@@ -111,7 +116,6 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           'vue-vendor': ['vue', 'pinia'],
           'chart-vendor': ['chart.js'],
-          'icons-vendor': ['@iconify/vue'],
         },
       },
       // Improve tree-shaking
@@ -124,7 +128,7 @@ export default defineConfig(({ mode }) => ({
 
   // Optimize pre-bundled dependencies
   optimizeDeps: {
-    include: ['vue', 'pinia', 'chart.js', '@iconify/vue', 'date-fns', 'ky'],
+    include: ['vue', 'pinia', 'chart.js', 'date-fns', 'ky'],
     exclude: ['@vueuse/core'],
   },
 

@@ -8,7 +8,7 @@
           hasLowOutbound ? 'text-status-warning' : 'text-status-success',
         ]"
       >
-        <Icon icon="fa6-solid:user-group" />
+        <IconUserGroup />
       </div>
       <div class="text-text-secondary text-xs font-medium uppercase">Total Peers</div>
     </div>
@@ -27,7 +27,7 @@
         <div
           class="bg-status-warning/10 border-status-warning/30 animate-breathe text-status-warning flex flex-shrink-0 cursor-help items-center gap-1 rounded border p-2"
         >
-          <Icon icon="fa6-solid:triangle-exclamation" class="text-xs" />
+          <IconTriangleExclamation class="text-xs" />
           <span class="text-xs font-medium">Low outbound connections</span>
         </div>
       </Tooltip>
@@ -37,14 +37,14 @@
     >
       <Tooltip :text="'Inbound connections: other nodes connecting to you.'">
         <p class="mb-0.5 sm:mb-1">
-          <Icon icon="fa6-solid:arrow-right-to-bracket" class="mr-1" /> Inbound:
+          <IconArrowRightToBracket class="mr-1" /> Inbound:
           {{ stats.inboundCount }}
         </p>
       </Tooltip>
       <div class="flex items-center justify-between gap-3">
         <Tooltip :text="'Outbound connections: your node connecting to others.'">
           <p class="mb-0.5 sm:mb-1">
-            <Icon icon="fa6-solid:arrow-right-from-bracket" class="mr-1" /> Outbound:
+            <IconArrowRightFromBracket class="mr-1" /> Outbound:
             <span :class="hasLowOutbound ? 'text-status-warning font-bold' : ''">{{
               stats.outboundCount
             }}</span>
@@ -61,6 +61,12 @@ import Tooltip from '@components/Tooltip.vue';
 import BaseCard from '@components/BaseCard.vue';
 import { hasLowOutboundPeers } from '@utils/nodeHealth';
 import type { GeneralStats } from '../../types';
+import {
+  IconUserGroup,
+  IconTriangleExclamation,
+  IconArrowRightToBracket,
+  IconArrowRightFromBracket,
+} from '@/icons';
 
 const props = withDefaults(
   defineProps<{

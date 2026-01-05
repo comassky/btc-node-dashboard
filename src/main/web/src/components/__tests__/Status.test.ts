@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import Status from '@components/Status.vue';
 import type { BlockChainInfo, BlockInfoResponse } from '@types';
-import { Icon } from '@iconify/vue';
 
 const mockBlockchain: BlockChainInfo = {
   blocks: 100,
@@ -28,11 +27,15 @@ const mockBlock: BlockInfoResponse = {
 
 const mountOptions = {
   global: {
-    components: { Icon },
     stubs: {
       Tooltip: {
         template: '<div><slot /></div>',
       },
+      IconNetworkWired: true,
+      IconSpinner: true,
+      IconServer: true,
+      IconCircleExclamation: true,
+      IconTriangleExclamation: true,
     },
   },
 };
@@ -89,9 +92,6 @@ describe('Status.vue', () => {
     });
 
     expect(wrapper.text()).toContain('Reconnecting...');
-    // Check that Icon components are rendered
-    const icons = wrapper.findAllComponents(Icon);
-    expect(icons.length).toBeGreaterThan(0);
   });
 
   it('should display warning for low outbound peers', () => {
@@ -108,8 +108,5 @@ describe('Status.vue', () => {
     });
 
     expect(wrapper.text()).toContain('Low outbound peers');
-    // Check that Icon components are rendered
-    const icons = wrapper.findAllComponents(Icon);
-    expect(icons.length).toBeGreaterThan(0);
   });
 });

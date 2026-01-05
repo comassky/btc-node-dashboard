@@ -1,7 +1,6 @@
 import { mount } from '@vue/test-utils';
 import BlockCard from '../BlockCard.vue';
 import { describe, it, expect } from 'vitest';
-import { Icon } from '@iconify/vue';
 import Tooltip from '../../Tooltip.vue';
 import type { BlockChainInfo } from '../../../types';
 import type { BlockInfoResponse } from '../../../types';
@@ -35,21 +34,21 @@ describe('BlockCard.vue', () => {
     const wrapper = mount(BlockCard, {
       props: { blockchain, block },
       global: {
-        stubs: { BaseCard: slotStub },
-        components: { Icon, Tooltip },
+        stubs: { BaseCard: slotStub, IconCubes: true, IconListOl: true, IconClock: true, IconArrowRightArrowLeft: true },
+        components: { Tooltip },
       },
     });
     expect(wrapper.text().replace(/\s/g, '')).toContain('123456');
     expect(wrapper.text()).toContain('Headers:');
-    expect(wrapper.findComponent(Icon).exists()).toBe(true);
+    expect(wrapper.find('.text-4xl').exists()).toBe(true);
   });
 
   it('shows out of sync warning if forceOutOfSync is true', () => {
     const wrapper = mount(BlockCard, {
       props: { blockchain, block, forceOutOfSync: true },
       global: {
-        stubs: { BaseCard: slotStub },
-        components: { Icon, Tooltip },
+        stubs: { BaseCard: slotStub, IconCubes: true, IconListOl: true, IconClock: true, IconArrowRightArrowLeft: true },
+        components: { Tooltip },
       },
     });
     // The out-of-sync warning is now in the tooltip, not in the visible text

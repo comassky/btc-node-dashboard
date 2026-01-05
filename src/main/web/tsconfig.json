@@ -31,8 +31,10 @@
       "@types": ["src/types/index.ts"],
       "@types/*": ["src/types/*"],
       "@utils/*": ["src/utils/*"],
-      "@assets/*": ["src/assets/*"]
-    }
+      "@assets/*": ["src/assets/*"],
+      "~icons/*": ["node_modules/unplugin-icons/types/*"]
+    },
+    "types": ["vite/client", "unplugin-icons/types/vue"]
   },
   "include": [
     "src/**/*.ts",

@@ -24,7 +24,7 @@
             rel="noopener noreferrer"
             class="hover:text-accent"
           >
-            <Icon icon="fa6-brands:github" class="text-lg" />
+            <IconGithub class="text-lg" />
           </a>
         </div>
       </div>
@@ -33,6 +33,8 @@
 </template>
 
 <script setup lang="ts">
+import { IconGithub } from '@/icons';
+
 const props = withDefaults(defineProps<{ version?: string }>(), {
   version: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev',
 });

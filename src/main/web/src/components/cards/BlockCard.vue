@@ -8,7 +8,7 @@
           isOutOfSync ? 'text-status-error' : 'text-status-success',
         ]"
       >
-        <Icon icon="fa6-solid:cubes" />
+        <IconCubes />
       </div>
       <div class="text-text-secondary text-xs font-medium uppercase">Current Block</div>
     </div>
@@ -52,7 +52,7 @@
           <div class="mb-0.5 sm:mb-1">
             <div class="flex w-full min-w-0 items-center">
               <Tooltip :text="'Number of block headers known to the node.'" position="bottom">
-                <Icon icon="fa6-solid:list-ol" class="mr-1" />
+                <IconListOl class="mr-1" />
               </Tooltip>
               <span class="truncate">
                 Headers:
@@ -73,7 +73,7 @@
           </div>
           <p class="mb-0.5 sm:mb-1">
             <Tooltip :text="'Time since the last block was found.'" position="bottom">
-              <Icon icon="fa6-regular:clock" class="mr-1" />
+              <IconClock class="mr-1" />
             </Tooltip>
             Time:
             <span class="text-text-primary font-bold">
@@ -82,7 +82,7 @@
           </p>
           <p class="mb-0.5 sm:mb-1">
             <Tooltip :text="'Number of transactions in the current block.'" position="bottom">
-              <Icon icon="fa6-solid:arrow-right-arrow-left" class="mr-1" />
+              <IconArrowRightArrowLeft class="mr-1" />
             </Tooltip>
             Tx Count:
             <span class="text-text-primary font-bold">{{ block.nTx }}</span>
@@ -102,6 +102,7 @@ import BaseCard from '@components/BaseCard.vue';
 import { getHeaderBlockDiff, isSyncing, getSyncWarningMessage } from '@utils/nodeHealth';
 import type { BlockChainInfo, BlockInfoResponse } from '@types';
 import { formatNumberWithSpace } from '@/utils/formatting';
+import { IconCubes, IconListOl, IconClock, IconArrowRightArrowLeft } from '@/icons';
 
 const props = withDefaults(
   defineProps<{

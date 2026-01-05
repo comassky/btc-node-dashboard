@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import type { BlockChainInfo, BlockInfoResponse } from '@types';
 import { hasLowOutboundPeers, isNodeOutOfSync } from '@utils/nodeHealth';
+import {
+  IconNetworkWired,
+  IconSpinner,
+  IconServer,
+  IconCircleExclamation,
+  IconTriangleExclamation,
+} from '@/icons';
 
 import Tooltip from '@components/Tooltip.vue';
 
@@ -48,14 +55,14 @@ const badgeTextClass = computed(() => {
       position="bottom"
     >
       <span class="flex items-center">
-        <Icon icon="fa6-solid:network-wired" class="mr-2 text-xl" /> WebSocket:
+        <IconNetworkWired class="mr-2 text-xl" /> WebSocket:
         {{ props.isConnected ? 'CONNECTED' : 'DISCONNECTED' }}
         <span
           v-if="props.isRetrying"
           :class="['ml-3 flex items-center text-sm', badgeTextClass]"
           aria-live="polite"
         >
-          <Icon icon="fa6-solid:spinner" class="mr-2 animate-spin" /> Reconnecting...
+          <IconSpinner class="mr-2 animate-spin" /> Reconnecting...
         </span>
       </span>
     </Tooltip>
@@ -64,22 +71,22 @@ const badgeTextClass = computed(() => {
       position="bottom"
     >
       <span class="flex items-center">
-        <Icon icon="fa6-solid:server" class="mr-2 text-xl" /> Node RPC:
+        <IconServer class="mr-2 text-xl" /> Node RPC:
         {{ props.rpcConnected ? 'ONLINE' : 'OFFLINE' }}
       </span>
     </Tooltip>
     <p v-if="props.errorMessage && !props.isRetrying" class="mt-1 pt-1 text-sm font-light">
-      <Icon icon="fa6-solid:circle-exclamation" class="mr-2" />
+      <IconCircleExclamation class="mr-2" />
       {{ props.errorMessage }}
     </p>
     <div v-if="props.rpcConnected && hasWarnings" class="flex flex-wrap items-center gap-3 text-sm">
       <span v-if="hasLowOutbound" class="flex items-center">
-        <Icon icon="fa6-solid:triangle-exclamation" class="mr-2" /> Low outbound peers ({{
+        <IconTriangleExclamation class="mr-2" /> Low outbound peers ({{
           props.outboundPeers
         }})
       </span>
       <span v-if="isOutOfSync" class="flex items-center">
-        <Icon icon="fa6-solid:circle-exclamation" class="mr-2" /> Node out of sync
+        <IconCircleExclamation class="mr-2" /> Node out of sync
       </span>
     </div>
   </div>

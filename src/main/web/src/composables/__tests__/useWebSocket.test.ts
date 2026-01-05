@@ -45,7 +45,7 @@ describe('useWebSocket', () => {
     }
 
     mockWebSocket = MockWebSocket;
-    global.WebSocket = mockWebSocket as any;
+    (globalThis as any).WebSocket = mockWebSocket as any;
   });
 
   afterEach(() => {

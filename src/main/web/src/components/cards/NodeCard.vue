@@ -2,7 +2,7 @@
   <BaseCard status="success" interactive>
     <div class="flex items-center justify-between">
       <div class="text-accent text-2xl sm:text-3xl">
-        <Icon icon="fa6-solid:helmet-safety" />
+        <IconHelmetSafety />
       </div>
       <div class="text-text-secondary text-xs font-medium uppercase">Node Details</div>
     </div>
@@ -41,7 +41,7 @@
             position="bottom"
           >
             <p class="flex flex-wrap items-center gap-1">
-              <Icon icon="fa6-solid:shield-halved" class="text-status-success" />
+              <IconShieldHalved class="text-status-success" />
               <span>Verification Progress:</span>
               <span class="text-text-primary font-bold"
                 >{{ (blockchain.verificationprogress * 100).toFixed(4) }}%</span
@@ -55,7 +55,7 @@
             >
               <p class="flex items-center gap-1">
                 <span class="inline-flex h-5 w-5 items-center justify-center">
-                  <Icon icon="fa6-solid:hard-drive" class="text-text-secondary text-base" />
+                  <IconHardDrive class="text-text-secondary text-base" />
                 </span>
                 <span>Size on disk:</span>
                 <span class="text-text-primary font-bold">{{
@@ -68,8 +68,8 @@
         <div class="mt-4 flex gap-2 sm:mt-0 sm:ml-6">
           <template v-for="net in node.networks" :key="net.name">
             <Tooltip :text="netLabel(net)" position="bottom">
-              <Icon
-                :icon="networkIcon(net.name)"
+              <component
+                :is="networkIconComponent(net.name)"
                 :class="net.reachable ? 'text-status-success' : 'text-status-error'"
               />
             </Tooltip>
@@ -88,6 +88,17 @@ import { computed } from 'vue';
 import { filesize } from 'filesize';
 import { intervalToDuration } from 'date-fns';
 import type { BlockChainInfo, NetworkInfoResponse } from '@/types';
+import {
+  IconHelmetSafety,
+  IconShieldHalved,
+  IconHardDrive,
+  IconNetworkWired,
+  IconDiagramProject,
+  IconMask,
+  IconLayerGroup,
+  IconCloud,
+  IconCircleQuestion,
+} from '@/icons';
 
 const props = defineProps<{
   node: NetworkInfoResponse;
@@ -106,17 +117,17 @@ function formatUptime(totalSeconds: number): string {
   return `${days}${hours}:${minutes}:${seconds}`;
 }
 
-const networkIcons: Record<string, string> = {
-  ipv4: 'fa6-solid:network-wired',
-  ipv6: 'fa6-solid:diagram-project',
-  onion: 'fa6-solid:mask',
-  i2p: 'fa6-solid:layer-group',
-  cjdns: 'fa6-solid:cloud',
+const networkIconsMap: Record<string, any> = {
+  ipv4: IconNetworkWired,
+  ipv6: IconDiagramProject,
+  onion: IconMask,
+  i2p: IconLayerGroup,
+  cjdns: IconCloud,
 };
-const defaultNetworkIcon = 'fa6-solid:circle-question';
+const defaultNetworkIconComponent = IconCircleQuestion;
 
-function networkIcon(name: string) {
-  return networkIcons[name] || defaultNetworkIcon;
+function networkIconComponent(name: string) {
+  return networkIconsMap[name] || defaultNetworkIconComponent;
 }
 
 function netLabel(net: { name: string; reachable: boolean }) {

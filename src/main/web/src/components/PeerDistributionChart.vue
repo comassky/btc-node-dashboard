@@ -9,6 +9,7 @@ import {
   type ChartOptions,
 } from 'chart.js';
 import { type SubverDistribution } from '@types';
+import { IconArrowDown, IconArrowUp } from '@/icons';
 
 Chart.register(ArcElement, Tooltip, Legend, PieController);
 
@@ -212,10 +213,7 @@ const headerColor = props.type === 'inbound' ? 'status-success' : 'accent';
       :class="[`border-${headerColor}`, `text-${headerColor}`]"
     >
       <span class="inline-flex items-center justify-center">
-        <Icon
-          :icon="type === 'inbound' ? 'fa6-solid:arrow-down' : 'fa6-solid:arrow-up'"
-          class="mr-1"
-        />
+        <component :is="type === 'inbound' ? IconArrowDown : IconArrowUp" class="mr-1" />
         {{ type === 'inbound' ? 'Inbound Peers' : 'Outbound Peers' }} ({{ count }})
       </span>
     </h4>
