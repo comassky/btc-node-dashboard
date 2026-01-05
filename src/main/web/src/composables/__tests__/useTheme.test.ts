@@ -23,7 +23,7 @@ describe('useTheme', () => {
 
   it('should provide theme management functionality', () => {
     const { theme, isDarkMode, isGrayMode, cycleTheme } = useTheme();
-    
+
     expect(theme).toBeDefined();
     expect(isDarkMode).toBeDefined();
     expect(isGrayMode).toBeDefined();
@@ -32,13 +32,13 @@ describe('useTheme', () => {
 
   it('should expose cycleTheme function', async () => {
     const { cycleTheme, theme } = useTheme();
-    
+
     theme.value = 'light';
     await nextTick();
-    
+
     cycleTheme();
     await nextTick();
-    
+
     // After cycle, theme should be different
     expect(['light', 'dark', 'gray']).toContain(theme.value);
   });

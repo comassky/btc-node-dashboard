@@ -7,13 +7,13 @@
       v-if="text && isOpen"
       ref="floating"
       :style="floatingStyles"
-      class="pointer-events-auto visible fixed z-[99999] whitespace-nowrap rounded-lg border border-border-strong bg-bg-card px-3 py-2 text-sm text-text-primary opacity-100 shadow-xl"
+      class="border-border-strong bg-bg-card text-text-primary pointer-events-auto visible fixed z-[99999] rounded-lg border px-3 py-2 text-sm whitespace-nowrap opacity-100 shadow-xl"
     >
       {{ text }}
       <div
         ref="arrowRef"
         :style="arrowStyles"
-        class="absolute h-2 w-2 rotate-45 border border-transparent bg-bg-card"
+        class="bg-bg-card absolute h-2 w-2 rotate-45 border border-transparent"
       ></div>
     </div>
   </teleport>
@@ -43,18 +43,13 @@ defineExpose({ isHovered: isOpen });
 
 const { floatingStyles, middlewareData } = useFloating(reference, floating, {
   placement: props.position,
-  middleware: [
-    offset(8),
-    flip(),
-    shift({ padding: 8 }),
-    arrow({ element: arrowRef }),
-  ],
+  middleware: [offset(8), flip(), shift({ padding: 8 }), arrow({ element: arrowRef })],
   whileElementsMounted: autoUpdate,
 });
 
 const arrowStyles = computed(() => {
   if (!middlewareData.value.arrow) return {};
-  
+
   const { x, y } = middlewareData.value.arrow;
   const staticSide = {
     top: 'bottom',

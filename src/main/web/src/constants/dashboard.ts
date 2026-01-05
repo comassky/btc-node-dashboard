@@ -25,7 +25,14 @@ export const MAX_CHART_LABELS = 20;
 
 // Table configuration
 export const DEFAULT_PAGE_SIZE = 10;
-export const SORTABLE_COLUMNS = ['id', 'addr', 'subver', 'minping', 'bytesrecv', 'bytessent'] as const;
+export const SORTABLE_COLUMNS = [
+  'id',
+  'addr',
+  'subver',
+  'minping',
+  'bytesrecv',
+  'bytessent',
+] as const;
 
-export type SortableColumn = typeof SORTABLE_COLUMNS[number];
+export type SortableColumn = (typeof SORTABLE_COLUMNS)[number];
 export type SortOrder = 'asc' | 'desc';

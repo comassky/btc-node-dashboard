@@ -67,9 +67,9 @@ export const formatBytesIEC = (bytes: number, decimals = 2): string => {
   if (bytesCache.has(cacheKey)) {
     return bytesCache.get(cacheKey)!;
   }
-  
+
   const result = filesize(bytes, { base: 2, standard: 'iec', round: decimals }) as string;
-  
+
   if (bytesCache.size >= MAX_CACHE_SIZE) {
     // Simple LRU: delete first entry when cache is full
     const firstKey = bytesCache.keys().next().value;

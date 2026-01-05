@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import tailwindcss from '@tailwindcss/vite';
 // import { VitePWA } from 'vite-plugin-pwa';
 import { visualizer } from 'rollup-plugin-visualizer';
 import viteCompression from 'vite-plugin-compression';
@@ -24,6 +25,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [
+    tailwindcss(),
     vue(),
     AutoImport({
       imports: [
@@ -31,7 +33,12 @@ export default defineConfig(({ mode }) => ({
         'pinia',
         '@vueuse/core',
         {
-          '@vueuse/motion': ['useMotion', 'useMotionControls', 'useMotionProperties', 'useMotionVariants'],
+          '@vueuse/motion': [
+            'useMotion',
+            'useMotionControls',
+            'useMotionProperties',
+            'useMotionVariants',
+          ],
         },
       ],
       dts: 'src/auto-imports.d.ts',

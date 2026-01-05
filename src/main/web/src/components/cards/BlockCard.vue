@@ -10,7 +10,7 @@
       >
         <font-awesome-icon :icon="['fas', 'cubes']" />
       </div>
-      <div class="text-xs font-medium uppercase text-text-secondary">Current Block</div>
+      <div class="text-text-secondary text-xs font-medium uppercase">Current Block</div>
     </div>
     <div class="mt-2 flex w-full items-center sm:mt-3">
       <div class="min-w-0 flex-1">
@@ -21,7 +21,6 @@
               : 'Current height of the blockchain. This is the number of blocks in the chain. Click to view on mempool.org.'
           "
           position="bottom"
-         
         >
           <a
             :href="`https://mempool.space/block/${blockchain.blocks}`"
@@ -46,29 +45,25 @@
       <!-- Icon removed as requested -->
     </div>
     <div
-      class="mt-1 overflow-visible border-t border-border-strong pt-1 text-xs text-text-secondary sm:mt-2 sm:pt-2 sm:text-sm"
+      class="border-border-strong text-text-secondary mt-1 overflow-visible border-t pt-1 text-xs sm:mt-2 sm:pt-2 sm:text-sm"
     >
       <div class="flex items-center justify-between gap-3">
         <div class="flex-1">
           <div class="mb-0.5 sm:mb-1">
             <div class="flex w-full min-w-0 items-center">
-              <Tooltip
-                :text="'Number of block headers known to the node.'"
-                position="bottom"
-               
-              >
+              <Tooltip :text="'Number of block headers known to the node.'" position="bottom">
                 <font-awesome-icon :icon="['fas', 'list-ol']" class="mr-1" />
               </Tooltip>
               <span class="truncate">
                 Headers:
                 <span
-                  class="font-bold text-text-primary"
+                  class="text-text-primary font-bold"
                   :class="isSyncingComputed ? 'text-status-warning' : ''"
                 >
                   {{ blockchain.headers }}
                   <span
                     v-show="isSyncingComputed && headerBlockDiff !== 0"
-                    class="animate-breathe ml-1 whitespace-nowrap text-xs font-bold text-status-error sm:text-sm"
+                    class="animate-breathe text-status-error ml-1 text-xs font-bold whitespace-nowrap sm:text-sm"
                   >
                     (+{{ headerBlockDiff }})
                   </span>
@@ -77,28 +72,20 @@
             </div>
           </div>
           <p class="mb-0.5 sm:mb-1">
-            <Tooltip
-              :text="'Time since the last block was found.'"
-              position="bottom"
-             
-            >
+            <Tooltip :text="'Time since the last block was found.'" position="bottom">
               <font-awesome-icon :icon="['far', 'clock']" class="mr-1" />
             </Tooltip>
             Time:
-            <span class="font-bold text-text-primary">
+            <span class="text-text-primary font-bold">
               {{ formatDistanceToNow(new Date(block.time * 1000), { addSuffix: true }) }}
             </span>
           </p>
           <p class="mb-0.5 sm:mb-1">
-            <Tooltip
-              :text="'Number of transactions in the current block.'"
-              position="bottom"
-             
-            >
+            <Tooltip :text="'Number of transactions in the current block.'" position="bottom">
               <font-awesome-icon :icon="['fas', 'exchange-alt']" class="mr-1" />
             </Tooltip>
             Tx Count:
-            <span class="font-bold text-text-primary">{{ block.nTx }}</span>
+            <span class="text-text-primary font-bold">{{ block.nTx }}</span>
           </p>
         </div>
       </div>

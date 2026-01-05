@@ -3,7 +3,7 @@ formatTimestampToLocale } from '@utils/formatting';
 <template>
   <div>
     <h4
-      class="mt-8 border-b border-border-strong pb-2 text-xl font-medium"
+      class="border-border-strong mt-8 border-b pb-2 text-xl font-medium"
       :class="[`text-${headerColor}`]"
     >
       {{ type === 'inbound' ? 'Inbound Peers' : 'Outbound Peers' }} ({{ peers.length }})
@@ -11,92 +11,94 @@ formatTimestampToLocale } from '@utils/formatting';
 
     <!-- Averages above the table -->
     <div
-      class="bg-status-success/10 my-6 flex flex-wrap gap-8 rounded-lg border border-border-strong p-4 shadow-sm"
+      class="border-border-strong bg-bg-card my-6 flex flex-wrap gap-8 rounded-lg border p-4 shadow-sm"
     >
       <div class="flex min-w-[120px] flex-col items-start">
-        <span class="mb-1 text-xs text-text-secondary">Average Ping</span>
-        <span class="text-lg font-semibold text-status-success text-text-primary">{{
+        <span class="text-text-secondary mb-1 text-xs">Average Ping</span>
+        <span class="text-status-success text-text-primary text-lg font-semibold">{{
           peerAverages.minping !== null ? formatPingSmart(peerAverages.minping) : 'N/A'
         }}</span>
       </div>
       <div class="flex min-w-[120px] flex-col items-start">
-        <span class="mb-1 text-xs text-text-secondary">Average Received</span>
-        <span class="text-lg font-semibold text-status-success text-text-primary">{{
+        <span class="text-text-secondary mb-1 text-xs">Average Received</span>
+        <span class="text-status-success text-text-primary text-lg font-semibold">{{
           peerAverages.bytesrecv !== null ? formatBytesIEC(peerAverages.bytesrecv) : 'N/A'
         }}</span>
       </div>
       <div class="flex min-w-[120px] flex-col items-start">
-        <span class="mb-1 text-xs text-text-secondary">Average Sent</span>
-        <span class="text-lg font-semibold text-status-success text-text-primary">{{
+        <span class="text-text-secondary mb-1 text-xs">Average Sent</span>
+        <span class="text-status-success text-text-primary text-lg font-semibold">{{
           peerAverages.bytessent !== null ? formatBytesIEC(peerAverages.bytessent) : 'N/A'
         }}</span>
       </div>
       <div class="flex min-w-[120px] flex-col items-start">
-        <span class="mb-1 text-xs text-text-secondary">Average Time Offset</span>
-        <span class="text-lg font-semibold text-status-success text-text-primary">{{
-          peerAverages.timeoffset !== null ? formatSecondsWithSuffix(peerAverages.timeoffset) : 'N/A'
+        <span class="text-text-secondary mb-1 text-xs">Average Time Offset</span>
+        <span class="text-status-success text-text-primary text-lg font-semibold">{{
+          peerAverages.timeoffset !== null
+            ? formatSecondsWithSuffix(peerAverages.timeoffset)
+            : 'N/A'
         }}</span>
       </div>
       <div class="flex min-w-[120px] flex-col items-start">
-        <span class="mb-1 text-xs text-text-secondary">Average Connection Time</span>
-        <span class="text-lg font-semibold text-status-success text-text-primary">{{
+        <span class="text-text-secondary mb-1 text-xs">Average Connection Time</span>
+        <span class="text-status-success text-text-primary text-lg font-semibold">{{
           peerAverages.conntime !== null ? formatRelativeTimeSince(peerAverages.conntime) : 'N/A'
         }}</span>
       </div>
     </div>
-    <div class="peer-table-wrapper mt-4 overflow-x-auto rounded-lg border border-border-strong">
+    <div class="peer-table-wrapper border-border-strong mt-4 overflow-x-auto rounded-lg border">
       <table class="peer-table w-full text-sm">
         <thead>
           <tr class="bg-border-strong/50 whitespace-nowrap">
             <th
-              class="cursor-pointer p-4 text-left font-semibold uppercase text-text-secondary"
+              class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('id')"
             >
               ID <span v-if="sortKey === 'id'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             </th>
             <th
-              class="cursor-pointer p-4 text-left font-semibold uppercase text-text-secondary"
+              class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('addr')"
             >
               Address <span v-if="sortKey === 'addr'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             </th>
             <th
-              class="cursor-pointer p-4 text-left font-semibold uppercase text-text-secondary"
+              class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('subver')"
             >
               Software (SubVer)
               <span v-if="sortKey === 'subver'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             </th>
             <th
-              class="cursor-pointer p-4 text-left font-semibold uppercase text-text-secondary"
+              class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('version')"
             >
               Version
               <span v-if="sortKey === 'version'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             </th>
             <th
-              class="cursor-pointer p-4 text-left font-semibold uppercase text-text-secondary"
+              class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('timeoffset')"
             >
               Time Offset
               <span v-if="sortKey === 'timeoffset'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             </th>
             <th
-              class="cursor-pointer p-4 text-left font-semibold uppercase text-text-secondary"
+              class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('conntime')"
             >
               Connection Time
               <span v-if="sortKey === 'conntime'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             </th>
             <th
-              class="cursor-pointer p-4 text-left font-semibold uppercase text-text-secondary"
+              class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('network')"
             >
               Network
               <span v-if="sortKey === 'network'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             </th>
             <th
-              class="cursor-pointer p-4 text-left font-semibold uppercase text-text-secondary"
+              class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('connection_type')"
             >
               Type
@@ -105,13 +107,13 @@ formatTimestampToLocale } from '@utils/formatting';
               }}</span>
             </th>
             <th
-              class="cursor-pointer p-4 text-left font-semibold uppercase text-text-secondary"
+              class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('minping')"
             >
               Ping <span v-if="sortKey === 'minping'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             </th>
             <th
-              class="cursor-pointer p-4 text-left font-semibold uppercase text-text-secondary"
+              class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('bytesrecv')"
             >
               <font-awesome-icon :icon="['fas', 'arrow-down']" class="text-status-success" />
@@ -119,7 +121,7 @@ formatTimestampToLocale } from '@utils/formatting';
               <span v-if="sortKey === 'bytesrecv'">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
             </th>
             <th
-              class="cursor-pointer p-4 text-left font-semibold uppercase text-text-secondary"
+              class="text-text-secondary cursor-pointer p-4 text-left font-semibold uppercase"
               @click="setSort('bytessent')"
             >
               <font-awesome-icon :icon="['fas', 'arrow-up']" class="text-accent" /> Sent
@@ -142,8 +144,6 @@ formatTimestampToLocale } from '@utils/formatting';
 </template>
 
 <script setup lang="ts">
-import { ref, computed, toRef } from 'vue';
-import { useSorted } from '@vueuse/core';
 import PeerTableRow from './PeerTableRow.vue';
 import type { Peer } from '../types';
 import { library } from '@fortawesome/fontawesome-svg-core';
@@ -173,27 +173,24 @@ function setSort(key: keyof Peer) {
 }
 
 // Use VueUse's useSorted for reactive sorting
-const sortedPeers = useSorted(
-  toRef(props, 'peers'),
-  (a, b) => {
-    const key = sortKey.value;
-    const valA = a[key];
-    const valB = b[key];
-    
-    if (valA == null && valB == null) return 0;
-    if (valA == null) return 1;
-    if (valB == null) return -1;
-    
-    let comparison = 0;
-    if (typeof valA === 'number' && typeof valB === 'number') {
-      comparison = valA - valB;
-    } else {
-      comparison = String(valA).localeCompare(String(valB));
-    }
-    
-    return sortOrder.value === 'asc' ? comparison : -comparison;
+const sortedPeers = useSorted(toRef(props, 'peers'), (a, b) => {
+  const key = sortKey.value;
+  const valA = a[key];
+  const valB = b[key];
+
+  if (valA == null && valB == null) return 0;
+  if (valA == null) return 1;
+  if (valB == null) return -1;
+
+  let comparison = 0;
+  if (typeof valA === 'number' && typeof valB === 'number') {
+    comparison = valA - valB;
+  } else {
+    comparison = String(valA).localeCompare(String(valB));
   }
-);
+
+  return sortOrder.value === 'asc' ? comparison : -comparison;
+});
 
 // Averages for relevant numeric columns - optimized single-pass calculation
 
@@ -202,16 +199,26 @@ function average(arr: number[]): number | null {
 }
 
 const peerAverages = computed(() => {
-  const stats = { minping: [] as number[], bytesrecv: [] as number[], bytessent: [] as number[], timeoffset: [] as number[], conntime: [] as number[] };
-  
+  const stats = {
+    minping: [] as number[],
+    bytesrecv: [] as number[],
+    bytessent: [] as number[],
+    timeoffset: [] as number[],
+    conntime: [] as number[],
+  };
+
   for (const peer of props.peers) {
     if (typeof peer.minping === 'number' && !isNaN(peer.minping)) stats.minping.push(peer.minping);
-    if (typeof peer.bytesrecv === 'number' && !isNaN(peer.bytesrecv)) stats.bytesrecv.push(peer.bytesrecv);
-    if (typeof peer.bytessent === 'number' && !isNaN(peer.bytessent)) stats.bytessent.push(peer.bytessent);
-    if (typeof peer.timeoffset === 'number' && !isNaN(peer.timeoffset)) stats.timeoffset.push(peer.timeoffset);
-    if (typeof peer.conntime === 'number' && !isNaN(peer.conntime)) stats.conntime.push(peer.conntime);
+    if (typeof peer.bytesrecv === 'number' && !isNaN(peer.bytesrecv))
+      stats.bytesrecv.push(peer.bytesrecv);
+    if (typeof peer.bytessent === 'number' && !isNaN(peer.bytessent))
+      stats.bytessent.push(peer.bytessent);
+    if (typeof peer.timeoffset === 'number' && !isNaN(peer.timeoffset))
+      stats.timeoffset.push(peer.timeoffset);
+    if (typeof peer.conntime === 'number' && !isNaN(peer.conntime))
+      stats.conntime.push(peer.conntime);
   }
-  
+
   return {
     minping: average(stats.minping),
     bytesrecv: average(stats.bytesrecv),

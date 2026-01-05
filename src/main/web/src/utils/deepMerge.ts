@@ -17,7 +17,7 @@ export function deepMerge<T extends object, S extends object>(target: T, source:
 
   const targetAsRecord = target as Record<string, any>;
   const sourceKeys = Object.keys(source);
-  
+
   // Fast path: check if we can use shallow merge
   let hasNestedObjects = false;
   for (const key of sourceKeys) {

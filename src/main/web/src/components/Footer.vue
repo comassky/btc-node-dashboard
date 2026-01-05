@@ -1,8 +1,8 @@
 <template>
-  <footer class="bg-bg-card/50 mt-12 border-t border-border-strong py-6">
+  <footer class="bg-bg-card/50 border-border-strong mt-12 border-t py-6">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div
-        class="flex flex-col items-center justify-between gap-4 text-sm text-text-secondary sm:flex-row"
+        class="text-text-secondary flex flex-col items-center justify-between gap-4 text-sm sm:flex-row"
       >
         <div class="flex items-center gap-2">
           <span>© {{ currentYear }} Bitcoin Node Dashboard</span>
@@ -17,7 +17,7 @@
           </a>
         </div>
         <div class="flex items-center gap-2">
-          <span class="rounded bg-bg-app px-2 py-1 font-mono text-xs">v{{ props.version }}</span>
+          <span class="bg-bg-app rounded px-2 py-1 font-mono text-xs">v{{ props.version }}</span>
           <a
             href="https://github.com/comassky/btc-node-dashboard"
             target="_blank"

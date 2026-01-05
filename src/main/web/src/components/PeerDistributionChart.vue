@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref, watch, nextTick, onBeforeUnmount, computed } from 'vue';
 import {
   Chart,
   ArcElement,
@@ -33,14 +32,17 @@ const invalidateCssCache = () => cssVarCache.clear();
 
 const generatePalette = (num: number): readonly string[] => {
   if (!paletteCache.has(num)) {
-    paletteCache.set(num, Array.from({ length: num }, (_, i) => {
-      const baseS = 70,
-        baseL = 50;
-      const hue = Math.round((360 / num) * i + (i % 2 === 0 ? 0 : 180 / num));
-      const sat = baseS + (i % 3 === 0 ? 10 : i % 3 === 1 ? -10 : 0);
-      const light = baseL + (i % 2 === 0 ? 8 : -8);
-      return `hsl(${hue}, ${sat}%, ${light}%)`;
-    }));
+    paletteCache.set(
+      num,
+      Array.from({ length: num }, (_, i) => {
+        const baseS = 70,
+          baseL = 50;
+        const hue = Math.round((360 / num) * i + (i % 2 === 0 ? 0 : 180 / num));
+        const sat = baseS + (i % 3 === 0 ? 10 : i % 3 === 1 ? -10 : 0);
+        const light = baseL + (i % 2 === 0 ? 8 : -8);
+        return `hsl(${hue}, ${sat}%, ${light}%)`;
+      })
+    );
   }
   return paletteCache.get(num)!;
 };
@@ -211,7 +213,7 @@ const headerColor = props.type === 'inbound' ? 'status-success' : 'accent';
 <template>
   <div class="sub-card flex flex-1 flex-col gap-4 rounded-lg p-0 p-4">
     <h4
-      class="border-b-2 pb-2 text-center text-lg font-bold uppercase tracking-wider"
+      class="border-b-2 pb-2 text-center text-lg font-bold tracking-wider uppercase"
       :class="[`border-${headerColor}`, `text-${headerColor}`]"
     >
       <font-awesome-icon

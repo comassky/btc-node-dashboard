@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { BlockChainInfo, BlockInfoResponse } from '@types';
 import { hasLowOutboundPeers, isNodeOutOfSync } from '@utils/nodeHealth';
 

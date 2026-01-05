@@ -36,7 +36,7 @@ export function useWebSocket(
     socket.addEventListener('message', (event: MessageEvent) => {
       try {
         const json = JSON.parse(event.data) as Partial<DashboardData>;
-        
+
         // Optimize: check rpcConnected first (more common case)
         if ('generalStats' in json) {
           rpcConnected.value = true;
@@ -48,7 +48,8 @@ export function useWebSocket(
         }
       } catch (error) {
         if (import.meta.env.DEV) {
-          const preview = typeof event.data === 'string' ? event.data.slice(0, 200) : String(event.data);
+          const preview =
+            typeof event.data === 'string' ? event.data.slice(0, 200) : String(event.data);
           console.warn('WebSocket parse error:', error, preview);
         }
       }

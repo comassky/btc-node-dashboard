@@ -2,11 +2,7 @@
   <tr class="peer-table-row">
     <td class="td-cell">{{ peer.id }}</td>
     <td class="td-cell td-overflow">
-      <Tooltip
-        :text="`Show Bitnodes page for this node: ${peer.addr}`"
-        position="bottom"
-       
-      >
+      <Tooltip :text="`Show Bitnodes page for this node: ${peer.addr}`" position="bottom">
         <a
           class="peer-link"
           :href="`https://bitnodes.io/nodes/${peer.addr.replace(':', '-')}/`"
@@ -32,7 +28,6 @@
       <Tooltip
         :text="peer.conntime ? `Connected at: ${formatTimestampToLocale(peer.conntime)}` : 'N/A'"
         position="bottom"
-       
       >
         <span>{{ formatRelativeTimeSince(peer.conntime) }}</span>
       </Tooltip>
@@ -55,20 +50,12 @@
       </Tooltip>
     </td>
     <td class="td-cell">
-      <Tooltip
-        :text="formatBytesLocale(peer.bytesrecv) + ' Bytes'"
-        position="bottom"
-       
-      >
+      <Tooltip :text="formatBytesLocale(peer.bytesrecv) + ' Bytes'" position="bottom">
         <span>{{ formatBytesIEC(peer.bytesrecv) }}</span>
       </Tooltip>
     </td>
     <td class="td-cell">
-      <Tooltip
-        :text="formatBytesLocale(peer.bytessent) + ' Bytes'"
-        position="bottom"
-       
-      >
+      <Tooltip :text="formatBytesLocale(peer.bytessent) + ' Bytes'" position="bottom">
         <span>{{ formatBytesIEC(peer.bytessent) }}</span>
       </Tooltip>
     </td>

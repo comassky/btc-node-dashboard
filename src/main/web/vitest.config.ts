@@ -1,9 +1,28 @@
 import { defineConfig } from 'vitest/config';
 import vue from '@vitejs/plugin-vue';
+import AutoImport from 'unplugin-auto-import/vite';
 import path from 'path';
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    AutoImport({
+      imports: [
+        'vue',
+        'pinia',
+        '@vueuse/core',
+        {
+          '@vueuse/motion': [
+            'useMotion',
+            'useMotionControls',
+            'useMotionProperties',
+            'useMotionVariants',
+          ],
+        },
+      ],
+      dts: 'src/auto-imports.d.ts',
+    }),
+  ],
   test: {
     globals: true,
     environment: 'happy-dom',

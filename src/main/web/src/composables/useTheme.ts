@@ -1,5 +1,5 @@
 import { computed, watchEffect } from 'vue';
-import { useColorMode, usePreferredColorScheme } from '@vueuse/core';
+import { useColorMode } from '@vueuse/core';
 
 type Theme = 'light' | 'dark' | 'gray';
 
@@ -29,7 +29,9 @@ export function useTheme() {
 
   const theme = computed({
     get: () => mode.value as Theme,
-    set: (val: Theme) => { mode.value = val; }
+    set: (val: Theme) => {
+      mode.value = val;
+    },
   });
 
   const isDarkMode = computed(() => theme.value === 'dark');

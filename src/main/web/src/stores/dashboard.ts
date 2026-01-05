@@ -75,7 +75,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   // --- Actions ---
   const loadConfig = async () => {
     if (configLoaded.value) return; // Prevent double loading
-    
+
     try {
       const config: DashboardConfig = await ky.get('/api/config').json();
       setMinOutboundPeers(config.minOutboundPeers);
