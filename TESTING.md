@@ -12,10 +12,10 @@
 
 | Component | Tests | Technologies                                                                                                                                                                                |
 | --------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Backend   | 81    | JUnit 5, Mockito, Quarkus Test, Rest Assured                                                                                                                                                |
-| Frontend  | 83    | Vitest (4.0.16), Vue Test Utils (2.4.6), Happy DOM (20.0.11), Vite (7.3.0), TypeScript (5.9.3), VueUse (14.1.0), Chart.js (4.5.1), Tailwind CSS (4.1.18), Iconify (5.0.0), Floating UI (1.1.9) |
+| Backend   | 79    | JUnit 5, Mockito, Quarkus Test, Rest Assured                                                                                                                                                |
+| Frontend  | 83    | Vitest (4.0.16), Vue Test Utils (2.4.6), Happy DOM (20.0.11), Vite (7.3.0), TypeScript (5.9.3), VueUse (14.1.0), Chart.js (4.5.1), Tailwind CSS (4.1.18), Iconify (5.0.0), Simple Icons (1.2.65), Floating UI (1.1.9) |
 
-**Test execution**: ~25s total (Backend: ~20s, Frontend: ~3s)
+**Test execution**: ~25s total (Backend: ~20s, Frontend: ~3.5s)
 
 ## 🧪 Running Tests
 
@@ -76,9 +76,11 @@ cd src/main/web && pnpm coverage
 - **Vitest** 4.0.16 (unit tests framework)
 - **Vue Test Utils** 2.4.6, **Happy DOM** 20.0.11, **Vite** 7.3.0, **TypeScript** 5.9.3
 - **VueUse** 14.1.0 (composition utilities with useFetch, useWebSocket)
-- **Chart.js** 4.5.1, **Iconify** 5.0.0, **Floating UI** 1.1.9
-- **Tailwind CSS** 4.1.18, **vite-plugin-pwa** 1.2.0, **vite-plugin-compression** 0.5.1
-- **rollup-plugin-visualizer** 6.0.5, **sirv-cli** 3.0.1, **postcss** 8.5.6, **vue-tsc** 3.2.1, **workbox-window** 7.4.0
+- **Chart.js** 4.5.1 (tree-shaken with explicit imports), **Iconify** 5.0.0, **Simple Icons** 1.2.65, **Floating UI** 1.1.9
+- **Tailwind CSS** 4.1.18 with Lightning CSS, **vite-plugin-compression** 0.5.1
+- **rollup-plugin-visualizer** 6.0.5, **sirv-cli** 3.0.1, **vue-tsc** 3.2.1
+
+**Note**: PWA plugin, cssnano, and postcss have been removed as part of recent optimizations.
 
 ## 📝 Writing New Tests
 

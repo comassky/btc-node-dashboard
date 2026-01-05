@@ -29,12 +29,12 @@ const isHealthy = computed(() => isConnectedAndRpc.value && !hasWarnings.value);
 
 const statusClass = computed(() => {
   if (isHealthy.value)
-    return 'bg-status-success/15 border-2 border-status-success/30 text-status-success shadow-lg shadow-status-success/20';
+    return 'bg-status-success/15 border-2 border-status-success/30 text-status-success shadow';
   if (isConnectedAndRpc.value && isOutOfSync.value)
-    return 'bg-status-error/15 border-2 border-status-error/30 text-status-error pulse-error shadow-lg shadow-status-error/20';
+    return 'bg-status-error/15 border-2 border-status-error/30 text-status-error pulse-error shadow';
   if (isConnectedAndRpc.value && hasLowOutbound.value)
-    return 'bg-status-warning/15 border-2 border-status-warning/30 text-status-warning shadow-lg shadow-status-warning/20';
-  return 'bg-status-error/15 border-2 border-status-error/30 text-status-error pulse-error shadow-lg shadow-status-error/20';
+    return 'bg-status-warning/15 border-2 border-status-warning/30 text-status-warning shadow';
+  return 'bg-status-error/15 border-2 border-status-error/30 text-status-error pulse-error shadow';
 });
 
 const badgeTextClass = computed(() => {

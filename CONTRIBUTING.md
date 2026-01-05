@@ -14,13 +14,36 @@ pnpm install
 
 ## Useful Scripts
 
-- `pnpm dev` : Vite development server
-- `pnpm build` : production build
+- `pnpm dev` : Vite development server with hot reload
+- `pnpm build` : production build with optimizations
 - `pnpm test` : frontend unit tests (Vitest)
-- `pnpm test:ui` : test UI
-- `pnpm coverage` : test coverage
+- `pnpm test:ui` : interactive test UI
+- `pnpm coverage` : test coverage report
+- `pnpm prettier` : format code with Prettier
 
 CI workflows use pnpm to ensure dependency consistency.
+
+## Performance Optimizations
+
+The frontend is highly optimized for performance:
+
+- **Bundle Size**: 144KB Brotli (~10% reduction from previous 160KB)
+- **Chart.js Tree-Shaking**: Explicit imports instead of 'chart.js/auto' (-16KB)
+- **Component Optimization**: Removed 1375+ redundant Tooltip instances from peer tables
+- **Lazy Loading**: Async component imports with defineAsyncComponent
+- **CSS Optimization**: Tailwind CSS 4 with Lightning CSS for faster builds
+- **Compression**: Brotli and Gzip compression enabled
+
+### Key Optimizations Made
+
+1. **Chart.js**: Switched from 'chart.js/auto' to explicit imports (ArcElement, DoughnutController, etc.)
+2. **Tooltips**: Replaced Vue Tooltip components with native HTML title attributes in peer tables
+3. **Icons**: Using unplugin-icons with tree-shaking, added @iconify-json/simple-icons for official brand logos
+4. **Removed Dependencies**: Eliminated PWA plugin, cssnano (replaced by Lightning CSS), postcss
+5. **Component Memoization**: Added v-once for static cells, computed properties for formatted values
+6. **Animations**: Disabled unnecessary Chart.js animations for instant rendering
+
+When contributing, please maintain these optimizations and avoid re-introducing removed dependencies.
 
 ---
 # Versions used

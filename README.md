@@ -19,12 +19,12 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 - **Configurable & Nested Dashboard Settings**: All dashboard features are configurable via nested properties (see `dashboard.*`), compatible with Quarkus @ConfigMapping and @WithName.
 - **Live Peer & Network Statistics**: Real-time display of inbound/outbound connections, peer details, version and geographic distribution.
 - **Blockchain & Mempool Monitoring**: Track block height, sync progress, node uptime, mempool size, and network health in real time.
-- **Modern UI/UX**: Dark/light/gray mode, responsive design, interactive charts, smooth animations, icon support.
+- **Modern UI/UX**: Dark/light/gray mode, responsive design, interactive charts, glassmorphism effects, optimized icons (official Tor logo, network-specific icons).
 - **WebSocket Streaming**: Instant dashboard updates, automatic reconnection, exponential backoff, session cleanup.
 - **Mock/Test Mode**: Simulate errors, low peer count, disconnected mode for testing and demos.
 - **Comprehensive Error Handling**: Clear user messages, automatic recovery and reconnection.
 - **Security & Privacy**: No tracking, no analytics, all data stays on your node.
-- **Performance Optimized**: GraalVM Native (<50ms startup, ~30MB RAM), tree-shaking, code splitting, gzip/brotli compression, reusable composables.
+- **Performance Optimized**: GraalVM Native (<50ms startup, ~30MB RAM), Chart.js tree-shaking, optimized component rendering (1375+ fewer instances), gzip/brotli compression (144KB), reusable composables.
 - **Docker & CI/CD Ready**: Easy deployment, optimized images, automated builds and tests (GitHub Actions).
 - **Composable Architecture**: Reusable Vue composables (`useSortableTable`, `usePeerAnalytics`) for clean, maintainable code.
 
@@ -51,8 +51,9 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | **Vue.js**           | 3.5.26  | Progressive JavaScript framework |
 | **VueUse**           | 14.1.0  | Composition utilities            |
 | **Pinia**            | 3.0.4   | State management                 |
-| **Chart.js**         | 4.5.1   | Interactive charts               |
+| **Chart.js**         | 4.5.1   | Interactive charts (tree-shaken) |
 | **Iconify**          | 5.0.0   | Icon framework                   |
+| **Simple Icons**     | 1.2.65  | Brand logos (Tor, etc.)          |
 | **Floating UI**      | 1.1.9   | Tooltip positioning              |
 | **date-fns**         | 4.1.0   | Date utilities                   |
 | **filesize**         | 11.0.13 | File size formatting             |
@@ -85,10 +86,10 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 | Suite    | Tests |
 | -------- | ----- |
-| Backend  | 81    |
+| Backend  | 79    |
 | Frontend | 83    |
 
-**Total: 164 tests** ensuring code quality and stability.
+**Total: 162 tests** ensuring code quality and stability.
 
 ## 🏎️ Recommended Native Build (GraalVM)
 

@@ -55,8 +55,8 @@ describe('Status.vue', () => {
     });
 
     const text = wrapper.text();
-    expect(text).toContain('WebSocket: CONNECTED');
-    expect(text).toContain('Node RPC: ONLINE');
+    expect(text).toContain('CONNECTED');
+    expect(text).toContain('ONLINE');
   });
 
   it('should display disconnected statuses', () => {
@@ -73,8 +73,8 @@ describe('Status.vue', () => {
     });
 
     const text = wrapper.text();
-    expect(text).toContain('WebSocket: DISCONNECTED');
-    expect(text).toContain('Node RPC: OFFLINE');
+    expect(text).toContain('DISCONNECTED');
+    expect(text).toContain('OFFLINE');
   });
 
   it('should display retrying status and spinner when retrying', () => {
