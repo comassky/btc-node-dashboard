@@ -35,49 +35,37 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | Technology                   | Version           | Description                         |
 | ---------------------------- | ----------------- | ----------------------------------- |
 | **Java**                     | 25                | Programming language                |
-| **Quarkus**                  | 3.30.5            | Supersonic Subatomic Java Framework |
+| **Quarkus**                  | 3.30.5            | Reactive Java framework             |
 | **Mutiny**                   | (via Quarkus BOM) | Reactive programming library        |
 | **Jakarta WebSocket**        | -                 | Real-time communication             |
 | **MicroProfile REST Client** | -                 | HTTP client for Bitcoin RPC         |
 | **Jackson**                  | -                 | JSON processing                     |
-| **Maven Compiler Plugin**    | 3.14.1            | Java compilation                    |
-| **Maven Surefire Plugin**    | 3.5.4             | Unit testing                        |
-| **Maven Failsafe Plugin**    | 3.5.4             | Integration testing                 |
-| **Frontend Maven Plugin**    | 2.0.0             | Frontend build integration          |
-| **Node.js**                  | v24.12.0          | Frontend build (via Maven)          || **pnpm**                     | 10.27.0           | Frontend package manager            || **npm**                      | 11.6.2            | Frontend build (via Maven)          |
+| **Caffeine Cache**           | -                 | High-performance async cache        |
 
 ### Frontend
 
-| Technology                              | Version | Description                      |
-| --------------------------------------- | ------- | -------------------------------- |
-| **Vue.js**                              | 3.5.26  | Progressive JavaScript framework |
-| **TypeScript**                          | 5.9.3   | Type-safe JavaScript             |
-| **Vite**                                | 7.3.0   | Next-generation frontend tooling |
-| **Tailwind CSS**                        | 4.1.18  | Utility-first CSS framework      |
-| **@vueuse/core**                        | 14.1.0  | Vue composition utilities        |
-| **@vueuse/motion**                      | 3.0.3   | Vue animation utilities          |
-| **Chart.js**                            | 4.5.1   | Interactive charts               |
-| **@iconify/vue**                        | 5.0.0   | Icon framework                   |
-| **@floating-ui/vue**                    | 1.1.9   | Tooltip positioning library      || **date-fns**                            | 4.1.0   | Date utility library             |
-| **filesize**                            | 11.0.13 | File size formatting             |
-| **pinia**                               | 3.0.4   | State management                 |
-| **@tailwindcss/vite**                   | 4.1.18  | Tailwind CSS v4 Vite plugin      || **@types/node**                         | 25.0.3  | Node.js types                    |
-| **@vitejs/plugin-vue**                  | 6.0.3   | Vite Vue plugin                  |
-| **@vitest/coverage-v8**                 | 4.0.16  | Coverage provider                |
-| **@vitest/ui**                          | 4.0.16  | Vitest UI                        |
-| **@vue/test-utils**                     | 2.4.6   | Vue test utilities               |
-| **cssnano**                             | 7.1.2   | CSS minifier                     |
-| **happy-dom**                           | 20.0.11 | DOM environment for tests        |
-| **postcss**                             | 8.5.6   | CSS processor                    |
-| **prettier**                            | 3.7.4   | Code formatter                   |
-| **prettier-plugin-tailwindcss**         | 0.7.2   | Prettier Tailwind plugin         |
-| **rollup-plugin-visualizer**            | 6.0.5   | Bundle visualizer                |
-| **sirv-cli**                            | 3.0.1   | Static server                    |
-| **vite-plugin-compression**             | 0.5.1   | Compression plugin               |
-| **vite-plugin-pwa**                     | 1.2.0   | PWA plugin                       |
-| **vitest**                              | 4.0.16  | Unit testing framework           |
-| **vue-tsc**                             | 3.2.1   | TypeScript type checker for Vue  |
-| **workbox-window**                      | 7.4.0   | Service worker helper            |
+#### Runtime Dependencies
+
+| Technology           | Version | Description                      |
+| -------------------- | ------- | -------------------------------- |
+| **Vue.js**           | 3.5.26  | Progressive JavaScript framework |
+| **VueUse**           | 14.1.0  | Composition utilities            |
+| **Pinia**            | 3.0.4   | State management                 |
+| **Chart.js**         | 4.5.1   | Interactive charts               |
+| **Iconify**          | 5.0.0   | Icon framework                   |
+| **Floating UI**      | 1.1.9   | Tooltip positioning              |
+| **date-fns**         | 4.1.0   | Date utilities                   |
+| **filesize**         | 11.0.13 | File size formatting             |
+
+#### Build Tools
+
+| Technology           | Version | Description                      |
+| -------------------- | ------- | -------------------------------- |
+| **TypeScript**       | 5.9.3   | Type-safe JavaScript             |
+| **Vite**             | 7.3.0   | Build tool & dev server          |
+| **Tailwind CSS**     | 4.1.18  | Utility-first CSS framework      |
+| **Vitest**           | 4.0.16  | Unit testing framework           |
+| **Prettier**         | 3.7.4   | Code formatter                   |
 
 ### Build & Deploy
 
@@ -87,8 +75,8 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 - **Maven Failsafe Plugin** 3.5.4
 - **Frontend Maven Plugin** 2.0.0
 - **Node.js** v24.12.0 (via Maven)
-- **npm** 11.6.2 (via Maven)
-- **npm ci** (Optimized frontend dependency installation with --prefer-offline)
+- **pnpm** 10.27.0 (Frontend package manager, recommended)
+- **npm** 11.6.2 (Alternative package manager)
 - **Docker** (JVM & GraalVM Native images)
 - **GitHub Actions** (CI/CD with automated testing and native image builds)
 - **GraalVM Native Image** (AOT compilation for ultra-fast startup)
@@ -221,23 +209,7 @@ A short summary of the Docker image tags produced by the GitHub Actions workflow
 
 For details on reactive programming, non-blocking guarantees and contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-### Main Frontend Dependencies
-
-- **pnpm** 10.27.0 (frontend package manager, monorepo workspace)
-- **Vite** 7.3.0 (frontend development server and build tool)
-- **Vue 3** 3.5.26 (progressive JavaScript framework)
-- **TypeScript** 5.9.3 (type-safe JavaScript)
-- **VueUse** 14.1.0 (composition utilities: useFetch, useWebSocket, etc.)
-- **Tailwind CSS** 4.1.18 (utility-first CSS framework)
-- **Chart.js** 4.5.1 (interactive charts)
-- **Iconify** 5.0.0 (unified icon framework)
-- **Floating UI** 1.1.9 (tooltip and popover positioning)
-- **Vitest** 4.0.16 (unit testing framework)
-- **Pinia** 3.0.4 (state management)
-
-See `src/main/web/package.json` for the complete list.
-
-Main environment variables:
+### Environment Variables
 
 - `QUARKUS_IO_THREADS`: Number of IO threads for the backend (recommended: 2 × number of CPU cores). Set this environment variable to control backend concurrency. Example: `QUARKUS_IO_THREADS=16 java -jar ...`. Defaults to 8 if not set.
 
