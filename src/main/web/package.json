@@ -21,9 +21,7 @@
     "chart.js": "4.5.1",
     "date-fns": "4.1.0",
     "filesize": "11.0.13",
-    "ky": "1.14.2",
     "pinia": "3.0.4",
-    "reconnecting-websocket": "4.4.0",
     "vue": "3.5.26"
   },
   "devDependencies": {
