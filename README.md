@@ -35,8 +35,8 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 | Technology                   | Version           | Description                         |
 | ---------------------------- | ----------------- | ----------------------------------- |
-| **Java**                     | 25                                                                                                                                                       | Programming language                |
-| **Quarkus**                  | 3.30.5                                                                                                               | Reactive Java framework             |
+| **Java**                     | 25                                                                                                                                                                                     | Programming language                |
+| **Quarkus**                  | 3.30.5                                                                                                                                     | Reactive Java framework             |
 | **Mutiny**                   | (via Quarkus BOM) | Reactive programming library        |
 | **Jakarta WebSocket**        | -                 | Real-time communication             |
 | **MicroProfile REST Client** | -                 | HTTP client for Bitcoin RPC         |
@@ -49,25 +49,25 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 | Technology           | Version | Description                      |
 | -------------------- | ------- | -------------------------------- |
-| **Vue.js**           | 3.5.26           | Progressive JavaScript framework |
-| **VueUse**           | 14.1.0           | Composition utilities            |
-| **Pinia**           | 3.0.4                     | State management                 |
-| **Chart.js**           | 4.5.1                     | Interactive charts (tree-shaken) |
+| **Vue.js**           | 3.5.26             | Progressive JavaScript framework |
+| **VueUse**           | 14.1.0             | Composition utilities            |
+| **Pinia**           | 3.0.4                         | State management                 |
+| **Chart.js**           | 4.5.1                         | Interactive charts (tree-shaken) |
 | **Iconify**          | 5.0.0   | Icon framework                   |
 | **Simple Icons**     | 1.2.65  | Brand logos (Tor, etc.)          |
-| **Floating UI**           | 1.1.9                     | Tooltip positioning              |
-| **date-fns**           | 4.1.0                     | Date utilities                   |
+| **Floating UI**           | 1.1.9                         | Tooltip positioning              |
+| **date-fns**           | 4.1.0                         | Date utilities                   |
 | **filesize**           | 11.0.13 | File size formatting             |
 
 #### Build Tools
 
 | Technology           | Version | Description                      |
 | -------------------- | ------- | -------------------------------- |
-| **TypeScript**           | 5.9.3                     | Type-safe JavaScript             |
-| **Vite**           | 7.3.0                     | Build tool & dev server          |
-| **Tailwind CSS**           | 4.1.18           | Utility-first CSS framework      |
-| **Vitest**           | 4.0.16           | Unit testing framework           |
-| **Prettier**           | 3.7.4                     | Code formatter                   |
+| **TypeScript**           | 5.9.3                         | Type-safe JavaScript             |
+| **Vite**           | 7.3.0                         | Build tool & dev server          |
+| **Tailwind CSS**           | 4.1.18             | Utility-first CSS framework      |
+| **Vitest**           | 4.0.16             | Unit testing framework           |
+| **Prettier**           | 3.7.4                         | Code formatter                   |
 
 ### Build & Deploy
 
