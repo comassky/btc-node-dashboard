@@ -53,22 +53,19 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | **Vue.js**                              | 3.5.26  | Progressive JavaScript framework |
 | **TypeScript**                          | 5.9.3   | Type-safe JavaScript             |
 | **Vite**                                | 7.3.0   | Next-generation frontend tooling |
-| **Tailwind CSS**                        | 3.4.19  | Utility-first CSS framework      |
+| **Tailwind CSS**                        | 4.1.18  | Utility-first CSS framework      |
+| **@vueuse/core**                        | 14.1.0  | Vue composition utilities        |
+| **@vueuse/motion**                      | 3.0.3   | Vue animation utilities          |
 | **Chart.js**                            | 4.5.1   | Interactive charts               |
-| **@fortawesome/fontawesome-svg-core**   | 7.1.0   | Font Awesome core                |
-| **@fortawesome/free-brands-svg-icons**  | 7.1.0   | Font Awesome brands icons        |
-| **@fortawesome/free-regular-svg-icons** | 7.1.0   | Font Awesome regular icons       |
-| **@fortawesome/free-solid-svg-icons**   | 7.1.0   | Font Awesome solid icons         |
-| **@fortawesome/vue-fontawesome**        | 3.1.2   | Font Awesome Vue component       |
-| **ky**                                  | 1.14.2  | HTTP client                      |
-| **reconnecting-websocket**              | 4.4.0   | WebSocket reconnect              || **date-fns**                            | 4.1.0   | Date utility library             |
+| **@iconify/vue**                        | 5.0.0   | Icon framework                   |
+| **@floating-ui/vue**                    | 1.1.9   | Tooltip positioning library      || **date-fns**                            | 4.1.0   | Date utility library             |
 | **filesize**                            | 11.0.13 | File size formatting             |
-| **pinia**                               | 3.0.4   | State management                 || **@types/node**                         | 25.0.3  | Node.js types                    |
+| **pinia**                               | 3.0.4   | State management                 |
+| **@tailwindcss/vite**                   | 4.1.18  | Tailwind CSS v4 Vite plugin      || **@types/node**                         | 25.0.3  | Node.js types                    |
 | **@vitejs/plugin-vue**                  | 6.0.3   | Vite Vue plugin                  |
 | **@vitest/coverage-v8**                 | 4.0.16  | Coverage provider                |
 | **@vitest/ui**                          | 4.0.16  | Vitest UI                        |
 | **@vue/test-utils**                     | 2.4.6   | Vue test utilities               |
-| **autoprefixer**                        | 10.4.23 | CSS vendor prefixer              |
 | **cssnano**                             | 7.1.2   | CSS minifier                     |
 | **happy-dom**                           | 20.0.11 | DOM environment for tests        |
 | **postcss**                             | 8.5.6   | CSS processor                    |
@@ -100,10 +97,10 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 | Suite    | Tests |
 | -------- | ----- |
-| Backend  | 79    |
-| Frontend | 67    |
+| Backend  | 81    |
+| Frontend | 83    |
 
-**Total: 146 tests** ensuring code quality and stability.
+**Total: 164 tests** ensuring code quality and stability.
 
 ## 🏎️ Recommended Native Build (GraalVM)
 
@@ -224,14 +221,19 @@ A short summary of the Docker image tags produced by the GitHub Actions workflow
 
 For details on reactive programming, non-blocking guarantees and contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-### Main Dependencies and Tools
+### Main Frontend Dependencies
 
-- **pnpm** (frontend package manager, monorepo workspace)
-- **Vite** (frontend development server and build tool)
-- **Vitest** (frontend unit testing)
-- **Tailwind CSS** (CSS framework)
-- **PostCSS** (CSS preprocessor)
-- **TypeScript**, **Vue 3**, **Chart.js**, **FontAwesome**, etc.
+- **pnpm** 10.27.0 (frontend package manager, monorepo workspace)
+- **Vite** 7.3.0 (frontend development server and build tool)
+- **Vue 3** 3.5.26 (progressive JavaScript framework)
+- **TypeScript** 5.9.3 (type-safe JavaScript)
+- **VueUse** 14.1.0 (composition utilities: useFetch, useWebSocket, etc.)
+- **Tailwind CSS** 4.1.18 (utility-first CSS framework)
+- **Chart.js** 4.5.1 (interactive charts)
+- **Iconify** 5.0.0 (unified icon framework)
+- **Floating UI** 1.1.9 (tooltip and popover positioning)
+- **Vitest** 4.0.16 (unit testing framework)
+- **Pinia** 3.0.4 (state management)
 
 See `src/main/web/package.json` for the complete list.
 
