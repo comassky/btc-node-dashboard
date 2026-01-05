@@ -124,13 +124,13 @@ export const formatRelativeTimeSince = (timestamp?: number | null): string => {
   const now = Date.now();
   const ts = timestamp > MS_TIMESTAMP_THRESHOLD ? timestamp : timestamp * 1000;
   const duration = intervalToDuration({ start: ts, end: now });
-  
+
   const days = duration.days || 0;
   const hours = duration.hours || 0;
   const mins = duration.minutes || 0;
-  
+
   if (days === 0 && hours === 0 && mins === 0) return '<1m';
-  
+
   if (days > 0) {
     return `${days}d ${hours}h ${mins}m`;
   } else if (hours > 0) {

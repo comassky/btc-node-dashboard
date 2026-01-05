@@ -111,7 +111,9 @@ onBeforeUnmount(() => {
 <template>
   <div class="bg-bg-app min-h-screen p-3 sm:p-4 md:p-6">
     <!-- Navigation Menu -->
-    <nav class="fixed top-3 right-3 z-40 flex flex-row items-center gap-2 backdrop-blur-lg bg-bg-card/80 rounded-lg p-1.5 shadow-lg border border-border-strong/50 sm:top-4 sm:right-4">
+    <nav
+      class="bg-bg-card/80 border-border-strong/50 fixed top-3 right-3 z-40 flex flex-row items-center gap-2 rounded-lg border p-1.5 shadow-lg backdrop-blur-lg sm:top-4 sm:right-4"
+    >
       <a href="#overview" class="btn-nav" title="Overview" aria-label="Go to overview">
         <IconDiagramProject />
       </a>
@@ -134,9 +136,9 @@ onBeforeUnmount(() => {
       >
         <IconTable />
       </a>
-      
-      <div class="h-6 w-px bg-border-strong"></div>
-      
+
+      <div class="bg-border-strong h-6 w-px"></div>
+
       <button
         @click="cycleTheme"
         class="btn-nav"
@@ -164,7 +166,7 @@ onBeforeUnmount(() => {
     <transition name="fade" mode="out-in">
       <div class="mt-4 mb-6 text-center sm:mb-8 md:mb-10" key="header">
         <h1
-          class="text-accent flex items-center justify-center gap-2 px-2 text-2xl font-extralight uppercase tracking-wide sm:gap-3 sm:text-3xl sm:tracking-widest md:text-4xl lg:text-5xl"
+          class="text-accent flex items-center justify-center gap-2 px-2 text-2xl font-extralight tracking-wide uppercase sm:gap-3 sm:text-3xl sm:tracking-widest md:text-4xl lg:text-5xl"
         >
           <IconBitcoin class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl" />
           <span class="hidden sm:inline">Bitcoin Node Dashboard</span>
@@ -219,9 +221,9 @@ onBeforeUnmount(() => {
           <div
             class="xs:grid-cols-2 xs:gap-3 grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-4"
           >
-            <BaseCardSkeleton class="col-span-1 shimmer" />
-            <BaseCardSkeleton class="col-span-1 shimmer" />
-            <BaseCardSkeleton class="col-span-1 w-full max-w-full shimmer lg:col-span-2" />
+            <BaseCardSkeleton class="shimmer col-span-1" />
+            <BaseCardSkeleton class="shimmer col-span-1" />
+            <BaseCardSkeleton class="shimmer col-span-1 w-full max-w-full lg:col-span-2" />
           </div>
         </div>
       </transition>
@@ -235,11 +237,7 @@ onBeforeUnmount(() => {
       />
 
       <!-- Peer Software Distribution -->
-      <div
-        id="distribution"
-        v-if="shouldShowContent"
-        class="dashboard-card lg:col-span-2"
-      >
+      <div id="distribution" v-if="shouldShowContent" class="dashboard-card lg:col-span-2">
         <h2
           class="xs:text-xl mb-3 flex items-center text-lg font-medium break-words sm:mb-4 sm:text-2xl md:mb-6"
         >

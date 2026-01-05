@@ -79,7 +79,9 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 3rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 body {
@@ -93,7 +95,8 @@ body {
 }
 
 @keyframes pulse-error {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(var(--status-error-rgb), 0.4);
   }
   50% {
@@ -150,7 +153,7 @@ body {
     @apply focus:ring-accent border-border-strong bg-bg-card text-text-primary rounded border px-3 py-1.5 font-medium shadow transition-all hover:opacity-80 focus:ring-2 focus:ring-offset-2 focus:outline-none;
   }
   .btn-nav {
-    @apply text-text-primary hover:text-accent hover:bg-accent/10 rounded-md px-3 py-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent/50;
+    @apply text-text-primary hover:text-accent hover:bg-accent/10 focus:ring-accent/50 rounded-md px-3 py-2 transition-all duration-200 focus:ring-2 focus:outline-none;
   }
   .card-title {
     @apply mb-3 text-lg font-medium break-words sm:mb-4 sm:text-2xl sm:text-xl md:mb-6;
@@ -249,7 +252,7 @@ body {
   .dashboard-card-interactive {
     @apply p-3;
   }
-  
+
   .card-title {
     @apply text-base;
   }

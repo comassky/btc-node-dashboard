@@ -13,14 +13,18 @@
       </a>
     </td>
     <td class="td-cell" v-once>
-      <span class="peer-subver" :title="peer.subver || '[Empty]'">{{ peer.subver || '[Empty]' }}</span>
+      <span class="peer-subver" :title="peer.subver || '[Empty]'">{{
+        peer.subver || '[Empty]'
+      }}</span>
     </td>
     <td class="td-cell" v-once :title="`Full version: ${peer.version}`">{{ peer.version }}</td>
     <td class="td-cell">{{ formattedTimeOffset }}</td>
     <td class="td-cell" :title="peer.conntime ? `Connected at: ${formattedTimestamp}` : 'N/A'">
       {{ formattedConnTime }}
     </td>
-    <td class="td-cell" :title="`Network type: ${peer.network || 'N/A'}`">{{ peer.network || 'N/A' }}</td>
+    <td class="td-cell" :title="`Network type: ${peer.network || 'N/A'}`">
+      {{ peer.network || 'N/A' }}
+    </td>
     <td
       class="td-cell font-medium"
       :class="[`text-${type === 'inbound' ? 'status-success' : 'accent'}`]"

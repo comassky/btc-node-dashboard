@@ -24,7 +24,9 @@
           </div>
 
           <div class="flex items-center gap-3">
-            <span class="bg-bg-app border-border-strong rounded-md border px-2.5 py-1 font-mono text-xs font-medium">
+            <span
+              class="bg-bg-app border-border-strong rounded-md border px-2.5 py-1 font-mono text-xs font-medium"
+            >
               v{{ props.version }}
             </span>
             <a
@@ -44,7 +46,9 @@
         <div class="border-border-strong border-t"></div>
 
         <!-- Additional info -->
-        <div class="text-text-secondary flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">
+        <div
+          class="text-text-secondary flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs"
+        >
           <span class="flex items-center gap-1">
             <IconServer class="text-sm" />
             Built with Vue 3 & Quarkus

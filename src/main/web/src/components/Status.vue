@@ -69,7 +69,7 @@ const rpcIndicatorClass = computed(() => {
       >
         <span class="flex items-center gap-2">
           <IconNetworkWired class="text-lg" />
-          <span class="hidden sm:inline text-xs opacity-70">WebSocket:</span>
+          <span class="hidden text-xs opacity-70 sm:inline">WebSocket:</span>
           <span class="font-semibold">{{ props.isConnected ? 'CONNECTED' : 'DISCONNECTED' }}</span>
           <span
             v-if="props.isRetrying"
@@ -82,7 +82,7 @@ const rpcIndicatorClass = computed(() => {
       </Tooltip>
     </div>
 
-    <div class="hidden sm:block h-6 w-px bg-current opacity-20"></div>
+    <div class="hidden h-6 w-px bg-current opacity-20 sm:block"></div>
 
     <div class="flex items-center gap-2">
       <div class="flex h-1.5 w-1.5 rounded-full" :class="rpcIndicatorClass"></div>
@@ -92,7 +92,7 @@ const rpcIndicatorClass = computed(() => {
       >
         <span class="flex items-center gap-2">
           <IconServer class="text-lg" />
-          <span class="hidden sm:inline text-xs opacity-70">Node RPC:</span>
+          <span class="hidden text-xs opacity-70 sm:inline">Node RPC:</span>
           <span class="font-semibold">{{ props.rpcConnected ? 'ONLINE' : 'OFFLINE' }}</span>
         </span>
       </Tooltip>
@@ -105,11 +105,20 @@ const rpcIndicatorClass = computed(() => {
       <IconCircleExclamation class="mr-1.5 flex-shrink-0 text-sm" />
       {{ props.errorMessage }}
     </p>
-    <div v-if="props.rpcConnected && hasWarnings" class="flex w-full flex-wrap items-center justify-center gap-2 text-xs sm:w-auto">
-      <span v-if="hasLowOutbound" class="flex items-center gap-1.5 rounded-md bg-status-warning/20 px-2.5 py-1">
+    <div
+      v-if="props.rpcConnected && hasWarnings"
+      class="flex w-full flex-wrap items-center justify-center gap-2 text-xs sm:w-auto"
+    >
+      <span
+        v-if="hasLowOutbound"
+        class="bg-status-warning/20 flex items-center gap-1.5 rounded-md px-2.5 py-1"
+      >
         <IconTriangleExclamation class="text-sm" /> Low outbound peers ({{ props.outboundPeers }})
       </span>
-      <span v-if="isOutOfSync" class="flex items-center gap-1.5 rounded-md bg-status-error/20 px-2.5 py-1">
+      <span
+        v-if="isOutOfSync"
+        class="bg-status-error/20 flex items-center gap-1.5 rounded-md px-2.5 py-1"
+      >
         <IconCircleExclamation class="text-sm" /> Node out of sync
       </span>
     </div>
