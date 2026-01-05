@@ -103,8 +103,16 @@ export function useMockData() {
         timeoffset: 0,
         connections: 0,
         networkactive: false,
-        networks: [],
-        localaddresses: [],
+        networks: [
+          { name: 'ipv4', limited: false, reachable: true, proxy: '', proxy_randomize_credentials: false },
+          { name: 'ipv6', limited: false, reachable: true, proxy: '', proxy_randomize_credentials: false },
+          { name: 'onion', limited: false, reachable: true, proxy: '127.0.0.1:9050', proxy_randomize_credentials: true },
+          { name: 'i2p', limited: false, reachable: false, proxy: '', proxy_randomize_credentials: false },
+        ],
+        localaddresses: [
+          { address: '2a01:e0a:123:4567:89ab:cdef:1234:5678', port: 8333, score: 5 },
+          { address: 'abcdefghijklmnop.onion', port: 8333, score: 4 },
+        ],
       },
       upTime: 15 * 24 * 3600 + 7 * 3600 + 23 * 60, // 15 days, 7 hours, 23 minutes in seconds
       inboundPeer: Array.from({ length: mockScenario.value === 'lowPeers' ? 5 : 45 }, (_, i) => ({
