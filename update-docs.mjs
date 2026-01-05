@@ -303,12 +303,55 @@ const updateBuild = () => {
   console.log('✅ Updated BUILD.md');
 };
 
+// Update GitHub Actions workflows
+const updateWorkflows = () => {
+  const workflowFiles = [
+    '.github/workflows/docker-dev-native.yml',
+    '.github/workflows/docker-native.yml',
+  ];
+
+  workflowFiles.forEach((filePath) => {
+    const fullPath = path.join(__dirname, filePath);
+    if (!fs.existsSync(fullPath)) return;
+
+    let workflow = fs.readFileSync(fullPath, 'utf-8');
+
+    // Update GRAALVM_VERSION
+    workflow = workflow.replace(
+      /GRAALVM_VERSION: "\d+"/,
+      `GRAALVM_VERSION: "${backendVersions.javaVersion}"`
+    );
+
+    // Update NODE_VERSION
+    workflow = workflow.replace(
+      /NODE_VERSION: "v?[\d.]+"/,
+      `NODE_VERSION: "${backendVersions.nodeVersion}"`
+    );
+
+    // Update PNPM_VERSION
+    workflow = workflow.replace(
+      /PNPM_VERSION: "[\d.]+"/,
+      `PNPM_VERSION: "${backendVersions.pnpmVersion}"`
+    );
+
+    // Update MAVEN_VERSION
+    workflow = workflow.replace(
+      /MAVEN_VERSION: "[\d.]+"/,
+      `MAVEN_VERSION: "${backendVersions.mavenVersion}"`
+    );
+
+    fs.writeFileSync(fullPath, workflow, 'utf-8');
+    console.log(`✅ Updated ${filePath}`);
+  });
+};
+
 // Run all updates
 try {
   updateReadme();
   updateTesting();
   updateContributing();
   updateBuild();
+  updateWorkflows();
   console.log('\n✨ Documentation successfully updated with current versions!');
 } catch (error) {
   console.error('❌ Error updating documentation:', error);

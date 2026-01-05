@@ -2,3 +2,7 @@ node_modules/
 dist/
 coverage/
 *.log
+pnpm-lock.yaml
+package-lock.json
+*.min.js
+*.d.ts
