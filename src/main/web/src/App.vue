@@ -11,6 +11,8 @@ import {
   IconCloud,
   IconChartPie,
   IconTable,
+  IconLayerGroup,
+  IconDiagramProject,
 } from '@/icons';
 
 import { setMinOutboundPeers } from '@utils/nodeHealth';
@@ -119,6 +121,42 @@ onBeforeUnmount(() => {
       <component :is="themeIcon" />
     </button>
 
+    <!-- Navigation Menu -->
+    <div class="fixed top-3 right-16 z-40 flex flex-row gap-2 sm:top-4 sm:right-20">
+      <a
+        href="#overview"
+        class="btn btn-secondary"
+        title="Overview"
+        aria-label="Go to overview"
+      >
+        <IconDiagramProject />
+      </a>
+      <a
+        href="#mempool"
+        class="btn btn-secondary"
+        title="Mempool"
+        aria-label="Go to mempool info"
+      >
+        <IconLayerGroup />
+      </a>
+      <a
+        href="#distribution"
+        class="btn btn-secondary"
+        title="Peer Distribution"
+        aria-label="Go to peer distribution"
+      >
+        <IconChartPie />
+      </a>
+      <a
+        href="#connections"
+        class="btn btn-secondary"
+        title="Connection Details"
+        aria-label="Go to connection details"
+      >
+        <IconTable />
+      </a>
+    </div>
+
     <div
       v-if="MOCK_MODE"
       class="dashboard-card border-accent fixed top-3 left-3 z-50 text-xs sm:top-4 sm:left-4"
@@ -163,7 +201,7 @@ onBeforeUnmount(() => {
     >
       <!-- Main Cards -->
       <transition name="fade" mode="out-in">
-        <div v-if="shouldShowContent" class="lg:col-span-2" key="cards">
+        <div id="overview" v-if="shouldShowContent" class="lg:col-span-2" key="cards">
           <div
             class="xs:grid-cols-2 xs:gap-3 grid grid-cols-1 gap-2 sm:gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4"
           >
@@ -199,6 +237,7 @@ onBeforeUnmount(() => {
 
       <!-- Mempool Info -->
       <MempoolInfoCard
+        id="mempool"
         v-if="shouldShowContent && !disableMempool"
         v-motion
         :initial="{ opacity: 0 }"
@@ -210,6 +249,7 @@ onBeforeUnmount(() => {
 
       <!-- Peer Software Distribution -->
       <div
+        id="distribution"
         v-if="shouldShowContent"
         v-motion
         :initial="{ opacity: 0 }"
@@ -242,6 +282,7 @@ onBeforeUnmount(() => {
 
       <!-- Peer Table -->
       <div
+        id="connections"
         v-if="shouldShowContent"
         v-motion
         :initial="{ opacity: 0 }"

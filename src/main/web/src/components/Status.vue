@@ -59,10 +59,10 @@ const badgeTextClass = computed(() => {
         {{ props.isConnected ? 'CONNECTED' : 'DISCONNECTED' }}
         <span
           v-if="props.isRetrying"
-          :class="['ml-3 flex items-center text-sm', badgeTextClass]"
+          :class="['ml-3 flex items-center text-sm whitespace-nowrap', badgeTextClass]"
           aria-live="polite"
         >
-          <IconSpinner class="mr-2 animate-spin" /> Reconnecting...
+          <IconSpinner class="mr-2 flex-shrink-0 animate-spin" /> Reconnecting...
         </span>
       </span>
     </Tooltip>
@@ -75,8 +75,8 @@ const badgeTextClass = computed(() => {
         {{ props.rpcConnected ? 'ONLINE' : 'OFFLINE' }}
       </span>
     </Tooltip>
-    <p v-if="props.errorMessage && !props.isRetrying" class="mt-1 pt-1 text-sm font-light">
-      <IconCircleExclamation class="mr-2" />
+    <p v-if="props.errorMessage && !props.isRetrying" class="mt-1 flex items-center pt-1 text-sm font-light">
+      <IconCircleExclamation class="mr-2 flex-shrink-0" />
       {{ props.errorMessage }}
     </p>
     <div v-if="props.rpcConnected && hasWarnings" class="flex flex-wrap items-center gap-3 text-sm">

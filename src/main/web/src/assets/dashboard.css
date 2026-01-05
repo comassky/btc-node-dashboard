@@ -76,6 +76,11 @@
   --color-status-warning: var(--status-warning);
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 1rem;
+}
+
 body {
   font-family: 'Roboto', sans-serif;
 }
