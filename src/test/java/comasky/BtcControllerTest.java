@@ -7,6 +7,7 @@ import comasky.rpcClass.dto.GlobalResponse;
 import comasky.rpcClass.dto.SubverDistribution;
 import comasky.rpcClass.dto.SubverStats;
 import comasky.rpcClass.view.*;
+import comasky.service.CacheProvider;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,8 @@ class BtcControllerTest {
     @Test
     void testInstantiationWithMock() {
         RpcServices rpcServices = org.mockito.Mockito.mock(comasky.rpcClass.RpcServices.class);
-        BitcoinApiController controller = new BitcoinApiController(rpcServices);
+        CacheProvider cacheProvider = org.mockito.Mockito.mock(CacheProvider.class);
+        BitcoinApiController controller = new BitcoinApiController(rpcServices, cacheProvider);
         assertNotNull(controller);
     }
 
