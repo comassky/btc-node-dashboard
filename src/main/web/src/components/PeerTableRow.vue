@@ -1,42 +1,26 @@
 <template>
   <tr class="peer-table-row">
-    <td class="td-cell">{{ peer.id }}</td>
+    <td class="td-cell" v-once>{{ peer.id }}</td>
     <td class="td-cell td-overflow">
-      <Tooltip :text="`Show Bitnodes page for this node: ${peer.addr}`" position="bottom">
-        <a
-          class="peer-link"
-          :href="`https://bitnodes.io/nodes/${peer.addr.replace(':', '-')}/`"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {{ peer.addr }}
-        </a>
-      </Tooltip>
-    </td>
-    <td class="td-cell">
-      <Tooltip :text="peer.subver || '[Empty]'" position="bottom">
-        <span class="peer-subver">{{ peer.subver || '[Empty]' }}</span>
-      </Tooltip>
-    </td>
-    <td class="td-cell">
-      <Tooltip :text="`Full version: ${peer.version}`" position="bottom">
-        <span>{{ peer.version }}</span>
-      </Tooltip>
-    </td>
-    <td class="td-cell">{{ formatSecondsWithSuffix(peer.timeoffset) }}</td>
-    <td class="td-cell">
-      <Tooltip
-        :text="peer.conntime ? `Connected at: ${formatTimestampToLocale(peer.conntime)}` : 'N/A'"
-        position="bottom"
+      <a
+        class="peer-link"
+        :href="`https://bitnodes.io/nodes/${peer.addr.replace(':', '-')}/`"
+        target="_blank"
+        rel="noopener noreferrer"
+        :title="`Show Bitnodes page for this node: ${peer.addr}`"
       >
-        <span>{{ formatRelativeTimeSince(peer.conntime) }}</span>
-      </Tooltip>
+        {{ peer.addr }}
+      </a>
     </td>
-    <td class="td-cell">
-      <Tooltip :text="`Network type: ${peer.network || 'N/A'}`" position="bottom">
-        <span>{{ peer.network || 'N/A' }}</span>
-      </Tooltip>
+    <td class="td-cell" v-once>
+      <span class="peer-subver" :title="peer.subver || '[Empty]'">{{ peer.subver || '[Empty]' }}</span>
     </td>
+    <td class="td-cell" v-once :title="`Full version: ${peer.version}`">{{ peer.version }}</td>
+    <td class="td-cell">{{ formattedTimeOffset }}</td>
+    <td class="td-cell" :title="peer.conntime ? `Connected at: ${formattedTimestamp}` : 'N/A'">
+      {{ formattedConnTime }}
+    </td>
+    <td class="td-cell" :title="`Network type: ${peer.network || 'N/A'}`">{{ peer.network || 'N/A' }}</td>
     <td
       class="td-cell font-medium"
       :class="[`text-${type === 'inbound' ? 'status-success' : 'accent'}`]"
@@ -44,25 +28,20 @@
     >
       {{ peer.connection_type }}
     </td>
-    <td class="td-cell">
-      <Tooltip :text="`Raw ping: ${peer.minping ?? 'N/A'} s`" position="bottom">
-        <span>{{ formatPingSmart(peer.minping) }}</span>
-      </Tooltip>
+    <td class="td-cell" :title="`Raw ping: ${peer.minping ?? 'N/A'} s`">
+      {{ formattedPing }}
     </td>
-    <td class="td-cell">
-      <Tooltip :text="formatBytesLocale(peer.bytesrecv) + ' Bytes'" position="bottom">
-        <span>{{ formatBytesIEC(peer.bytesrecv) }}</span>
-      </Tooltip>
+    <td class="td-cell" :title="formattedBytesRecvLocale + ' Bytes'">
+      {{ formattedBytesRecv }}
     </td>
-    <td class="td-cell">
-      <Tooltip :text="formatBytesLocale(peer.bytessent) + ' Bytes'" position="bottom">
-        <span>{{ formatBytesIEC(peer.bytessent) }}</span>
-      </Tooltip>
+    <td class="td-cell" :title="formattedBytesSentLocale + ' Bytes'">
+      {{ formattedBytesSent }}
     </td>
   </tr>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import {
   formatSecondsWithSuffix,
   formatPingSmart,
@@ -71,9 +50,19 @@ import {
   formatTimestampToLocale,
   formatBytesLocale,
 } from '@utils/formatting';
-import Tooltip from '@components/Tooltip.vue';
 import type { Peer } from '../types';
+
 const props = defineProps<{ peer: Peer; type: 'inbound' | 'outbound' }>();
+
+// Memoize formatted values to avoid recalculating on every render
+const formattedTimeOffset = computed(() => formatSecondsWithSuffix(props.peer.timeoffset));
+const formattedConnTime = computed(() => formatRelativeTimeSince(props.peer.conntime));
+const formattedTimestamp = computed(() => formatTimestampToLocale(props.peer.conntime));
+const formattedPing = computed(() => formatPingSmart(props.peer.minping));
+const formattedBytesRecv = computed(() => formatBytesIEC(props.peer.bytesrecv));
+const formattedBytesSent = computed(() => formatBytesIEC(props.peer.bytessent));
+const formattedBytesRecvLocale = computed(() => formatBytesLocale(props.peer.bytesrecv));
+const formattedBytesSentLocale = computed(() => formatBytesLocale(props.peer.bytessent));
 </script>
 
 <style scoped>

@@ -174,32 +174,40 @@ const handleLegendLeave = () => {
 
 // --- Watchers & Lifecycle ---
 
+onMounted(() => {
+  if (canvasRef.value && props.peers.length > 0) {
+    chartInstance = initChart(props.peers, chartColors.value);
+  }
+});
+
 watch(
   () => props.peers,
   (val) => {
-    if (chartInstance) updateChartData(chartInstance, val, chartColors.value);
-    else
-      nextTick(() => {
-        if (!chartInstance) chartInstance = initChart(val, chartColors.value);
-      });
-  },
-  { deep: true, immediate: true, flush: 'post' }
+    if (!canvasRef.value) return;
+    if (chartInstance) {
+      updateChartData(chartInstance, val, chartColors.value);
+    } else {
+      chartInstance = initChart(val, chartColors.value);
+    }
+  }
 );
+
 watch(
   () => props.isDarkMode,
-  async () => {
-    await nextTick(); // Wait for DOM/CSS updates
-    invalidateCssCache();
-    styleVersion.value++;
-    if (chartInstance) {
-      chartInstance.options = getChartOptions();
-      if (chartInstance.data.datasets[0]) {
-        chartInstance.data.datasets[0].backgroundColor = chartColors.value;
+  () => {
+    // Use requestAnimationFrame to ensure CSS variables are updated
+    requestAnimationFrame(() => {
+      invalidateCssCache();
+      styleVersion.value++;
+      if (chartInstance) {
+        chartInstance.options = getChartOptions();
+        if (chartInstance.data.datasets[0]) {
+          chartInstance.data.datasets[0].backgroundColor = chartColors.value;
+        }
+        chartInstance.update('none');
       }
-      chartInstance.update('none');
-    }
-  },
-  { flush: 'post' }
+    });
+  }
 );
 onBeforeUnmount(destroyChart);
 

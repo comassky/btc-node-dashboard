@@ -77,7 +77,7 @@ const badgeTextClass = computed(() => {
     </Tooltip>
     <p
       v-if="props.errorMessage && !props.isRetrying"
-      class="mt-1 flex items-center pt-1 text-sm font-light"
+      class="flex items-center text-sm font-light"
     >
       <IconCircleExclamation class="mr-2 flex-shrink-0" />
       {{ props.errorMessage }}

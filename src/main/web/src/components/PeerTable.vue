@@ -150,6 +150,7 @@ import {
   formatSecondsWithSuffix,
   formatRelativeTimeSince,
 } from '@/utils/formatting';
+import { IconArrowDown, IconArrowUp } from '@/icons';
 
 const props = defineProps<{ peers: Peer[]; type: 'inbound' | 'outbound' }>();
 const headerColor = props.type === 'inbound' ? 'status-success' : 'accent';
