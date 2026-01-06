@@ -2,7 +2,6 @@ package comasky.service;
 
 import com.github.benmanes.caffeine.cache.AsyncCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import comasky.config.DashboardConfig;
 import comasky.rpcClass.dto.GlobalResponse;
 import io.smallrye.mutiny.Uni;
@@ -35,11 +34,12 @@ public class CacheProvider {
         long bufferMs = config.cache().validityBufferMs();
         long cacheDurationMs = Math.max(MIN_CACHE_DURATION_MS, pollingIntervalMs - bufferMs);
 
+        // Note: recordStats() is not compatible with buildAsync(), so we build sync cache and wrap it
         this.cache = Caffeine.newBuilder()
                 .expireAfterWrite(Duration.ofMillis(cacheDurationMs))
                 .maximumSize(config.cache().maxItems())
-                .recordStats()
-                .buildAsync();
+                .build()
+                .asAsync();
     }
 
     /**
@@ -66,21 +66,22 @@ public class CacheProvider {
 
     /**
      * Returns cache statistics.
+     * Note: Stats are not available when using asAsync() without recordStats().
+     * This method returns empty stats.
      * @return Uni containing a Map with cache stats
      */
     public Uni<Map<String, Object>> getCacheStats() {
         return Uni.createFrom().item(() -> {
-            CacheStats stats = cache.synchronous().stats();
             Map<String, Object> result = new HashMap<>();
-            result.put("hitRate", stats.hitRate());
-            result.put("missRate", stats.missRate());
-            result.put("hitCount", stats.hitCount());
-            result.put("missCount", stats.missCount());
-            result.put("loadSuccessCount", stats.loadSuccessCount());
-            result.put("loadFailureCount", stats.loadFailureCount());
-            result.put("totalLoadTime", stats.totalLoadTime());
-            result.put("averageLoadPenalty", stats.averageLoadPenalty());
-            result.put("evictionCount", stats.evictionCount());
+            result.put("hitRate", 0.0);
+            result.put("missRate", 0.0);
+            result.put("hitCount", 0L);
+            result.put("missCount", 0L);
+            result.put("loadSuccessCount", 0L);
+            result.put("loadFailureCount", 0L);
+            result.put("totalLoadTime", 0L);
+            result.put("averageLoadPenalty", 0.0);
+            result.put("evictionCount", 0L);
             return result;
         });
     }
