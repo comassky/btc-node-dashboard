@@ -110,15 +110,4 @@ public class BitcoinApiController {
     public Uni<MempoolInfoResponse> getMempoolInfo() {
         return rpcServices.getMempoolInfo();
     }
-
-    /**
-     * Retrieves cache statistics.
-     *
-     * @return a {@link Uni} emitting a Map containing cache performance metrics
-     */
-    @GET
-    @Path("cache/stats")
-    public Uni<Map<String, Object>> getCacheStats() {
-        return cacheProvider.getCacheStats();
-    }
 }

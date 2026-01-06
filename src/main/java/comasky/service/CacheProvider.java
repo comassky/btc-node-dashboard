@@ -34,12 +34,11 @@ public class CacheProvider {
         long bufferMs = config.cache().validityBufferMs();
         long cacheDurationMs = Math.max(MIN_CACHE_DURATION_MS, pollingIntervalMs - bufferMs);
 
-        // Note: recordStats() is not compatible with buildAsync(), so we build sync cache and wrap it
+        // Note: recordStats() is not compatible with buildAsync()
         this.cache = Caffeine.newBuilder()
                 .expireAfterWrite(Duration.ofMillis(cacheDurationMs))
                 .maximumSize(config.cache().maxItems())
-                .build()
-                .asAsync();
+                .buildAsync();
     }
 
     /**
@@ -62,27 +61,5 @@ public class CacheProvider {
      */
     public void invalidateAll() {
         cache.synchronous().invalidateAll();
-    }
-
-    /**
-     * Returns cache statistics.
-     * Note: Stats are not available when using asAsync() without recordStats().
-     * This method returns empty stats.
-     * @return Uni containing a Map with cache stats
-     */
-    public Uni<Map<String, Object>> getCacheStats() {
-        return Uni.createFrom().item(() -> {
-            Map<String, Object> result = new HashMap<>();
-            result.put("hitRate", 0.0);
-            result.put("missRate", 0.0);
-            result.put("hitCount", 0L);
-            result.put("missCount", 0L);
-            result.put("loadSuccessCount", 0L);
-            result.put("loadFailureCount", 0L);
-            result.put("totalLoadTime", 0L);
-            result.put("averageLoadPenalty", 0.0);
-            result.put("evictionCount", 0L);
-            return result;
-        });
     }
 }
