@@ -109,10 +109,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="bg-bg-app min-h-screen p-3 sm:p-4 md:p-6">
+  <div class="bg-bg-app min-h-screen p-3 pb-16 sm:p-4 sm:pb-4 md:p-6 md:pb-6">
     <!-- Navigation Menu -->
     <nav
-      class="bg-bg-card/80 border-border-strong/50 fixed top-3 right-3 z-40 flex flex-row items-center gap-2 rounded-lg border p-1.5 shadow-lg backdrop-blur-lg sm:top-4 sm:right-4"
+      class="bg-bg-card/95 border-border-strong/50 fixed right-0 bottom-0 left-0 z-40 flex flex-row items-center justify-around gap-1 rounded-t-lg rounded-b-none border-t p-2 shadow-xl backdrop-blur-lg sm:top-4 sm:right-4 sm:bottom-auto sm:left-auto sm:w-auto sm:justify-center sm:gap-2 sm:rounded-lg sm:border sm:border-t sm:p-1.5"
     >
       <a href="#overview" class="btn-nav" title="Overview" aria-label="Go to overview">
         <IconDiagramProject />
