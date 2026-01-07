@@ -64,7 +64,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | Technology           | Version | Description                      |
 | -------------------- | ------- | -------------------------------- |
 | **TypeScript**       | 5.9.3   | Type-safe JavaScript             |
-| **Vite**             | 7.3.0   | Build tool & dev server          |
+| **Vite**             | 7.3.1   | Build tool & dev server          |
 | **Tailwind CSS**     | 4.1.18  | Utility-first CSS framework      |
 | **Vitest**           | 4.0.16  | Unit testing framework           |
 | **Prettier**         | 3.7.4   | Code formatter                   |
