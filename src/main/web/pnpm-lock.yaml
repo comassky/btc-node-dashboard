@@ -34,16 +34,16 @@ importers:
         version: 3.5.26(typescript@5.9.3)
     devDependencies:
       '@iconify-json/fa6-brands':
-        specifier: ^1.2.6
+        specifier: 1.2.6
         version: 1.2.6
       '@iconify-json/fa6-regular':
-        specifier: ^1.2.4
+        specifier: 1.2.4
         version: 1.2.4
       '@iconify-json/fa6-solid':
-        specifier: ^1.2.4
+        specifier: 1.2.4
         version: 1.2.4
       '@iconify-json/simple-icons':
-        specifier: ^1.2.65
+        specifier: 1.2.65
         version: 1.2.65
       '@tailwindcss/vite':
         specifier: 4.1.18
@@ -88,7 +88,7 @@ importers:
         specifier: 20.3.0
         version: 20.3.0(@vueuse/core@14.1.0(vue@3.5.26(typescript@5.9.3)))
       unplugin-icons:
-        specifier: ^22.5.0
+        specifier: 22.5.0
         version: 22.5.0(@vue/compiler-sfc@3.5.26)
       vite:
         specifier: 7.3.1
