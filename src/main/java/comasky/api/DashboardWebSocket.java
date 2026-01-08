@@ -66,6 +66,19 @@ public class DashboardWebSocket {
                 );
     }
 
+    /**
+     * Periodically cleans up closed sessions to prevent memory leaks.
+     */
+    @Scheduled(every = "60s", identity = "session-cleanup")
+    void cleanupClosedSessions() {
+        int sizeBefore = sessions.size();
+        sessions.removeIf(session -> !session.isOpen());
+        int removed = sizeBefore - sessions.size();
+        if (removed > 0) {
+            LOG.debugf("Cleaned up %d closed sessions (remaining: %d)", removed, sessions.size());
+        }
+    }
+
 
     @OnOpen
     public void onOpen(Session session) {
@@ -153,9 +166,11 @@ public class DashboardWebSocket {
      */
     private Map<String, Object> createErrorPayload(Throwable throwable) {
         LOG.error("An error occurred while fetching data for WebSocket", throwable);
-        String errorMessage = throwable.getMessage() != null ? throwable.getMessage() : "An unknown error occurred.";
+        final String errorMessage = throwable.getMessage() != null 
+            ? throwable.getMessage() 
+            : "An unknown error occurred.";
         return Map.of(
-                "rpcConnected", false,
+                "rpcConnected", Boolean.FALSE,
                 "errorMessage", "Failed to fetch data: " + errorMessage
         );
     }

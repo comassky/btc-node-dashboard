@@ -10,6 +10,7 @@ import comasky.rpcClass.responses.BlockInfoResponse;
 import comasky.rpcClass.responses.BlockchainInfoResponse;
 import comasky.rpcClass.responses.NetworkInfoResponse;
 import comasky.rpcClass.view.*;
+import comasky.service.CacheProvider;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
@@ -86,7 +87,8 @@ class BitcoinApiControllerTest {
     @Test
     void testInstantiationWithMock() {
         RpcServices mockRpcServices = org.mockito.Mockito.mock(RpcServices.class);
-        BitcoinApiController controller = new BitcoinApiController(mockRpcServices);
+        CacheProvider mockCacheProvider = org.mockito.Mockito.mock(CacheProvider.class);
+        BitcoinApiController controller = new BitcoinApiController(mockRpcServices, mockCacheProvider);
         assertNotNull(controller);
     }
 

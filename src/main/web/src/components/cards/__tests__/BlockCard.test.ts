@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import BlockCard from '../BlockCard.vue';
 import { describe, it, expect } from 'vitest';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import Tooltip from '../../Tooltip.vue';
 import type { BlockChainInfo } from '../../../types';
 import type { BlockInfoResponse } from '../../../types';
 
@@ -34,29 +34,40 @@ describe('BlockCard.vue', () => {
     const wrapper = mount(BlockCard, {
       props: { blockchain, block },
       global: {
-        stubs: { Tooltip: slotStub, BaseCard: slotStub },
-        components: { FontAwesomeIcon },
+        stubs: {
+          BaseCard: slotStub,
+          IconCubes: true,
+          IconListOl: true,
+          IconClock: true,
+          IconArrowRightArrowLeft: true,
+        },
+        components: { Tooltip },
       },
     });
     expect(wrapper.text().replace(/\s/g, '')).toContain('123456');
     expect(wrapper.text()).toContain('Headers:');
-    expect(wrapper.findComponent(FontAwesomeIcon).exists()).toBe(true);
+    expect(wrapper.find('.text-4xl').exists()).toBe(true);
   });
 
   it('shows out of sync warning if forceOutOfSync is true', () => {
     const wrapper = mount(BlockCard, {
       props: { blockchain, block, forceOutOfSync: true },
       global: {
-        stubs: { Tooltip: slotStub, BaseCard: slotStub },
-        components: { FontAwesomeIcon },
+        stubs: {
+          BaseCard: slotStub,
+          IconCubes: true,
+          IconListOl: true,
+          IconClock: true,
+          IconArrowRightArrowLeft: true,
+        },
+        components: { Tooltip },
       },
     });
-    expect(wrapper.text()).toContain('Node out of sync');
-    const icons = wrapper.findAllComponents(FontAwesomeIcon);
-    const hasWarningIcon = icons.some((icon) => {
-      const iconProp = icon.props('icon');
-      return Array.isArray(iconProp) && iconProp[1] === 'exclamation-circle';
-    });
-    expect(hasWarningIcon).toBe(true);
+    // The out-of-sync warning is now in the tooltip, not in the visible text
+    const tooltip = wrapper.findComponent({ name: 'Tooltip' });
+    expect(tooltip.exists()).toBe(true);
+    // The tooltip text should contain the out-of-sync warning message
+    const tooltipText = tooltip.props('text');
+    expect(tooltipText).toMatch(/out of sync|syncing|blocks behind|Verification progress/i);
   });
 });

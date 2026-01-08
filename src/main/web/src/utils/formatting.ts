@@ -1,6 +1,14 @@
 import { filesize } from 'filesize';
 import { intervalToDuration, formatDuration } from 'date-fns';
 
+// Time constants
+const MS_TIMESTAMP_THRESHOLD = 1_000_000_000_000;
+const UNIX_TIMESTAMP_THRESHOLD = 1_000_000_000;
+
+// Memoization cache for formatted bytes (LRU-like with max size)
+const bytesCache = new Map<string, string>();
+const MAX_CACHE_SIZE = 100;
+
 /**
  * Format bytes with locale-specific separators (space, dot, etc) for tooltips and display.
  * @param bytes Number of bytes
@@ -8,24 +16,32 @@ import { intervalToDuration, formatDuration } from 'date-fns';
  */
 export function formatBytesLocale(bytes?: number | null): string {
   if (bytes == null || isNaN(bytes)) return 'N/A';
-  const locale =
-    typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'en-US';
-  return bytes.toLocaleString(locale);
+  return bytes.toLocaleString();
 }
 
 /**
- * Formats a duration in seconds or a timestamp as a human-readable string (e.g., "2d 3h", "5m 10s").
- * @param input Duration in seconds or timestamp (seconds or ms)
+ * Format a number with a space as thousands separator (e.g. 1234567 => '1 234 567')
+ * Cached for performance with frequently used values
+ */
+const numberCache = new Map<number, string>();
+export function formatNumberWithSpace(n: number | string): string {
+  const num = typeof n === 'string' ? parseFloat(n) : n;
+  if (numberCache.has(num)) {
+    return numberCache.get(num)!;
+  }
+  const result = String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  if (numberCache.size < MAX_CACHE_SIZE) {
+    numberCache.set(num, result);
+  }
+  return result;
+}
+
+/**
+ * Helper function to format a duration in seconds using date-fns.
+ * @param seconds Duration in seconds
  * @returns Formatted duration string
  */
-export const formatDurationOrTimestamp = (input?: number | null): string => {
-  if (!input || input < 1) return '<1s';
-  let seconds = input;
-  if (seconds > 1_000_000_000_000) seconds = Math.floor(seconds / 1000);
-  if (seconds > 1_000_000_000) {
-    const now = Math.floor(Date.now() / 1000);
-    seconds = Math.max(0, now - seconds);
-  }
+const formatDurationHelper = (seconds: number): string => {
   const durationObj = intervalToDuration({ start: 0, end: seconds * 1000 });
   return (
     formatDuration(durationObj, {
@@ -37,15 +53,43 @@ export const formatDurationOrTimestamp = (input?: number | null): string => {
 };
 
 /**
+ * Formats a duration in seconds or a timestamp as a human-readable string (e.g., "2d 3h", "5m 10s").
+ * @param input Duration in seconds or timestamp (seconds or ms)
+ * @returns Formatted duration string
+ */
+export const formatDurationOrTimestamp = (input?: number | null): string => {
+  if (!input || input < 1) return '<1s';
+  let seconds = input;
+  if (seconds > MS_TIMESTAMP_THRESHOLD) seconds = Math.floor(seconds / 1000);
+  if (seconds > UNIX_TIMESTAMP_THRESHOLD) {
+    const now = Math.floor(Date.now() / 1000);
+    seconds = Math.max(0, now - seconds);
+  }
+  return formatDurationHelper(seconds);
+};
+
+/**
  * Formats bytes into human-readable units (B, KiB, MiB, ...).
+ * Cached for frequently used values.
  * @param bytes Number of bytes
  * @param decimals Number of decimal places (default: 2)
  * @returns Formatted string with appropriate unit
  */
 export const formatBytesIEC = (bytes: number, decimals = 2): string => {
-  if (bytes == null || isNaN(bytes)) return 'N/A';
-  if (bytes === 0) return '0 B';
-  return filesize(bytes, { standard: 'iec', base: decimals });
+  const cacheKey = `${bytes}_${decimals}`;
+  if (bytesCache.has(cacheKey)) {
+    return bytesCache.get(cacheKey)!;
+  }
+
+  const result = filesize(bytes, { base: 2, standard: 'iec', round: decimals }) as string;
+
+  if (bytesCache.size >= MAX_CACHE_SIZE) {
+    // Simple LRU: delete first entry when cache is full
+    const firstKey = bytesCache.keys().next().value;
+    if (firstKey) bytesCache.delete(firstKey);
+  }
+  bytesCache.set(cacheKey, result);
+  return result;
 };
 
 /**
@@ -63,36 +107,34 @@ export const formatSecondsWithSuffix = (timeoffset?: number | null): string =>
  */
 export const formatDurationFull = (seconds?: number | null): string => {
   if (!seconds || seconds < 1) return '<1s';
-  const durationObj = intervalToDuration({ start: 0, end: seconds * 1000 });
-  return (
-    formatDuration(durationObj, {
-      format: ['days', 'hours', 'minutes', 'seconds'],
-      zero: false,
-      delimiter: ' ',
-    }) || '<1s'
-  );
+  return formatDurationHelper(seconds);
 };
 
 /**
  * Formats a timestamp (Unix seconds or ms) as a connection time string:
- * '<1m' if < 1 minute, 'Xm' if X minutes, 'Xh Ym' if X hours and Y minutes, 'Zd Xh Ym' if Z days, X hours, Y minutes.
+ * Shows "Xd Yh Zm" if >= 1 day, "Yh Zm" if < 1 day but >= 1 hour, "Zm" if < 1 hour, or '<1m' if < 1 minute.
  * @param timestamp Timestamp in seconds or ms
  * @returns Formatted connection time string
  */
 export const formatRelativeTimeSince = (timestamp?: number | null): string => {
   if (!timestamp) return 'N/A';
-  const now = Math.floor(Date.now() / 1000);
-  const ts = timestamp > 1_000_000_000_000 ? Math.floor(timestamp / 1000) : Math.floor(timestamp);
-  const diff = Math.max(0, now - ts);
-  if (diff < 60) return '<1m';
-  const mins = Math.floor(diff / 60) % 60;
-  const hours = Math.floor(diff / 3600) % 24;
-  const days = Math.floor(diff / 86400);
-  let result = '';
-  if (days > 0) result += `${days}d `;
-  if (hours > 0 || days > 0) result += `${hours}h `;
-  result += `${mins}m`;
-  return result.trim();
+  const now = Date.now();
+  const ts = timestamp > MS_TIMESTAMP_THRESHOLD ? timestamp : timestamp * 1000;
+  const duration = intervalToDuration({ start: ts, end: now });
+
+  const days = duration.days || 0;
+  const hours = duration.hours || 0;
+  const mins = duration.minutes || 0;
+
+  if (days === 0 && hours === 0 && mins === 0) return '<1m';
+
+  if (days > 0) {
+    return `${days}d ${hours}h ${mins}m`;
+  } else if (hours > 0) {
+    return `${hours}h ${mins}m`;
+  } else {
+    return `${mins}m`;
+  }
 };
 
 /**

@@ -31,7 +31,11 @@ describe('WebSocket Reconnection Logic', () => {
     const delays = [0, 1, 2, 3, 4].map(calculateReconnectDelay);
 
     for (let i = 1; i < delays.length; i++) {
-      expect(delays[i]).toBeGreaterThanOrEqual(delays[i - 1]);
+      const current = delays[i];
+      const previous = delays[i - 1];
+      if (current !== undefined && previous !== undefined) {
+        expect(current).toBeGreaterThanOrEqual(previous);
+      }
     }
   });
 });
@@ -194,8 +198,8 @@ describe('Chart Data Preparation', () => {
 
     const percentages = calculatePercentages(counts);
     expect(percentages).toHaveLength(2);
-    expect(percentages[0].percentage).toBe(60);
-    expect(percentages[1].percentage).toBe(40);
+    expect(percentages[0]?.percentage).toBe(60);
+    expect(percentages[1]?.percentage).toBe(40);
   });
 
   it('should round percentages to 2 decimal places', () => {

@@ -7,7 +7,7 @@ import {
   formatPingSmart,
 } from '../formatting';
 
-// Fonctions de test manquantes définies localement pour correspondre aux tests
+// Locally defined missing test functions to match the tests
 const formatConnectionTime = (seconds?: number | null): string => {
   if (!seconds || seconds < 1) return '<1s';
   const d = [86400, 3600, 60, 1];
@@ -15,10 +15,14 @@ const formatConnectionTime = (seconds?: number | null): string => {
   let s = seconds;
   let out = [];
   for (let i = 0; i < d.length; i++) {
-    const v = Math.floor(s! / d[i]);
-    if (v > 0 || (i === d.length - 1 && out.length === 0)) out.push(`${v}${n[i]}`);
-    s = s! % d[i];
-    if (i === 1 && out.length > 0) break; // Limite à 2 unités (date-fns)
+    const divisor = d[i];
+    const unit = n[i];
+    if (divisor !== undefined && unit !== undefined) {
+      const v = Math.floor(s! / divisor);
+      if (v > 0 || (i === d.length - 1 && out.length === 0)) out.push(`${v}${unit}`);
+      s = s! % divisor;
+      if (i === 1 && out.length > 0) break; // Limit to 2 units (date-fns)
+    }
   }
   return out.join(' ');
 };
@@ -38,10 +42,10 @@ describe('formatConnectionTime', () => {
   it('formats seconds, minutes, hours, days', () => {
     expect(formatConnectionTime(5)).toBe('5s');
     expect(formatConnectionTime(65)).toBe('1m 5s');
-    // Accepte aussi '1h' si la fonction locale ne gère pas les secondes
+    // Also accept '1h' if the local function does not handle seconds
     expect(['1h 5s', '1h']).toContain(formatConnectionTime(3605));
     expect(['1h 1m', '1h']).toContain(formatConnectionTime(3665));
-    expect(formatConnectionTime(90061)).toBe('1d 1h'); // date-fns limite à 2 unités
+    expect(formatConnectionTime(90061)).toBe('1d 1h'); // date-fns limits to 2 units
   });
 });
 
@@ -88,7 +92,7 @@ describe('formatTimeSince', () => {
     expect(formatTimeSince(now)).toBe('<1m');
     expect(formatTimeSince(now - 10)).toBe('<1m');
     expect(formatTimeSince(now - 59)).toBe('<1m');
-    // Accepte aussi '1m' si la fonction locale ne gère pas le format long
+    // Also accept '1m' if the local function does not handle long format
     expect(['1 minute', '1m']).toContain(formatTimeSince(now - 70));
     expect(['1 hour 1 minute', '1h 1m']).toContain(formatTimeSince(now - 3700));
     expect(['1 day 1 hour 0 minutes', '1d 1h', '1d 1h 0m']).toContain(formatTimeSince(now - 90000));
