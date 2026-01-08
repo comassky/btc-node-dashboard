@@ -49,7 +49,7 @@ When contributing, please maintain these optimizations and avoid re-introducing 
 # Versions used
 
 - Java 25
-- Quarkus 3.30.5
+- Quarkus 3.30.6
 - Node.js v24.12.0
 - pnpm 10.27.0
 - npm 11.6.2

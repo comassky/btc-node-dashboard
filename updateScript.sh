@@ -39,17 +39,23 @@ print_warning() {
 
 print_header
 
-# Run the Maven properties update goal (show only property changes, with formatting)
-print_section "📦 Maven Dependencies Update"
+# Update Maven properties (Quarkus, plugins, etc.)
+print_section "🔧 Maven Properties & Plugins Update"
 
-# Run Maven and format property lines
-mvn -U -Dmaven.version.ignore='(?i).*-(alpha|beta|m|rc)([-.]?\d+)?' -DgenerateBackupPoms=false versions:update-properties 2>&1 | grep 'Property' | while read -r line; do
+# Run Maven versions update for properties
+props_output=$(mvn -U -Dmaven.version.ignore='(?i).*-(alpha|beta|m|rc)([-.]?\d+)?' -DgenerateBackupPoms=false versions:update-properties 2>&1)
+
+# Display property updates
+echo "$props_output" | grep '\[INFO\] Property' | while read -r line; do
     if [[ $line == *"Leaving unchanged"* ]]; then
         version=$(echo "$line" | sed -n 's/.*as \([0-9.]*\).*/\1/p')
         prop=$(echo "$line" | sed -n 's/.*Property \(\${[^}]*}\).*/\1/p')
-        echo -e "  ${CYAN}→${RESET} $prop: ${GREEN}$version${RESET} (unchanged)"
-    else
-        echo -e "  ${GREEN}✓${RESET} $line"
+        echo -e "  ${CYAN}→${RESET} $prop: ${GREEN}$version${RESET}"
+    elif [[ $line == *"Updating"* ]]; then
+        old_version=$(echo "$line" | sed -n 's/.*from \([0-9.]*\).*/\1/p')
+        new_version=$(echo "$line" | sed -n 's/.*to \([0-9.]*\).*/\1/p')
+        prop=$(echo "$line" | sed -n 's/.*Property \(\${[^}]*}\).*/\1/p')
+        echo -e "  ${GREEN}✓${RESET} $prop: ${YELLOW}$old_version${RESET} → ${GREEN}$new_version${RESET}"
     fi
 done
 
@@ -106,6 +112,32 @@ if [ -f "update-docs.mjs" ]; then
     fi
 else
     print_warning "update-docs.mjs not found, skipping documentation sync"
+fi
+
+# Update frontend dependencies with npm-check-updates
+print_section "📦 Frontend Dependencies Update (npm-check-updates)"
+if [ -d "src/main/web" ]; then
+    cd src/main/web
+    if command -v ncu &> /dev/null; then
+        ncu_output=$(ncu -u --loglevel warn 2>&1)
+        if [ -n "$ncu_output" ]; then
+            echo "$ncu_output" | while IFS= read -r line; do
+                if [[ $line == *"→"* ]]; then
+                    echo -e "  ${GREEN}✓${RESET} $line"
+                else
+                    echo -e "  ${CYAN}→${RESET} $line"
+                fi
+            done
+        else
+            echo -e "  ${CYAN}→${RESET} All frontend dependencies are up to date"
+        fi
+    else
+        print_warning "ncu (npm-check-updates) not found, skipping frontend updates"
+        print_warning "Install with: npm install -g npm-check-updates"
+    fi
+    cd ../../../
+else
+    print_warning "src/main/web directory not found"
 fi
 
 echo -e "\n${CYAN}╔════════════════════════════════════════════╗${RESET}"
