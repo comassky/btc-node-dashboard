@@ -6,7 +6,6 @@ import comasky.rpcClass.responses.BlockInfoResponse;
 import comasky.rpcClass.responses.BlockchainInfoResponse;
 import comasky.rpcClass.responses.MempoolInfoResponse;
 import comasky.rpcClass.responses.NetworkInfoResponse;
-import comasky.service.CacheProvider;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -14,8 +13,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-
-import java.util.Map;
 
 /**
  * REST API controller exposing endpoints to retrieve Bitcoin node and dashboard data.
@@ -29,12 +26,10 @@ public class BitcoinApiController {
     private static final String BLOCK_HASH_PATTERN = "^[0-9a-fA-F]{64}$";
 
     private final RpcServices rpcServices;
-    private final CacheProvider cacheProvider;
 
     @Inject
-    public BitcoinApiController(RpcServices rpcServices, CacheProvider cacheProvider) {
+    public BitcoinApiController(RpcServices rpcServices) {
         this.rpcServices = rpcServices;
-        this.cacheProvider = cacheProvider;
     }
 
     /**

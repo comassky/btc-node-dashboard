@@ -80,7 +80,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
       const { data, error } = await useFetch('/api/config').get().json<DashboardConfig>();
 
       if (error.value) {
-        throw new Error('Failed to fetch config');
+        throw new Error(`Failed to fetch config: ${error.value}`);
       }
 
       if (data.value) {
@@ -90,7 +90,10 @@ export const useDashboardStore = defineStore('dashboard', () => {
 
       configLoaded.value = true;
     } catch (error) {
-      console.error('Failed to load dashboard configuration:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      if (import.meta.env.DEV) {
+        console.error('Failed to load dashboard configuration:', errorMsg);
+      }
       configLoaded.value = true; // Continue with default values
     }
   };

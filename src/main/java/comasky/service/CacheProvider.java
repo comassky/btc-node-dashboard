@@ -9,8 +9,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
@@ -61,5 +59,19 @@ public class CacheProvider {
      */
     public void invalidateAll() {
         cache.synchronous().invalidateAll();
+    }
+
+    /**
+     * Returns the estimated number of entries in the cache.
+     */
+    public long estimatedSize() {
+        return cache.synchronous().estimatedSize();
+    }
+
+    /**
+     * Manually invalidates the RPC data cache entry.
+     */
+    public void invalidateRpcData() {
+        cache.synchronous().invalidate(RPC_DATA_KEY);
     }
 }

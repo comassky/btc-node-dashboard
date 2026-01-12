@@ -57,6 +57,8 @@ export function useWebSocket(
   });
 
   // Watch status changes
+  const isConnected = computed(() => status.value === 'OPEN');
+  
   watch(status, (newStatus) => {
     if (newStatus === 'OPEN') {
       errorMessage.value = null;
@@ -68,11 +70,6 @@ export function useWebSocket(
     } else if (newStatus === 'CONNECTING') {
       isRetrying.value = true;
     }
-  });
-
-  const isConnected = ref(false);
-  watch(status, (newStatus) => {
-    isConnected.value = newStatus === 'OPEN';
   });
 
   /**

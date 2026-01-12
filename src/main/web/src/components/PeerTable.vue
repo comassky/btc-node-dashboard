@@ -193,31 +193,46 @@ const sortedPeers = useSorted(toRef(props, 'peers'), (a, b) => {
 
 // Averages for relevant numeric columns - optimized single-pass calculation
 
+interface PeerStats {
+  minping: number[];
+  bytesrecv: number[];
+  bytessent: number[];
+  timeoffset: number[];
+  conntime: number[];
+}
+
+type StatKey = keyof PeerStats;
+
 function average(arr: number[]): number | null {
   return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
 }
 
+function isValidNumber(value: any): value is number {
+  return typeof value === 'number' && !isNaN(value);
+}
+
 const peerAverages = computed(() => {
-  const stats = {
-    minping: [] as number[],
-    bytesrecv: [] as number[],
-    bytessent: [] as number[],
-    timeoffset: [] as number[],
-    conntime: [] as number[],
+  const stats: PeerStats = {
+    minping: [],
+    bytesrecv: [],
+    bytessent: [],
+    timeoffset: [],
+    conntime: [],
   };
 
+  const keys: StatKey[] = ['minping', 'bytesrecv', 'bytessent', 'timeoffset', 'conntime'];
+
+  // Single-pass collection
   for (const peer of props.peers) {
-    if (typeof peer.minping === 'number' && !isNaN(peer.minping)) stats.minping.push(peer.minping);
-    if (typeof peer.bytesrecv === 'number' && !isNaN(peer.bytesrecv))
-      stats.bytesrecv.push(peer.bytesrecv);
-    if (typeof peer.bytessent === 'number' && !isNaN(peer.bytessent))
-      stats.bytessent.push(peer.bytessent);
-    if (typeof peer.timeoffset === 'number' && !isNaN(peer.timeoffset))
-      stats.timeoffset.push(peer.timeoffset);
-    if (typeof peer.conntime === 'number' && !isNaN(peer.conntime))
-      stats.conntime.push(peer.conntime);
+    for (const key of keys) {
+      const value = peer[key];
+      if (isValidNumber(value)) {
+        stats[key].push(value);
+      }
+    }
   }
 
+  // Calculate all averages
   return {
     minping: average(stats.minping),
     bytesrecv: average(stats.bytesrecv),

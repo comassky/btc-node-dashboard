@@ -57,6 +57,8 @@ class DashboardWebSocketTest {
 
             // Assert that we received a message and it contains some expected data
             assertNotNull(message, "Should have received a message on connect");
+            assertNotNull(session, "Session should be established");
+            assertTrue(session.isOpen(), "Session should be open");
             assertTrue(message.contains("\"chain\":\"main\""), "Message should contain blockchain info");
             assertTrue(message.contains("\"totalPeers\":10"), "Message should contain general stats");
         }

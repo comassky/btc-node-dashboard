@@ -149,7 +149,11 @@ public class DashboardWebSocket {
      */
     private void broadcastMessage(Object message) {
         if (message == null) return;
-        LOG.debugf("Broadcasting to %d sessions", sessions.size());
+        
+        final int sessionCount = sessions.size();
+        if (sessionCount == 0) return;
+        
+        LOG.debugf("Broadcasting to %d sessions", sessionCount);
         Multi.createFrom().iterable(sessions)
                 .filter(Session::isOpen)
                 .onItem().transformToUniAndMerge(session ->
@@ -191,7 +195,11 @@ public class DashboardWebSocket {
         });
     }
 
-    /**logSendFailure(session, failure, "message send");rror("An error occurred while fetching data for WebSocket", throwable);
+    /**
+     * Creates a standard error payload map when data fetching fails.
+     */
+    private Map<String, Object> createErrorPayload(Throwable throwable) {
+        LOG.error("An error occurred while fetching data for WebSocket", throwable);
         final String errorMessage = throwable.getMessage() != null 
             ? throwable.getMessage() 
             : "An unknown error occurred.";

@@ -55,6 +55,9 @@ public class RpcServices implements DashboardDataProvider {
     private static final int PARALLEL_STREAM_THRESHOLD = 100;
     private static final int MAX_RETRY_ATTEMPTS = 3;
     private static final long NANOS_TO_MILLIS = 1_000_000L;
+    
+    // Pre-built RPC requests (immutable, can be reused)
+    private static final List<Object> EMPTY_PARAMS = Collections.emptyList();
 
     private static final TypeReference<List<PeerInfoResponse>> PEER_INFO_TYPE_REF = new TypeReference<>() {};
 
@@ -115,83 +118,84 @@ public class RpcServices implements DashboardDataProvider {
     }
 
     public Uni<NetworkInfoResponse> getNetworkInfo() {
-        return callRpcTyped(GET_NETWORK_INFO, Collections.emptyList(), NetworkInfoResponse.class);
+        return callRpcNoParams(GET_NETWORK_INFO, NetworkInfoResponse.class);
     }
 
     public Uni<String> getBestBlockHash() {
-        return callRpcTyped(GET_BEST_BLOCK_HASH, Collections.emptyList(), String.class);
+        return callRpcNoParams(GET_BEST_BLOCK_HASH, String.class);
     }
 
     public Uni<BlockInfoResponse> getBlockInfo(String blockHash) {
-        List<Object> params = List.of(blockHash, 1);
-        return callRpcTyped(GET_BLOCK, params, BlockInfoResponse.class);
+        return callRpcTyped(GET_BLOCK, List.of(blockHash, 1), BlockInfoResponse.class);
     }
 
     public Uni<BlockchainInfoResponse> getBlockchainInfo() {
-        return callRpcTyped(GET_BLOCKCHAIN_INFO, Collections.emptyList(), BlockchainInfoResponse.class);
+        return callRpcNoParams(GET_BLOCKCHAIN_INFO, BlockchainInfoResponse.class);
     }
 
     public Uni<MempoolInfoResponse> getMempoolInfo() {
-        return callRpcTyped(GET_MEMPOOL_INFO, Collections.emptyList(), MempoolInfoResponse.class);
+        return callRpcNoParams(GET_MEMPOOL_INFO, MempoolInfoResponse.class);
     }
 
     public Uni<Long> getUptimeSeconds() {
-        return callRpcTyped(UPTIME, Collections.emptyList(), Long.class);
+        return callRpcNoParams(UPTIME, Long.class);
+    }
+
+    /**
+     * Helper method for RPC calls without parameters.
+     */
+    private <T> Uni<T> callRpcNoParams(String method, Class<T> type) {
+        return callRpcTyped(method, EMPTY_PARAMS, type);
     }
 
     private <T> Uni<T> addErrorHandling(Uni<T> uni, String callName, Map<String, String> errors, Supplier<T> defaultValueSupplier) {
         return uni.onFailure().retry().atMost(MAX_RETRY_ATTEMPTS)
-                .onFailure().invoke(e -> {
-                    String errorMessage = e.getMessage() != null ? e.getMessage() : "Unknown error";
-                    LOG.warnf("%s RPC failed: %s", callName, errorMessage);
-                    errors.put(callName, errorMessage);
-                })
+                .onFailure().invoke(e -> recordError(callName, e, errors))
                 .onFailure().recoverWithItem(defaultValueSupplier);
+    }
+
+    /**
+     * Records an error in the errors map with appropriate logging.
+     */
+    private void recordError(String callName, Throwable error, Map<String, String> errors) {
+        String errorMessage = error.getMessage() != null ? error.getMessage() : "Unknown error";
+        LOG.warnf("%s RPC failed: %s", callName, errorMessage);
+        errors.put(callName, errorMessage);
     }
 
     private GlobalResponse buildGlobalResponseFromTuple(Tuple6<List<PeerInfoResponse>, BlockchainInfoResponse, NetworkInfoResponse, Long, BlockInfoResponse, MempoolInfoResponse> tuple, Map<String, String> errors) {
         List<PeerInfoResponse> allPeers = tuple.getItem1();
-        BlockchainInfoResponse blockchainInfoResponse = tuple.getItem2();
-        NetworkInfoResponse nodeInfo = tuple.getItem3();
-        long uptime = tuple.getItem4();
-        BlockInfoResponse blockInfoResponse = tuple.getItem5();
-        MempoolInfoResponse mempoolInfoResponse = tuple.getItem6();
-
-        var peersByType = allPeers.stream()
-                .collect(Collectors.partitioningBy(PeerInfoResponse::inbound));
+        var peersByType = partitionPeersByDirection(allPeers);
         List<PeerInfoResponse> inboundPeers = peersByType.get(true);
         List<PeerInfoResponse> outboundPeers = peersByType.get(false);
 
-        int inboundCount = inboundPeers.size();
-        int outboundCount = outboundPeers.size();
-
         var stats = new SubverDistribution(calculateSubverStats(inboundPeers), calculateSubverStats(outboundPeers));
-        var generalStat = new GeneralStats(inboundCount, outboundCount, inboundCount + outboundCount);
+        var generalStat = new GeneralStats(inboundPeers.size(), outboundPeers.size(), allPeers.size());
 
         // Map RPC responses to View objects - use parallel streams for larger datasets
-        List<PeerInfoView> inboundPeersView = mapPeersToView(inboundPeers);
-        List<PeerInfoView> outboundPeersView = mapPeersToView(outboundPeers);
-        BlockchainInfoView blockchainInfoView = BlockchainInfoView.from(blockchainInfoResponse);
-        NetworkInfoView nodeInfoView = NetworkInfoView.from(nodeInfo);
-        BlockInfoView blockInfoView = BlockInfoView.from(blockInfoResponse);
-        MempoolInfoView mempoolInfoView = MempoolInfoView.from(mempoolInfoResponse);
-
         return new GlobalResponse(
             generalStat,
             stats,
-            inboundPeersView,
-            outboundPeersView,
-            blockchainInfoView,
-            nodeInfoView,
-            uptime,
-            blockInfoView,
-            mempoolInfoView,
+            mapPeersToView(inboundPeers),
+            mapPeersToView(outboundPeers),
+            BlockchainInfoView.from(tuple.getItem2()),
+            NetworkInfoView.from(tuple.getItem3()),
+            tuple.getItem4(),
+            BlockInfoView.from(tuple.getItem5()),
+            MempoolInfoView.from(tuple.getItem6()),
             errors
         );
     }
 
+    /**
+     * Partitions peers into inbound and outbound lists.
+     */
+    private Map<Boolean, List<PeerInfoResponse>> partitionPeersByDirection(List<PeerInfoResponse> peers) {
+        return peers.stream().collect(Collectors.partitioningBy(PeerInfoResponse::inbound));
+    }
+
     private Uni<List<PeerInfoResponse>> executePeerInfoRpcCall() {
-        return callRpcTyped(GET_PEER_INFO, Collections.emptyList(), PEER_INFO_TYPE_REF);
+        return callRpcTyped(GET_PEER_INFO, EMPTY_PARAMS, PEER_INFO_TYPE_REF);
     }
 
     private List<PeerInfoView> mapPeersToView(List<PeerInfoResponse> peers) {
@@ -206,16 +210,24 @@ public class RpcServices implements DashboardDataProvider {
         }
         final double totalPeers = peers.size();
         final var stream = peers.size() > PARALLEL_STREAM_THRESHOLD ? peers.parallelStream() : peers.stream();
+        
+        // Pre-filter to avoid processing nulls in grouping
         return stream
                 .filter(p -> p.subver() != null)
-                .collect(Collectors.groupingByConcurrent(PeerInfoResponse::subver, Collectors.counting()))
+                .collect(Collectors.groupingByConcurrent(
+                    PeerInfoResponse::subver, 
+                    Collectors.counting()
+                ))
                 .entrySet().stream()
-                .map(entry -> {
-                    final double rawPercentage = (entry.getValue() / totalPeers) * 100.0;
-                    final double roundedPercentage = Math.round(rawPercentage * 100.0) / 100.0;
-                    return new SubverStats(entry.getKey(), roundedPercentage);
-                })
+                .map(entry -> new SubverStats(entry.getKey(), calculatePercentage(entry.getValue(), totalPeers)))
                 .toList();
+    }
+
+    /**
+     * Calculates percentage rounded to 2 decimal places.
+     */
+    private double calculatePercentage(long count, double total) {
+        return Math.round((count / total) * 10000.0) / 100.0;
     }
 
     private <T> Uni<T> callRpcTyped(String method, List<Object> params, Class<T> type) {

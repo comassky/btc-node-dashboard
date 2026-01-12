@@ -7,7 +7,28 @@ const UNIX_TIMESTAMP_THRESHOLD = 1_000_000_000;
 
 // Memoization cache for formatted bytes (LRU-like with max size)
 const bytesCache = new Map<string, string>();
+const numberCache = new Map<number, string>();
 const MAX_CACHE_SIZE = 100;
+
+/**
+ * Simple LRU cache eviction - removes the oldest entry
+ */
+function evictOldestEntry(cache: Map<any, any>): void {
+  const firstKey = cache.keys().next().value;
+  if (firstKey !== undefined) {
+    cache.delete(firstKey);
+  }
+}
+
+/**
+ * Adds entry to cache with automatic eviction if needed
+ */
+function addToCache<K, V>(cache: Map<K, V>, key: K, value: V): void {
+  if (cache.size >= MAX_CACHE_SIZE) {
+    evictOldestEntry(cache);
+  }
+  cache.set(key, value);
+}
 
 /**
  * Format bytes with locale-specific separators (space, dot, etc) for tooltips and display.
@@ -23,16 +44,13 @@ export function formatBytesLocale(bytes?: number | null): string {
  * Format a number with a space as thousands separator (e.g. 1234567 => '1 234 567')
  * Cached for performance with frequently used values
  */
-const numberCache = new Map<number, string>();
 export function formatNumberWithSpace(n: number | string): string {
   const num = typeof n === 'string' ? parseFloat(n) : n;
   if (numberCache.has(num)) {
     return numberCache.get(num)!;
   }
   const result = String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-  if (numberCache.size < MAX_CACHE_SIZE) {
-    numberCache.set(num, result);
-  }
+  addToCache(numberCache, num, result);
   return result;
 }
 
@@ -82,13 +100,7 @@ export const formatBytesIEC = (bytes: number, decimals = 2): string => {
   }
 
   const result = filesize(bytes, { base: 2, standard: 'iec', round: decimals }) as string;
-
-  if (bytesCache.size >= MAX_CACHE_SIZE) {
-    // Simple LRU: delete first entry when cache is full
-    const firstKey = bytesCache.keys().next().value;
-    if (firstKey) bytesCache.delete(firstKey);
-  }
-  bytesCache.set(cacheKey, result);
+  addToCache(bytesCache, cacheKey, result);
   return result;
 };
 

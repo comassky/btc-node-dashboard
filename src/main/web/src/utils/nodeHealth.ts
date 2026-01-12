@@ -10,6 +10,11 @@ export const MAX_BLOCK_AGE_SECONDS = 3600; // 1 hour
 export const MAX_HEADER_BLOCK_DIFF = 2;
 export const MIN_VERIFICATION_PROGRESS = 0.9999;
 
+// Constants for calculations
+const SECONDS_TO_MS = 1000;
+const PERCENTAGE_MULTIPLIER = 100;
+const PERCENTAGE_PRECISION = 2;
+
 /**
  * Sets the minimum number of outbound peers required for healthy status.
  * @param value Minimum outbound peers
@@ -43,8 +48,8 @@ export function getHeaderBlockDiff(blockchain: BlockChainInfo): number {
  */
 export function isBlockTooOld(blockTime: number): boolean {
   const now = Date.now();
-  const then = blockTime * 1000;
-  const diffSeconds = Math.floor((now - then) / 1000);
+  const then = blockTime * SECONDS_TO_MS;
+  const diffSeconds = Math.floor((now - then) / SECONDS_TO_MS);
   return diffSeconds > MAX_BLOCK_AGE_SECONDS;
 }
 
@@ -91,7 +96,7 @@ export function getSyncWarningMessage(
   block: BlockInfoResponse,
   formatTimeSince: (timestamp: number) => string
 ): string {
-  const progress = (blockchain.verificationprogress * 100).toFixed(2);
+  const progress = (blockchain.verificationprogress * PERCENTAGE_MULTIPLIER).toFixed(PERCENTAGE_PRECISION);
   const blockTooOld = isBlockTooOld(block.time);
   const syncing = isSyncing(blockchain);
   const notFullySynced = isNotFullySynced(blockchain);
