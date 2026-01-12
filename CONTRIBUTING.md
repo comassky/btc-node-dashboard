@@ -51,7 +51,7 @@ When contributing, please maintain these optimizations and avoid re-introducing 
 - Java 25
 - Quarkus 3.30.6
 - Node.js v24.12.0
-- pnpm 10.27.0
+- pnpm 10.28.0
 - npm 11.6.2
 
 # 🛠️ CI & Quality

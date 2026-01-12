@@ -20,9 +20,10 @@ const props = withDefaults(
 );
 
 const statusClasses = {
-  error: 'border-status-error bg-status-error/10 hover:border-status-error hover:shadow-2xl',
+  error:
+    'border-l-4 border-status-error bg-status-error/10 hover:border-status-error hover:shadow-2xl',
   warning:
-    'border-status-warning bg-status-warning/10 hover:border-status-warning hover:shadow-2xl',
+    'border-l-4 border-status-warning bg-status-warning/10 hover:border-status-warning hover:shadow-2xl',
   success: 'border-l-4 hover:shadow-2xl',
 };
 
