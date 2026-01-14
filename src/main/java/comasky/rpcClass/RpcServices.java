@@ -53,8 +53,9 @@ public class RpcServices implements DashboardDataProvider {
 
     // Performance tuning
     private static final int PARALLEL_STREAM_THRESHOLD = 100;
-    private static final int MAX_RETRY_ATTEMPTS = 3;
+    private static final int MAX_RETRY_ATTEMPTS = 2;
     private static final long NANOS_TO_MILLIS = 1_000_000L;
+    private static final long RETRY_DELAY_MS = 50L;
     
     // Pre-built RPC requests (immutable, can be reused)
     private static final List<Object> EMPTY_PARAMS = Collections.emptyList();
@@ -149,7 +150,9 @@ public class RpcServices implements DashboardDataProvider {
     }
 
     private <T> Uni<T> addErrorHandling(Uni<T> uni, String callName, Map<String, String> errors, Supplier<T> defaultValueSupplier) {
-        return uni.onFailure().retry().atMost(MAX_RETRY_ATTEMPTS)
+        return uni.onFailure().retry()
+                .withBackOff(java.time.Duration.ofMillis(RETRY_DELAY_MS))
+                .atMost(MAX_RETRY_ATTEMPTS)
                 .onFailure().invoke(e -> recordError(callName, e, errors))
                 .onFailure().recoverWithItem(defaultValueSupplier);
     }

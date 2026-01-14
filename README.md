@@ -42,6 +42,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | **MicroProfile REST Client** | -                 | HTTP client for Bitcoin RPC         |
 | **Jackson**                  | -                 | JSON processing                     |
 | **Caffeine Cache**           | -                 | High-performance async cache        |
+| **SmallRye OpenAPI**         | -                 | OpenAPI/Swagger documentation       |
 
 ### Frontend
 
@@ -193,11 +194,24 @@ A short summary of the Docker image tags produced by the GitHub Actions workflow
 
 ### REST API
 
+The backend exposes RESTful endpoints to retrieve Bitcoin node data.
+
+📖 **OpenAPI Specification**: Available at project root as `openapi.json` and `openapi.yaml` (versioned)
+
+➡️ [OpenAPI YAML documentation](./openapi.yaml)
+➡️ [OpenAPI JSON documentation](./openapi.json)
+
+The API specification follows the OpenAPI 3.0 standard and documents all available endpoints, request/response schemas, and parameters.
+
+#### Available Endpoints
+
 - **GET** `/api/config` — Get dashboard configuration (e.g., minOutboundPeers)
 - **GET** `/api/dashboard` — Get aggregated dashboard data (GlobalResponse)
-- **GET** `/api/networkinfo` — Get node network information (NodeInfo)
-- **GET** `/api/block/{hash}` — Get block information by hash (BlockInfo)
-- **GET** `/api/bestblockhash` — Get the hash of the best block (plain text)
+- **GET** `/api/getnetworkinfo` — Get node network information
+- **GET** `/api/getblock/{hash}` — Get block information by hash
+- **GET** `/api/getbestblockhash` — Get the hash of the best block (plain text)
+- **GET** `/api/getBlockchainInfo` — Get blockchain information
+- **GET** `/api/getmempoolinfo` — Get mempool information
 - **GET** `/api/blockchaininfo` — Get blockchain information (BlockchainInfo)
 - **GET** `/api/cache/stats` — Get cache performance statistics (reactive)
 - **GET** `/api/getmempoolinfo` — Get mempool information

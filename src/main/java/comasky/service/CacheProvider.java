@@ -32,9 +32,10 @@ public class CacheProvider {
         long bufferMs = config.cache().validityBufferMs();
         long cacheDurationMs = Math.max(MIN_CACHE_DURATION_MS, pollingIntervalMs - bufferMs);
 
-        // Note: recordStats() is not compatible with buildAsync()
+        // Optimized Caffeine configuration
         this.cache = Caffeine.newBuilder()
                 .expireAfterWrite(Duration.ofMillis(cacheDurationMs))
+                .refreshAfterWrite(Duration.ofMillis(cacheDurationMs / 2))
                 .maximumSize(config.cache().maxItems())
                 .buildAsync();
     }

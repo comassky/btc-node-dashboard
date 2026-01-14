@@ -96,7 +96,7 @@ public class DashboardWebSocket {
     /**
      * Periodically cleans up closed sessions to prevent memory leaks.
      */
-    @Scheduled(every = "60s", identity = "session-cleanup")
+    @Scheduled(every = "5m", identity = "session-cleanup")
     void cleanupClosedSessions() {
         int sizeBefore = sessions.size();
         sessions.removeIf(session -> !session.isOpen());
