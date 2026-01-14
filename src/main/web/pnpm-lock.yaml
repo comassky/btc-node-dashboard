@@ -88,8 +88,8 @@ importers:
         specifier: 20.3.0
         version: 20.3.0(@vueuse/core@14.1.0(vue@3.5.26(typescript@5.9.3)))
       unplugin-icons:
-        specifier: 23.0.0
-        version: 23.0.0(@vue/compiler-sfc@3.5.26)
+        specifier: 23.0.1
+        version: 23.0.1(@vue/compiler-sfc@3.5.26)
       vite:
         specifier: 7.3.1
         version: 7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)
@@ -1588,8 +1588,8 @@ packages:
       '@vueuse/core':
         optional: true
 
-  unplugin-icons@23.0.0:
-    resolution: {integrity: sha512-s9OTpZEmNv+5VfKSBRrdtnEMp1JRGmv5mxcNxH/QJ4hKgTxE5ki/2Y4JdtnXjMxCMqvgmSwVLZFKLQlwMDp8Kw==}
+  unplugin-icons@23.0.1:
+    resolution: {integrity: sha512-rv0XEJepajKzDLvRUWASM8K+8+/CCfZn2jtogXqg6RIp7kpatRc/aFrVJn8ANQA09e++lPEEv9yX8cC9enc+QQ==}
     peerDependencies:
       '@svgr/core': '>=7.0.0'
       '@svgx/core': ^1.0.1
@@ -3172,7 +3172,7 @@ snapshots:
     optionalDependencies:
       '@vueuse/core': 14.1.0(vue@3.5.26(typescript@5.9.3))
 
-  unplugin-icons@23.0.0(@vue/compiler-sfc@3.5.26):
+  unplugin-icons@23.0.1(@vue/compiler-sfc@3.5.26):
     dependencies:
       '@antfu/install-pkg': 1.1.0
       '@iconify/utils': 3.1.0
