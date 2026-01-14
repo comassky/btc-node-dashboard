@@ -32,12 +32,11 @@ public class CacheProvider {
         long bufferMs = config.cache().validityBufferMs();
         long cacheDurationMs = Math.max(MIN_CACHE_DURATION_MS, pollingIntervalMs - bufferMs);
 
-        // Optimized Caffeine configuration
+        // Caffeine configuration: refreshAfterWrite is not supported with buildAsync (AsyncCache)
         this.cache = Caffeine.newBuilder()
-                .expireAfterWrite(Duration.ofMillis(cacheDurationMs))
-                .refreshAfterWrite(Duration.ofMillis(cacheDurationMs / 2))
-                .maximumSize(config.cache().maxItems())
-                .buildAsync();
+            .expireAfterWrite(Duration.ofMillis(cacheDurationMs))
+            .maximumSize(config.cache().maxItems())
+            .buildAsync();
     }
 
     /**
