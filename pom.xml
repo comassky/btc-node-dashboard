@@ -10,7 +10,7 @@
         <maven.compiler.release>25</maven.compiler.release>
         <quarkus.platform.version>3.30.6</quarkus.platform.version>
         <frontend-maven-plugin.version>2.0.0</frontend-maven-plugin.version>
-        <node.lts.version>v24.12.0</node.lts.version>
+        <node.lts.version>v24.13.0</node.lts.version>
         <pnpm.version>10.28.0</pnpm.version>
         <compiler-plugin.version>3.14.1</compiler-plugin.version>
         <surefire-plugin.version>3.5.4</surefire-plugin.version>
