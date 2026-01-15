@@ -89,6 +89,34 @@ else
     print_error "Could not fetch latest pnpm version"
 fi
 
+
+# Update frontend dependencies with npm-check-updates
+print_section "📦 Frontend Dependencies Update (npm-check-updates)"
+if [ -d "src/main/web" ]; then
+    cd src/main/web
+    if command -v ncu &> /dev/null; then
+        ncu_output=$(ncu -u --loglevel warn 2>&1)
+        if [ -n "$ncu_output" ]; then
+            echo "$ncu_output" | while IFS= read -r line; do
+                if [[ $line == *"→"* ]]; then
+                    echo -e "  ${GREEN}✓${RESET} $line"
+                else
+                    echo -e "  ${CYAN}→${RESET} $line"
+                fi
+            done
+        else
+            echo -e "  ${CYAN}→${RESET} All frontend dependencies are up to date"
+        fi
+    else
+        print_warning "ncu (npm-check-updates) not found, skipping frontend updates"
+        print_warning "Install with: npm install -g npm-check-updates"
+    fi
+    pnpm install
+    cd ../../../
+else
+    print_warning "src/main/web directory not found"
+fi
+
 # Synchronize documentation and workflows with pom.xml versions
 print_section "📝 Documentation Synchronization"
 if [ -f "update-docs.mjs" ]; then
@@ -114,33 +142,8 @@ else
     print_warning "update-docs.mjs not found, skipping documentation sync"
 fi
 
-# Update frontend dependencies with npm-check-updates
-print_section "📦 Frontend Dependencies Update (npm-check-updates)"
-if [ -d "src/main/web" ]; then
-    cd src/main/web
-    if command -v ncu &> /dev/null; then
-        ncu_output=$(ncu -u --loglevel warn 2>&1)
-        if [ -n "$ncu_output" ]; then
-            echo "$ncu_output" | while IFS= read -r line; do
-                if [[ $line == *"→"* ]]; then
-                    echo -e "  ${GREEN}✓${RESET} $line"
-                else
-                    echo -e "  ${CYAN}→${RESET} $line"
-                fi
-            done
-        else
-            echo -e "  ${CYAN}→${RESET} All frontend dependencies are up to date"
-        fi
-    else
-        print_warning "ncu (npm-check-updates) not found, skipping frontend updates"
-        print_warning "Install with: npm install -g npm-check-updates"
-    fi
-    cd ../../../
-else
-    print_warning "src/main/web directory not found"
-fi
-
 echo -e "\n${CYAN}╔════════════════════════════════════════════╗${RESET}"
 echo -e "${CYAN}║${RESET}  ${GREEN}✓${RESET} ${GREEN}Update completed successfully!${RESET}       ${CYAN}║${RESET}"
 echo -e "${CYAN}╚════════════════════════════════════════════╝${RESET}\n"
+
 

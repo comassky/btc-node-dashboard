@@ -4,7 +4,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
 ![Java](https://img.shields.io/badge/Java-25-orange.svg)
-![Quarkus](https://img.shields.io/badge/Quarkus-3.30.6-blue.svg)
+![Quarkus](https://img.shields.io/badge/Quarkus-3.31.0.CR1-blue.svg)
 ![Vue](https://img.shields.io/badge/Vue.js-3.5.26-green.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue.svg)
 
@@ -36,7 +36,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | Technology                   | Version           | Description                         |
 | ---------------------------- | ----------------- | ----------------------------------- |
 | **Java**                     | 25                | Programming language                |
-| **Quarkus**                  | 3.30.6            | Reactive Java framework             |
+| **Quarkus**                  | 3.31.0.CR1            | Reactive Java framework             |
 | **Mutiny**                   | (via Quarkus BOM) | Reactive programming library        |
 | **Jakarta WebSocket**        | -                 | Real-time communication             |
 | **MicroProfile REST Client** | -                 | HTTP client for Bitcoin RPC         |

@@ -64,14 +64,14 @@ importers:
         specifier: 2.4.6
         version: 2.4.6
       happy-dom:
-        specifier: 20.1.0
-        version: 20.1.0
+        specifier: 20.3.0
+        version: 20.3.0
       prettier:
-        specifier: 3.7.4
-        version: 3.7.4
+        specifier: 3.8.0
+        version: 3.8.0
       prettier-plugin-tailwindcss:
         specifier: 0.7.2
-        version: 0.7.2(prettier@3.7.4)
+        version: 0.7.2(prettier@3.8.0)
       rollup-plugin-visualizer:
         specifier: 6.0.5
         version: 6.0.5(rollup@4.54.0)
@@ -85,8 +85,8 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       unplugin-auto-import:
-        specifier: 20.3.0
-        version: 20.3.0(@vueuse/core@14.1.0(vue@3.5.26(typescript@5.9.3)))
+        specifier: 21.0.0
+        version: 21.0.0(@vueuse/core@14.1.0(vue@3.5.26(typescript@5.9.3)))
       unplugin-icons:
         specifier: 23.0.1
         version: 23.0.1(@vue/compiler-sfc@3.5.26)
@@ -101,7 +101,7 @@ importers:
         version: 11.3.3(vite@7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1))
       vitest:
         specifier: 4.0.17
-        version: 4.0.17(@types/node@25.0.8)(@vitest/ui@4.0.17)(happy-dom@20.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)
+        version: 4.0.17(@types/node@25.0.8)(@vitest/ui@4.0.17)(happy-dom@20.3.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)
       vue-tsc:
         specifier: 3.2.2
         version: 3.2.2(typescript@5.9.3)
@@ -1003,8 +1003,8 @@ packages:
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
-  happy-dom@20.1.0:
-    resolution: {integrity: sha512-ebvqjBqzenBk2LjzNEAzoj7yhw7rW/R2/wVevMu6Mrq3MXtcI/RUz4+ozpcOcqVLEWPqLfg2v9EAU7fFXZUUJw==}
+  happy-dom@20.3.0:
+    resolution: {integrity: sha512-5qJbkqcvR8j/a4av5IWqqIWmEGf9dt6OhGMS6qxCgjSOBGzGa5XLoqg40OyD8XNzQ+g1g2zsXi10kjfpzYH55Q==}
     engines: {node: '>=20.0.0'}
 
   has-flag@4.0.0:
@@ -1371,8 +1371,8 @@ packages:
       prettier-plugin-svelte:
         optional: true
 
-  prettier@3.7.4:
-    resolution: {integrity: sha512-v6UNi1+3hSlVvv8fSaoUbggEM5VErKmmpGA7Pl3HF8V6uKY7rvClBOJlH6yNwQtfTueNkGVpOv/mtWL9L4bgRA==}
+  prettier@3.8.0:
+    resolution: {integrity: sha512-yEPsovQfpxYfgWNhCfECjG5AQaO+K3dp6XERmOepyPDVqcJm+bjyCVO3pmU+nAPe0N5dDvekfGezt/EIiRe1TA==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -1576,9 +1576,9 @@ packages:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
     engines: {node: '>= 10.0.0'}
 
-  unplugin-auto-import@20.3.0:
-    resolution: {integrity: sha512-RcSEQiVv7g0mLMMXibYVKk8mpteKxvyffGuDKqZZiFr7Oq3PB1HwgHdK5O7H4AzbhzHoVKG0NnMnsk/1HIVYzQ==}
-    engines: {node: '>=14'}
+  unplugin-auto-import@21.0.0:
+    resolution: {integrity: sha512-vWuC8SwqJmxZFYwPojhOhOXDb5xFhNNcEVb9K/RFkyk/3VnfaOjzitWN7v+8DEKpMjSsY2AEGXNgt6I0yQrhRQ==}
+    engines: {node: '>=20.19.0'}
     peerDependencies:
       '@nuxt/kit': ^4.0.0
       '@vueuse/core': '*'
@@ -2195,7 +2195,7 @@ snapshots:
       obug: 2.1.1
       std-env: 3.10.0
       tinyrainbow: 3.0.3
-      vitest: 4.0.17(@types/node@25.0.8)(@vitest/ui@4.0.17)(happy-dom@20.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)
+      vitest: 4.0.17(@types/node@25.0.8)(@vitest/ui@4.0.17)(happy-dom@20.3.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)
 
   '@vitest/expect@4.0.17':
     dependencies:
@@ -2240,7 +2240,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vitest: 4.0.17(@types/node@25.0.8)(@vitest/ui@4.0.17)(happy-dom@20.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)
+      vitest: 4.0.17(@types/node@25.0.8)(@vitest/ui@4.0.17)(happy-dom@20.3.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)
 
   '@vitest/utils@4.0.17':
     dependencies:
@@ -2659,7 +2659,7 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  happy-dom@20.1.0:
+  happy-dom@20.3.0:
     dependencies:
       '@types/node': 20.19.27
       '@types/whatwg-mimetype': 3.0.2
@@ -2942,11 +2942,11 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  prettier-plugin-tailwindcss@0.7.2(prettier@3.7.4):
+  prettier-plugin-tailwindcss@0.7.2(prettier@3.8.0):
     dependencies:
-      prettier: 3.7.4
+      prettier: 3.8.0
 
-  prettier@3.7.4: {}
+  prettier@3.8.0: {}
 
   proto-list@1.2.4: {}
 
@@ -3161,7 +3161,7 @@ snapshots:
 
   universalify@2.0.1: {}
 
-  unplugin-auto-import@20.3.0(@vueuse/core@14.1.0(vue@3.5.26(typescript@5.9.3))):
+  unplugin-auto-import@21.0.0(@vueuse/core@14.1.0(vue@3.5.26(typescript@5.9.3))):
     dependencies:
       local-pkg: 1.1.2
       magic-string: 0.30.21
@@ -3252,7 +3252,7 @@ snapshots:
       lightningcss: 1.30.2
       terser: 5.44.1
 
-  vitest@4.0.17(@types/node@25.0.8)(@vitest/ui@4.0.17)(happy-dom@20.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1):
+  vitest@4.0.17(@types/node@25.0.8)(@vitest/ui@4.0.17)(happy-dom@20.3.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1):
     dependencies:
       '@vitest/expect': 4.0.17
       '@vitest/mocker': 4.0.17(vite@7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3277,7 +3277,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 25.0.8
       '@vitest/ui': 4.0.17(vitest@4.0.17)
-      happy-dom: 20.1.0
+      happy-dom: 20.3.0
     transitivePeerDependencies:
       - jiti
       - less
