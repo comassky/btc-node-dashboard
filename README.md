@@ -10,7 +10,8 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ## 📸 Screenshots
 
-<img width="3024" height="5752" alt="image" src="https://github.com/user-attachments/assets/e4cb9607-5fbc-4d2b-b091-530fe5108b3e" />
+<img width="3024" height="6346" alt="image" src="https://github.com/user-attachments/assets/79395032-46d8-488d-86e8-8c1a696ef028" />
+
 
 ## ✨ Features
 
