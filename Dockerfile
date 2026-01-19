@@ -51,8 +51,6 @@ EXPOSE 8080
 ENV JAVA_OPTS="-XX:+UseG1GC \
     -XX:MaxGCPauseMillis=100 \
     -XX:+UseStringDeduplication \
-    -XX:InitialRAMPercentage=50.0 \
-    -XX:MaxRAMPercentage=80.0 \
     -XX:+ExitOnOutOfMemoryError \
     -XX:+UseContainerSupport \
     -Dfile.encoding=UTF-8 \
