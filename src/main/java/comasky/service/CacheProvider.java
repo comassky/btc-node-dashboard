@@ -32,7 +32,7 @@ public class CacheProvider {
         long bufferMs = config.cache().validityBufferMs();
         long cacheDurationMs = Math.max(MIN_CACHE_DURATION_MS, pollingIntervalMs - bufferMs);
 
-        // Caffeine configuration: refreshAfterWrite is not supported with buildAsync (AsyncCache)
+        // Use the configured cache size (default is 1 for minimal memory usage)
         this.cache = Caffeine.newBuilder()
             .expireAfterWrite(Duration.ofMillis(cacheDurationMs))
             .maximumSize(config.cache().maxItems())
@@ -48,7 +48,7 @@ public class CacheProvider {
      */
     public Uni<GlobalResponse> getCachedData(Supplier<Uni<GlobalResponse>> dataSupplier) {
         CompletableFuture<GlobalResponse> future = cache.get(RPC_DATA_KEY, (key, executor) ->
-                dataSupplier.get().subscribeAsCompletionStage()
+            dataSupplier.get().subscribeAsCompletionStage()
         );
         return Uni.createFrom().completionStage(future);
     }
