@@ -142,6 +142,17 @@ else
     print_warning "update-docs.mjs not found, skipping documentation sync"
 fi
 
+
+# Show version changes summary (diff)
+print_section "🔍 Version Changes Summary"
+for file in pom.xml package.json pnpm-lock.yaml; do
+    if [ -f "$file" ]; then
+        echo -e "\n${BLUE}File: $file${RESET}"
+        # Show only lines with version changes (additions/removals with 'version' or dependency version tags)
+        git diff --color=always "$file" | grep -E --color=always '^[+-].*(version|dependency|requires|lockfile|resolved|from|to|@)' || echo "  No version changes detected."
+    fi
+done
+
 echo -e "\n${CYAN}╔════════════════════════════════════════════╗${RESET}"
 echo -e "${CYAN}║${RESET}  ${GREEN}✓${RESET} ${GREEN}Update completed successfully!${RESET}       ${CYAN}║${RESET}"
 echo -e "${CYAN}╚════════════════════════════════════════════╝${RESET}\n"

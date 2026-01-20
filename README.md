@@ -79,7 +79,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 - **Maven Failsafe Plugin** 3.5.4
 - **Frontend Maven Plugin** 2.0.0
 - **Node.js** v24.12.0 (via Maven)
-- **pnpm** 10.28.0 (Frontend package manager, recommended)
+- **pnpm** 10.28.1 (Frontend package manager, recommended)
 - **npm** 11.6.2 (Alternative package manager)
 - **Docker** (JVM & GraalVM Native images)
 - **GitHub Actions** (CI/CD with automated testing and native image builds)

@@ -35,7 +35,7 @@
     "@vitest/coverage-v8": "4.0.17",
     "@vitest/ui": "4.0.17",
     "@vue/test-utils": "2.4.6",
-    "happy-dom": "20.3.3",
+    "happy-dom": "20.3.4",
     "prettier": "3.8.0",
     "prettier-plugin-tailwindcss": "0.7.2",
     "rollup-plugin-visualizer": "6.0.5",

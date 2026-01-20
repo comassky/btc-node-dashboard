@@ -17,7 +17,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   GRAALVM_VERSION: "25"
   NODE_VERSION: "v24.12.0"
-  PNPM_VERSION: "10.28.0"
+  PNPM_VERSION: "10.28.1"
   MAVEN_VERSION: "3.9.11"
 
 jobs:

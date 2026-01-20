@@ -72,7 +72,7 @@ cd src/main/web && pnpm coverage
 
 **Main tools and libraries:**
 
-- **pnpm** 10.28.0 (frontend package manager, monorepo workspace)
+- **pnpm** 10.28.1 (frontend package manager, monorepo workspace)
 - **Vitest** 4.0.16 (unit tests framework)
 - **Vue Test Utils** 2.4.6, **Happy DOM** 20.0.11, **Vite** 7.3.0, **TypeScript** 5.9.3
 - **VueUse** 14.1.0 (composition utilities with useFetch, useWebSocket)
