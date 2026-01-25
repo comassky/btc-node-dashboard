@@ -30,13 +30,13 @@
     "@iconify-json/fa6-solid": "1.2.4",
     "@iconify-json/simple-icons": "1.2.67",
     "@tailwindcss/vite": "4.1.18",
-    "@types/node": "25.0.9",
+    "@types/node": "25.0.10",
     "@vitejs/plugin-vue": "6.0.3",
-    "@vitest/coverage-v8": "4.0.17",
-    "@vitest/ui": "4.0.17",
+    "@vitest/coverage-v8": "4.0.18",
+    "@vitest/ui": "4.0.18",
     "@vue/test-utils": "2.4.6",
-    "happy-dom": "20.3.4",
-    "prettier": "3.8.0",
+    "happy-dom": "20.3.7",
+    "prettier": "3.8.1",
     "prettier-plugin-tailwindcss": "0.7.2",
     "rollup-plugin-visualizer": "6.0.5",
     "sirv-cli": "3.0.1",
@@ -47,7 +47,7 @@
     "vite": "7.3.1",
     "vite-plugin-compression": "0.5.1",
     "vite-plugin-inspect": "11.3.3",
-    "vitest": "4.0.17",
-    "vue-tsc": "3.2.2"
+    "vitest": "4.0.18",
+    "vue-tsc": "3.2.3"
   }
 }
