@@ -249,8 +249,9 @@ const updateContributing = () => {
     `- Java ${backendVersions.javaVersion}`
   );
   
+  // Match Quarkus version with possible suffix (e.g., CR1, Final, etc.)
   contributing = contributing.replace(
-    /- Quarkus [\d.]+/,
+    /- Quarkus [\d.]+[A-Za-z0-9.\-]*/,
     `- Quarkus ${backendVersions.quarkusVersion}`
   );
   
