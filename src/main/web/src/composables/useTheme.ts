@@ -1,9 +1,9 @@
-import { ref, computed, watchEffect } from 'vue';
+import { computed, watchEffect } from 'vue';
+import { useColorMode } from '@vueuse/core';
 
 type Theme = 'light' | 'dark' | 'gray';
 
 const THEMES: Theme[] = ['light', 'dark', 'gray'];
-const THEME_STORAGE_KEY = 'theme';
 
 const themeRgbMap: Record<Theme, string> = {
   dark: '239, 71, 111',
@@ -12,44 +12,36 @@ const themeRgbMap: Record<Theme, string> = {
 };
 
 /**
- * Determines the initial theme by checking localStorage first, then system preference.
- * This function should only be called on the client side.
- */
-function getInitialTheme(): Theme {
-  if (typeof window === 'undefined') {
-    return 'dark'; // Default for non-browser environments
-  }
-  const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as Theme;
-  if (THEMES.includes(savedTheme)) {
-    return savedTheme;
-  }
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
-
-/**
- * Theme management composable.
+ * Theme management composable using VueUse.
  * Handles theme switching with localStorage persistence and applies theme changes to the DOM.
  */
 export function useTheme() {
-  // Initialize the theme with the correct value from the start.
-  const theme = ref<Theme>(getInitialTheme());
+  // Use VueUse's useColorMode with custom modes
+  const mode = useColorMode({
+    attribute: 'class',
+    modes: {
+      light: 'light',
+      dark: 'dark',
+      gray: 'gray',
+    },
+    storageKey: 'theme',
+  });
+
+  const theme = computed({
+    get: () => mode.value as Theme,
+    set: (val: Theme) => {
+      mode.value = val;
+    },
+  });
 
   const isDarkMode = computed(() => theme.value === 'dark');
   const isGrayMode = computed(() => theme.value === 'gray');
 
-  // This effect runs whenever `theme.value` changes, applying side effects.
+  // Apply custom CSS variable based on theme
   watchEffect(() => {
     if (typeof document !== 'undefined') {
-      // 1. Update localStorage
-      localStorage.setItem(THEME_STORAGE_KEY, theme.value);
-
-      // 2. Update CSS variables
       const rgb = themeRgbMap[theme.value] || themeRgbMap.light;
       document.documentElement.style.setProperty('--status-error-rgb', rgb);
-
-      // 3. Update document class
-      document.documentElement.classList.remove(...THEMES);
-      document.documentElement.classList.add(theme.value);
     }
   });
 
@@ -59,10 +51,13 @@ export function useTheme() {
   const cycleTheme = () => {
     const currentIndex = THEMES.indexOf(theme.value);
     const nextIndex = (currentIndex + 1) % THEMES.length;
-    theme.value = THEMES[nextIndex];
+    const nextTheme = THEMES[nextIndex];
+    if (nextTheme) {
+      theme.value = nextTheme;
+    }
   };
 
-  // Kept for backward compatibility with older tests if any
+  // Kept for backward compatibility
   function toggleDarkMode() {
     cycleTheme();
   }

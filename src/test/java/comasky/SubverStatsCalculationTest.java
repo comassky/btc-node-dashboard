@@ -3,7 +3,6 @@ package comasky;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import comasky.client.RpcClient;
 import comasky.client.RpcRequestDto;
-import comasky.rpcClass.RpcError;
 import comasky.rpcClass.RpcResponse;
 import comasky.rpcClass.RpcServices;
 import comasky.rpcClass.dto.GlobalResponse;
@@ -47,13 +46,6 @@ class SubverStatsCalculationTest {
     private <T> String createSuccessRpcResponseJson(T result) throws Exception {
         RpcResponse<T> response = new RpcResponse<>();
         response.setResult(result);
-        response.setId("1.0");
-        return objectMapper.writeValueAsString(response);
-    }
-
-    private String createErrorRpcResponseJson(RpcError error) throws Exception {
-        RpcResponse<Object> response = new RpcResponse<>();
-        response.setError(error);
         response.setId("1.0");
         return objectMapper.writeValueAsString(response);
     }
@@ -226,7 +218,6 @@ class SubverStatsCalculationTest {
         assertEquals(33.33, v27.percentage(), 0.01);
     }
 
-    @SuppressWarnings("unchecked")
     private void mockAllRpcCalls(String peerInfoResponse) throws Exception {
         String mockBlockchainResponse = createSuccessRpcResponseJson(new BlockchainInfoResponse(
             "main", // chain

@@ -19,19 +19,24 @@ import java.util.function.Supplier;
 @ApplicationScoped
 public class CacheProvider {
 
-    private final AsyncCache<String, GlobalResponse> cache;
     private static final String RPC_DATA_KEY = "rpc-data";
+    private static final long MIN_CACHE_DURATION_MS = 100L;
+    private static final long MILLIS_PER_SECOND = 1000L;
+
+    private final AsyncCache<String, GlobalResponse> cache;
 
     @Inject
     public CacheProvider(DashboardConfig config) {
-        // Calculate cache duration: polling interval minus the configured buffer.
-        long pollingIntervalMs = config.polling().seconds() * 1000L;
+        // Calculate cache duration: polling interval minus the configured buffer
+        long pollingIntervalMs = config.polling().seconds() * MILLIS_PER_SECOND;
         long bufferMs = config.cache().validityBufferMs();
-        long cacheDurationMs = Math.max(100, pollingIntervalMs - bufferMs); // Ensure at least 100ms
+        long cacheDurationMs = Math.max(MIN_CACHE_DURATION_MS, pollingIntervalMs - bufferMs);
 
+        // Use the configured cache size (default is 1 for minimal memory usage)
         this.cache = Caffeine.newBuilder()
-                .expireAfterWrite(Duration.ofMillis(cacheDurationMs))
-                .buildAsync();
+            .expireAfterWrite(Duration.ofMillis(cacheDurationMs))
+            .maximumSize(config.cache().maxItems())
+            .buildAsync();
     }
 
     /**
@@ -43,7 +48,7 @@ public class CacheProvider {
      */
     public Uni<GlobalResponse> getCachedData(Supplier<Uni<GlobalResponse>> dataSupplier) {
         CompletableFuture<GlobalResponse> future = cache.get(RPC_DATA_KEY, (key, executor) ->
-                dataSupplier.get().subscribeAsCompletionStage()
+            dataSupplier.get().subscribeAsCompletionStage()
         );
         return Uni.createFrom().completionStage(future);
     }
@@ -54,5 +59,19 @@ public class CacheProvider {
      */
     public void invalidateAll() {
         cache.synchronous().invalidateAll();
+    }
+
+    /**
+     * Returns the estimated number of entries in the cache.
+     */
+    public long estimatedSize() {
+        return cache.synchronous().estimatedSize();
+    }
+
+    /**
+     * Manually invalidates the RPC data cache entry.
+     */
+    public void invalidateRpcData() {
+        cache.synchronous().invalidate(RPC_DATA_KEY);
     }
 }

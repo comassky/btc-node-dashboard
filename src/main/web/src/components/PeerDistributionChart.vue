@@ -1,27 +1,23 @@
 <script setup lang="ts">
-import { ref, watch, nextTick, onBeforeUnmount, computed } from 'vue';
 import {
   Chart,
   ArcElement,
   Tooltip,
   Legend,
-  PieController,
+  DoughnutController,
   type TooltipItem,
   type ChartOptions,
 } from 'chart.js';
 import { type SubverDistribution } from '@types';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { IconArrowDown, IconArrowUp } from '@/icons';
 
-library.add(faArrowDown, faArrowUp);
-
-Chart.register(ArcElement, Tooltip, Legend, PieController);
-Chart.defaults.animation = false;
+Chart.register(ArcElement, Tooltip, Legend, DoughnutController);
 
 // --- Color utilities ---
 
 const cssVarCache = new Map<string, string>();
+const paletteCache = new Map<number, readonly string[]>();
+
 const getCssVar = (name: string) => {
   if (!cssVarCache.has(name)) {
     cssVarCache.set(name, getComputedStyle(document.documentElement).getPropertyValue(name).trim());
@@ -30,39 +26,34 @@ const getCssVar = (name: string) => {
 };
 const invalidateCssCache = () => cssVarCache.clear();
 
-const generatePalette = (num: number) =>
-  Array.from({ length: num }, (_, i) => {
-    const baseS = 70,
-      baseL = 50;
-    const hue = Math.round((360 / num) * i + (i % 2 === 0 ? 0 : 180 / num));
-    const sat = baseS + (i % 3 === 0 ? 10 : i % 3 === 1 ? -10 : 0);
-    const light = baseL + (i % 2 === 0 ? 8 : -8);
-    return `hsl(${hue}, ${sat}%, ${light}%)`;
-  });
-const generateColors = (num: number) => {
+const generatePalette = (num: number): readonly string[] => {
+  if (!paletteCache.has(num)) {
+    paletteCache.set(
+      num,
+      Array.from({ length: num }, (_, i) => {
+        const baseS = 70,
+          baseL = 50;
+        const hue = Math.round((360 / num) * i + (i % 2 === 0 ? 0 : 180 / num));
+        const sat = baseS + (i % 3 === 0 ? 10 : i % 3 === 1 ? -10 : 0);
+        const light = baseL + (i % 2 === 0 ? 8 : -8);
+        return `hsl(${hue}, ${sat}%, ${light}%)`;
+      })
+    );
+  }
+  return paletteCache.get(num)!;
+};
+
+const generateColors = (num: number): string[] => {
   const base = [
     getCssVar('--accent') || '#ff9900',
     getCssVar('--status-success') || '#06d6a0',
     getCssVar('--status-warning') || '#ffd166',
     getCssVar('--status-error') || '#ef476f',
   ];
-  return num <= base.length ? base.slice(0, num) : base.concat(generatePalette(num - base.length));
+  return num <= base.length ? base.slice(0, num) : [...base, ...generatePalette(num - base.length)];
 };
 
 // --- Chart.js config ---
-const updateChartDefaults = () => {
-  const textPrimary = getCssVar('--text-primary');
-  const borderStrong = getCssVar('--border-strong');
-  const bgCard = getCssVar('--bg-card');
-  const textSecondary = getCssVar('--text-secondary');
-  Chart.defaults.color = textPrimary;
-  Chart.defaults.borderColor = borderStrong;
-  Chart.defaults.backgroundColor = bgCard;
-  Chart.defaults.plugins.legend.labels.color = textPrimary;
-  Chart.defaults.plugins.tooltip.backgroundColor = bgCard;
-  Chart.defaults.plugins.tooltip.bodyColor = textPrimary;
-  Chart.defaults.plugins.tooltip.titleColor = textSecondary;
-};
 const getChartOptions = (): ChartOptions<'doughnut'> => {
   const bgCard = getCssVar('--bg-card');
   const textPrimary = getCssVar('--text-primary');
@@ -72,9 +63,14 @@ const getChartOptions = (): ChartOptions<'doughnut'> => {
     responsive: true,
     maintainAspectRatio: false,
     animation: false,
+    color: textPrimary,
+    borderColor: borderStrong,
     layout: { padding: 0 },
     plugins: {
-      legend: { display: false },
+      legend: {
+        display: false,
+        labels: { color: textPrimary },
+      },
       tooltip: {
         mode: 'point',
         intersect: true,
@@ -107,24 +103,26 @@ const props = defineProps<{
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 let chartInstance: Chart | null = null;
 const hoveredIndex = ref<number | null>(null);
+const styleVersion = ref(0);
 const chartLabels = computed(() => props.peers.map((p) => p.server || '[Unknown]'));
-const chartColors = computed(() => generateColors(props.peers.length));
+const chartColors = computed(() => {
+  styleVersion.value; // Dependency to force update on theme change
+  return generateColors(props.peers.length);
+});
 
 // --- Chart.js helpers ---
-const extractChartData = (data: SubverDistribution[]) => {
+const extractChartData = (data: SubverDistribution[], colors: string[]) => {
   const labels = data.map((d) => d.server || '[Unknown]');
   const percentages = data.map((d) => d.percentage);
-  const backgroundColors = generateColors(data.length);
-  return { labels, percentages, backgroundColors };
+  return { labels, percentages, backgroundColors: colors };
 };
 const destroyChart = () => {
   chartInstance?.destroy();
   chartInstance = null;
 };
-const initChart = (data: SubverDistribution[]): Chart | null => {
+const initChart = (data: SubverDistribution[], colors: string[]): Chart | null => {
   if (!canvasRef.value) return null;
-  updateChartDefaults();
-  const { labels, percentages, backgroundColors } = extractChartData(data);
+  const { labels, percentages, backgroundColors } = extractChartData(data, colors);
   const ctx = canvasRef.value.getContext('2d');
   if (!ctx) return null;
   return new Chart(ctx, {
@@ -144,12 +142,14 @@ const initChart = (data: SubverDistribution[]): Chart | null => {
     options: getChartOptions(),
   });
 };
-const updateChartData = (chart: Chart, data: SubverDistribution[]) => {
-  updateChartDefaults();
-  const { labels, percentages, backgroundColors } = extractChartData(data);
+const updateChartData = (chart: Chart, data: SubverDistribution[], colors: string[]) => {
+  const { labels, percentages, backgroundColors } = extractChartData(data, colors);
   chart.data.labels = labels;
-  chart.data.datasets[0].data = percentages;
-  chart.data.datasets[0].backgroundColor = backgroundColors;
+  const dataset = chart.data.datasets[0];
+  if (dataset) {
+    dataset.data = percentages;
+    dataset.backgroundColor = backgroundColors;
+  }
   chart.update('none');
 };
 
@@ -174,24 +174,38 @@ const handleLegendLeave = () => {
 
 // --- Watchers & Lifecycle ---
 
+onMounted(() => {
+  if (canvasRef.value && props.peers.length > 0) {
+    chartInstance = initChart(props.peers, chartColors.value);
+  }
+});
+
 watch(
   () => props.peers,
   (val) => {
-    if (chartInstance) updateChartData(chartInstance, val);
-    else
-      nextTick(() => {
-        if (!chartInstance) chartInstance = initChart(val);
-      });
-  },
-  { deep: true, immediate: true }
+    if (!canvasRef.value) return;
+    if (chartInstance) {
+      updateChartData(chartInstance, val, chartColors.value);
+    } else {
+      chartInstance = initChart(val, chartColors.value);
+    }
+  }
 );
+
 watch(
   () => props.isDarkMode,
   () => {
-    invalidateCssCache();
-    destroyChart();
-    nextTick(() => {
-      chartInstance = initChart(props.peers);
+    // Use requestAnimationFrame to ensure CSS variables are updated
+    requestAnimationFrame(() => {
+      invalidateCssCache();
+      styleVersion.value++;
+      if (chartInstance) {
+        chartInstance.options = getChartOptions();
+        if (chartInstance.data.datasets[0]) {
+          chartInstance.data.datasets[0].backgroundColor = chartColors.value;
+        }
+        chartInstance.update('none');
+      }
     });
   }
 );
@@ -203,14 +217,13 @@ const headerColor = props.type === 'inbound' ? 'status-success' : 'accent';
 <template>
   <div class="sub-card flex flex-1 flex-col gap-4 rounded-lg p-0 p-4">
     <h4
-      class="border-b-2 pb-2 text-center text-lg font-bold uppercase tracking-wider"
+      class="border-b-2 pb-2 text-center text-lg font-bold tracking-wider uppercase"
       :class="[`border-${headerColor}`, `text-${headerColor}`]"
     >
-      <font-awesome-icon
-        :icon="['fas', type === 'inbound' ? 'arrow-down' : 'arrow-up']"
-        class="mr-1"
-      />
-      {{ type === 'inbound' ? 'Inbound Peers' : 'Outbound Peers' }} ({{ count }})
+      <span class="inline-flex items-center justify-center">
+        <component :is="type === 'inbound' ? IconArrowDown : IconArrowUp" class="mr-1" />
+        {{ type === 'inbound' ? 'Inbound Peers' : 'Outbound Peers' }} ({{ count }})
+      </span>
     </h4>
     <div class="flex h-full w-full flex-col items-center justify-center">
       <div class="chart-container">

@@ -4,7 +4,7 @@ FROM quay.io/quarkus/ubi9-quarkus-micro-image:2.0
 WORKDIR /work/
 
 # Copy the native executable and set permissions
-COPY --chown=1001:root --chmod=0755 target/*-runner /work/application
+COPY --chown=1001:root --chmod=0555 target/*-runner /work/application
 
 # Expose the default Quarkus port
 EXPOSE 8080

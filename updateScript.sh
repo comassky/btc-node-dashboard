@@ -1,62 +1,160 @@
 #!/bin/bash
 
-# Run the Maven properties update goal (show only property changes, with formatting)
-echo -e "\033[1;34m==============================\033[0m"
-echo -e "\033[1;34mMaven properties update\033[0m"
-echo -e "\033[1;34m==============================\033[0m"
+# Colors
+CYAN='\033[1;36m'
+GREEN='\033[1;32m'
+RED='\033[1;31m'
+YELLOW='\033[1;33m'
+BLUE='\033[1;34m'
+RESET='\033[0m'
 
-# Run Maven and format property lines
-mvn -U -Dmaven.version.ignore='(?i).*-(alpha|beta|m|rc)([-.]?\d+)?' -DgenerateBackupPoms=false versions:update-properties 2>&1 | grep 'Property' | while read -r line; do
-    echo -e "\033[1;32m[PROPERTY]\033[0m $line"
+# Print header
+print_header() {
+    echo -e "\n${CYAN}╔════════════════════════════════════════════╗${RESET}"
+    echo -e "${CYAN}║${RESET}  🔄  ${BLUE}BTC Node Dashboard Update${RESET}  ${CYAN}║${RESET}"
+    echo -e "${CYAN}╚════════════════════════════════════════════╝${RESET}\n"
+}
+
+# Print section
+print_section() {
+    echo -e "\n${BLUE}┌─────────────────────────────────────────┐${RESET}"
+    echo -e "${BLUE}│${RESET}  $1"
+    echo -e "${BLUE}└─────────────────────────────────────────┘${RESET}"
+}
+
+# Print success
+print_success() {
+    echo -e "${GREEN}  ✓${RESET} $1"
+}
+
+# Print error
+print_error() {
+    echo -e "${RED}  ✗${RESET} $1"
+}
+
+# Print warning
+print_warning() {
+    echo -e "${YELLOW}  ⚠${RESET} $1"
+}
+
+print_header
+
+# Update Maven properties (Quarkus, plugins, etc.)
+print_section "🔧 Maven Properties & Plugins Update"
+
+# Run Maven versions update for properties
+props_output=$(mvn -U -Dmaven.version.ignore='(?i).*-(alpha|beta|m|rc)([-.]?\d+)?' -DgenerateBackupPoms=false versions:update-properties 2>&1)
+
+# Display property updates
+echo "$props_output" | grep '\[INFO\] Property' | while read -r line; do
+    if [[ $line == *"Leaving unchanged"* ]]; then
+        version=$(echo "$line" | sed -n 's/.*as \([0-9.]*\).*/\1/p')
+        prop=$(echo "$line" | sed -n 's/.*Property \(\${[^}]*}\).*/\1/p')
+        echo -e "  ${CYAN}→${RESET} $prop: ${GREEN}$version${RESET}"
+    elif [[ $line == *"Updating"* ]]; then
+        old_version=$(echo "$line" | sed -n 's/.*from \([0-9.]*\).*/\1/p')
+        new_version=$(echo "$line" | sed -n 's/.*to \([0-9.]*\).*/\1/p')
+        prop=$(echo "$line" | sed -n 's/.*Property \(\${[^}]*}\).*/\1/p')
+        echo -e "  ${GREEN}✓${RESET} $prop: ${YELLOW}$old_version${RESET} → ${GREEN}$new_version${RESET}"
+    fi
 done
 
 if [ ${PIPESTATUS[0]} -ne 0 ]; then
-    echo -e "\033[1;31mERROR: Maven properties update failed.\033[0m"
+    print_error "Maven properties update failed"
     exit 1
 fi
 
 
 # Update Node.js LTS version (using jq for robust JSON parsing)
 
-echo -e "\033[1;34m------------------------------\033[0m"
-echo -e "\033[1;34mNode.js LTS version update\033[0m"
-echo -e "\033[1;34m------------------------------\033[0m"
+print_section "🟢 Node.js LTS Version Update"
 latest_node=$(curl -s https://nodejs.org/dist/index.json | jq -r '.[] | select(.lts != false) | .version' | head -n 1)
 if [ -n "$latest_node" ]; then
-    # Pour pom.xml, garder le 'v' devant
+    # Update pom.xml with 'v' prefix
     sed -i '' "s|<node.lts.version>v[0-9.]*</node.lts.version>|<node.lts.version>${latest_node}</node.lts.version>|" pom.xml
     sed -i '' "s|<node.lts.version></node.lts.version>|<node.lts.version>${latest_node}</node.lts.version>|" pom.xml
-    echo -e "\033[1;32m[UPDATED]\033[0m Node.js LTS version: ${latest_node} (pom.xml)"
-    # Pour les workflows, toujours retirer le 'v' éventuel
-    latest_node_nov=$(echo "$latest_node" | sed 's/^v//')
-    for wf in .github/workflows/docker*.yml; do
-        if grep -q 'node-version:' "$wf"; then
-            sed -i '' "s/node-version: \"v[0-9.]*\"/node-version: \"${latest_node_nov}\"/g" "$wf"
-            sed -i '' "s/node-version: \"[0-9.]*\"/node-version: \"${latest_node_nov}\"/g" "$wf"
-            echo -e "\033[1;32m[UPDATED]\033[0m Node.js LTS version in $wf: ${latest_node_nov}"
-        fi
-    done
+    print_success "Node.js LTS: ${GREEN}${latest_node}${RESET}"
 else
-    echo -e "\033[1;31m[ERROR]\033[0m Could not fetch latest Node.js LTS version."
+    print_error "Could not fetch latest Node.js LTS version"
 fi
 
 # Update pnpm version (latest, using jq for robust JSON parsing)
 
-echo -e "\033[1;34m------------------------------\033[0m"
-echo -e "\033[1;34mpnpm version update\033[0m"
-echo -e "\033[1;34m------------------------------\033[0m"
+print_section "📦 pnpm Version Update"
 latest_pnpm=$(curl -s https://registry.npmjs.org/pnpm/latest | jq -r .version)
 if [ -n "$latest_pnpm" ]; then
     sed -i '' "s|<pnpm.version>[0-9.]*</pnpm.version>|<pnpm.version>${latest_pnpm}</pnpm.version>|" pom.xml
-    echo -e "\033[1;32m[UPDATED]\033[0m pnpm (LTS) version: ${latest_pnpm}"
-    # Update pnpm version in GitHub Actions workflows
-    for wf in .github/workflows/docker*.yml; do
-        if grep -q 'npm install -g pnpm@' "$wf"; then
-            sed -i '' "s/npm install -g pnpm@[0-9.]*/npm install -g pnpm@${latest_pnpm}/g" "$wf"
-            echo -e "\033[1;32m[UPDATED]\033[0m pnpm version in $wf: ${latest_pnpm}"
+    print_success "pnpm: ${GREEN}${latest_pnpm}${RESET}"
+else
+    print_error "Could not fetch latest pnpm version"
+fi
+
+
+# Update frontend dependencies with npm-check-updates
+print_section "📦 Frontend Dependencies Update (npm-check-updates)"
+if [ -d "src/main/web" ]; then
+    cd src/main/web
+    if command -v ncu &> /dev/null; then
+        ncu_output=$(ncu -u --loglevel warn 2>&1)
+        if [ -n "$ncu_output" ]; then
+            echo "$ncu_output" | while IFS= read -r line; do
+                if [[ $line == *"→"* ]]; then
+                    echo -e "  ${GREEN}✓${RESET} $line"
+                else
+                    echo -e "  ${CYAN}→${RESET} $line"
+                fi
+            done
+        else
+            echo -e "  ${CYAN}→${RESET} All frontend dependencies are up to date"
+        fi
+    else
+        print_warning "ncu (npm-check-updates) not found, skipping frontend updates"
+        print_warning "Install with: npm install -g npm-check-updates"
+    fi
+    pnpm install
+    cd ../../../
+else
+    print_warning "src/main/web directory not found"
+fi
+
+# Synchronize documentation and workflows with pom.xml versions
+print_section "📝 Documentation Synchronization"
+if [ -f "update-docs.mjs" ]; then
+    node update-docs.mjs 2>&1 | while IFS= read -r line; do
+        if [[ $line == *"✅"* ]]; then
+            echo -e "  ${GREEN}✓${RESET} ${line#*✅ }"
+        elif [[ $line == *"📦"* ]] || [[ $line == *"Backend:"* ]] || [[ $line == *"Frontend:"* ]]; then
+            # Skip verbose output
+            :
+        elif [[ $line == *"✨"* ]]; then
+            echo -e "\n  ${GREEN}✨${RESET} ${line#*✨ }"
+        else
+            echo "$line"
         fi
     done
+    
+    if [ ${PIPESTATUS[0]} -eq 0 ]; then
+        print_success "All documentation synchronized"
+    else
+        print_error "Failed to synchronize documentation"
+    fi
 else
-    echo -e "\033[1;31m[ERROR]\033[0m Could not fetch latest pnpm version."
+    print_warning "update-docs.mjs not found, skipping documentation sync"
 fi
+
+
+# Show version changes summary (diff)
+print_section "🔍 Version Changes Summary"
+for file in pom.xml package.json pnpm-lock.yaml; do
+    if [ -f "$file" ]; then
+        echo -e "\n${BLUE}File: $file${RESET}"
+        # Show only lines with version changes (additions/removals with 'version' or dependency version tags)
+        git diff --color=always "$file" | grep -E --color=always '^[+-].*(version|dependency|requires|lockfile|resolved|from|to|@)' || echo "  No version changes detected."
+    fi
+done
+
+echo -e "\n${CYAN}╔════════════════════════════════════════════╗${RESET}"
+echo -e "${CYAN}║${RESET}  ${GREEN}✓${RESET} ${GREEN}Update completed successfully!${RESET}       ${CYAN}║${RESET}"
+echo -e "${CYAN}╚════════════════════════════════════════════╝${RESET}\n"
+
 

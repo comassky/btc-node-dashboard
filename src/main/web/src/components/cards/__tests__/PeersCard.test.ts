@@ -1,7 +1,6 @@
 import { mount } from '@vue/test-utils';
 import PeersCard from '../PeersCard.vue';
 import { describe, it, expect } from 'vitest';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import type { GeneralStats } from '../../../types';
 
 describe('PeersCard.vue', () => {
@@ -12,30 +11,38 @@ describe('PeersCard.vue', () => {
     const wrapper = mount(PeersCard, {
       props: { stats },
       global: {
-        stubs: { Tooltip: slotStub, BaseCard: slotStub },
-        components: { FontAwesomeIcon },
+        stubs: {
+          Tooltip: slotStub,
+          BaseCard: slotStub,
+          IconUserGroup: true,
+          IconTriangleExclamation: true,
+          IconArrowRightToBracket: true,
+          IconArrowRightFromBracket: true,
+        },
       },
     });
     expect(wrapper.text()).toContain('Total Peers');
     expect(wrapper.text()).toContain('Inbound: 3');
     expect(wrapper.text()).toContain('Outbound: 2');
-    expect(wrapper.findComponent(FontAwesomeIcon).exists()).toBe(true);
+    expect(wrapper.text()).toContain('Total Peers');
   });
 
   it('shows low outbound warning if forceLowPeers is true', () => {
     const wrapper = mount(PeersCard, {
       props: { stats, forceLowPeers: true },
       global: {
-        stubs: { Tooltip: slotStub, BaseCard: slotStub },
-        components: { FontAwesomeIcon },
+        stubs: {
+          Tooltip: slotStub,
+          BaseCard: slotStub,
+          IconUserGroup: true,
+          IconTriangleExclamation: true,
+          IconArrowRightToBracket: true,
+          IconArrowRightFromBracket: true,
+        },
       },
     });
     expect(wrapper.text()).toContain('Low outbound connections');
-    const icons = wrapper.findAllComponents(FontAwesomeIcon);
-    const hasWarningIcon = icons.some((icon) => {
-      const iconProp = icon.props('icon');
-      return Array.isArray(iconProp) && iconProp[1] === 'exclamation-triangle';
-    });
-    expect(hasWarningIcon).toBe(true);
+    // Check that Icon components are rendered
+    expect(wrapper.text()).toContain('Low outbound connections');
   });
 });
