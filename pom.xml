@@ -8,11 +8,11 @@
     <properties>
         <!-- Version Properties -->
         <maven.compiler.release>25</maven.compiler.release>
-        <quarkus.platform.version>3.31.0.CR1</quarkus.platform.version>
+        <quarkus.platform.version>3.31.2</quarkus.platform.version>
         <frontend-maven-plugin.version>2.0.0</frontend-maven-plugin.version>
         <node.lts.version>v24.13.0</node.lts.version>
         <pnpm.version>10.28.2</pnpm.version>
-        <compiler-plugin.version>3.14.1</compiler-plugin.version>
+        <compiler-plugin.version>3.15.0</compiler-plugin.version>
         <surefire-plugin.version>3.5.4</surefire-plugin.version>
         <maven-resources-plugin.version>3.4.0</maven-resources-plugin.version>
 
