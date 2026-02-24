@@ -4,7 +4,7 @@ import type { DashboardData, DashboardConfig } from '@types';
 import { useWebSocket } from '@composables/useWebSocket';
 import { deepMerge } from '@utils/deepMerge';
 import { setMinOutboundPeers } from '@utils/nodeHealth';
-import ky from 'ky';
+import { useFetch } from '@vueuse/core';
 
 const WS_URL = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws/dashboard`;
 
@@ -74,13 +74,26 @@ export const useDashboardStore = defineStore('dashboard', () => {
 
   // --- Actions ---
   const loadConfig = async () => {
+    if (configLoaded.value) return; // Prevent double loading
+
     try {
-      const config: DashboardConfig = await ky.get('/api/config').json();
-      setMinOutboundPeers(config.minOutboundPeers);
-      disableMempool.value = !!config.disableMempool;
+      const { data, error } = await useFetch('/api/config').get().json<DashboardConfig>();
+
+      if (error.value) {
+        throw new Error(`Failed to fetch config: ${error.value}`);
+      }
+
+      if (data.value) {
+        setMinOutboundPeers(data.value.minOutboundPeers);
+        disableMempool.value = !!data.value.disableMempool;
+      }
+
       configLoaded.value = true;
     } catch (error) {
-      console.error('Failed to load dashboard configuration:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      if (import.meta.env.DEV) {
+        console.error('Failed to load dashboard configuration:', errorMsg);
+      }
       configLoaded.value = true; // Continue with default values
     }
   };

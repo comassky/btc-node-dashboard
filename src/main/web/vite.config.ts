@@ -1,10 +1,14 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-// import { VitePWA } from 'vite-plugin-pwa';
+import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import viteCompression from 'vite-plugin-compression';
+import AutoImport from 'unplugin-auto-import/vite';
+import Icons from 'unplugin-icons/vite';
+import Inspect from 'vite-plugin-inspect';
 import path from 'path';
 
+// @ts-expect-error - Type incompatibility between plugin versions, safe to ignore
 export default defineConfig(({ mode }) => ({
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
@@ -21,8 +25,35 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [
+    tailwindcss(),
     vue(),
-    // VitePWA désactivé
+    AutoImport({
+      imports: [
+        'vue',
+        'pinia',
+        '@vueuse/core',
+        {
+          vue: ['defineAsyncComponent'],
+        },
+        {
+          '@vueuse/motion': [
+            'useMotion',
+            'useMotionControls',
+            'useMotionProperties',
+            'useMotionVariants',
+          ],
+        },
+      ],
+      dts: 'src/auto-imports.d.ts',
+      eslintrc: {
+        enabled: true,
+      },
+    }),
+    Icons({
+      compiler: 'vue3',
+      autoInstall: false,
+    }),
+    Inspect(),
     ...(mode === 'production'
       ? [
           visualizer({
@@ -53,26 +84,21 @@ export default defineConfig(({ mode }) => ({
 
   build: {
     outDir: 'dist',
-    minify: 'terser',
-    cssMinify: true,
+    minify: 'esbuild', // esbuild is 20-40x faster than terser with comparable results
+    cssMinify: 'lightningcss',
     cssCodeSplit: true,
     chunkSizeWarningLimit: 600,
     sourcemap: false,
     reportCompressedSize: true,
-    terserOptions: {
-      compress: {
-        drop_console: mode === 'production',
-        drop_debugger: mode === 'production',
-        pure_funcs: mode === 'production' ? ['console.log', 'console.info', 'console.debug'] : [],
-        passes: 5, // plus de passes pour une meilleure minification
-        toplevel: true,
-        module: true,
-        ecma: 2020,
-      },
-      mangle: true,
-      format: {
-        comments: false,
-      },
+    target: 'es2020',
+    // Esbuild options for better minification
+    esbuild: {
+      drop: mode === 'production' ? ['console', 'debugger'] : [],
+      legalComments: 'none',
+      treeShaking: true,
+      minifyIdentifiers: true,
+      minifySyntax: true,
+      minifyWhitespace: true,
     },
     rollupOptions: {
       output: {
@@ -90,9 +116,25 @@ export default defineConfig(({ mode }) => ({
           }
           return 'assets/[hash:16][extname]';
         },
+        // Optimize chunking for better caching
+        manualChunks: {
+          'vue-vendor': ['vue', 'pinia'],
+          'chart-vendor': ['chart.js'],
+        },
+      },
+      // Improve tree-shaking
+      treeshake: {
+        moduleSideEffects: 'no-external',
+        preset: 'recommended',
       },
     },
   },
+
+  // Optimize pre-bundled dependencies
+  optimizeDeps: {
+    include: ['vue', 'pinia', 'chart.js', 'date-fns'],
+  },
+
   server: {
     proxy: {
       '/ws': {

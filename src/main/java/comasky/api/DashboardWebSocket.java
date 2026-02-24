@@ -35,6 +35,33 @@ public class DashboardWebSocket {
     DashboardDataProvider dataProvider;
 
     /**
+     * Validates that a session is not null and is open.
+     */
+    private boolean isSessionValid(Session session) {
+        return session != null && session.isOpen();
+    }
+
+    /**
+     * Checks if a failure is related to a client disconnection.
+     */
+    private boolean isConnectionFailure(Throwable failure) {
+        return failure instanceof IOException || 
+               failure.getClass().getSimpleName().contains("ClosedChannelException");
+    }
+
+    /**
+     * Logs a failure that occurred while sending data to a session.
+     * Uses DEBUG level for normal disconnections, ERROR for unexpected failures.
+     */
+    private void logSendFailure(Session session, Throwable failure, String context) {
+        if (isConnectionFailure(failure)) {
+            LOG.debugf("Session %s closed during %s: %s", session.getId(), context, failure.getMessage());
+        } else {
+            LOG.errorf(failure, "Failed to send data to session %s during %s", session.getId(), context);
+        }
+    }
+
+    /**
      * Creates a Uni that emits a unified Object payload.
      * On success, it emits the GlobalResponse.
      * On failure, it emits a Map representing the error.
@@ -66,6 +93,19 @@ public class DashboardWebSocket {
                 );
     }
 
+    /**
+     * Periodically cleans up closed sessions to prevent memory leaks.
+     */
+    @Scheduled(every = "5m", identity = "session-cleanup")
+    void cleanupClosedSessions() {
+        int sizeBefore = sessions.size();
+        sessions.removeIf(session -> !session.isOpen());
+        int removed = sizeBefore - sessions.size();
+        if (removed > 0) {
+            LOG.debugf("Cleaned up %d closed sessions (remaining: %d)", removed, sessions.size());
+        }
+    }
+
 
     @OnOpen
     public void onOpen(Session session) {
@@ -84,16 +124,23 @@ public class DashboardWebSocket {
      * Sends the latest dashboard data to a specific WebSocket session.
      */
     private void sendDataToSession(Session session) {
-        if (session == null || !session.isOpen()) {
+        if (!isSessionValid(session)) {
             LOG.warn("Attempted to send data to a null or closed session.");
             return;
         }
 
         getUnifiedDashboardData()
-                .onItem().transformToUni(data -> sendMessage(session, data))
+                .onItem().transformToUni(data -> {
+                    // Double-check session is still open before sending
+                    if (!isSessionValid(session)) {
+                        LOG.debugf("Session %s closed before initial data could be sent", session.getId());
+                        return Uni.createFrom().voidItem();
+                    }
+                    return sendMessage(session, data);
+                })
                 .subscribe().with(
                         _ -> LOG.debugf("Initial data sent to session %s", session.getId()),
-                        failure -> LOG.errorf(failure, "Failed to send initial data to session %s", session.getId())
+                        failure -> logSendFailure(session, failure, "initial send")
                 );
     }
 
@@ -102,7 +149,11 @@ public class DashboardWebSocket {
      */
     private void broadcastMessage(Object message) {
         if (message == null) return;
-        LOG.debugf("Broadcasting to %d sessions", sessions.size());
+        
+        final int sessionCount = sessions.size();
+        if (sessionCount == 0) return;
+        
+        LOG.debugf("Broadcasting to %d sessions", sessionCount);
         Multi.createFrom().iterable(sessions)
                 .filter(Session::isOpen)
                 .onItem().transformToUniAndMerge(session ->
@@ -139,11 +190,7 @@ public class DashboardWebSocket {
 
         // Apply the side-effect on failure to the correctly typed Uni.
         return sendUni.onFailure().invoke(failure -> {
-            if (failure instanceof IOException) {
-                LOG.debugf("Client %s disconnected, removing session.", session.getId());
-            } else {
-                LOG.warnf(failure, "Failed to send message to session %s, removing.", session.getId());
-            }
+            logSendFailure(session, failure, "message send");
             sessions.remove(session);
         });
     }
@@ -153,9 +200,11 @@ public class DashboardWebSocket {
      */
     private Map<String, Object> createErrorPayload(Throwable throwable) {
         LOG.error("An error occurred while fetching data for WebSocket", throwable);
-        String errorMessage = throwable.getMessage() != null ? throwable.getMessage() : "An unknown error occurred.";
+        final String errorMessage = throwable.getMessage() != null 
+            ? throwable.getMessage() 
+            : "An unknown error occurred.";
         return Map.of(
-                "rpcConnected", false,
+                "rpcConnected", Boolean.FALSE,
                 "errorMessage", "Failed to fetch data: " + errorMessage
         );
     }

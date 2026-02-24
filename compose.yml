@@ -5,10 +5,10 @@ services:
     image: ghcr.io/comassky/btc-node-dashboard:main
     container_name: BTC-Gui
     environment:
-      RPC_HOST: <URL OR HOSTNAME>
-      RPC_PORT: <PORT>
-      RPC_USER: <RPC_USER>
-      RPC_PASS: <RPC_PASSWORD>
+      BITCOIN_RPC_HOST: <URL OR HOSTNAME>
+      BITCOIN_RPC_PORT: <PORT>
+      BITCOIN_RPC_USER: <RPC_USER>
+      BITCOIN_RPC_PASSWORD: <RPC_PASSWORD>
       WS_POLLING_INTERVAL: 1 # WebSocket polling interval in seconds (default: 5)
       MIN_OUTBOUND_PEERS: 8 # Minimum number of outbound peers before warning (default: 8)
       LOG_LEVEL: WARN # Logging level: TRACE, DEBUG, INFO, WARN, ERROR (default: INFO)

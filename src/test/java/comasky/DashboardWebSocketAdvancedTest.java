@@ -2,9 +2,11 @@ package comasky;
 
 import comasky.client.RpcClient;
 import comasky.client.RpcRequestDto;
+import comasky.service.CacheProvider;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import jakarta.websocket.ClientEndpoint;
 import jakarta.websocket.ContainerProvider;
 import jakarta.websocket.OnMessage;
@@ -29,6 +31,9 @@ class DashboardWebSocketAdvancedTest {
 
     @InjectMock
     RpcClient rpcClient;
+
+    @Inject
+    CacheProvider cacheProvider;
 
     @TestHTTPResource("/ws/dashboard")
     URI uri;
@@ -61,6 +66,7 @@ class DashboardWebSocketAdvancedTest {
     @BeforeEach
     public void setup() {
         reset(rpcClient);
+        cacheProvider.invalidateAll();
         setupRpcClientMocks();
     }
 

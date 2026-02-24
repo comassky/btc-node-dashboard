@@ -8,45 +8,52 @@
           hasLowOutbound ? 'text-status-warning' : 'text-status-success',
         ]"
       >
-        <font-awesome-icon :icon="['fas', 'user-friends']" />
+        <IconUserGroup />
       </div>
-      <div class="text-xs font-medium uppercase text-text-secondary">Total Peers</div>
+      <div class="text-text-secondary text-xs font-medium uppercase">Total Peers</div>
     </div>
-    <Tooltip :text="'Total number of peers currently connected to your node.'">
-      <div class="mt-2 text-4xl font-light text-text-primary sm:mt-3 sm:text-5xl">
-        {{ stats.totalPeers }}
-      </div>
-    </Tooltip>
+    <div class="mt-2 flex w-full items-center sm:mt-3">
+      <Tooltip :text="'Total number of peers currently connected to your node.'">
+        <div
+          class="text-4xl font-light sm:text-5xl"
+          :class="hasLowOutbound ? 'text-status-warning animate-breathe' : 'text-text-primary'"
+        >
+          {{ stats.totalPeers }}
+        </div>
+      </Tooltip>
+      <div class="flex-1"></div>
+      <Tooltip
+        v-if="hasLowOutbound"
+        text="Low outbound connections can reduce the security and reliability of your Bitcoin node. Make sure your firewall allows outbound connections."
+        position="bottom"
+      >
+        <div
+          class="bg-status-warning/10 border-status-warning/30 animate-breathe text-status-warning flex flex-shrink-0 cursor-help items-center gap-1 rounded border p-2"
+        >
+          <IconTriangleExclamation class="text-xs" />
+          <span class="text-xs font-medium">Low outbound connections</span>
+        </div>
+      </Tooltip>
+    </div>
     <div
-      class="mt-1 overflow-visible border-t border-border-strong pt-1 text-xs text-text-secondary sm:mt-2 sm:pt-2 sm:text-sm"
+      class="border-border-strong text-text-secondary mt-1 overflow-visible border-t pt-1 text-xs sm:mt-2 sm:pt-2 sm:text-sm"
     >
       <Tooltip :text="'Inbound connections: other nodes connecting to you.'">
-        <p class="mb-0.5 sm:mb-1">
-          <font-awesome-icon :icon="['fas', 'sign-in-alt']" class="mr-1" /> Inbound:
-          {{ stats.inboundCount }}
+        <p class="mb-0.5 flex items-center sm:mb-1">
+          <IconArrowRightToBracket class="mr-1 flex-shrink-0" /> Inbound:
+          <span class="ml-1">{{ stats.inboundCount }}</span>
         </p>
       </Tooltip>
       <div class="flex items-center justify-between gap-3">
         <Tooltip :text="'Outbound connections: your node connecting to others.'">
-          <p class="mb-0.5 sm:mb-1">
-            <font-awesome-icon :icon="['fas', 'sign-out-alt']" class="mr-1" /> Outbound:
-            <span :class="hasLowOutbound ? 'font-bold text-status-warning' : ''">{{
-              stats.outboundCount
-            }}</span>
+          <p class="mb-0.5 flex items-center sm:mb-1">
+            <IconArrowRightFromBracket class="mr-1 flex-shrink-0" /> Outbound:
+            <span
+              class="ml-1"
+              :class="hasLowOutbound ? 'text-status-warning animate-breathe font-bold' : ''"
+              >{{ stats.outboundCount }}</span
+            >
           </p>
-        </Tooltip>
-        <Tooltip
-          v-if="hasLowOutbound"
-          text="Low outbound connections can reduce the security and reliability of your Bitcoin node. Make sure your firewall allows outbound connections."
-          position="bottom"
-          horizontal="right"
-        >
-          <div
-            class="bg-status-warning/10 border-status-warning/30 animate-breathe flex flex-shrink-0 cursor-help items-center gap-1 rounded border p-2 text-status-warning"
-          >
-            <font-awesome-icon :icon="['fas', 'exclamation-triangle']" class="text-xs" />
-            <span class="text-xs font-medium">Low outbound connections</span>
-          </div>
         </Tooltip>
       </div>
     </div>
@@ -59,6 +66,12 @@ import Tooltip from '@components/Tooltip.vue';
 import BaseCard from '@components/BaseCard.vue';
 import { hasLowOutboundPeers } from '@utils/nodeHealth';
 import type { GeneralStats } from '../../types';
+import {
+  IconUserGroup,
+  IconTriangleExclamation,
+  IconArrowRightToBracket,
+  IconArrowRightFromBracket,
+} from '@/icons';
 
 const props = withDefaults(
   defineProps<{

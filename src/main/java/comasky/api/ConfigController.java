@@ -7,6 +7,11 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 /**
  * REST API controller for dashboard configuration.
@@ -14,6 +19,7 @@ import jakarta.ws.rs.core.MediaType;
  * Exposes runtime configuration values to the frontend for UI adaptation.
  */
 @Path("/api/config")
+@Tag(name = "Configuration", description = "Application configuration endpoints")
 public class ConfigController {
 
     @Inject
@@ -26,6 +32,15 @@ public class ConfigController {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Operation(
+        summary = "Get dashboard configuration",
+        description = "Retrieves runtime configuration values used by the dashboard UI"
+    )
+    @APIResponse(
+        responseCode = "200",
+        description = "Configuration successfully retrieved",
+        content = @Content(schema = @Schema(implementation = DashboardConfigResponse.class))
+    )
     public Uni<DashboardConfigResponse> getConfig() {
         int minPeers = 0;
         boolean disableMempool = false;

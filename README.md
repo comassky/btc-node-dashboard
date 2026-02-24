@@ -4,12 +4,14 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
 ![Java](https://img.shields.io/badge/Java-25-orange.svg)
-![Quarkus](https://img.shields.io/badge/Quarkus-3.30.5-blue.svg)
-![Vue](https://img.shields.io/badge/Vue.js-3.5.26-green.svg)
+![Quarkus](https://img.shields.io/badge/Quarkus-3.31.0.CR1-blue.svg)
+![Vue](https://img.shields.io/badge/Vue.js-3.5.28-green.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue.svg)
 
 ## 📸 Screenshots
 
-<img width="3024" height="5752" alt="image" src="https://github.com/user-attachments/assets/e4cb9607-5fbc-4d2b-b091-530fe5108b3e" />
+<img width="3024" height="6346" alt="image" src="https://github.com/user-attachments/assets/79395032-46d8-488d-86e8-8c1a696ef028" />
+
 
 ## ✨ Features
 
@@ -19,13 +21,14 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 - **Configurable & Nested Dashboard Settings**: All dashboard features are configurable via nested properties (see `dashboard.*`), compatible with Quarkus @ConfigMapping and @WithName.
 - **Live Peer & Network Statistics**: Real-time display of inbound/outbound connections, peer details, version and geographic distribution.
 - **Blockchain & Mempool Monitoring**: Track block height, sync progress, node uptime, mempool size, and network health in real time.
-- **Modern UI/UX**: Dark/light/gray mode, responsive design, interactive charts, smooth animations, icon support.
-- **WebSocket Streaming**: Instant dashboard updates, automatic reconnection, exponential backoff, and robust error handling.
+- **Modern UI/UX**: Dark/light/gray mode, responsive design, interactive charts, glassmorphism effects, optimized icons (official Tor logo, network-specific icons).
+- **WebSocket Streaming**: Instant dashboard updates, automatic reconnection, exponential backoff, session cleanup.
 - **Mock/Test Mode**: Simulate errors, low peer count, disconnected mode for testing and demos.
 - **Comprehensive Error Handling**: Clear user messages, automatic recovery and reconnection.
 - **Security & Privacy**: No tracking, no analytics, all data stays on your node.
-- **Performance Optimized**: GraalVM Native (<50ms startup, ~30MB RAM), tree-shaking, code splitting, gzip/brotli compression.
+- **Performance Optimized**: GraalVM Native (<50ms startup, ~30MB RAM), Chart.js tree-shaking, optimized component rendering (1375+ fewer instances), gzip/brotli compression (144KB), reusable composables.
 - **Docker & CI/CD Ready**: Easy deployment, optimized images, automated builds and tests (GitHub Actions).
+- **Composable Architecture**: Reusable Vue composables (`useSortableTable`, `usePeerAnalytics`) for clean, maintainable code.
 
 ## 🛠️ Tech Stack
 
@@ -34,49 +37,39 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | Technology                   | Version           | Description                         |
 | ---------------------------- | ----------------- | ----------------------------------- |
 | **Java**                     | 25                | Programming language                |
-| **Quarkus**                  | 3.30.5            | Supersonic Subatomic Java Framework |
+| **Quarkus**                  | 3.31.0.CR1            | Reactive Java framework             |
 | **Mutiny**                   | (via Quarkus BOM) | Reactive programming library        |
 | **Jakarta WebSocket**        | -                 | Real-time communication             |
 | **MicroProfile REST Client** | -                 | HTTP client for Bitcoin RPC         |
 | **Jackson**                  | -                 | JSON processing                     |
-| **Maven Compiler Plugin**    | 3.14.1            | Java compilation                    |
-| **Maven Surefire Plugin**    | 3.5.4             | Unit testing                        |
-| **Maven Failsafe Plugin**    | 3.5.4             | Integration testing                 |
-| **Frontend Maven Plugin**    | 2.0.0             | Frontend build integration          |
-| **Node.js**                  | v24.12.0          | Frontend build (via Maven)          |
-| **npm**                      | 11.6.2            | Frontend build (via Maven)          |
+| **Caffeine Cache**           | -                 | High-performance async cache        |
+| **SmallRye OpenAPI**         | -                 | OpenAPI/Swagger documentation       |
 
 ### Frontend
 
-| Technology                              | Version | Description                      |
-| --------------------------------------- | ------- | -------------------------------- |
-| **Vue.js**                              | 3.5.26  | Progressive JavaScript framework |
-| **TypeScript**                          | 5.9.3   | Type-safe JavaScript             |
-| **Vite**                                | 7.3.0   | Next-generation frontend tooling |
-| **Tailwind CSS**                        | 3.4.19  | Utility-first CSS framework      |
-| **Chart.js**                            | 4.5.1   | Interactive charts               |
-| **@fortawesome/fontawesome-svg-core**   | 7.1.0   | Font Awesome core                |
-| **@fortawesome/free-brands-svg-icons**  | 7.1.0   | Font Awesome brands icons        |
-| **@fortawesome/free-regular-svg-icons** | 7.1.0   | Font Awesome regular icons       |
-| **@fortawesome/free-solid-svg-icons**   | 7.1.0   | Font Awesome solid icons         |
-| **@fortawesome/vue-fontawesome**        | 3.1.2   | Font Awesome Vue component       |
-| **ky**                                  | 1.14.2  | HTTP client                      |
-| **reconnecting-websocket**              | 4.4.0   | WebSocket reconnect              |
-| **@types/node**                         | 24.10.4 | Node.js types                    |
-| **@vitejs/plugin-vue**                  | 6.0.3   | Vite Vue plugin                  |
-| **@vitest/coverage-v8**                 | 4.0.16  | Coverage provider                |
-| **@vitest/ui**                          | 4.0.16  | Vitest UI                        |
-| **@vue/test-utils**                     | 2.4.6   | Vue test utilities               |
-| **autoprefixer**                        | 10.4.23 | CSS vendor prefixer              |
-| **happy-dom**                           | 20.0.11 | DOM environment for tests        |
-| **postcss**                             | 8.5.6   | CSS processor                    |
-| **rollup-plugin-visualizer**            | 6.0.5   | Bundle visualizer                |
-| **sirv-cli**                            | 3.0.1   | Static server                    |
-| **vite-plugin-compression**             | 0.5.1   | Compression plugin               |
-| **vite-plugin-pwa**                     | 1.2.0   | PWA plugin                       |
-| **vitest**                              | 4.0.16  | Unit testing framework           |
-| **vue-tsc**                             | 3.2.1   | TypeScript type checker for Vue  |
-| **workbox-window**                      | 7.4.0   | Service worker helper            |
+#### Runtime Dependencies
+
+| Technology           | Version | Description                      |
+| -------------------- | ------- | -------------------------------- |
+| **Vue.js**           | 3.5.26  | Progressive JavaScript framework |
+| **VueUse**           | 14.1.0  | Composition utilities            |
+| **Pinia**            | 3.0.4   | State management                 |
+| **Chart.js**         | 4.5.1   | Interactive charts (tree-shaken) |
+| **Iconify**          | 5.0.0   | Icon framework                   |
+| **Simple Icons**     | 1.2.65  | Brand logos (Tor, etc.)          |
+| **Floating UI**      | 1.1.9   | Tooltip positioning              |
+| **date-fns**         | 4.1.0   | Date utilities                   |
+| **filesize**         | 11.0.13 | File size formatting             |
+
+#### Build Tools
+
+| Technology           | Version | Description                      |
+| -------------------- | ------- | -------------------------------- |
+| **TypeScript**       | 5.9.3   | Type-safe JavaScript             |
+| **Vite**             | 7.3.1   | Build tool & dev server          |
+| **Tailwind CSS**     | 4.1.18  | Utility-first CSS framework      |
+| **Vitest**           | 4.0.16  | Unit testing framework           |
+| **Prettier**         | 3.7.4   | Code formatter                   |
 
 ### Build & Deploy
 
@@ -86,8 +79,8 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 - **Maven Failsafe Plugin** 3.5.4
 - **Frontend Maven Plugin** 2.0.0
 - **Node.js** v24.12.0 (via Maven)
-- **npm** 11.6.2 (via Maven)
-- **npm ci** (Optimized frontend dependency installation with --prefer-offline)
+- **pnpm** 10.28.2 (Frontend package manager, recommended)
+- **npm** 11.6.2 (Alternative package manager)
 - **Docker** (JVM & GraalVM Native images)
 - **GitHub Actions** (CI/CD with automated testing and native image builds)
 - **GraalVM Native Image** (AOT compilation for ultra-fast startup)
@@ -96,8 +89,10 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 | Suite    | Tests |
 | -------- | ----- |
-| Backend  | 58    |
-| Frontend | 67    |
+| Backend  | 79    |
+| Frontend | 83    |
+
+**Total: 162 tests** ensuring code quality and stability.
 
 ## 🏎️ Recommended Native Build (GraalVM)
 
@@ -122,7 +117,7 @@ The native binary starts instantly and uses very little memory, making it ideal 
 
 ### Prerequisites
 
-- Java 25+ and Maven 3.9+
+- Java 25+ and Maven 3.9+ (Maven Wrapper included: `./mvnw`)
 - Bitcoin Core with RPC enabled
 - Node.js 24+ (optional, for frontend development)
 
@@ -134,16 +129,16 @@ git clone https://github.com/comassky/btc-node-dashboard.git
 cd btc-node-dashboard
 
 # Configurez le backend (variables d'environnement ou application-local.properties)
-export RPC_HOST=localhost
-export RPC_PORT=8332
-export RPC_USER=your_user
-export RPC_PASS=your_password
+export BITCOIN_RPC_HOST=localhost
+export BITCOIN_RPC_PORT=8332
+export BITCOIN_RPC_USER=your_user
+export BITCOIN_RPC_PASSWORD=your_password
 
 # Installez les dépendances frontend (recommandé : pnpm)
 cd src/main/web
 pnpm install
 # ou, si pnpm n'est pas installé :
-npm install -g pnpm@10.26.2
+npm install -g pnpm@10.27.0
 pnpm install
 
 # Démarrez le serveur de développement frontend (Vite)
@@ -156,15 +151,15 @@ cd ../..
 ```
 
 
-## 🐳 Docker (Recommandé)
+## 🐳 Docker (Recommended)
 
 ```bash
-# Exécuter l'image native GraalVM (démarrage rapide, faible mémoire)
+# Run native GraalVM image (fast startup, low memory)
 docker run -d -p 8080:8080 \
-  -e RPC_HOST=<HOST> \
-  -e RPC_PORT=<PORT> \
-  -e RPC_USER=<USER> \
-  -e RPC_PASS=<PASSWORD> \
+  -e BITCOIN_RPC_HOST=<HOST> \
+  -e BITCOIN_RPC_PORT=<PORT> \
+  -e BITCOIN_RPC_USER=<USER> \
+  -e BITCOIN_RPC_PASSWORD=<PASSWORD> \
   -e WS_POLLING_INTERVAL=5 \
   -e MIN_OUTBOUND_PEERS=8 \
   -e LOG_LEVEL=INFO \
@@ -190,21 +185,37 @@ See [DOCKER.md](DOCKER.md) for more details.
 
 ### Available Image Tags
 
-A short summary of the Docker image tags produced by the GitHub Actions workflows (full list in `DOCKER.md`):
+A short summary of the Docker image tags produced by the GitHub Actions workflows (full list in [DOCKER.md](DOCKER.md)):
 
 - `latest` and semantic version tags (`<version>`, `<major>.<minor>`, `<major>`): native (GraalVM) images built from `main` and from git tags.
 - `develop`: images built from the `develop` branch.
+- Current version: `1.5.0-SNAPSHOT`
 
 ## 📊 API Endpoints
 
 ### REST API
 
+The backend exposes RESTful endpoints to retrieve Bitcoin node data.
+
+📖 **OpenAPI Specification**: Available at project root as `openapi.json` and `openapi.yaml` (versioned)
+
+➡️ [OpenAPI YAML documentation](./openapi.yaml)
+➡️ [OpenAPI JSON documentation](./openapi.json)
+
+The API specification follows the OpenAPI 3.0 standard and documents all available endpoints, request/response schemas, and parameters.
+
+#### Available Endpoints
+
 - **GET** `/api/config` — Get dashboard configuration (e.g., minOutboundPeers)
 - **GET** `/api/dashboard` — Get aggregated dashboard data (GlobalResponse)
-- **GET** `/api/networkinfo` — Get node network information (NodeInfo)
-- **GET** `/api/block/{hash}` — Get block information by hash (BlockInfo)
-- **GET** `/api/bestblockhash` — Get the hash of the best block (plain text)
+- **GET** `/api/getnetworkinfo` — Get node network information
+- **GET** `/api/getblock/{hash}` — Get block information by hash
+- **GET** `/api/getbestblockhash` — Get the hash of the best block (plain text)
+- **GET** `/api/getBlockchainInfo` — Get blockchain information
+- **GET** `/api/getmempoolinfo` — Get mempool information
 - **GET** `/api/blockchaininfo` — Get blockchain information (BlockchainInfo)
+- **GET** `/api/cache/stats` — Get cache performance statistics (reactive)
+- **GET** `/api/getmempoolinfo` — Get mempool information
 
 ### WebSocket
 
@@ -213,39 +224,28 @@ A short summary of the Docker image tags produced by the GitHub Actions workflow
 ## 🔧 Configuration
 
 
-Pour les détails sur la programmation réactive, les garanties non-bloquantes et les guidelines de contribution, voir [CONTRIBUTING.md](CONTRIBUTING.md).
+For details on reactive programming, non-blocking guarantees and contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-### Dépendances et outils principaux
-
-- **pnpm** (gestionnaire de paquets frontend, workspace monorepo)
-- **Vite** (serveur de développement et build frontend)
-- **Vitest** (tests unitaires frontend)
-- **Tailwind CSS** (framework CSS)
-- **PostCSS** (préprocesseur CSS)
-- **TypeScript**, **Vue 3**, **Chart.js**, **FontAwesome**, etc.
-
-Voir `src/main/web/package.json` pour la liste complète.
-
-Variables d'environnement principales :
+### Environment Variables
 
 - `QUARKUS_IO_THREADS`: Number of IO threads for the backend (recommended: 2 × number of CPU cores). Set this environment variable to control backend concurrency. Example: `QUARKUS_IO_THREADS=16 java -jar ...`. Defaults to 8 if not set.
 
-- `RPC_HOST`, `RPC_PORT`, `RPC_USER`, `RPC_PASS`: Bitcoin node connection
+- `BITCOIN_RPC_HOST`, `BITCOIN_RPC_PORT`, `BITCOIN_RPC_USER`, `BITCOIN_RPC_PASSWORD`: Bitcoin node connection
 - `WS_POLLING_INTERVAL`: dashboard refresh interval (seconds)
 - `MIN_OUTBOUND_PEERS`: minimum outbound peers
 - `DASHBOARD_CACHE_VALIDITY_BUFFER_MS`: cache validity buffer (ms)
 - `LOG_LEVEL`: log level (INFO, DEBUG, ...)
 
 
-Pour la liste complète et les valeurs par défaut, voir [BUILD.md](BUILD.md).
+For the complete list and default values, see [BUILD.md](BUILD.md).
 
 ---
 
 ## 🧩 Monorepo & pnpm workspace
 
-Le projet utilise un workspace pnpm pour la gestion des dépendances frontend. Voir `src/main/web/pnpm-workspace.yaml`.
+The project uses a pnpm workspace for frontend dependency management. See `src/main/web/pnpm-workspace.yaml`.
 
-Pour installer toutes les dépendances :
+To install all dependencies:
 
 ```bash
 cd src/main/web

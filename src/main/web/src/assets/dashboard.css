@@ -1,28 +1,26 @@
 /* Vertical scroll for Chart.js legend if too long */
 /* --- web/src/assets/dashboard.css --- */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
 /* --- Light Mode (Default) Variables --- */
 :root {
   /* Backgrounds */
-  --bg-app: #f7f7f7;
+  --bg-app: #fafafa;
   --bg-card: #ffffff;
   /* Text & Borders */
-  --text-primary: #1f2937;
-  --text-secondary: #6b7280;
-  --border-strong: #e5e7eb;
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c9a;
+  --border-strong: #e8eaed;
 
   /* Accent & Status Colors */
-  --accent: #ff9900;
-  --status-success: #10b981;
-  --status-error: #ef4444;
-  --status-warning: #f59e0b;
+  --accent: #f59e0b;
+  --status-success: #059669;
+  --status-error: #dc2626;
+  --status-warning: #d97706;
 
   /* RGB color for pulse animation */
-  --status-error-rgb: 239, 68, 68;
+  --status-error-rgb: 220, 38, 38;
 }
 
 /* --- Dark Mode Variables --- */
@@ -65,48 +63,109 @@
   --status-error-rgb: 255, 107, 107;
 }
 
-body {
-  font-family: 'Roboto', sans-serif;
+@theme {
+  /* Custom color mappings to CSS variables */
+  --color-bg-app: var(--bg-app);
+  --color-bg-card: var(--bg-card);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-status-success: var(--status-success);
+  --color-status-error: var(--status-error);
+  --color-status-warning: var(--status-warning);
 }
 
-/* Pulse Animation for Disconnected state */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 3rem;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  transition: background-color 0.3s ease;
+}
+
+/* Pulse Animation for Disconnected state - more subtle */
 .pulse-error {
-  animation: pulse-error 2s infinite;
+  animation: pulse-error 3s ease-in-out infinite;
 }
 
 @keyframes pulse-error {
-  0% {
-    box-shadow: 0 0 0 0 rgba(var(--status-error-rgb), 0.7);
-  }
-
-  70% {
-    box-shadow: 0 0 0 10px rgba(var(--status-error-rgb), 0);
-  }
-
+  0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(var(--status-error-rgb), 0);
+    box-shadow: 0 0 0 0 rgba(var(--status-error-rgb), 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(var(--status-error-rgb), 0);
   }
 }
 
-/* Utilitaires personnalisés */
+/* Fade-in animation for cards */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-card {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Shimmer animation for skeletons */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    90deg,
+    var(--bg-card) 0%,
+    var(--border-strong) 50%,
+    var(--bg-card) 100%
+  );
+  background-size: 1000px 100%;
+}
+
+/* Custom utilities */
 @layer components {
   .btn {
-    @apply rounded px-3 py-1.5 font-medium shadow transition-all hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2;
+    @apply focus:ring-accent rounded px-3 py-1.5 font-medium shadow transition-all hover:opacity-80 focus:ring-2 focus:ring-offset-2 focus:outline-none;
   }
   .btn-accent {
-    @apply btn bg-accent text-bg-app;
+    @apply focus:ring-accent bg-accent text-bg-app rounded px-3 py-1.5 font-medium shadow transition-all hover:opacity-80 focus:ring-2 focus:ring-offset-2 focus:outline-none;
   }
   .btn-secondary {
-    @apply btn border border-border-strong bg-bg-card text-text-primary;
+    @apply focus:ring-accent border-border-strong bg-bg-card text-text-primary rounded border px-3 py-1.5 font-medium shadow transition-all hover:opacity-80 focus:ring-2 focus:ring-offset-2 focus:outline-none;
+  }
+  .btn-nav {
+    @apply text-text-primary hover:text-accent hover:bg-accent/10 focus:ring-accent/50 rounded-md px-2 py-1.5 transition-all duration-200 focus:ring-2 focus:outline-none sm:px-3 sm:py-2;
   }
   .card-title {
-    @apply mb-3 break-words text-lg font-medium sm:mb-4 sm:text-2xl sm:text-xl md:mb-6;
+    @apply mb-3 text-lg font-medium break-words sm:mb-4 sm:text-2xl sm:text-xl md:mb-6;
   }
   .dashboard-card {
-    @apply rounded-xl border-l-4 bg-bg-card p-4 shadow-lg transition sm:p-6;
+    @apply bg-bg-card rounded-xl border-l-4 p-4 shadow-lg transition-shadow duration-300 sm:p-6;
   }
   .dashboard-card-interactive {
-    @apply dashboard-card relative z-10 overflow-visible;
+    @apply bg-bg-card relative z-10 overflow-visible rounded-xl border-l-4 p-4 shadow-lg transition-shadow duration-300 sm:p-6;
+  }
+  .sub-card {
+    @apply bg-bg-card;
   }
 }
 
@@ -133,7 +192,7 @@ body {
   max-height: 90%;
 }
 
-/* Décale la légende à droite du pie */
+/* Move the legend to the right of the pie chart */
 .chartjs-render-monitor + .chartjs-legend {
   margin-left: 36px !important;
 }
@@ -153,15 +212,23 @@ body {
   white-space: nowrap;
 }
 
-/* Dashboard Card Base Styles */
-@layer components {
-  .dashboard-card {
-    @apply rounded-xl border-l-4 bg-bg-card p-4 shadow-lg transition sm:p-6;
-  }
+/* Striped rows for better readability */
+.peer-table tbody tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
 
-  .dashboard-card-interactive {
-    @apply dashboard-card relative z-10 overflow-visible;
-  }
+.dark .peer-table tbody tr:nth-child(even),
+.gray .peer-table tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.peer-table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+.dark .peer-table tbody tr:hover,
+.gray .peer-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.04) !important;
 }
 
 /* Responsive Improvements */
@@ -176,5 +243,26 @@ body {
   .status-bar.is-mobile p {
     width: 100%;
     text-align: left;
+  }
+
+  /* Improve navigation touch targets on mobile */
+  .btn-nav {
+    min-width: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 380px) {
+  .dashboard-card,
+  .dashboard-card-interactive {
+    @apply p-3;
+  }
+
+  .card-title {
+    @apply text-base;
   }
 }

@@ -4,7 +4,7 @@ import type { NetworkInfoResponse } from './NetworkInfoResponse';
 import type { BlockInfoResponse } from './BlockInfo';
 import type { Peer } from './Peer';
 import type { SubverDistribution } from './SubverDistribution';
-import { MempoolInfoResponse } from './MempoolInfoResponse';
+import type { MempoolInfoResponse } from './MempoolInfoResponse';
 
 /**
  * Represents the complete dashboard data structure for the Bitcoin node dashboard.

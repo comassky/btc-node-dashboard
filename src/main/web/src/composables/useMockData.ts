@@ -45,7 +45,10 @@ export function useMockData() {
   const cycleMockScenario = (): void => {
     const scenarios: MockScenario[] = ['normal', 'disconnected', 'lowPeers', 'outOfSync'];
     const currentIndex = scenarios.indexOf(mockScenario.value);
-    mockScenario.value = scenarios[(currentIndex + 1) % scenarios.length];
+    const nextScenario = scenarios[(currentIndex + 1) % scenarios.length];
+    if (nextScenario) {
+      mockScenario.value = nextScenario;
+    }
   };
 
   /**
@@ -62,6 +65,13 @@ export function useMockData() {
   const generateMockData = (): DashboardData => {
     const now = Math.floor(Date.now() / 1000);
 
+    // Values for the outOfSync scenario
+    const isOutOfSync = mockScenario.value === 'outOfSync';
+    const blocks = isOutOfSync ? 875432 : 875432;
+    const headers = isOutOfSync ? 875450 : 875432; // diff = 18 > 2
+    const blockTime = isOutOfSync ? now - 4000 : now - 120; // 4000s > 1h
+    const verificationprogress = isOutOfSync ? 0.9987 : 0.999998;
+
     return {
       generalStats: {
         inboundCount: mockScenario.value === 'lowPeers' ? 5 : 45,
@@ -69,10 +79,10 @@ export function useMockData() {
         totalPeers: mockScenario.value === 'lowPeers' ? 8 : 53,
       },
       blockchainInfoResponse: {
-        blocks: 875432,
-        headers: mockScenario.value === 'outOfSync' ? 875532 : 875432,
+        blocks,
+        headers,
         chain: 'main',
-        verificationprogress: mockScenario.value === 'outOfSync' ? 0.9987 : 0.999998,
+        verificationprogress,
         difficulty: 103919634711492.2,
         bestblockhash: '',
         time: 0,
@@ -93,37 +103,93 @@ export function useMockData() {
         timeoffset: 0,
         connections: 0,
         networkactive: false,
-        networks: [],
-        localaddresses: [],
+        networks: [
+          {
+            name: 'ipv4',
+            limited: false,
+            reachable: true,
+            proxy: '',
+            proxy_randomize_credentials: false,
+          },
+          {
+            name: 'ipv6',
+            limited: false,
+            reachable: true,
+            proxy: '',
+            proxy_randomize_credentials: false,
+          },
+          {
+            name: 'onion',
+            limited: false,
+            reachable: true,
+            proxy: '127.0.0.1:9050',
+            proxy_randomize_credentials: true,
+          },
+          {
+            name: 'i2p',
+            limited: false,
+            reachable: false,
+            proxy: '',
+            proxy_randomize_credentials: false,
+          },
+        ],
+        localaddresses: [
+          { address: '2a01:e0a:123:4567:89ab:cdef:1234:5678', port: 8333, score: 5 },
+          { address: 'abcdefghijklmnop.onion', port: 8333, score: 4 },
+        ],
       },
       upTime: 15 * 24 * 3600 + 7 * 3600 + 23 * 60, // 15 days, 7 hours, 23 minutes in seconds
-      inboundPeer: Array.from({ length: mockScenario.value === 'lowPeers' ? 5 : 45 }, (_, i) => ({
-        id: i,
-        addr: `192.168.1.${i + 10}:8333`,
-        subver:
-          i % 3 === 0 ? '/Satoshi:27.0.0/' : i % 3 === 1 ? '/Satoshi:26.0.0/' : '/Satoshi:25.0.0/',
-        version: 270000,
-        timeoffset: 0,
-        conntime: now - 3600 * (i + 1),
-        network: 'ipv4',
-        connection_type: 'inbound',
-        minping: 0.05 + i * 0.01,
-        bytesrecv: 1024000 + i * 5000,
-        bytessent: 512000 + i * 2500,
-      })),
-      outboundPeer: Array.from({ length: mockScenario.value === 'lowPeers' ? 3 : 8 }, (_, i) => ({
-        id: i + 100,
-        addr: `172.16.0.${i + 10}:8333`,
-        subver: '/Satoshi:27.0.0/',
-        version: 270000,
-        timeoffset: 0,
-        conntime: now - 7200 * (i + 1),
-        network: 'ipv4',
-        connection_type: 'outbound-full-relay',
-        minping: 0.08 + i * 0.02,
-        bytesrecv: 2048000 + i * 10000,
-        bytessent: 1024000 + i * 5000,
-      })),
+      inboundPeer: Array.from({ length: mockScenario.value === 'lowPeers' ? 5 : 45 }, (_, i) => {
+        // Pseudo-random but consistent based on index
+        const seed = (i * 17 + 13) % 100;
+        const randomMinutes = (seed * 7) % 45;
+        const randomHours = Math.floor((seed * 3) % 72);
+        const randomDays = Math.floor((seed * 2) % 7);
+        const connOffset = randomDays * 86400 + randomHours * 3600 + randomMinutes * 60 + seed * 10;
+
+        const timeoffset = ((seed * 17) % 11) - 5;
+
+        return {
+          id: i,
+          addr: `192.168.1.${i + 10}:8333`,
+          subver:
+            i % 3 === 0
+              ? '/Satoshi:27.0.0/'
+              : i % 3 === 1
+                ? '/Satoshi:26.0.0/'
+                : '/Satoshi:25.0.0/',
+          version: 270000,
+          timeoffset,
+          conntime: now - connOffset,
+          network: i % 7 === 0 ? 'onion' : i % 11 === 0 ? 'ipv6' : 'ipv4',
+          connection_type: 'inbound',
+          minping: 0.02 + (seed % 30) * 0.01,
+          bytesrecv: 512000 + seed * 12345 + i * 8765,
+          bytessent: 256000 + seed * 6789 + i * 4321,
+        };
+      }),
+      outboundPeer: Array.from({ length: mockScenario.value === 'lowPeers' ? 3 : 8 }, (_, i) => {
+        const seed = (i * 23 + 19) % 100;
+        const randomMinutes = (seed * 11) % 55;
+        const randomHours = Math.floor((seed * 5) % 96);
+        const randomDays = Math.floor((seed * 3) % 14);
+        const connOffset = randomDays * 86400 + randomHours * 3600 + randomMinutes * 60 + seed * 15;
+        const timeoffset = ((seed * 13) % 11) - 5;
+
+        return {
+          id: i + 100,
+          addr: `172.16.0.${i + 10}:8333`,
+          subver: i % 4 === 0 ? '/Satoshi:26.0.0/' : '/Satoshi:27.0.0/',
+          version: 270000,
+          timeoffset,
+          conntime: now - connOffset,
+          network: i % 5 === 0 ? 'onion' : i % 7 === 0 ? 'ipv6' : 'ipv4',
+          connection_type: 'outbound-full-relay',
+          minping: 0.03 + (seed % 25) * 0.015,
+          bytesrecv: 1024000 + seed * 23456 + i * 15432,
+          bytessent: 768000 + seed * 13579 + i * 9876,
+        };
+      }),
       subverDistribution: {
         inbound: [
           { server: '/Satoshi:27.0.0/', count: 27, percentage: 60 },
@@ -139,7 +205,7 @@ export function useMockData() {
         ],
       },
       block: {
-        time: mockScenario.value === 'outOfSync' ? now - 3600 : now - 120,
+        time: blockTime,
         nTx: 2834,
         hash: '00000000000000000002a7c4c1e48d76c5a37902165a270156b7a8d72728a054',
       },

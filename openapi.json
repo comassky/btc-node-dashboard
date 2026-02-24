@@ -1,0 +1,699 @@
+{
+  "openapi" : "3.0.3",
+  "tags" : [ {
+    "name" : "Bitcoin Node",
+    "description" : "Bitcoin Core node monitoring and data retrieval endpoints"
+  }, {
+    "name" : "Configuration",
+    "description" : "Application configuration endpoints"
+  } ],
+  "components" : {
+    "schemas" : {
+      "BlockInfoResponse" : {
+        "type" : "object",
+        "properties" : {
+          "hash" : {
+            "type" : "string"
+          },
+          "confirmations" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "strippedsize" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "size" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "weight" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "height" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "version" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "versionHex" : {
+            "type" : "string"
+          },
+          "merkleroot" : {
+            "type" : "string"
+          },
+          "time" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "mediantime" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "nonce" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "bits" : {
+            "type" : "string"
+          },
+          "difficulty" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "chainwork" : {
+            "type" : "string"
+          },
+          "nTx" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "previousblockhash" : {
+            "type" : "string"
+          },
+          "nextblockhash" : {
+            "type" : "string"
+          }
+        }
+      },
+      "BlockInfoView" : {
+        "type" : "object",
+        "properties" : {
+          "time" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "nTx" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }
+      },
+      "BlockchainInfoResponse" : {
+        "type" : "object",
+        "properties" : {
+          "chain" : {
+            "type" : "string"
+          },
+          "blocks" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "headers" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "bestblockhash" : {
+            "type" : "string"
+          },
+          "difficulty" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "time" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "mediantime" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "verificationprogress" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "initialblockdownload" : {
+            "type" : "boolean"
+          },
+          "chainwork" : {
+            "type" : "string"
+          },
+          "size_on_disk" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "pruned" : {
+            "type" : "boolean"
+          },
+          "pruneheight" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        }
+      },
+      "BlockchainInfoView" : {
+        "type" : "object",
+        "properties" : {
+          "chain" : {
+            "type" : "string"
+          },
+          "blocks" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "headers" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "difficulty" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "time" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "mediantime" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "verificationprogress" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "initialblockdownload" : {
+            "type" : "boolean"
+          },
+          "chainwork" : {
+            "type" : "string"
+          },
+          "size_on_disk" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        }
+      },
+      "DashboardConfigResponse" : {
+        "type" : "object",
+        "properties" : {
+          "minOutboundPeers" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "disableMempool" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "GeneralStats" : {
+        "type" : "object",
+        "properties" : {
+          "inboundCount" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "outboundCount" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "totalPeers" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }
+      },
+      "GlobalResponse" : {
+        "type" : "object",
+        "properties" : {
+          "generalStats" : {
+            "$ref" : "#/components/schemas/GeneralStats"
+          },
+          "subverDistribution" : {
+            "$ref" : "#/components/schemas/SubverDistribution"
+          },
+          "inboundPeer" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PeerInfoView"
+            }
+          },
+          "outboundPeer" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PeerInfoView"
+            }
+          },
+          "blockchainInfoResponse" : {
+            "$ref" : "#/components/schemas/BlockchainInfoView"
+          },
+          "nodeInfo" : {
+            "$ref" : "#/components/schemas/NetworkInfoView"
+          },
+          "upTime" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "block" : {
+            "$ref" : "#/components/schemas/BlockInfoView"
+          },
+          "mempoolInfo" : {
+            "$ref" : "#/components/schemas/MempoolInfoView"
+          },
+          "errors" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "LocalAddress" : {
+        "type" : "object",
+        "properties" : {
+          "address" : {
+            "type" : "string"
+          },
+          "port" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "score" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }
+      },
+      "MempoolInfoResponse" : {
+        "type" : "object",
+        "properties" : {
+          "loaded" : {
+            "type" : "boolean"
+          },
+          "size" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "bytes" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "usage" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "maxmempool" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "mempoolminfee" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "minrelaytxfee" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "unbroadcastcount" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "total_fee" : {
+            "format" : "double",
+            "type" : "number"
+          }
+        }
+      },
+      "MempoolInfoView" : {
+        "type" : "object",
+        "properties" : {
+          "size" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "bytes" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "usage" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "maxmempool" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "mempoolminfee" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "minrelaytxfee" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "unbroadcastcount" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "total_fee" : {
+            "format" : "double",
+            "type" : "number"
+          }
+        }
+      },
+      "Network" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "limited" : {
+            "type" : "boolean"
+          },
+          "reachable" : {
+            "type" : "boolean"
+          },
+          "proxy" : {
+            "type" : "string"
+          },
+          "proxy_randomize_credentials" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "NetworkInfoResponse" : {
+        "type" : "object",
+        "properties" : {
+          "version" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "subversion" : {
+            "type" : "string"
+          },
+          "protocolversion" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "localservices" : {
+            "type" : "string"
+          },
+          "localservicesnames" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "localrelay" : {
+            "type" : "boolean"
+          },
+          "timeoffset" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "connections" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "networkactive" : {
+            "type" : "boolean"
+          },
+          "networks" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Network"
+            }
+          },
+          "localaddresses" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LocalAddress"
+            }
+          }
+        }
+      },
+      "NetworkInfoView" : {
+        "type" : "object",
+        "properties" : {
+          "version" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "subversion" : {
+            "type" : "string"
+          },
+          "protocolversion" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "networks" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Network"
+            }
+          },
+          "localaddresses" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LocalAddress"
+            }
+          }
+        }
+      },
+      "PeerInfoView" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "addr" : {
+            "type" : "string"
+          },
+          "conntime" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "bytesrecv" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "bytessent" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "minping" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "timeoffset" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "version" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "subver" : {
+            "type" : "string"
+          },
+          "inbound" : {
+            "type" : "boolean"
+          },
+          "connection_type" : {
+            "type" : "string"
+          },
+          "network" : {
+            "type" : "string"
+          }
+        }
+      },
+      "SubverDistribution" : {
+        "type" : "object",
+        "properties" : {
+          "inbound" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SubverStats"
+            }
+          },
+          "outbound" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SubverStats"
+            }
+          }
+        }
+      },
+      "SubverStats" : {
+        "type" : "object",
+        "properties" : {
+          "server" : {
+            "type" : "string"
+          },
+          "percentage" : {
+            "format" : "double",
+            "type" : "number"
+          }
+        }
+      }
+    }
+  },
+  "paths" : {
+    "/api/config" : {
+      "get" : {
+        "summary" : "Get dashboard configuration",
+        "description" : "Retrieves runtime configuration values used by the dashboard UI",
+        "tags" : [ "Configuration" ],
+        "responses" : {
+          "200" : {
+            "description" : "Configuration successfully retrieved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DashboardConfigResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dashboard" : {
+      "get" : {
+        "summary" : "Get complete dashboard data",
+        "description" : "Retrieves comprehensive Bitcoin node information including peers, blockchain, network, and mempool data",
+        "tags" : [ "Bitcoin Node" ],
+        "responses" : {
+          "200" : {
+            "description" : "Dashboard data successfully retrieved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GlobalResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/getBlockchainInfo" : {
+      "get" : {
+        "summary" : "Get blockchain information",
+        "description" : "Retrieves detailed information about the current state of the blockchain",
+        "tags" : [ "Bitcoin Node" ],
+        "responses" : {
+          "200" : {
+            "description" : "Blockchain information successfully retrieved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BlockchainInfoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/getbestblockhash" : {
+      "get" : {
+        "summary" : "Get best block hash",
+        "description" : "Returns the hash of the most recent block in the blockchain",
+        "tags" : [ "Bitcoin Node" ],
+        "responses" : {
+          "200" : {
+            "description" : "Best block hash successfully retrieved",
+            "content" : {
+              "text/plain" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/getblock/{hash}" : {
+      "get" : {
+        "summary" : "Get block information",
+        "description" : "Retrieves detailed information about a specific block by its hash",
+        "tags" : [ "Bitcoin Node" ],
+        "parameters" : [ {
+          "description" : "Block hash (64 hexadecimal characters)",
+          "required" : true,
+          "name" : "hash",
+          "in" : "path",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Block information successfully retrieved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BlockInfoResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Invalid block hash format"
+          }
+        }
+      }
+    },
+    "/api/getmempoolinfo" : {
+      "get" : {
+        "summary" : "Get mempool information",
+        "description" : "Retrieves current mempool statistics and transaction information",
+        "tags" : [ "Bitcoin Node" ],
+        "responses" : {
+          "200" : {
+            "description" : "Mempool information successfully retrieved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MempoolInfoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/getnetworkinfo" : {
+      "get" : {
+        "summary" : "Get network information",
+        "description" : "Retrieves detailed network information from the Bitcoin Core node",
+        "tags" : [ "Bitcoin Node" ],
+        "responses" : {
+          "200" : {
+            "description" : "Network information successfully retrieved",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NetworkInfoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "info" : {
+    "title" : "Bitcoin Node Dashboard API",
+    "version" : "1.5.0",
+    "description" : "Real-time Bitcoin Core node monitoring dashboard with WebSocket support",
+    "contact" : {
+      "name" : "Bitcoin Dashboard Support"
+    },
+    "license" : {
+      "name" : "MIT License"
+    }
+  },
+  "servers" : [ {
+    "url" : "http://localhost:8080",
+    "description" : "Auto generated value"
+  }, {
+    "url" : "http://0.0.0.0:8080",
+    "description" : "Auto generated value"
+  } ]
+}

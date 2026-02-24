@@ -1,33 +1,57 @@
-# 🧩 Monorepo & Développement Frontend
+# 🧩 Monorepo & Frontend Development
 
-Le projet utilise un workspace pnpm pour la gestion des dépendances frontend (voir `src/main/web/pnpm-workspace.yaml`).
+The project uses a pnpm workspace for frontend dependency management (see `src/main/web/pnpm-workspace.yaml`).
 
-## Installation des dépendances frontend
+## Installing frontend dependencies
 
 ```bash
 cd src/main/web
 pnpm install
-# ou, si pnpm n'est pas installé :
-npm install -g pnpm@10.26.2
+# or, if pnpm is not installed:
+npm install -g pnpm@10.27.0
 pnpm install
 ```
 
-## Scripts utiles
+## Useful Scripts
 
-- `pnpm dev` : serveur de développement Vite
-- `pnpm build` : build de production
-- `pnpm test` : tests unitaires frontend (Vitest)
-- `pnpm test:ui` : UI de tests
-- `pnpm coverage` : couverture de tests
+- `pnpm dev` : Vite development server with hot reload
+- `pnpm build` : production build with optimizations
+- `pnpm test` : frontend unit tests (Vitest)
+- `pnpm test:ui` : interactive test UI
+- `pnpm coverage` : test coverage report
+- `pnpm prettier` : format code with Prettier
 
-Les workflows CI utilisent pnpm pour garantir la cohérence des dépendances.
+CI workflows use pnpm to ensure dependency consistency.
+
+## Performance Optimizations
+
+The frontend is highly optimized for performance:
+
+- **Bundle Size**: 144KB Brotli (~10% reduction from previous 160KB)
+- **Chart.js Tree-Shaking**: Explicit imports instead of 'chart.js/auto' (-16KB)
+- **Component Optimization**: Removed 1375+ redundant Tooltip instances from peer tables
+- **Lazy Loading**: Async component imports with defineAsyncComponent
+- **CSS Optimization**: Tailwind CSS 4 with Lightning CSS for faster builds
+- **Compression**: Brotli and Gzip compression enabled
+
+### Key Optimizations Made
+
+1. **Chart.js**: Switched from 'chart.js/auto' to explicit imports (ArcElement, DoughnutController, etc.)
+2. **Tooltips**: Replaced Vue Tooltip components with native HTML title attributes in peer tables
+3. **Icons**: Using unplugin-icons with tree-shaking, added @iconify-json/simple-icons for official brand logos
+4. **Removed Dependencies**: Eliminated PWA plugin, cssnano (replaced by Lightning CSS), postcss
+5. **Component Memoization**: Added v-once for static cells, computed properties for formatted values
+6. **Animations**: Disabled unnecessary Chart.js animations for instant rendering
+
+When contributing, please maintain these optimizations and avoid re-introducing removed dependencies.
 
 ---
 # Versions used
 
 - Java 25
-- Quarkus 3.30.5
+- Quarkus 3.32.0.CR1
 - Node.js v24.12.0
+- pnpm 10.28.2
 - npm 11.6.2
 
 # 🛠️ CI & Quality

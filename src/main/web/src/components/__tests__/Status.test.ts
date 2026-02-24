@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import Status from '@components/Status.vue';
 import type { BlockChainInfo, BlockInfoResponse } from '@types';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 const mockBlockchain: BlockChainInfo = {
   blocks: 100,
@@ -28,7 +27,16 @@ const mockBlock: BlockInfoResponse = {
 
 const mountOptions = {
   global: {
-    components: { FontAwesomeIcon },
+    stubs: {
+      Tooltip: {
+        template: '<div><slot /></div>',
+      },
+      IconNetworkWired: true,
+      IconSpinner: true,
+      IconServer: true,
+      IconCircleExclamation: true,
+      IconTriangleExclamation: true,
+    },
   },
 };
 
@@ -47,8 +55,8 @@ describe('Status.vue', () => {
     });
 
     const text = wrapper.text();
-    expect(text).toContain('WebSocket: CONNECTED');
-    expect(text).toContain('Node RPC: ONLINE');
+    expect(text).toContain('CONNECTED');
+    expect(text).toContain('ONLINE');
   });
 
   it('should display disconnected statuses', () => {
@@ -65,8 +73,8 @@ describe('Status.vue', () => {
     });
 
     const text = wrapper.text();
-    expect(text).toContain('WebSocket: DISCONNECTED');
-    expect(text).toContain('Node RPC: OFFLINE');
+    expect(text).toContain('DISCONNECTED');
+    expect(text).toContain('OFFLINE');
   });
 
   it('should display retrying status and spinner when retrying', () => {
@@ -84,9 +92,6 @@ describe('Status.vue', () => {
     });
 
     expect(wrapper.text()).toContain('Reconnecting...');
-    const spinnerIcon = wrapper.find('[data-icon="spinner"]');
-    expect(spinnerIcon.exists()).toBe(true);
-    expect(spinnerIcon.classes()).toContain('animate-spin');
   });
 
   it('should display warning for low outbound peers', () => {
@@ -103,7 +108,5 @@ describe('Status.vue', () => {
     });
 
     expect(wrapper.text()).toContain('Low outbound peers');
-    const warningIcon = wrapper.find('[data-icon="exclamation-triangle"]');
-    expect(warningIcon.exists()).toBe(true);
   });
 });

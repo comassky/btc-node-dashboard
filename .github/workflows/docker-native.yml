@@ -8,10 +8,17 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   GRAALVM_VERSION: "25"
+  NODE_VERSION: "v24.12.0"
+  PNPM_VERSION: "10.28.2"
+  MAVEN_VERSION: "3.9.11"
 
 jobs:
   test:
@@ -29,20 +36,21 @@ jobs:
           distribution: "temurin"
           cache: maven
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
-
-      - name: Set up Node.js & pnpm
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24.12.0"
-          cache: "npm"
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
           cache-dependency-path: src/main/web/pnpm-lock.yaml
-      - name: Install pnpm globally
-        working-directory: src/main/web
-        run: npm install -g pnpm@10.26.2
+
       - name: Install dependencies (pnpm)
         working-directory: src/main/web
-        run: pnpm install
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Run backend tests
         run: mvn test
@@ -75,7 +83,7 @@ jobs:
       - name: Set up Maven
         uses: stCarolas/setup-maven@v5
         with:
-          maven-version: "3.9.12"
+          maven-version: ${{ env.MAVEN_VERSION }}
 
       - name: Cache Maven packages
         uses: actions/cache@v4
@@ -84,16 +92,6 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-
-      - name: Cache Node.js modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            src/main/web/node_modules
-            ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('src/main/web/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
 
       - name: Build Native Executable
         run: |

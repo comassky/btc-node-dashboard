@@ -1,45 +1,12 @@
-# 🏗️ Single Build (CI/CD)
-
-In CI, the Maven build (`./mvnw clean package`) runs all tests and produces the artifact used for Docker and native images. No build or tests are repeated in Docker/native steps: speed and consistency guaranteed.
-
-- To build and test locally:
-  ```bash
-  ./mvnw clean package
-  ```
-- To build native (tests already passed):
-  ```bash
-  ./mvnw clean package -Pnative -DskipTests
-  ```
-  git clone https://github.com/comassky/btc-node-dashboard.git
-
-# Build and Run Guide
-
-Complete guide for building and deploying the Bitcoin Node Dashboard.
-
-## Prerequisites
-
-**Required**: Java 25+, Maven 3.9+, Bitcoin Core with RPC enabled  
-
-**Optional**: Node.js v24.12.0 (for frontend development), pnpm 10.26.2 (recommended), npm 11.6.2, Docker
-
-## 🚀 Quick Start
-
-````bash
-# Clone
-git clone https://github.com/comassky/btc-node-dashboard.git
-cd btc-node-dashboard
-
-```bash
-
 # 🏗️ Build & Run Guide
 
 This guide explains how to build and deploy the Bitcoin Node Dashboard.
 
 ## Prerequisites
 
-**Required:** Java 25+, Maven 3.9+, Bitcoin Core with RPC enabled
+**Required:** Java 25+, Maven 3.9.11+ (Maven Wrapper included), Bitcoin Core with RPC enabled
 
-**Optional:** Node.js 24+ (v24.12.0 recommended), pnpm 10.26.2 (recommended), npm 11.6.2, Docker
+**Optional:** Node.js 24+ (v24.12.0 recommended), pnpm 11.6.2 (recommended), npm 11.6.2, Docker
 
 ## 🚀 Quick Start
 
@@ -51,10 +18,10 @@ cd btc-node-dashboard
 
 # Configure RPC
 
-export RPC_HOST=localhost
-export RPC_PORT=8332
-export RPC_USER=your_username
-export RPC_PASS=your_password
+export BITCOIN_RPC_HOST=localhost
+export BITCOIN_RPC_PORT=8332
+export BITCOIN_RPC_USER=your_username
+export BITCOIN_RPC_PASSWORD=your_password
 
 # Start backend with hot reload
 
@@ -105,7 +72,7 @@ cd src/main/web
 # Install frontend dependencies (recommended: pnpm)
 pnpm install
 # or, if pnpm is not installed:
-npm install -g pnpm@10.26.2
+npm install -g pnpm@10.27.0
 pnpm install
 ```
 

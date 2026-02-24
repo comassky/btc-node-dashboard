@@ -53,7 +53,7 @@ public interface DashboardConfig {
         int validityBufferMs();
 
         @WithName("max.items")
-        @WithDefault("50")
+        @WithDefault("1") // Default to 1 for minimal memory usage
         @Min(1)
         int maxItems();
     }
