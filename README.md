@@ -5,7 +5,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
 ![Java](https://img.shields.io/badge/Java-25-orange.svg)
 ![Quarkus](https://img.shields.io/badge/Quarkus-3.31.0.CR1-blue.svg)
-![Vue](https://img.shields.io/badge/Vue.js-3.5.28-green.svg)
+![Vue](https://img.shields.io/badge/Vue.js-3.5.29-green.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue.svg)
 
 ## 📸 Screenshots
@@ -189,7 +189,7 @@ A short summary of the Docker image tags produced by the GitHub Actions workflow
 
 - `latest` and semantic version tags (`<version>`, `<major>.<minor>`, `<major>`): native (GraalVM) images built from `main` and from git tags.
 - `develop`: images built from the `develop` branch.
-- Current version: `1.5.0-SNAPSHOT`
+- Current version: `1.5.0`
 
 ## 📊 API Endpoints
 

@@ -13,7 +13,7 @@
         <node.lts.version>v24.13.0</node.lts.version>
         <pnpm.version>10.28.2</pnpm.version>
         <compiler-plugin.version>3.15.0</compiler-plugin.version>
-        <surefire-plugin.version>3.5.4</surefire-plugin.version>
+        <surefire-plugin.version>3.5.5</surefire-plugin.version>
         <maven-resources-plugin.version>3.4.0</maven-resources-plugin.version>
 
         <!-- Other Properties -->
