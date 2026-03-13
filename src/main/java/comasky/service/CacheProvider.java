@@ -10,11 +10,17 @@ import jakarta.inject.Inject;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ForkJoinPool;
 import java.util.function.Supplier;
 
 /**
  * Provides a configured, high-performance, non-blocking cache for RPC data.
- * The cache duration is dynamically calculated based on the application configuration.
+ * 
+ * Uses Caffeine AsyncCache with optimizations:
+ * - ForkJoinPool for efficient async operations
+ * - Automatic soft value removal for memory-constrained environments
+ * - Recording statistics for cache monitoring
  */
 @ApplicationScoped
 public class CacheProvider {
@@ -22,6 +28,9 @@ public class CacheProvider {
     private static final String RPC_DATA_KEY = "rpc-data";
     private static final long MIN_CACHE_DURATION_MS = 100L;
     private static final long MILLIS_PER_SECOND = 1000L;
+    
+    // Use common ForkJoinPool for cache async operations (reuses JVM pool)
+    private static final Executor CACHE_EXECUTOR = ForkJoinPool.commonPool();
 
     private final AsyncCache<String, GlobalResponse> cache;
 
@@ -32,10 +41,19 @@ public class CacheProvider {
         long bufferMs = config.cache().validityBufferMs();
         long cacheDurationMs = Math.max(MIN_CACHE_DURATION_MS, pollingIntervalMs - bufferMs);
 
-        // Use the configured cache size (default is 1 for minimal memory usage)
+        // Optimized Caffeine cache configuration
         this.cache = Caffeine.newBuilder()
+            // Automatic expiration after write
             .expireAfterWrite(Duration.ofMillis(cacheDurationMs))
+            // Limit maximum size to prevent unbounded growth
             .maximumSize(config.cache().maxItems())
+            // Use common ForkJoinPool for async operations (reduces thread creation)
+            .executor(CACHE_EXECUTOR)
+            // Record cache statistics for monitoring
+            .recordStats()
+            // Enable soft value removal when memory is constrained (JVM GC hint)
+            .softValues()
+            // Build async cache (non-blocking)
             .buildAsync();
     }
 
@@ -47,6 +65,7 @@ public class CacheProvider {
      * @return A Uni<GlobalResponse> containing either cached or fresh data.
      */
     public Uni<GlobalResponse> getCachedData(Supplier<Uni<GlobalResponse>> dataSupplier) {
+        // Get or compute from cache - efficient non-blocking operation
         CompletableFuture<GlobalResponse> future = cache.get(RPC_DATA_KEY, (key, executor) ->
             dataSupplier.get().subscribeAsCompletionStage()
         );

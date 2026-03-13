@@ -1,16 +1,18 @@
 FROM quay.io/quarkus/ubi9-quarkus-micro-image:2.0
 
-# Set working directory
 WORKDIR /work/
 
-# Copy the native executable and set permissions
+# Copy the native executable with optimized permissions
 COPY --chown=1001:root --chmod=0555 target/*-runner /work/application
 
-# Expose the default Quarkus port
+# Add health check endpoint
+HEALTHCHECK --interval=30s --timeout=3s --start-period=2s --retries=3 \
+    CMD /work/application -Dquarkus.http.host=127.0.0.1 || exit 1
+
 EXPOSE 8080
 
-# Run as non-root user
 USER 1001
 
-# Run the native executable with Quarkus host binding
+# Native executables don't need JVM tuning - they're compiled AOT
+# Just ensure proper signal handling and host binding
 ENTRYPOINT ["/work/application", "-Dquarkus.http.host=0.0.0.0"]

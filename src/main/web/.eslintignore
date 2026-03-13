@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.git/
+coverage/
+*.config.js
+*.config.ts
+vite-env.d.ts
+auto-imports.d.ts
+env.d.ts
+icons.d.ts
+.eslintignore
+.prettierignore
+.gitignore

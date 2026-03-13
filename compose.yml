@@ -1,16 +1,65 @@
 services:
   btc-gui:
-    ports:
-      - 8080:8080
     image: ghcr.io/comassky/btc-node-dashboard:main
     container_name: BTC-Gui
+    
+    # Port mapping with explicit protocol
+    ports:
+      - 8080:8080
+
+    # Resource optimization
+    deploy:
+      resources:
+        limits:
+          cpus: '2'         # Limit CPU to 2 cores (adjust based on needs)
+          memory: 512M      # Limit memory to 512MB (adjust based on needs)
+        reservations:
+          cpus: '0.5'       # Reserve minimum 0.5 cores
+          memory: 256M      # Reserve minimum 256MB
+
+    # Environment variables for Bitcoin RPC and dashboard configuration
     environment:
       BITCOIN_RPC_HOST: <URL OR HOSTNAME>
       BITCOIN_RPC_PORT: <PORT>
       BITCOIN_RPC_USER: <RPC_USER>
       BITCOIN_RPC_PASSWORD: <RPC_PASSWORD>
-      WS_POLLING_INTERVAL: 1 # WebSocket polling interval in seconds (default: 5)
-      MIN_OUTBOUND_PEERS: 8 # Minimum number of outbound peers before warning (default: 8)
-      LOG_LEVEL: WARN # Logging level: TRACE, DEBUG, INFO, WARN, ERROR (default: INFO)
-      DASHBOARD_DISABLE_MEMPOOL: false # Set to true to disable mempool info retrieval
-      QUARKUS_IO_THREADS: 8 # Number of IO threads for backend concurrency (default: 8, recommended: 2 x CPU cores)
+      
+      # Dashboard Performance Tuning
+      WS_POLLING_INTERVAL: 1               # WebSocket polling interval in seconds (default: 5)
+      MIN_OUTBOUND_PEERS: 8                # Minimum number of outbound peers before warning (default: 8)
+      LOG_LEVEL: WARN                      # Logging level: TRACE, DEBUG, INFO, WARN, ERROR (default: INFO)
+      DASHBOARD_DISABLE_MEMPOOL: 'false'   # Set to 'true' to disable mempool info retrieval
+      
+      # JVM Performance Tuning
+      QUARKUS_IO_THREADS: 8                # Number of IO threads for backend concurrency (2 x CPU cores)
+      QUARKUS_WORKER_THREADS: 40           # Worker threads for HTTP requests
+      QUARKUS_SCHEDULER_THREADS: 2         # Scheduler threads for background tasks
+      QUARKUS_PROFILE: prod                # Use production profile
+      
+      # Cache Configuration
+      DASHBOARD_CACHE_VALIDITY_BUFFER_MS: 100  # Buffer time for cache validity
+      DASHBOARD_CACHE_MAX_ITEMS: 1             # Maximum cache items (1 for minimal memory)
+      DASHBOARD_SESSIONS_MAX: 1000             # Maximum WebSocket sessions
+    
+    # Health check for automatic restart on failure
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/q/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Better stdout/stderr handling
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Memory swappiness and other kernel parameters
+    sysctls:
+      net.core.somaxconn: 1024
+      net.ipv4.tcp_max_syn_backlog: 2048

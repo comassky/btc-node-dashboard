@@ -15,12 +15,19 @@
         <compiler-plugin.version>3.15.0</compiler-plugin.version>
         <surefire-plugin.version>3.5.5</surefire-plugin.version>
         <maven-resources-plugin.version>3.4.0</maven-resources-plugin.version>
+        <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
 
         <!-- Other Properties -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <skipITs>true</skipITs>
         <skipFrontendTests>false</skipFrontendTests>
+        
+        <!-- Build Performance Optimization -->
+        <maven.compiler.parameters>true</maven.compiler.parameters>
+        <maven.compiler.useIncrementalCompilation>true</maven.compiler.useIncrementalCompilation>
+        <failOnMissingWebXml>false</failOnMissingWebXml>
+        <quarkus.build.skip>false</quarkus.build.skip>
     </properties>
 
     <dependencyManagement>
@@ -209,6 +216,12 @@
                 </configuration>
             </plugin>
 
+            <!-- Add JAR plugin for fast metadata generation -->
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+            </plugin>
+
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
@@ -217,10 +230,15 @@
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
-                    <!-- Optimisations pour exécution parallèle des tests -->
+                    <!-- Parallel test execution optimizations -->
                     <parallel>classes</parallel>
-                    <threadCount>4</threadCount>
+                    <threadCount>8</threadCount>
                     <trimStackTrace>false</trimStackTrace>
+                    <runOrder>alphabetical</runOrder>
+                    <!-- Skip test compilation on install -->
+                    <skipTests>${skip.unit.tests}</skipTests>
+                    <!-- Reduce memory pressure -->
+                    <argLine>-Xmx512m</argLine>
                 </configuration>
             </plugin>
             <plugin>

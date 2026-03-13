@@ -58,7 +58,7 @@ public class RpcServices implements DashboardDataProvider {
     private static final long RETRY_DELAY_MS = 50L;
     
     // Pre-built RPC requests (immutable, can be reused)
-    private static final List<Object> EMPTY_PARAMS = Collections.emptyList();
+    private static final List<Object> EMPTY_PARAMS = Collections.unmodifiableList(Collections.emptyList());
 
     private static final TypeReference<List<PeerInfoResponse>> PEER_INFO_TYPE_REF = new TypeReference<>() {};
 
@@ -202,28 +202,46 @@ public class RpcServices implements DashboardDataProvider {
     }
 
     private List<PeerInfoView> mapPeersToView(List<PeerInfoResponse> peers) {
-        return (peers.size() > PARALLEL_STREAM_THRESHOLD ? peers.parallelStream() : peers.stream())
-                .map(PeerInfoView::from)
-                .toList();
+        if (peers.isEmpty()) {
+            return Collections.emptyList();
+        }
+        // Use parallel stream only for larger datasets to avoid threading overhead
+        return (peers.size() > PARALLEL_STREAM_THRESHOLD 
+            ? peers.parallelStream() 
+            : peers.stream())
+            .map(PeerInfoView::from)
+            .toList();
     }
 
     private List<SubverStats> calculateSubverStats(List<PeerInfoResponse> peers) {
         if (peers.isEmpty()) {
             return Collections.emptyList();
         }
-        final double totalPeers = peers.size();
-        final var stream = peers.size() > PARALLEL_STREAM_THRESHOLD ? peers.parallelStream() : peers.stream();
         
-        // Pre-filter to avoid processing nulls in grouping
-        return stream
+        final double totalPeers = peers.size();
+        // Use concurrent grouping for parallel streams (safer than sequential)
+        final var groupedBySubver = peers.size() > PARALLEL_STREAM_THRESHOLD 
+            ? peers.parallelStream()
                 .filter(p -> p.subver() != null)
                 .collect(Collectors.groupingByConcurrent(
                     PeerInfoResponse::subver, 
-                    Collectors.counting()
+                    Collectors.summingInt(_ -> 1)  // More efficient than counting()
                 ))
-                .entrySet().stream()
-                .map(entry -> new SubverStats(entry.getKey(), calculatePercentage(entry.getValue(), totalPeers)))
-                .toList();
+            : peers.stream()
+                .filter(p -> p.subver() != null)
+                .collect(Collectors.groupingBy(
+                    PeerInfoResponse::subver,
+                    Collectors.summingInt(_ -> 1)
+                ));
+        
+        // Transform results - reuse stream capacity
+        int resultSize = groupedBySubver.size();
+        return groupedBySubver.entrySet().stream()
+            .map(entry -> new SubverStats(
+                entry.getKey(), 
+                calculatePercentage(entry.getValue(), totalPeers)
+            ))
+            .toList();
     }
 
     /**
