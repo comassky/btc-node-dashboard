@@ -59,8 +59,23 @@ export default defineConfig(({ mode }) => ({
     Icons({
       compiler: 'vue3',
       autoInstall: false,
-      // Only process icons in production
       warn: mode === 'development',
+      // Only include used icon packs to reduce bundle size
+      collections: {
+        fa6: {
+          // Only import specific collections we actually use
+          icons: () => import('@iconify-json/fa6-brands')
+            .then(m => m.icons),
+        },
+        'fa6-solid': {
+          icons: () => import('@iconify-json/fa6-solid')
+            .then(m => m.icons),
+        },
+        'simple-icons': {
+          icons: () => import('@iconify-json/simple-icons')
+            .then(m => m.icons),
+        },
+      },
     }),
     // Visualizer only in production
     ...(mode === 'production'
@@ -178,8 +193,20 @@ export default defineConfig(({ mode }) => ({
 
   // Dependency pre-bundling configuration
   optimizeDeps: {
-    include: ['vue', 'pinia', 'chart.js', 'date-fns', '@floating-ui/vue'],
-    exclude: ['@iconify/vue'],
+    include: [
+      'vue',
+      'pinia', 
+      'date-fns',
+      '@floating-ui/vue',
+      '@vueuse/core',
+      '@vueuse/motion',
+    ],
+    // Exclude lazy-loaded dependencies and iconify
+    exclude: [
+      'chart.js',
+      '@iconify/vue',
+      'unplugin-icons',
+    ],
   },
 
   server: {

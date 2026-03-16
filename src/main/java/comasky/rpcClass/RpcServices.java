@@ -22,9 +22,9 @@ import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -60,6 +60,7 @@ public class RpcServices implements DashboardDataProvider {
     // Pre-built RPC requests (immutable, can be reused)
     private static final List<Object> EMPTY_PARAMS = Collections.unmodifiableList(Collections.emptyList());
 
+    // Pre-declared TypeReferences to avoid runtime class generation in native image
     private static final TypeReference<List<PeerInfoResponse>> PEER_INFO_TYPE_REF = new TypeReference<>() {};
 
     @Inject
@@ -84,7 +85,8 @@ public class RpcServices implements DashboardDataProvider {
 
     private Uni<GlobalResponse> fetchFreshData() {
         LOG.debug("Fetching fresh data from RPC...");
-        final Map<String, String> errors = new HashMap<>();
+        // Use ConcurrentHashMap for thread-safe error accumulation without explicit synchronization
+        final Map<String, String> errors = new ConcurrentHashMap<>();
 
         final Uni<List<PeerInfoResponse>> peerInfoUni = addErrorHandling(
                 executePeerInfoRpcCall(), "peerInfo", errors, Collections::emptyList);
@@ -234,8 +236,7 @@ public class RpcServices implements DashboardDataProvider {
                     Collectors.summingInt(_ -> 1)
                 ));
         
-        // Transform results - reuse stream capacity
-        int resultSize = groupedBySubver.size();
+        // Transform results to SubverStats
         return groupedBySubver.entrySet().stream()
             .map(entry -> new SubverStats(
                 entry.getKey(), 

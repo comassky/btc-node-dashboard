@@ -29,7 +29,6 @@
   },
   "devDependencies": {
     "@iconify-json/fa6-brands": "1.2.6",
-    "@iconify-json/fa6-regular": "1.2.4",
     "@iconify-json/fa6-solid": "1.2.4",
     "@iconify-json/simple-icons": "1.2.73",
     "@tailwindcss/vite": "4.2.1",
