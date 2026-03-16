@@ -118,6 +118,12 @@ export default defineConfig(({ mode }) => ({
     },
     
     rollupOptions: {
+      // Enhanced tree-shaking
+      treeshake: {
+        moduleSideEffects: false,
+        propertyReadSideEffects: false,
+        tryCatchDeoptimization: false,
+      },
       output: {
         // Hash-based file naming for better cache busting
         entryFileNames: 'assets/js/[hash:16].js',
@@ -163,18 +169,9 @@ export default defineConfig(({ mode }) => ({
         
         // Optimization settings
         inlineDynamicImports: false,
-        compact: true,
         generatedCode: {
-          preset: 'es2020',
+          preset: 'es2015',
         },
-      },
-      
-      // Enhanced tree-shaking
-      treeshake: {
-        moduleSideEffects: false,
-        preset: 'recommended',
-        propertyReadSideEffects: false,
-        tryCatchDeoptimization: false,
       },
     },
   },
