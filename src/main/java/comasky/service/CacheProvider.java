@@ -1,6 +1,6 @@
 package comasky.service;
 
-import com.github.benmanes.caffeine.cache.AsyncCache;
+import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import comasky.config.DashboardConfig;
 import comasky.rpcClass.dto.GlobalResponse;
@@ -10,17 +10,13 @@ import jakarta.inject.Inject;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
 import java.util.function.Supplier;
 
 /**
- * Provides a configured, high-performance, non-blocking cache for RPC data.
- * 
- * Uses Caffeine AsyncCache with optimizations:
- * - ForkJoinPool for efficient async operations
- * - Automatic soft value removal for memory-constrained environments
- * - Recording statistics for cache monitoring
+ * Provides a configured, high-performance cache for RPC data.
+ *
+ * Stores results as {@link CompletableFuture} so callers can easily consume the cached
+ * response asynchronously without requiring Caffeine's AsyncCache implementation.
  */
 @ApplicationScoped
 public class CacheProvider {
@@ -29,10 +25,8 @@ public class CacheProvider {
     private static final long MIN_CACHE_DURATION_MS = 100L;
     private static final long MILLIS_PER_SECOND = 1000L;
     
-    // Use common ForkJoinPool for cache async operations (reuses JVM pool)
-    private static final Executor CACHE_EXECUTOR = ForkJoinPool.commonPool();
 
-    private final AsyncCache<String, GlobalResponse> cache;
+    private final Cache<String, CompletableFuture<GlobalResponse>> cache;
 
     @Inject
     public CacheProvider(DashboardConfig config) {
@@ -47,12 +41,10 @@ public class CacheProvider {
             .expireAfterWrite(Duration.ofMillis(cacheDurationMs))
             // Limit maximum size to prevent unbounded growth
             .maximumSize(config.cache().maxItems())
-            // Use common ForkJoinPool for async operations (reduces thread creation)
-            .executor(CACHE_EXECUTOR)
             // Record cache statistics for monitoring
             .recordStats()
-            // Build async cache (non-blocking)
-            .buildAsync();
+            // Build a synchronous cache (native-image friendly)
+            .build();
     }
 
     /**
@@ -64,7 +56,7 @@ public class CacheProvider {
      */
     public Uni<GlobalResponse> getCachedData(Supplier<Uni<GlobalResponse>> dataSupplier) {
         // Get or compute from cache - efficient non-blocking operation
-        CompletableFuture<GlobalResponse> future = cache.get(RPC_DATA_KEY, (key, executor) ->
+        CompletableFuture<GlobalResponse> future = cache.get(RPC_DATA_KEY, key ->
             dataSupplier.get().subscribeAsCompletionStage()
         );
         return Uni.createFrom().completionStage(future);
@@ -75,20 +67,20 @@ public class CacheProvider {
      * Useful for testing or forcing a refresh.
      */
     public void invalidateAll() {
-        cache.synchronous().invalidateAll();
+        cache.invalidateAll();
     }
 
     /**
      * Returns the estimated number of entries in the cache.
      */
     public long estimatedSize() {
-        return cache.synchronous().estimatedSize();
+        return cache.estimatedSize();
     }
 
     /**
      * Manually invalidates the RPC data cache entry.
      */
     public void invalidateRpcData() {
-        cache.synchronous().invalidate(RPC_DATA_KEY);
+        cache.invalidate(RPC_DATA_KEY);
     }
 }
