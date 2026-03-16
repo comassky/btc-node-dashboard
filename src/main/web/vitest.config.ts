@@ -80,11 +80,3 @@ export default defineConfig({
     },
   },
 });
-      '@': path.resolve(__dirname, './src'),
-      '@components': path.resolve(__dirname, './src/components'),
-      '@composables': path.resolve(__dirname, './src/composables'),
-      '@utils': path.resolve(__dirname, './src/utils'),
-      '@types': path.resolve(__dirname, './src/types'),
-    },
-  },
-});
