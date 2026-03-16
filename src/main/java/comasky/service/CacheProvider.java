@@ -51,8 +51,6 @@ public class CacheProvider {
             .executor(CACHE_EXECUTOR)
             // Record cache statistics for monitoring
             .recordStats()
-            // Enable soft value removal when memory is constrained (JVM GC hint)
-            .softValues()
             // Build async cache (non-blocking)
             .buildAsync();
     }

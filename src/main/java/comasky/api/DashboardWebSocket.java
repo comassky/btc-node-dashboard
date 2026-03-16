@@ -173,8 +173,8 @@ public class DashboardWebSocket {
         Multi.createFrom().iterable(activeSession)
                 .onItem().transformToUniAndMerge(
                     session -> sendMessage(session, message)
-                        .onFailure().recoverWithNull(),
-                    Math.max(4, activeSessionCount / 10)  // Controlled concurrency
+                        .onFailure().recoverWithNull()
+                        // Controlled concurrency
                 )
                 .collect().asList()
                 .subscribe().with(
