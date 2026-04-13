@@ -5,8 +5,8 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
 ![Java](https://img.shields.io/badge/Java-25-orange.svg)
 ![Quarkus](https://img.shields.io/badge/Quarkus-3.31.0.CR1-blue.svg)
-![Vue](https://img.shields.io/badge/Vue.js-3.5.30-green.svg)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue.svg)
+![Vue](https://img.shields.io/badge/Vue.js-3.5.32-green.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-6.0.2-blue.svg)
 
 ## 📸 Screenshots
 
@@ -59,7 +59,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | **Simple Icons**     | 1.2.65  | Brand logos (Tor, etc.)          |
 | **Floating UI**      | 1.1.9   | Tooltip positioning              |
 | **date-fns**         | 4.1.0   | Date utilities                   |
-| **filesize**         | 11.0.13 | File size formatting             |
+| **filesize**         | 11.0.15 | File size formatting             |
 
 #### Build Tools
 
