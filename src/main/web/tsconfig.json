@@ -22,17 +22,16 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
 
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@cards/*": ["src/components/cards/*"],
-      "@composables/*": ["src/composables/*"],
-      "@types": ["src/types/index.ts"],
-      "@types/*": ["src/types/*"],
-      "@utils/*": ["src/utils/*"],
-      "@assets/*": ["src/assets/*"],
-      "~icons/*": ["node_modules/unplugin-icons/types/*"]
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@cards/*": ["./src/components/cards/*"],
+      "@composables/*": ["./src/composables/*"],
+      "@types": ["./src/types/index.ts"],
+      "@types/*": ["./src/types/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@assets/*": ["./src/assets/*"],
+      "~icons/*": ["./node_modules/unplugin-icons/types/*"]
     },
     "types": ["vite/client", "unplugin-icons/types/vue"]
   },
