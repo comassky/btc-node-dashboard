@@ -13,7 +13,7 @@
 | Component | Tests | Technologies                                                                                                                                                                                |
 | --------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Backend   | 79    | JUnit 5, Mockito, Quarkus Test, Rest Assured                                                                                                                                                |
-| Frontend  | 83    | Vitest (4.1.4), Vue Test Utils (2.4.6), Happy DOM (20.0.11), Vite (8.0.8), TypeScript (6.0.2), VueUse (14.2.1), Chart.js (4.5.1), Tailwind CSS (4.2.2), Iconify (5.0.0), Simple Icons (1.2.78), Floating UI (1.1.11) |
+| Frontend  | 83    | Vitest (4.1.9), Vue Test Utils (2.4.6), Happy DOM (20.0.11), Vite (8.0.16), TypeScript (6.0.3), VueUse (14.3.0), Chart.js (4.5.1), Tailwind CSS (4.3.1), Iconify (5.0.0), Simple Icons (1.2.87), Floating UI (2.0.0) |
 
 **Test execution**: ~25s total (Backend: ~20s, Frontend: ~3.5s)
 

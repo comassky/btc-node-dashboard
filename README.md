@@ -5,8 +5,8 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
 ![Java](https://img.shields.io/badge/Java-25-orange.svg)
 ![Quarkus](https://img.shields.io/badge/Quarkus-3.31.0.CR1-blue.svg)
-![Vue](https://img.shields.io/badge/Vue.js-3.5.32-green.svg)
-![TypeScript](https://img.shields.io/badge/TypeScript-6.0.2-blue.svg)
+![Vue](https://img.shields.io/badge/Vue.js-3.5.38-green.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-6.0.3-blue.svg)
 
 ## 📸 Screenshots
 
@@ -59,7 +59,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 | **Simple Icons**     | 1.2.65  | Brand logos (Tor, etc.)          |
 | **Floating UI**      | 1.1.9   | Tooltip positioning              |
 | **date-fns**         | 4.1.0   | Date utilities                   |
-| **filesize**         | 11.0.15 | File size formatting             |
+| **filesize**         | 11.0.17 | File size formatting             |
 
 #### Build Tools
 
@@ -77,7 +77,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 - **Maven Compiler Plugin** 3.14.1
 - **Maven Surefire Plugin** 3.5.4
 - **Maven Failsafe Plugin** 3.5.4
-- **Frontend Maven Plugin** 2.0.0
+- **Frontend Maven Plugin** 2.0.1
 - **Node.js** v24.12.0 (via Maven)
 - **pnpm** 10.28.2 (Frontend package manager, recommended)
 - **npm** 11.6.2 (Alternative package manager)
