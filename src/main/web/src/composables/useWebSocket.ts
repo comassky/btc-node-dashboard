@@ -15,20 +15,42 @@ export function useWebSocket(
   wsUrl: string,
   onDataReceived: (data: Partial<DashboardData>) => void
 ) {
+  const isConnected = ref(false);
   const rpcConnected = ref(false);
   const errorMessage = ref<string | null>(null);
   const isRetrying = ref(false);
+  const isManualDisconnect = ref(false);
 
   const { status, data, open, close } = useVueUseWebSocket(wsUrl, {
     autoReconnect: {
       retries: Infinity,
-      delay: (retries) => Math.min(1000 * 2 ** (retries - 1), 30000), // Exponential backoff: 1s, 2s, 4s...30s max
+      // VueUse can call delay with an undefined retry count depending on runtime path.
+      // Default to first retry to avoid NaN -> immediate reconnect.
+      delay: (retries = 1) => Math.min(1000 * 2 ** (retries - 1), 30000), // Exponential backoff: 1s, 2s, 4s...30s max
     },
     immediate: false,
     heartbeat: {
       message: 'ping',
       interval: 30000,
       pongTimeout: 10000,
+    },
+    onConnected: () => {
+      isConnected.value = true;
+      errorMessage.value = null;
+      isRetrying.value = false;
+    },
+    onDisconnected: () => {
+      isConnected.value = false;
+      rpcConnected.value = false;
+
+      if (isManualDisconnect.value) {
+        isRetrying.value = false;
+        isManualDisconnect.value = false;
+        return;
+      }
+
+      errorMessage.value = 'WebSocket disconnected. Retrying...';
+      isRetrying.value = true;
     },
   });
 
@@ -57,18 +79,18 @@ export function useWebSocket(
   });
 
   // Watch status changes
-  const isConnected = computed(() => status.value === 'OPEN');
-  
   watch(status, (newStatus) => {
     if (newStatus === 'OPEN') {
+      isConnected.value = true;
       errorMessage.value = null;
       isRetrying.value = false;
-    } else if (newStatus === 'CLOSED') {
+    } else if (newStatus === 'CLOSED' || newStatus === 'CONNECTING') {
+      isConnected.value = false;
       rpcConnected.value = false;
-      errorMessage.value = 'WebSocket disconnected. Retrying...';
-      isRetrying.value = true;
-    } else if (newStatus === 'CONNECTING') {
-      isRetrying.value = true;
+      if (!isManualDisconnect.value) {
+        errorMessage.value = 'WebSocket disconnected. Retrying...';
+        isRetrying.value = true;
+      }
     }
   });
 
@@ -76,8 +98,15 @@ export function useWebSocket(
    * Closes the WebSocket connection if open.
    */
   const disconnect = () => {
+    isManualDisconnect.value = true;
+    isConnected.value = false;
     close();
     isRetrying.value = false;
+  };
+
+  const connect = () => {
+    isManualDisconnect.value = false;
+    open();
   };
 
   return {
@@ -90,7 +119,7 @@ export function useWebSocket(
     /** Whether the connection is retrying */
     isRetrying,
     /** Function to connect WebSocket */
-    connect: open,
+    connect,
     /** Function to disconnect WebSocket */
     disconnect,
   };

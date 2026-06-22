@@ -20,6 +20,12 @@ describe('useWebSocket', () => {
       onmessage: ((event: MessageEvent) => void) | null = null;
       close = vi.fn();
       send = vi.fn();
+      private listeners: Record<string, Array<(event: any) => void>> = {
+        open: [],
+        close: [],
+        error: [],
+        message: [],
+      };
 
       static CONNECTING = 0;
       static OPEN = 1;
@@ -37,10 +43,20 @@ describe('useWebSocket', () => {
       }
 
       addEventListener(event: string, handler: any) {
-        if (event === 'open') this.onopen = handler;
-        if (event === 'close') this.onclose = handler;
-        if (event === 'error') this.onerror = handler;
-        if (event === 'message') this.onmessage = handler;
+        if (!this.listeners[event]) return;
+
+        this.listeners[event].push(handler);
+
+        const dispatch = (evt: Event) => {
+          for (const listener of this.listeners[event]) {
+            listener(evt);
+          }
+        };
+
+        if (event === 'open') this.onopen = dispatch as (event: Event) => void;
+        if (event === 'close') this.onclose = dispatch as (event: CloseEvent) => void;
+        if (event === 'error') this.onerror = dispatch as (event: Event) => void;
+        if (event === 'message') this.onmessage = dispatch as (event: MessageEvent) => void;
       }
     }
 
