@@ -43,12 +43,13 @@ describe('useWebSocket', () => {
       }
 
       addEventListener(event: string, handler: any) {
-        if (!this.listeners[event]) return;
+        const eventListeners = this.listeners[event];
+        if (!eventListeners) return;
 
-        this.listeners[event].push(handler);
+        eventListeners.push(handler);
 
         const dispatch = (evt: Event) => {
-          for (const listener of this.listeners[event]) {
+          for (const listener of eventListeners) {
             listener(evt);
           }
         };
