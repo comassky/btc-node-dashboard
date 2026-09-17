@@ -54,7 +54,7 @@ jobs:
 
       - name: Skip documentation-only build
         if: steps.changes.outputs.build == 'false'
-        run: echo "Documentation-only changes; native and Docker builds skipped." >> "$GITHUB_STEP_SUMMARY"
+        run: echo "Documentation-only changes; application and Docker builds skipped." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Set image name
         if: steps.changes.outputs.build == 'true'
@@ -103,15 +103,15 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build native runner (tests, frontend, native compile)
-        if: steps.changes.outputs.build == 'true'
+        if: steps.changes.outputs.build == 'true' && github.event_name != 'pull_request'
         run: mvn -B --no-transfer-progress verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.native-image-xmx=6g
 
-      - name: Build and optionally publish the native image
+      - name: Build JVM image for PRs or publish native image
         if: steps.changes.outputs.build == 'true'
         uses: docker/build-push-action@v7
         with:
           context: .
-          file: ./Dockerfile.native
+          file: ${{ github.event_name == 'pull_request' && './Dockerfile' || './Dockerfile.native' }}
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
           tags: ${{ steps.meta.outputs.tags }}

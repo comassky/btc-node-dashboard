@@ -80,7 +80,7 @@
       "description": "Track the Node installation managed by Maven.",
       "managerFilePatterns": ["/^pom\\.xml$/"],
       "matchStrings": [
-        "<node\\.lts\\.version>(?<currentValue>v?\\d+\\.\\d+\\.\\d+)</node\\.lts\\.version>"
+        "<quarkus\\.quinoa\\.package-manager-install\\.node-version>(?<currentValue>\\d+\\.\\d+\\.\\d+)</quarkus\\.quinoa\\.package-manager-install\\.node-version>"
       ],
       "depNameTemplate": "node",
       "packageNameTemplate": "nodejs/node",
@@ -92,7 +92,7 @@
       "description": "Track the pnpm installation managed by Maven.",
       "managerFilePatterns": ["/^pom\\.xml$/"],
       "matchStrings": [
-        "<pnpm\\.version>(?<currentValue>\\d+\\.\\d+\\.\\d+)</pnpm\\.version>"
+        "<quarkus\\.quinoa\\.package-manager-install\\.pnpm-version>(?<currentValue>\\d+\\.\\d+\\.\\d+)</quarkus\\.quinoa\\.package-manager-install\\.pnpm-version>"
       ],
       "depNameTemplate": "pnpm",
       "datasourceTemplate": "npm"

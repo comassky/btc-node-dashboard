@@ -11,7 +11,7 @@ import path from 'path';
 // @ts-expect-error - Type incompatibility between plugin versions, safe to ignore
 export default defineConfig(({ mode }) => ({
   define: {
-    __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+    __APP_VERSION__: JSON.stringify(process.env.APP_VERSION ?? process.env.npm_package_version),
   },
   resolve: {
     alias: {

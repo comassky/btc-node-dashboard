@@ -151,5 +151,6 @@ logs/
 
 # Quarkus
 .quarkus/
+.quinoa/
 quarkus.log
 /node/
