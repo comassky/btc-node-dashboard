@@ -2,6 +2,8 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
   "mode": "full",
+  "dependencyDashboardApproval": false,
+  "prCreation": "immediate",
   "enabledManagers": ["maven", "npm", "dockerfile", "docker-compose", "github-actions", "custom.regex"],
   "ignorePaths": ["**/node_modules/**", "**/bower_components/**", "**/target/**", "**/dist/**", "src/main/web/node/**"],
   "automerge": false,
