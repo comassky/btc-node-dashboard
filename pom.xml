@@ -133,6 +133,8 @@
                 <version>${surefire-plugin.version}</version>
                 <configuration>
                     <systemPropertyVariables>
+                        <quarkus.quinoa.package-manager-install.node-version>${quarkus.quinoa.package-manager-install.node-version}</quarkus.quinoa.package-manager-install.node-version>
+                        <quarkus.quinoa.package-manager-install.pnpm-version>${quarkus.quinoa.package-manager-install.pnpm-version}</quarkus.quinoa.package-manager-install.pnpm-version>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
@@ -156,6 +158,8 @@
                 <configuration>
                     <systemPropertyVariables>
                         <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
+                        <quarkus.quinoa.package-manager-install.node-version>${quarkus.quinoa.package-manager-install.node-version}</quarkus.quinoa.package-manager-install.node-version>
+                        <quarkus.quinoa.package-manager-install.pnpm-version>${quarkus.quinoa.package-manager-install.pnpm-version}</quarkus.quinoa.package-manager-install.pnpm-version>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
