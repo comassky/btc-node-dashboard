@@ -11,7 +11,6 @@
         <quarkus.platform.version>3.39.4</quarkus.platform.version>
         <quinoa.version>2.9.0</quinoa.version>
         <quarkus.quinoa.package-manager-install.node-version>24.21.0</quarkus.quinoa.package-manager-install.node-version>
-        <quarkus.quinoa.package-manager-install.pnpm-version>12.4.2</quarkus.quinoa.package-manager-install.pnpm-version>
         <compiler-plugin.version>3.16.0</compiler-plugin.version>
         <surefire-plugin.version>3.6.0</surefire-plugin.version>
 
@@ -134,7 +133,6 @@
                 <configuration>
                     <systemPropertyVariables>
                         <quarkus.quinoa.package-manager-install.node-version>${quarkus.quinoa.package-manager-install.node-version}</quarkus.quinoa.package-manager-install.node-version>
-                        <quarkus.quinoa.package-manager-install.pnpm-version>${quarkus.quinoa.package-manager-install.pnpm-version}</quarkus.quinoa.package-manager-install.pnpm-version>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
@@ -159,7 +157,6 @@
                     <systemPropertyVariables>
                         <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
                         <quarkus.quinoa.package-manager-install.node-version>${quarkus.quinoa.package-manager-install.node-version}</quarkus.quinoa.package-manager-install.node-version>
-                        <quarkus.quinoa.package-manager-install.pnpm-version>${quarkus.quinoa.package-manager-install.pnpm-version}</quarkus.quinoa.package-manager-install.pnpm-version>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>

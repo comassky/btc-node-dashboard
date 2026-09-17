@@ -108,7 +108,7 @@ jobs:
           RELEASE: ${{ steps.version.outputs.release }}
           TAG: ${{ steps.version.outputs.tag }}
         run: |
-          git add pom.xml src/main/web/package.json src/main/web/pnpm-lock.yaml openapi.yaml openapi.json
+          git add pom.xml src/main/web/package.json src/main/web/package-lock.json openapi.yaml openapi.json
           git diff --cached --quiet || git commit -m "Release $RELEASE"
           git tag -a "$TAG" -m "Release $RELEASE"
 
@@ -117,8 +117,10 @@ jobs:
           NEXT: ${{ steps.version.outputs.next }}
         run: |
           mvn -B -q versions:set -DnewVersion="$NEXT" -DgenerateBackupPoms=false
-          mvn -B --no-transfer-progress frontend:npm@sync-version
-          git add pom.xml src/main/web/package.json src/main/web/pnpm-lock.yaml
+          node_version=$(mvn -B -q help:evaluate -Dexpression=quarkus.quinoa.package-manager-install.node-version -DforceStdout)
+          node_dir="$PWD/.quinoa/node-${node_version}-npm/node"
+          "$node_dir/node" "$node_dir/node_modules/npm/bin/npm-cli.js" --prefix src/main/web version "$NEXT" --no-git-tag-version --allow-same-version
+          git add pom.xml src/main/web/package.json src/main/web/package-lock.json
           git commit -m "Prepare next development iteration $NEXT"
 
       - name: Push branch and tag

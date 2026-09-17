@@ -6,7 +6,7 @@ This guide explains how to build and deploy the Bitcoin Node Dashboard.
 
 **Required for local builds:** JDK 25 and Maven 3.9.11 or newer. Bitcoin Core with RPC enabled is needed to run the dashboard against a node, not for unit tests.
 
-**Frontend toolchain:** Maven installs Node.js and its bundled npm, plus pnpm, under `src/main/web/node/`. Versions are defined in [pom.xml](pom.xml), currently Node.js v24.13.0 and pnpm 10.28.2. Global Node.js/pnpm installations are only needed for standalone frontend development.
+**Frontend toolchain:** Quinoa installs Node.js and its bundled npm under `.quinoa/node-<version>-npm/`. The Node.js version is defined in [pom.xml](pom.xml), currently v24.21.0. Global Node.js/npm installations are only needed for standalone frontend development.
 
 **Docker:** Required for containerized native compilation and image builds. Building the JVM image with Docker does not require Java, Maven or Node.js on the host.
 
@@ -43,7 +43,7 @@ mvn -B --no-transfer-progress clean verify -Dnative \
 ./target/btc-node-dashboard-*-runner
 ```
 
-`mvn test` runs backend unit tests only. Frontend tests run during `prepare-package`, after Maven installs the frontend toolchain and dependencies. `-DskipTests` alone does not skip frontend tests. Failsafe integration tests remain disabled by the current `skipITs` setting; see [TESTING.md](TESTING.md).
+`mvn test` runs backend unit tests only. Frontend tests run during the Quinoa build in the `package` phase, after installation of the frontend toolchain and dependencies. `-DskipTests` alone does not skip frontend tests. Failsafe integration tests remain disabled by the current `skipITs` setting; see [TESTING.md](TESTING.md).
 
 The native command produces a Linux executable. Run it directly only on a compatible Linux host, or package it with [Dockerfile.native](Dockerfile.native). Allocate enough Docker memory for the 6 GiB native compiler heap plus build overhead.
 
@@ -73,16 +73,15 @@ java -Dquarkus.profile=staging -jar target/quarkus-app/quarkus-run.jar
 ```bash
 cd src/main/web
 
-# Use the Node.js and pnpm versions declared in pom.xml
-npm install -g pnpm@10.28.2
-pnpm install --frozen-lockfile
+# Use the Node.js version declared in pom.xml and its bundled npm
+npm ci
 ```
 
 ### Development Server
 
 ```bash
 # Vite dev server with hot reload
-pnpm dev
+npm run dev
 ```
 
 The Vite dev server will start on `http://localhost:5173` with proxy configured to forward API/WebSocket requests to `http://localhost:8080`.
@@ -100,23 +99,23 @@ mvn quarkus:dev
 cd src/main/web
 
 # Production build
-pnpm build
+npm run build
 
 # Build output: dist/ directory
 ```
 
 
-The Maven build installs Node.js, npm and pnpm, runs `pnpm install --frozen-lockfile`, executes `pnpm run test --run`, synchronizes the frontend version with Maven using npm, and runs `pnpm build`. The resulting assets are copied into `target/classes/META-INF/resources/`. There is no fallback to `npm install`; keep [pnpm-lock.yaml](src/main/web/pnpm-lock.yaml) committed.
+Quinoa installs Node.js and bundled npm, runs `npm ci`, executes `npm run test -- --run`, and runs `npm run build`. The resulting assets are bundled into the Quarkus application. There is no fallback to `npm install`; keep [package-lock.json](src/main/web/package-lock.json) committed.
 
-## 🧩 Monorepo & pnpm workspace
+## 🧩 Frontend Dependencies
 
-This project uses a pnpm workspace for frontend dependency management. See `src/main/web/pnpm-workspace.yaml`.
+This project uses npm for frontend dependency management, orchestrated by Quinoa for Maven builds.
 
 To install all dependencies:
 
 ```bash
 cd src/main/web
-pnpm install --frozen-lockfile
+npm ci
 ```
 
 ---
@@ -129,7 +128,7 @@ pnpm install --frozen-lockfile
 mvn -B --no-transfer-progress clean verify
 ```
 
-If dependency installation reports an outdated lockfile after an intentional dependency change, run `pnpm install` in `src/main/web`, review the lockfile diff, and commit it with the manifest change. CI uses the frozen lockfile.
+If dependency installation reports an outdated lockfile after an intentional dependency change, run `npm install` in `src/main/web`, review the lockfile diff, and commit it with the manifest change. CI uses `npm ci`.
 
 **Can't connect to Bitcoin Core**: Verify RPC settings, test connection
 

@@ -78,18 +78,6 @@ else
     print_error "Could not fetch latest Node.js LTS version"
 fi
 
-# Update pnpm version (latest, using jq for robust JSON parsing)
-
-print_section "📦 pnpm Version Update"
-latest_pnpm=$(curl -s https://registry.npmjs.org/pnpm/latest | jq -r .version)
-if [ -n "$latest_pnpm" ]; then
-    sed -i '' "s|<pnpm.version>[0-9.]*</pnpm.version>|<pnpm.version>${latest_pnpm}</pnpm.version>|" pom.xml
-    print_success "pnpm: ${GREEN}${latest_pnpm}${RESET}"
-else
-    print_error "Could not fetch latest pnpm version"
-fi
-
-
 # Update frontend dependencies with npm-check-updates
 print_section "📦 Frontend Dependencies Update (npm-check-updates)"
 if [ -d "src/main/web" ]; then
@@ -111,7 +99,7 @@ if [ -d "src/main/web" ]; then
         print_warning "ncu (npm-check-updates) not found, skipping frontend updates"
         print_warning "Install with: npm install -g npm-check-updates"
     fi
-    pnpm install
+    npm install
     cd ../../../
 else
     print_warning "src/main/web directory not found"
@@ -145,7 +133,7 @@ fi
 
 # Show version changes summary (diff)
 print_section "🔍 Version Changes Summary"
-for file in pom.xml package.json pnpm-lock.yaml; do
+for file in pom.xml src/main/web/package.json src/main/web/package-lock.json; do
     if [ -f "$file" ]; then
         echo -e "\n${BLUE}File: $file${RESET}"
         # Show only lines with version changes (additions/removals with 'version' or dependency version tags)

@@ -30,9 +30,9 @@
       "rangeStrategy": "bump"
     },
     {
-      "description": "Update Maven-managed Node and pnpm with the frontend dependencies.",
+      "description": "Update Maven-managed Node and its bundled npm with the frontend dependencies.",
       "matchManagers": ["custom.regex"],
-      "matchDepNames": ["node", "pnpm"],
+      "matchDepNames": ["node"],
       "groupName": "Frontend dependencies",
       "additionalBranchPrefix": "frontend-",
       "dependencyDashboardCategory": "Frontend",
@@ -86,16 +86,6 @@
       "packageNameTemplate": "nodejs/node",
       "datasourceTemplate": "github-tags",
       "versioningTemplate": "node"
-    },
-    {
-      "customType": "regex",
-      "description": "Track the pnpm installation managed by Maven.",
-      "managerFilePatterns": ["/^pom\\.xml$/"],
-      "matchStrings": [
-        "<quarkus\\.quinoa\\.package-manager-install\\.pnpm-version>(?<currentValue>\\d+\\.\\d+\\.\\d+)</quarkus\\.quinoa\\.package-manager-install\\.pnpm-version>"
-      ],
-      "depNameTemplate": "pnpm",
-      "datasourceTemplate": "npm"
     }
   ]
 }

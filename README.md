@@ -77,10 +77,9 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 - **Maven Compiler Plugin** 3.15.0
 - **Maven Surefire Plugin** 3.5.5
 - **Maven Failsafe Plugin** 3.5.5 (integration tests currently skipped)
-- **Frontend Maven Plugin** 2.0.0
-- **Node.js** v24.13.0 (installed by Maven)
-- **pnpm** 10.28.2 (dependency installation, tests and frontend builds)
-- **npm** bundled with Node.js (frontend version synchronization)
+- **Quinoa** 2.9.0 (frontend integration with Quarkus)
+- **Node.js** v24.21.0 (installed by Quinoa)
+- **npm** bundled with Node.js (dependency installation, tests and frontend builds)
 - **Docker** (Distroless Debian 13 JVM and native runtimes)
 - **GitHub Actions** (development builds, release creation and tag publication)
 - **Mandrel** (native compilation in Docker, no local GraalVM required)
@@ -120,7 +119,7 @@ Supply the RPC configuration when running the image, as in the Docker example be
 
 - JDK 25 and Maven 3.9.11+ for local builds
 - Bitcoin Core with RPC enabled
-- Node.js v24.13.0 and pnpm 10.28.2 for standalone frontend development; Maven installs them for full builds
+- Node.js v24.21.0 and bundled npm for standalone frontend development; Quinoa installs them for full builds
 - Docker for native compilation or container image builds
 
 
@@ -142,9 +141,8 @@ In another terminal, from the repository root:
 
 ```bash
 cd src/main/web
-npm install -g pnpm@10.28.2
-pnpm install --frozen-lockfile
-pnpm dev # http://localhost:5173
+npm ci
+npm run dev # http://localhost:5173
 ```
 
 Vite proxies API and WebSocket requests to the backend on port 8080. To build a single deployable JVM application instead, run `mvn -B --no-transfer-progress verify` at the repository root.
@@ -238,15 +236,15 @@ For the complete list and default values, see [DOCKER.md](DOCKER.md).
 
 ---
 
-## 🧩 Monorepo & pnpm workspace
+## 🧩 Frontend Dependencies
 
-The project uses a pnpm workspace for frontend dependency management. See `src/main/web/pnpm-workspace.yaml`.
+The project uses npm for frontend dependency management. Quinoa runs `npm ci`, tests and builds during Maven packaging using [package-lock.json](src/main/web/package-lock.json).
 
 To install all dependencies:
 
 ```bash
 cd src/main/web
-pnpm install --frozen-lockfile
+npm ci
 ```
 
 ---

@@ -1,29 +1,28 @@
 # 🧩 Monorepo & Frontend Development
 
-The project uses a pnpm workspace for frontend dependency management (see `src/main/web/pnpm-workspace.yaml`).
+The project uses npm for frontend dependency management, with Quinoa orchestrating Maven builds.
 
 ## Installing frontend dependencies
 
 ```bash
 cd src/main/web
-# Use Node.js v24.13.0; versions are defined in pom.xml
-npm install -g pnpm@10.28.2
-pnpm install --frozen-lockfile
+# Use Node.js v24.21.0 and bundled npm; the Node.js version is defined in pom.xml
+npm ci
 ```
 
-For a full application build, run `mvn -B --no-transfer-progress verify` from the repository root with JDK 25. Maven installs Node.js, bundled npm and pnpm locally; global frontend tools are not required for that path. See [BUILD.md](BUILD.md).
+For a full application build, run `mvn -B --no-transfer-progress verify` from the repository root with JDK 25. Quinoa installs Node.js and bundled npm locally; global frontend tools are not required for that path. See [BUILD.md](BUILD.md).
 
 ## Useful Scripts
 
-- `pnpm dev` : Vite development server with hot reload
-- `pnpm build` : production build with optimizations
-- `pnpm test` : frontend unit tests (Vitest)
-- `pnpm run test --run` : frontend unit tests once, as in CI
-- `pnpm test:ui` : interactive test UI
-- `pnpm coverage` : test coverage report
-- `pnpm prettier` : format code with Prettier
+- `npm run dev` : Vite development server with hot reload
+- `npm run build` : production build with optimizations
+- `npm test` : frontend unit tests (Vitest)
+- `npm run test -- --run` : frontend unit tests once, as in CI
+- `npm run test:ui` : interactive test UI
+- `npm run coverage` : test coverage report
+- `npm run prettier` : format code with Prettier
 
-Maven and CI use `pnpm install --frozen-lockfile`. For intentional dependency updates, run `pnpm install` and commit [package.json](src/main/web/package.json) together with [pnpm-lock.yaml](src/main/web/pnpm-lock.yaml); do not introduce an npm lockfile.
+Maven and CI use `npm ci`. For intentional dependency updates, run `npm install` and commit [package.json](src/main/web/package.json) together with [package-lock.json](src/main/web/package-lock.json).
 
 ## Performance Optimizations
 
@@ -52,8 +51,7 @@ When contributing, please maintain these optimizations and avoid re-introducing 
 
 - Java 25
 - Quarkus 3.32.0.CR1
-- Node.js v24.13.0
-- pnpm 10.28.2
+- Node.js v24.21.0
 - npm bundled with the Maven-managed Node.js installation
 
 [pom.xml](pom.xml) is the source of truth for the Java/frontend toolchain. [renovate.json](renovate.json) groups Java, frontend, Docker and GitHub Actions updates separately. Docker digests are pinned, automerge is disabled, and the Compose image published by this repository is excluded from dependency updates.

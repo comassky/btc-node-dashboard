@@ -25,7 +25,7 @@ mvn -B --no-transfer-progress clean verify
 cat openapi.yaml
 ```
 
-Maven installs Node.js, npm and pnpm and builds the frontend too. For a local generation without either unit-test suite, use `mvn package -DskipTests -DskipFrontendTests=true`; `-DskipTests` alone does not skip frontend tests. Do not use these skip flags in release workflows.
+Quinoa installs Node.js and bundled npm during the Maven build and builds the frontend too. For a local generation without either unit-test suite, use `mvn package -DskipTests -DskipFrontendTests=true`; `-DskipTests` alone does not skip frontend tests. Do not use these skip flags in release workflows.
 
 ## Release Documentation
 

@@ -10,7 +10,7 @@ https://github.com/comassky/btc-node-dashboard/pkgs/container/btc-node-dashboard
 
 ---
 
-**CI Note:** Maven installs Node.js, bundled npm and pnpm, runs backend and frontend unit tests, and builds the frontend. Native workflows use Mandrel in a container, with no local GraalVM installation required. Failsafe integration tests remain disabled in the current Maven configuration.
+**CI Note:** Quinoa installs Node.js and bundled npm during the Maven build, which runs backend and frontend unit tests and builds the frontend. Native workflows use Mandrel in a container, with no local GraalVM installation required. Failsafe integration tests remain disabled in the current Maven configuration.
 
 Both Dockerfiles use the same pinned Distroless Debian 13 bases as wallet-viewer:
 - [Dockerfile](Dockerfile): `gcr.io/distroless/java25-debian13:nonroot`, with a `maven:3.9.16-eclipse-temurin-25` builder running `verify`.

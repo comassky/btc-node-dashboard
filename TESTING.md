@@ -2,7 +2,7 @@
 
 **162 unit tests** (79 backend and 83 frontend) passed in the last verified JVM Docker build. The native compile and runtime still require CI validation; these counts do not imply native integration-test coverage.
 
-Full builds require JDK 25 and Maven. Maven installs Node.js, bundled npm and pnpm locally, so no global frontend toolchain or live Bitcoin Core node is required for the unit tests. See [BUILD.md](BUILD.md).
+Full builds require JDK 25 and Maven. Quinoa installs Node.js and bundled npm locally, so no global frontend toolchain or live Bitcoin Core node is required for the unit tests. See [BUILD.md](BUILD.md).
 
 ## 📊 Overview
 
@@ -23,25 +23,25 @@ mvn -B --no-transfer-progress clean verify
 mvn test
 ```
 
-For standalone frontend testing, use the Node.js/pnpm versions from [BUILD.md](BUILD.md):
+For standalone frontend testing, use the Node.js version and bundled npm from [BUILD.md](BUILD.md):
 
 ```bash
 cd src/main/web
-pnpm install --frozen-lockfile
+npm ci
 
 # Frontend tests once, as in CI
-pnpm run test --run
+npm run test -- --run
 
 # Interactive watch mode
-pnpm test
+npm test
 
 # Coverage report (not part of the default CI build)
-pnpm coverage
+npm run coverage
 ```
 
 ### Test Selection
 
-Backend tests run in the `test` phase; frontend tests run in `prepare-package`. `-DskipTests` skips backend tests but not frontend tests. To skip both for a local build only, use `mvn package -DskipTests -DskipFrontendTests=true`.
+Backend tests run in the `test` phase; frontend tests run during the Quinoa build in the `package` phase. `-DskipTests` skips backend tests but not frontend tests. To skip both for a local build only, use `mvn package -DskipTests -DskipFrontendTests=true`.
 
 Failsafe integration tests are disabled by `skipITs=true` in the current Maven configuration, including the native profile. Neither `mvn verify` nor `-Dnative` currently validates a running native application through Failsafe.
 
@@ -84,7 +84,7 @@ Failsafe integration tests are disabled by `skipITs=true` in the current Maven c
 
 **Main tools and libraries:**
 
-- **pnpm** 10.28.2 (frontend package manager, monorepo workspace)
+- **npm** bundled with the Quinoa-managed Node.js installation (frontend package manager)
 - **Vitest** 4.0.18 (unit tests framework)
 - **Vue Test Utils** 2.4.6, **Happy DOM** 20.7.0, **Vite** 7.3.1, **TypeScript** 5.9.3
 - **VueUse** 14.2.1 (composition utilities with useFetch, useWebSocket)
@@ -126,10 +126,10 @@ class MyServiceTest {
 
 ### Frontend test scripts
 
-- `pnpm test` : unit tests (Vitest)
-- `pnpm run test --run` : run once without watch mode
-- `pnpm test:ui` : interactive test UI
-- `pnpm coverage` : coverage report
+- `npm test` : unit tests (Vitest)
+- `npm run test -- --run` : run once without watch mode
+- `npm run test:ui` : interactive test UI
+- `npm run coverage` : coverage report
 
 ### Frontend Test Example
 
@@ -165,7 +165,7 @@ mvn test -Dtest=MyTest -Dmaven.surefire.debug
 
 ```bash
 # Frontend UI mode
-cd src/main/web && pnpm test:ui
+cd src/main/web && npm run test:ui
 ```
 
 ## 🔄 Continuous Integration
@@ -173,11 +173,11 @@ cd src/main/web && pnpm test:ui
 
 ### GitHub Actions Workflows
 
-The [development](.github/workflows/docker.yml), [release](.github/workflows/release.yml) and [tag publication](.github/workflows/publish-image.yml) workflows use `mvn verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.native-image-xmx=6g`. Maven installs Node.js, npm and pnpm, runs the unit tests, builds the frontend, and compiles the native runner using Mandrel in Docker.
+The [development](.github/workflows/docker.yml), [release](.github/workflows/release.yml) and [tag publication](.github/workflows/publish-image.yml) workflows use `mvn verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.native-image-xmx=6g`. Quinoa installs Node.js and bundled npm during the Maven build, which runs the unit tests, builds the frontend, and compiles the native runner using Mandrel in Docker.
 
 Before native image packaging:
 - ✅ Backend tests are executed
-- ✅ Frontend tests are executed (`pnpm run test --run`, during `prepare-package`)
+- ✅ Frontend tests are executed (`npm run test -- --run`, during the Quinoa build)
 - ❌ Build is cancelled if any test fails
 
 This ensures only tested versions are deployed.
