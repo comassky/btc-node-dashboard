@@ -6,6 +6,11 @@ import { nextTick } from 'vue';
 let wsInstances: any[] = [];
 let mockWebSocket: any;
 
+async function flushConnectionOpen() {
+  await vi.advanceTimersByTimeAsync(0);
+  await nextTick();
+}
+
 describe('useWebSocket', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -66,8 +71,7 @@ describe('useWebSocket', () => {
     const { isConnected, connect } = useWebSocket('ws://test', onDataReceived);
 
     connect();
-    await vi.runAllTimersAsync();
-    await nextTick();
+    await flushConnectionOpen();
 
     expect(isConnected.value).toBe(true);
     expect(wsInstances[0].url).toBe('ws://test');
@@ -78,8 +82,7 @@ describe('useWebSocket', () => {
     const { connect, rpcConnected } = useWebSocket('ws://test', onDataReceived);
 
     connect();
-    await vi.runAllTimersAsync();
-    await nextTick();
+    await flushConnectionOpen();
 
     const ws = wsInstances[0];
     const mockData: Partial<DashboardData> = {
@@ -102,8 +105,7 @@ describe('useWebSocket', () => {
     const { rpcConnected, errorMessage, connect } = useWebSocket('ws://test', onDataReceived);
 
     connect();
-    await vi.runAllTimersAsync();
-    await nextTick();
+    await flushConnectionOpen();
 
     const ws = wsInstances[0];
     const errorData = {
@@ -126,8 +128,7 @@ describe('useWebSocket', () => {
     );
 
     connect();
-    await vi.runAllTimersAsync();
-    await nextTick();
+    await flushConnectionOpen();
 
     const ws = wsInstances[0];
     ws.readyState = 3; // CLOSED
@@ -148,8 +149,7 @@ describe('useWebSocket', () => {
     );
 
     connect();
-    await vi.runAllTimersAsync();
-    await nextTick();
+    await flushConnectionOpen();
 
     expect(isConnected.value).toBe(true);
 
@@ -166,8 +166,7 @@ describe('useWebSocket', () => {
     const { connect } = useWebSocket('ws://test', onDataReceived);
 
     connect();
-    await vi.runAllTimersAsync();
-    await nextTick();
+    await flushConnectionOpen();
 
     const ws = wsInstances[0];
     ws.onmessage?.(new MessageEvent('message', { data: 'invalid json' }));
@@ -183,8 +182,7 @@ describe('useWebSocket', () => {
     const { connect, disconnect, isRetrying } = useWebSocket('ws://test', onDataReceived);
 
     connect();
-    await vi.runAllTimersAsync();
-    await nextTick();
+    await flushConnectionOpen();
 
     const ws = wsInstances[0];
     ws.readyState = 3; // CLOSED

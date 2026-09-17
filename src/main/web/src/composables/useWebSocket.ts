@@ -18,6 +18,7 @@ export function useWebSocket(
   const rpcConnected = ref(false);
   const errorMessage = ref<string | null>(null);
   const isRetrying = ref(false);
+  const manualDisconnect = ref(false);
 
   const { status, data, open, close } = useVueUseWebSocket(wsUrl, {
     autoReconnect: {
@@ -61,13 +62,20 @@ export function useWebSocket(
   
   watch(status, (newStatus) => {
     if (newStatus === 'OPEN') {
+      manualDisconnect.value = false;
       errorMessage.value = null;
       isRetrying.value = false;
     } else if (newStatus === 'CLOSED') {
       rpcConnected.value = false;
-      errorMessage.value = 'WebSocket disconnected. Retrying...';
-      isRetrying.value = true;
+      if (manualDisconnect.value) {
+        errorMessage.value = null;
+        isRetrying.value = false;
+      } else {
+        errorMessage.value = 'WebSocket disconnected. Retrying...';
+        isRetrying.value = true;
+      }
     } else if (newStatus === 'CONNECTING') {
+      manualDisconnect.value = false;
       isRetrying.value = true;
     }
   });
@@ -76,6 +84,7 @@ export function useWebSocket(
    * Closes the WebSocket connection if open.
    */
   const disconnect = () => {
+    manualDisconnect.value = true;
     close();
     isRetrying.value = false;
   };
