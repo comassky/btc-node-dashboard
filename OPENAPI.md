@@ -2,26 +2,46 @@
 
 ## 📝 Overview
 
-The Bitcoin Node Dashboard API is documented using the OpenAPI 3.0 specification. The OpenAPI schema is **generated at build time** and saved in the `target/` directory, but **not exposed at runtime** for security reasons.
+The Bitcoin Node Dashboard API is documented using OpenAPI 3.0.3. The schema is **generated at build time** at the project root. It is also available at runtime at `/q/openapi`; disabling inclusion of Swagger UI in production does not disable this endpoint.
+
+Schema metadata uses `${quarkus.application.version}`, so its version follows the Maven application version rather than a separately maintained literal.
 
 ## 📦 Generated Files
 
 The OpenAPI specification files are located at the project root:
 
-- `openapi.json` - JSON format (versioned in git)
-- `openapi.yaml` - YAML format (versioned in git)
+- [openapi.json](openapi.json) - JSON format (versioned in git)
+- [openapi.yaml](openapi.yaml) - YAML format (versioned in git)
 
 ## 🔨 Generating the Specification
 
-The OpenAPI spec is automatically generated during Maven compilation:
+The OpenAPI spec is generated during Quarkus packaging. With JDK 25 and Maven:
 
 ```bash
-# Generate/Update OpenAPI spec
-mvn clean package -DskipTests
+# Run backend/frontend unit tests, build the application and update both schemas
+mvn -B --no-transfer-progress clean verify
 
 # The file will be at project root
 cat openapi.yaml
 ```
+
+Maven installs Node.js, npm and pnpm and builds the frontend too. For a local generation without either unit-test suite, use `mvn package -DskipTests -DskipFrontendTests=true`; `-DskipTests` alone does not skip frontend tests. Do not use these skip flags in release workflows.
+
+## Release Documentation
+
+[release.yml](.github/workflows/release.yml) takes a version `X.Y.Z` manually, updates Maven's version, verifies the native build, and uploads both root-level schemas as the `release-openapi` artifact. The schemas and synchronized frontend version are committed with the release before its tag is created.
+
+After the image and GitHub Release are published, the `openapi` job downloads that exact artifact and deploys a Redoc site to GitHub Pages. It does not regenerate the schema from the subsequent development `-SNAPSHOT` commit.
+
+Repository setup:
+
+1. Set **Settings > Pages > Build and deployment > Source** to **GitHub Actions**.
+2. Ensure the `github-pages` environment permits deployment from the branch used to dispatch the workflow.
+3. Open the deployment URL reported by the workflow's `openapi` job.
+
+The deployment uses `pages: write` and `id-token: write` permissions. Release creation also needs permission to push commits and tags; see [DOCKER.md](DOCKER.md). A failed Pages deployment does not roll back an already published image or release.
+
+[publish-image.yml](.github/workflows/publish-image.yml) rebuilds an existing tag and uploads the schema artifact, but does not deploy GitHub Pages. A tag push alone does not trigger either publication workflow.
 
 ## 👁️ Viewing the Documentation
 
@@ -36,6 +56,7 @@ You can view and interact with the generated OpenAPI specification using various
 ### Option 2: VS Code Extension
 
 Install the "OpenAPI (Swagger) Editor" extension:
+
 ```bash
 code --install-extension 42Crunch.vscode-openapi
 ```
@@ -46,25 +67,27 @@ Then open `openapi.yaml` in VS Code.
 
 ```bash
 # Serve the OpenAPI spec with Redoc
-docker run -p 8080:80 \
-  -v $(pwd):/usr/share/nginx/html/spec \
+docker run --rm -p 8081:80 \
+  -v "$PWD:/usr/share/nginx/html/spec:ro" \
   -e SPEC_URL=spec/openapi.yaml \
   redocly/redoc
 ```
 
-Access at: http://localhost:8080
+Access at: http://localhost:8081
 
 ### Option 4: Swagger UI (Docker)
 
 ```bash
 # Serve with Swagger UI
-docker run -p 8080:8080 \
+docker run --rm -p 8081:8080 \
   -e SWAGGER_JSON=/spec/openapi.yaml \
-  -v $(pwd):/spec \
+  -v "$PWD:/spec:ro" \
   swaggerapi/swagger-ui
 ```
 
-Access at: http://localhost:8080
+Access at: http://localhost:8081
+
+Run one viewer at a time on port 8081; the dashboard can remain on port 8080. When the application is running, its schema is also available at http://localhost:8080/q/openapi.
 
 ## 📋 API Overview
 
@@ -138,11 +161,10 @@ print(f"Network: {network_info}")
 The OpenAPI specification is automatically generated from code annotations during package:
 
 ```bash
-mvn clean package -DskipTests
+mvn -B --no-transfer-progress clean verify
 ```
 
-The file will be created/updated at project root:
-- `openapi.yaml` (versioned in git)
+Both root-level schemas are updated. Review and commit [openapi.yaml](openapi.yaml) and [openapi.json](openapi.json) together when the API changes.
 
 ### Customizing the Documentation
 
@@ -158,21 +180,22 @@ In `application.properties`:
 ```properties
 # OpenAPI Configuration
 quarkus.smallrye-openapi.store-schema-directory=.
+quarkus.smallrye-openapi.open-api-version=3.0.3
+quarkus.smallrye-openapi.path=/q/openapi
 quarkus.swagger-ui.always-include=false
 mp.openapi.extensions.smallrye.info.title=Bitcoin Node Dashboard API
-mp.openapi.extensions.smallrye.info.version=1.5.0
+mp.openapi.extensions.smallrye.info.version=${quarkus.application.version}
 ```
 
 ### Enabling Swagger UI for Development
 
-If you need Swagger UI during development, you can enable it in `application-local.properties`:
+Swagger UI is available in Quarkus dev mode by default at `/q/swagger-ui`. To use a custom path only during development, add this to [application.properties](src/main/resources/application.properties):
 
 ```properties
-quarkus.swagger-ui.always-include=true
-quarkus.swagger-ui.path=/swagger-ui
+%dev.quarkus.swagger-ui.path=/swagger-ui
 ```
 
-Then access it at: http://localhost:8080/swagger-ui (dev mode only)
+Run `mvn quarkus:dev` with RPC configuration, then access http://localhost:8080/swagger-ui. Setting `quarkus.swagger-ui.always-include=true` is a build-time choice that includes Swagger UI in production too; it is not required for dev mode.
 
 ## 📚 Response Models
 
@@ -222,6 +245,8 @@ Complete dashboard data including:
 - No authentication is required by default
 - Ensure proper network security when exposing the API
 - Consider using a reverse proxy with authentication for production
+- `/q/openapi` exposes API metadata at runtime; protect it with the same network controls as the API
+- Published GitHub Pages documentation is separate from the runtime and must not contain RPC credentials or other secrets
 
 ## 📖 Additional Resources
 

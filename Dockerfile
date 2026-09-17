@@ -1,54 +1,27 @@
-# ----------------------------------------------------------------------
-# Stage 1: Builder - compile and create the Quarkus fast-jar archive
-# ----------------------------------------------------------------------
-# Uses a full Java/Maven image for the build. This image contains 'mvn'.
-FROM maven:3-eclipse-temurin-25-alpine AS builder
-
-# Set the working directory in the container
+# syntax=docker/dockerfile:1@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32
+FROM maven:3.9.16-eclipse-temurin-25@sha256:31618505df21177d2baa3dc574be2d0b0b32614c8539baca1f23a9136b766eb0 AS builder
 WORKDIR /build
 
-# Copy Maven wrapper to use the project's configured version
-COPY mvnw .
-COPY .mvn .mvn
-
-# Copy POM file and dependencies (to leverage Docker cache)
-COPY pom.xml .
-# Download all Maven dependencies with mounted cache to speed up builds
+COPY pom.xml ./
+COPY src ./src
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn dependency:go-offline -B
+    mvn --batch-mode --no-transfer-progress verify
 
-# Copy source code
-COPY src /build/src
-
-# Package the Quarkus application as fast-jar with Maven cache
-# Quarkus generates necessary files in /target/quarkus-app
-RUN --mount=type=cache,target=/root/.m2 \
-    mvn package -DskipTests -B -ntp
-
-# ----------------------------------------------------------------------
-# Stage 2: Runner - execute the application (minimal JRE image)
-# ----------------------------------------------------------------------
-# Uses a minimal JRE/JDK image for execution (smaller than full JDK)
-FROM eclipse-temurin:25-jre-alpine AS runner
-
-# Create non-root directory for execution (first for better caching)
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
-# Set working directory
+FROM gcr.io/distroless/java25-debian13:nonroot@sha256:ca60da1345c0f17b6d019049e6749e15f10fd3c0da86dec938d2b4ec565d0629 AS runner
 WORKDIR /app
 
-# Copy artifacts from builder (fast-jar) with correct ownership
-# The 'quarkus-app' folder contains the main jar and libraries
-COPY --from=builder --chown=appuser:appgroup /build/target/quarkus-app /app
+COPY --from=builder --chown=65532:65532 /build/target/quarkus-app/lib/ ./lib/
+COPY --from=builder --chown=65532:65532 /build/target/quarkus-app/*.jar ./
+COPY --from=builder --chown=65532:65532 /build/target/quarkus-app/app/ ./app/
+COPY --from=builder --chown=65532:65532 /build/target/quarkus-app/quarkus/ ./quarkus/
 
-# Switch to non-root user
-USER appuser
+USER 65532:65532
 
-# Define the port exposed by the application
 EXPOSE 8080
 
-# Modern JVM options for better performance (G1GC, heap size, tuning)
-ENV JAVA_OPTS="-XX:+UseG1GC \
+ENV QUARKUS_HTTP_HOST=0.0.0.0
+
+ENV JAVA_TOOL_OPTIONS="-XX:+UseG1GC \
     -XX:MaxGCPauseMillis=100 \
     -XX:+UseStringDeduplication \
     -XX:+ExitOnOutOfMemoryError \
@@ -56,5 +29,4 @@ ENV JAVA_OPTS="-XX:+UseG1GC \
     -Dfile.encoding=UTF-8 \
     -Djava.awt.headless=true"
 
-# Execution command with JVM options
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/quarkus-run.jar"]
+CMD ["quarkus-run.jar"]

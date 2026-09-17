@@ -307,8 +307,9 @@ const updateBuild = () => {
 // Update GitHub Actions workflows
 const updateWorkflows = () => {
   const workflowFiles = [
-    '.github/workflows/docker-dev-native.yml',
-    '.github/workflows/docker-native.yml',
+    '.github/workflows/docker.yml',
+    '.github/workflows/release.yml',
+    '.github/workflows/publish-image.yml',
   ];
 
   workflowFiles.forEach((filePath) => {
@@ -317,28 +318,13 @@ const updateWorkflows = () => {
 
     let workflow = fs.readFileSync(fullPath, 'utf-8');
 
-    // Update GRAALVM_VERSION
     workflow = workflow.replace(
-      /GRAALVM_VERSION: "\d+"/,
-      `GRAALVM_VERSION: "${backendVersions.javaVersion}"`
+      /java-version: \d+/g,
+      `java-version: ${backendVersions.javaVersion}`
     );
-
-    // Update NODE_VERSION
     workflow = workflow.replace(
-      /NODE_VERSION: "v?[\d.]+"/,
-      `NODE_VERSION: "${backendVersions.nodeVersion}"`
-    );
-
-    // Update PNPM_VERSION
-    workflow = workflow.replace(
-      /PNPM_VERSION: "[\d.]+"/,
-      `PNPM_VERSION: "${backendVersions.pnpmVersion}"`
-    );
-
-    // Update MAVEN_VERSION
-    workflow = workflow.replace(
-      /MAVEN_VERSION: "[\d.]+"/,
-      `MAVEN_VERSION: "${backendVersions.mavenVersion}"`
+      /name: Set up JDK \d+/g,
+      `name: Set up JDK ${backendVersions.javaVersion}`
     );
 
     fs.writeFileSync(fullPath, workflow, 'utf-8');

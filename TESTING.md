@@ -1,48 +1,60 @@
-# 🔄 Continuous Integration
-
-- CI runs all tests (backend and frontend) during the Maven build.
-- Docker/native images are only built and published if all tests pass.
-- No tests are re-run during Docker or native build steps.
-
 # Testing Guide
 
-**164 automated tests** covering backend and frontend for reliability and stability.
+**162 unit tests** (79 backend and 83 frontend) passed in the last verified JVM Docker build. The native compile and runtime still require CI validation; these counts do not imply native integration-test coverage.
+
+Full builds require JDK 25 and Maven. Maven installs Node.js, bundled npm and pnpm locally, so no global frontend toolchain or live Bitcoin Core node is required for the unit tests. See [BUILD.md](BUILD.md).
 
 ## 📊 Overview
 
 | Component | Tests | Technologies                                                                                                                                                                                |
 | --------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Backend   | 79    | JUnit 5, Mockito, Quarkus Test, Rest Assured                                                                                                                                                |
-| Frontend  | 83    | Vitest (4.0.18), Vue Test Utils (2.4.6), Happy DOM (20.0.11), Vite (7.3.1), TypeScript (5.9.3), VueUse (14.2.1), Chart.js (4.5.1), Tailwind CSS (4.2.1), Iconify (5.0.0), Simple Icons (1.2.71), Floating UI (1.1.10) |
+| Frontend  | 83    | Vitest (4.0.18), Vue Test Utils (2.4.6), Happy DOM (20.7.0) |
 
-**Test execution**: ~25s total (Backend: ~20s, Frontend: ~3.5s)
+Test counts and duration may change as the suites evolve. [package.json](src/main/web/package.json) and [pom.xml](pom.xml) define the current tools and versions.
 
 ## 🧪 Running Tests
 
 ```bash
-# All tests
-./mvnw clean test
+# Both unit-test suites, frontend build and JVM package
+mvn -B --no-transfer-progress clean verify
 
 # Backend only
-./mvnw test
-
-# Frontend only
-cd src/main/web && pnpm test
-
-# With coverage
-cd src/main/web && pnpm coverage
+mvn test
 ```
+
+For standalone frontend testing, use the Node.js/pnpm versions from [BUILD.md](BUILD.md):
+
+```bash
+cd src/main/web
+pnpm install --frozen-lockfile
+
+# Frontend tests once, as in CI
+pnpm run test --run
+
+# Interactive watch mode
+pnpm test
+
+# Coverage report (not part of the default CI build)
+pnpm coverage
+```
+
+### Test Selection
+
+Backend tests run in the `test` phase; frontend tests run in `prepare-package`. `-DskipTests` skips backend tests but not frontend tests. To skip both for a local build only, use `mvn package -DskipTests -DskipFrontendTests=true`.
+
+Failsafe integration tests are disabled by `skipITs=true` in the current Maven configuration, including the native profile. Neither `mvn verify` nor `-Dnative` currently validates a running native application through Failsafe.
 
 ## 🔍 Backend Tests (79)
 
 **Test Classes:**
 
 - `BtcControllerTest` - REST API endpoints
+- `BitcoinApiControllerTest` - Bitcoin API endpoint responses
 - `DashboardWebSocketTest` - WebSocket lifecycle
 - `DashboardWebSocketAdvancedTest` - Concurrent connections, cache
 - `RpcServicesTest` - Bitcoin RPC calls, logs, and latency
 - `RpcServicesAdvancedTest` - Multi-peer aggregation, error handling
-- `RpcServicesParallelTest` - Parallel execution, CompletableFuture
 - `CachedMessageTest` - Cache validation, thread-safety
 - `SubverStatsCalculationTest` - Version distribution
 - `ToolsTest` - Utility functions
@@ -51,7 +63,7 @@ cd src/main/web && pnpm coverage
 - `DashboardConfigTest` (7 tests) - Configuration validation and defaults
 - `RpcExceptionTest` (7 tests) - Exception creation, cause propagation, stack traces
 
-## 🎨 Frontend Tests (67)
+## 🎨 Frontend Tests (83)
 
 **Test Files**:
 
@@ -73,12 +85,12 @@ cd src/main/web && pnpm coverage
 **Main tools and libraries:**
 
 - **pnpm** 10.28.2 (frontend package manager, monorepo workspace)
-- **Vitest** 4.0.16 (unit tests framework)
-- **Vue Test Utils** 2.4.6, **Happy DOM** 20.0.11, **Vite** 7.3.0, **TypeScript** 5.9.3
-- **VueUse** 14.1.0 (composition utilities with useFetch, useWebSocket)
-- **Chart.js** 4.5.1 (tree-shaken with explicit imports), **Iconify** 5.0.0, **Simple Icons** 1.2.65, **Floating UI** 1.1.9
-- **Tailwind CSS** 4.1.18 with Lightning CSS, **vite-plugin-compression** 0.5.1
-- **rollup-plugin-visualizer** 6.0.5, **sirv-cli** 3.0.1, **vue-tsc** 3.2.1
+- **Vitest** 4.0.18 (unit tests framework)
+- **Vue Test Utils** 2.4.6, **Happy DOM** 20.7.0, **Vite** 7.3.1, **TypeScript** 5.9.3
+- **VueUse** 14.2.1 (composition utilities with useFetch, useWebSocket)
+- **Chart.js** 4.5.1 (tree-shaken with explicit imports), **unplugin-icons** 23.0.1, **Simple Icons** 1.2.71, **Floating UI** 1.1.10
+- **Tailwind CSS** 4.2.1 with Lightning CSS, **vite-plugin-compression** 0.5.1
+- **rollup-plugin-visualizer** 7.0.0, **sirv-cli** 3.0.1, **vue-tsc** 3.2.5
 
 **Note**: PWA plugin, cssnano, and postcss have been removed as part of recent optimizations.
 
@@ -115,6 +127,7 @@ class MyServiceTest {
 ### Frontend test scripts
 
 - `pnpm test` : unit tests (Vitest)
+- `pnpm run test --run` : run once without watch mode
 - `pnpm test:ui` : interactive test UI
 - `pnpm coverage` : coverage report
 
@@ -142,17 +155,17 @@ describe("MyComponent", () => {
 
 ```bash
 # Run with debug output
-./mvnw test -X
+mvn test -X
 
 # Run single test with debugging
-./mvnw test -Dtest=MyTest -Dmaven.surefire.debug
+mvn test -Dtest=MyTest -Dmaven.surefire.debug
 ```
 
 ### Frontend
 
 ```bash
 # Frontend UI mode
-cd src/main/web && npm run test:ui
+cd src/main/web && pnpm test:ui
 ```
 
 ## 🔄 Continuous Integration
@@ -160,11 +173,26 @@ cd src/main/web && npm run test:ui
 
 ### GitHub Actions Workflows
 
-CI workflows use pnpm to install frontend dependencies and run tests (see `.github/workflows/docker.yml`, `docker-native.yml`, `docker-dev-native.yml`).
+The [development](.github/workflows/docker.yml), [release](.github/workflows/release.yml) and [tag publication](.github/workflows/publish-image.yml) workflows use `mvn verify -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.native-image-xmx=6g`. Maven installs Node.js, npm and pnpm, runs the unit tests, builds the frontend, and compiles the native runner using Mandrel in Docker.
 
-Before each Docker image build:
+Before native image packaging:
 - ✅ Backend tests are executed
-- ✅ Frontend tests are executed (pnpm test, pnpm coverage)
+- ✅ Frontend tests are executed (`pnpm run test --run`, during `prepare-package`)
 - ❌ Build is cancelled if any test fails
 
 This ensures only tested versions are deployed.
+
+The JVM Dockerfile also runs `mvn verify`. For local builds only, `-DskipFrontendTests=true` skips the frontend tests; CI does not set this flag. Running `mvn test` alone only runs backend tests.
+
+Pull requests never publish images, and documentation-only changes skip compilation in the development workflow. The native Dockerfile only copies the verified executable; it does not run the test suites again.
+
+### Workflow and Dockerfile Checks
+
+```bash
+docker run --rm -v "$PWD:/repo:ro" -w /repo rhysd/actionlint:latest -color
+docker build --check -f Dockerfile .
+docker build --check -f Dockerfile.native .
+npx --yes --package renovate renovate-config-validator --strict renovate.json
+```
+
+These are static checks, not build or runtime tests. For the full JVM build use `docker build -t btc-node-dashboard:jvm .`; for native builds use the command in [BUILD.md](BUILD.md), then package and run the image as described in [DOCKER.md](DOCKER.md).

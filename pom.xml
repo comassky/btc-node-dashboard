@@ -106,8 +106,9 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>install node and pnpm</id>
+                        <id>install node npm and pnpm</id>
                         <goals>
+                            <goal>install-node-and-npm</goal>
                             <goal>install-node-and-pnpm</goal>
                         </goals>
                         <phase>prepare-package</phase>
@@ -132,9 +133,21 @@
 
 
                     <execution>
-                        <id>sync version</id>
+                        <id>frontend tests</id>
                         <goals>
                             <goal>pnpm</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <skip>${skipFrontendTests}</skip>
+                            <arguments>run test --run</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>sync-version</id>
+                        <goals>
+                            <goal>npm</goal>
                         </goals>
                         <phase>prepare-package</phase>
                         <configuration>
