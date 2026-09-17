@@ -117,15 +117,20 @@ export default defineConfig(({ mode }) => ({
           return 'assets/[hash:16][extname]';
         },
         // Optimize chunking for better caching
-        manualChunks: {
-          'vue-vendor': ['vue', 'pinia'],
-          'chart-vendor': ['chart.js'],
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (/[\\/]node_modules[\\/](vue|pinia)[\\/]/.test(id)) {
+              return 'vue-vendor';
+            }
+            if (/[\\/]node_modules[\\/]chart\.js[\\/]/.test(id)) {
+              return 'chart-vendor';
+            }
+          }
         },
       },
       // Improve tree-shaking
       treeshake: {
         moduleSideEffects: 'no-external',
-        preset: 'recommended',
       },
     },
   },
