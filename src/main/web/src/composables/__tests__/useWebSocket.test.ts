@@ -73,6 +73,29 @@ describe('useWebSocket', () => {
     expect(wsInstances[0].url).toBe('ws://test');
   });
 
+  it('should send a heartbeat after 30 seconds', async () => {
+    const { connect, disconnect, isConnected } = useWebSocket('ws://test', vi.fn());
+
+    connect();
+    await vi.advanceTimersByTimeAsync(0);
+
+    const ws = wsInstances[0];
+    await vi.advanceTimersByTimeAsync(29999);
+
+    expect(ws.send).not.toHaveBeenCalled();
+    expect(isConnected.value).toBe(true);
+
+    await vi.advanceTimersByTimeAsync(1);
+
+    expect(ws.send).toHaveBeenCalledExactlyOnceWith('ping');
+
+    ws.onmessage?.(new MessageEvent('message', { data: 'ping' }));
+    await vi.advanceTimersByTimeAsync(10000);
+
+    expect(isConnected.value).toBe(true);
+    disconnect();
+  });
+
   it('should handle incoming dashboard data', async () => {
     const onDataReceived = vi.fn();
     const { connect, rpcConnected } = useWebSocket('ws://test', onDataReceived);

@@ -1,5 +1,5 @@
 import { ref, watch } from 'vue';
-import { useWebSocket as useVueUseWebSocket } from '@vueuse/core';
+import { useIntervalFn, useWebSocket as useVueUseWebSocket } from '@vueuse/core';
 import type { DashboardData } from '@types';
 
 /**
@@ -28,7 +28,7 @@ export function useWebSocket(
     immediate: false,
     heartbeat: {
       message: 'ping',
-      interval: 30000,
+      scheduler: (callback) => useIntervalFn(callback, 30000, { immediate: false }),
       pongTimeout: 10000,
     },
   });
