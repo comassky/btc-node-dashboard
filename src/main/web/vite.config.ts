@@ -15,13 +15,13 @@ export default defineConfig(({ mode }) => ({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@components': path.resolve(__dirname, './src/components'),
-      '@cards': path.resolve(__dirname, './src/components/cards'),
-      '@composables': path.resolve(__dirname, './src/composables'),
-      '@types': path.resolve(__dirname, './src/types'),
-      '@utils': path.resolve(__dirname, './src/utils'),
-      '@assets': path.resolve(__dirname, './src/assets'),
+      '@': path.resolve(import.meta.dirname, './src'),
+      '@components': path.resolve(import.meta.dirname, './src/components'),
+      '@cards': path.resolve(import.meta.dirname, './src/components/cards'),
+      '@composables': path.resolve(import.meta.dirname, './src/composables'),
+      '@types': path.resolve(import.meta.dirname, './src/types'),
+      '@utils': path.resolve(import.meta.dirname, './src/utils'),
+      '@assets': path.resolve(import.meta.dirname, './src/assets'),
     },
   },
   plugins: [
@@ -84,22 +84,10 @@ export default defineConfig(({ mode }) => ({
 
   build: {
     outDir: 'dist',
-    minify: 'esbuild', // esbuild is 20-40x faster than terser with comparable results
     cssMinify: 'lightningcss',
-    cssCodeSplit: true,
     chunkSizeWarningLimit: 600,
     sourcemap: false,
-    reportCompressedSize: true,
     target: 'es2020',
-    // Esbuild options for better minification
-    esbuild: {
-      drop: mode === 'production' ? ['console', 'debugger'] : [],
-      legalComments: 'none',
-      treeShaking: true,
-      minifyIdentifiers: true,
-      minifySyntax: true,
-      minifyWhitespace: true,
-    },
     rollupOptions: {
       output: {
         entryFileNames: 'assets/js/[hash:16].js',
@@ -116,21 +104,6 @@ export default defineConfig(({ mode }) => ({
           }
           return 'assets/[hash:16][extname]';
         },
-        // Optimize chunking for better caching
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            if (/[\\/]node_modules[\\/](vue|pinia)[\\/]/.test(id)) {
-              return 'vue-vendor';
-            }
-            if (/[\\/]node_modules[\\/]chart\.js[\\/]/.test(id)) {
-              return 'chart-vendor';
-            }
-          }
-        },
-      },
-      // Improve tree-shaking
-      treeshake: {
-        moduleSideEffects: 'no-external',
       },
     },
   },
