@@ -15,14 +15,14 @@
     "update-docs": "node ../../../update-docs.mjs"
   },
   "dependencies": {
-    "@floating-ui/vue": "1.1.11",
-    "@vueuse/core": "14.4.0",
+    "@floating-ui/vue": "2.0.1",
+    "@vueuse/core": "15.0.0",
     "@vueuse/motion": "3.0.3",
     "chart.js": "4.5.1",
     "date-fns": "4.4.0",
     "filesize": "11.0.24",
-    "npm-check-updates": "^19.6.6",
-    "pinia": "3.0.4",
+    "npm-check-updates": "^23.1.0",
+    "pinia": "4.0.3",
     "vue": "3.5.43"
   },
   "devDependencies": {
@@ -33,8 +33,8 @@
     "@tailwindcss/vite": "4.3.3",
     "@types/node": "25.9.7",
     "@vitejs/plugin-vue": "6.0.9",
-    "@vitest/coverage-v8": "4.1.11",
-    "@vitest/ui": "4.1.11",
+    "@vitest/coverage-v8": "5.0.1",
+    "@vitest/ui": "5.0.1",
     "@vue/test-utils": "2.5.1",
     "happy-dom": "20.14.5",
     "prettier": "3.9.7",
@@ -44,11 +44,11 @@
     "tailwindcss": "4.3.3",
     "typescript": "5.9.3",
     "unplugin-auto-import": "21.1.0",
-    "unplugin-icons": "23.0.1",
-    "vite": "7.3.6",
+    "unplugin-icons": "24.0.0",
+    "vite": "8.3.0",
     "vite-plugin-compression": "0.5.1",
-    "vite-plugin-inspect": "11.4.1",
-    "vitest": "4.1.11",
+    "vite-plugin-inspect": "12.0.2",
+    "vitest": "5.0.1",
     "vue-tsc": "3.3.11"
   }
 }
