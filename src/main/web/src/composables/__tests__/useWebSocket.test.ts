@@ -66,7 +66,7 @@ describe('useWebSocket', () => {
     const { isConnected, connect } = useWebSocket('ws://test', onDataReceived);
 
     connect();
-    await vi.runAllTimersAsync();
+    await vi.advanceTimersByTimeAsync(0);
     await nextTick();
 
     expect(isConnected.value).toBe(true);
@@ -78,7 +78,7 @@ describe('useWebSocket', () => {
     const { connect, rpcConnected } = useWebSocket('ws://test', onDataReceived);
 
     connect();
-    await vi.runAllTimersAsync();
+    await vi.advanceTimersByTimeAsync(0);
     await nextTick();
 
     const ws = wsInstances[0];
@@ -102,7 +102,7 @@ describe('useWebSocket', () => {
     const { rpcConnected, errorMessage, connect } = useWebSocket('ws://test', onDataReceived);
 
     connect();
-    await vi.runAllTimersAsync();
+    await vi.advanceTimersByTimeAsync(0);
     await nextTick();
 
     const ws = wsInstances[0];
@@ -126,7 +126,7 @@ describe('useWebSocket', () => {
     );
 
     connect();
-    await vi.runAllTimersAsync();
+    await vi.advanceTimersByTimeAsync(0);
     await nextTick();
 
     const ws = wsInstances[0];
@@ -142,13 +142,13 @@ describe('useWebSocket', () => {
 
   it('should disconnect cleanly', async () => {
     const onDataReceived = vi.fn();
-    const { isConnected, connect, disconnect, isRetrying } = useWebSocket(
+    const { isConnected, rpcConnected, errorMessage, connect, disconnect, isRetrying } = useWebSocket(
       'ws://test',
       onDataReceived
     );
 
     connect();
-    await vi.runAllTimersAsync();
+    await vi.advanceTimersByTimeAsync(0);
     await nextTick();
 
     expect(isConnected.value).toBe(true);
@@ -156,7 +156,44 @@ describe('useWebSocket', () => {
     disconnect();
     await nextTick();
 
+    expect(isConnected.value).toBe(false);
+    expect(rpcConnected.value).toBe(false);
+    expect(errorMessage.value).toBeNull();
+    expect(wsInstances[0].close).toHaveBeenCalledOnce();
     expect(isRetrying.value).toBe(false);
+
+    await vi.advanceTimersByTimeAsync(60000);
+
+    expect(wsInstances).toHaveLength(1);
+    expect(isRetrying.value).toBe(false);
+  });
+
+  it('should retry unexpected closure after reconnecting manually', async () => {
+    const { connect, disconnect, isConnected, isRetrying } = useWebSocket('ws://test', vi.fn());
+
+    connect();
+    await vi.advanceTimersByTimeAsync(0);
+    disconnect();
+    await nextTick();
+
+    connect();
+    await vi.advanceTimersByTimeAsync(0);
+    await nextTick();
+
+    expect(isConnected.value).toBe(true);
+    expect(isRetrying.value).toBe(false);
+
+    const ws = wsInstances[1];
+    ws.readyState = 3;
+    ws.onclose?.(new CloseEvent('close'));
+    await nextTick();
+
+    expect(isConnected.value).toBe(false);
+    expect(isRetrying.value).toBe(true);
+
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(wsInstances).toHaveLength(3);
   });
 
   it('should handle invalid JSON gracefully', async () => {
@@ -166,7 +203,7 @@ describe('useWebSocket', () => {
     const { connect } = useWebSocket('ws://test', onDataReceived);
 
     connect();
-    await vi.runAllTimersAsync();
+    await vi.advanceTimersByTimeAsync(0);
     await nextTick();
 
     const ws = wsInstances[0];
@@ -183,7 +220,7 @@ describe('useWebSocket', () => {
     const { connect, disconnect, isRetrying } = useWebSocket('ws://test', onDataReceived);
 
     connect();
-    await vi.runAllTimersAsync();
+    await vi.advanceTimersByTimeAsync(0);
     await nextTick();
 
     const ws = wsInstances[0];
