@@ -15,7 +15,7 @@ The OpenAPI specification files are located at the project root:
 
 ## 🔨 Generating the Specification
 
-The OpenAPI spec is generated during Quarkus packaging. With JDK 25 and Maven:
+The OpenAPI spec is generated during Quarkus packaging. With JDK 17+ and Maven:
 
 ```bash
 # Run backend/frontend unit tests, build the application and update both schemas

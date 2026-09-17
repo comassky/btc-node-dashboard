@@ -139,7 +139,7 @@ public class DashboardWebSocket {
                     return sendMessage(session, data);
                 })
                 .subscribe().with(
-                        _ -> LOG.debugf("Initial data sent to session %s", session.getId()),
+                        ignored -> LOG.debugf("Initial data sent to session %s", session.getId()),
                         failure -> logSendFailure(session, failure, "initial send")
                 );
     }
@@ -162,7 +162,7 @@ public class DashboardWebSocket {
                 )
                 .collect().asList()
                 .subscribe().with(
-                        _ -> LOG.debug("Broadcast complete."),
+                        ignored -> LOG.debug("Broadcast complete."),
                         failure -> LOG.error("An unexpected error occurred during broadcast.", failure)
                 );
     }

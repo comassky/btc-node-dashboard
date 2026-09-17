@@ -11,7 +11,7 @@ npm install -g pnpm@10.28.2
 pnpm install --frozen-lockfile
 ```
 
-For a full application build, run `mvn -B --no-transfer-progress verify` from the repository root with JDK 25. Maven installs Node.js, bundled npm and pnpm locally; global frontend tools are not required for that path. See [BUILD.md](BUILD.md).
+For a full application build, run `mvn -B --no-transfer-progress verify` from the repository root with JDK 17 or newer. Maven installs Node.js, bundled npm and pnpm locally; global frontend tools are not required for that path. See [BUILD.md](BUILD.md).
 
 ## Useful Scripts
 
@@ -50,7 +50,7 @@ When contributing, please maintain these optimizations and avoid re-introducing 
 ---
 # Versions used
 
-- Java 25
+- Java 17+
 - Quarkus 3.32.0.CR1
 - Node.js v24.13.0
 - pnpm 10.28.2

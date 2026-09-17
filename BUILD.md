@@ -4,7 +4,7 @@ This guide explains how to build and deploy the Bitcoin Node Dashboard.
 
 ## Prerequisites
 
-**Required for local builds:** JDK 25 and Maven 3.9.11 or newer. Bitcoin Core with RPC enabled is needed to run the dashboard against a node, not for unit tests.
+**Required for local JVM builds:** JDK 17 or newer and Maven 3.9.11 or newer. Bitcoin Core with RPC enabled is needed to run the dashboard against a node, not for unit tests.
 
 **Frontend toolchain:** Maven installs Node.js and its bundled npm, plus pnpm, under `src/main/web/node/`. Versions are defined in [pom.xml](pom.xml), currently Node.js v24.13.0 and pnpm 10.28.2. Global Node.js/pnpm installations are only needed for standalone frontend development.
 

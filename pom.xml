@@ -7,11 +7,11 @@
 
     <properties>
         <!-- Version Properties -->
-        <maven.compiler.release>25</maven.compiler.release>
+        <maven.compiler.release>17</maven.compiler.release>
         <quarkus.platform.version>3.39.4</quarkus.platform.version>
         <quinoa.version>2.9.0</quinoa.version>
-        <quarkus.quinoa.package-manager-install.node-version>24.21.0</quarkus.quinoa.package-manager-install.node-version>
-        <quarkus.quinoa.package-manager-install.pnpm-version>12.4.2</quarkus.quinoa.package-manager-install.pnpm-version>
+        <quarkus.quinoa.package-manager-install.node-version>24.13.0</quarkus.quinoa.package-manager-install.node-version>
+        <quarkus.quinoa.package-manager-install.pnpm-version>10.28.2</quarkus.quinoa.package-manager-install.pnpm-version>
         <compiler-plugin.version>3.16.0</compiler-plugin.version>
         <surefire-plugin.version>3.6.0</surefire-plugin.version>
 

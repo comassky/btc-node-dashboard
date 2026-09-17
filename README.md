@@ -98,7 +98,7 @@ Monitor your Bitcoin Core node in real-time with a modern web interface.
 
 ## 🏎️ Recommended Native Build (GraalVM)
 
-Build the native executable with JDK 25, Maven and Docker. Maven runs the backend and frontend unit tests, bundles the frontend, and invokes Mandrel in a container:
+Build the native executable with a recent JDK, Maven and Docker. Maven runs the backend and frontend unit tests, bundles the frontend, and invokes Mandrel in a container:
 
 ```bash
 mvn -B --no-transfer-progress clean verify -Dnative \
@@ -118,7 +118,7 @@ Supply the RPC configuration when running the image, as in the Docker example be
 
 ### Prerequisites
 
-- JDK 25 and Maven 3.9.11+ for local builds
+- JDK 17+ and Maven 3.9.11+ for local JVM builds
 - Bitcoin Core with RPC enabled
 - Node.js v24.13.0 and pnpm 10.28.2 for standalone frontend development; Maven installs them for full builds
 - Docker for native compilation or container image builds

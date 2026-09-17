@@ -2,7 +2,7 @@
 
 **162 unit tests** (79 backend and 83 frontend) passed in the last verified JVM Docker build. The native compile and runtime still require CI validation; these counts do not imply native integration-test coverage.
 
-Full builds require JDK 25 and Maven. Maven installs Node.js, bundled npm and pnpm locally, so no global frontend toolchain or live Bitcoin Core node is required for the unit tests. See [BUILD.md](BUILD.md).
+Full JVM builds require JDK 17 or newer and Maven. Maven installs Node.js, bundled npm and pnpm locally, so no global frontend toolchain or live Bitcoin Core node is required for the unit tests. See [BUILD.md](BUILD.md).
 
 ## 📊 Overview
 
