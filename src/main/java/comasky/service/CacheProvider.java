@@ -24,19 +24,27 @@ public class CacheProvider {
     private static final long MILLIS_PER_SECOND = 1000L;
 
     private final AsyncCache<String, GlobalResponse> cache;
+    private final long cacheDurationMs;
 
     @Inject
     public CacheProvider(DashboardConfig config) {
         // Calculate cache duration: polling interval minus the configured buffer
         long pollingIntervalMs = config.polling().seconds() * MILLIS_PER_SECOND;
         long bufferMs = config.cache().validityBufferMs();
-        long cacheDurationMs = Math.max(MIN_CACHE_DURATION_MS, pollingIntervalMs - bufferMs);
+        this.cacheDurationMs = Math.max(MIN_CACHE_DURATION_MS, pollingIntervalMs - bufferMs);
 
         // Use the configured cache size (default is 1 for minimal memory usage)
         this.cache = Caffeine.newBuilder()
             .expireAfterWrite(Duration.ofMillis(cacheDurationMs))
             .maximumSize(config.cache().maxItems())
             .buildAsync();
+    }
+
+    /**
+     * Returns the effective cache validity duration in milliseconds.
+     */
+    public long getCacheDurationMs() {
+        return cacheDurationMs;
     }
 
     /**

@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -161,7 +162,7 @@ public class RpcServices implements DashboardDataProvider {
      * Records an error in the errors map with appropriate logging.
      */
     private void recordError(String callName, Throwable error, Map<String, String> errors) {
-        String errorMessage = error.getMessage() != null ? error.getMessage() : "Unknown error";
+        String errorMessage = Objects.requireNonNullElse(error.getMessage(), "Unknown error");
         LOG.warnf("%s RPC failed: %s", callName, errorMessage);
         errors.put(callName, errorMessage);
     }

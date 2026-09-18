@@ -114,6 +114,8 @@ jobs:
           tags: ${{ steps.tags.outputs.tags }}
           provenance: false
           sbom: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3

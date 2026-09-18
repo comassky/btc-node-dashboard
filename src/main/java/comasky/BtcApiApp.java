@@ -2,6 +2,7 @@ package comasky;
 
 import comasky.config.BitcoinRpcConfig;
 import comasky.config.DashboardConfig;
+import comasky.service.CacheProvider;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
@@ -23,6 +24,9 @@ public class BtcApiApp implements QuarkusApplication {
 
     @Inject
     DashboardConfig dashboardConfig;
+
+    @Inject
+    CacheProvider cacheProvider;
 
     @Inject
     Config config; // Keep for quarkus.http.io-threads
@@ -64,9 +68,8 @@ public class BtcApiApp implements QuarkusApplication {
         LOG.infof("Disable Mempool: %s", dashboardConfig.mempool().disable());
         LOG.info("---------------------------------------------------------------");
         
-        long pollingIntervalMs = dashboardConfig.polling().seconds() * 1000L;
         long bufferMs = dashboardConfig.cache().validityBufferMs();
-        long cacheValidityMs = Math.max(100, pollingIntervalMs - bufferMs);
+        long cacheValidityMs = cacheProvider.getCacheDurationMs();
 
         LOG.infof("Min Outbound Peers: %d | Cache Buffer: %dms | Cache Validity: %dms",
                 dashboardConfig.peers().minOutbound(),
@@ -87,7 +90,7 @@ public class BtcApiApp implements QuarkusApplication {
      * @return the masked password string
      */
     private String maskPassword(String password) {
-        if (password == null || password.isEmpty()) {
+        if (password == null || password.isBlank()) {
             return "[NOT SET]";
         }
         if (password.length() <= 4) {
