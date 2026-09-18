@@ -474,7 +474,7 @@ paths:
                 $ref: "#/components/schemas/NetworkInfoResponse"
 info:
   title: Bitcoin Node Dashboard API
-  version: 1.5.0
+  version: 2.0.0
   description: Real-time Bitcoin Core node monitoring dashboard with WebSocket support
   contact:
     name: Bitcoin Dashboard Support
