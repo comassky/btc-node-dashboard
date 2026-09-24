@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32
-FROM maven:3.9.16-eclipse-temurin-25@sha256:0e3f1c4394674505f73525188b8005f521ef3c786c651cb61432b2db3517087b AS builder
+FROM maven:3.9.16-eclipse-temurin-25@sha256:dd8e01b3be719853578c07b57ff8d9bbbbfe746f802226f05b19689420815221 AS builder
 WORKDIR /build
 
 COPY pom.xml ./
