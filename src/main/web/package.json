@@ -20,7 +20,7 @@
     "@vueuse/motion": "3.0.3",
     "chart.js": "4.5.1",
     "date-fns": "4.4.0",
-    "filesize": "11.0.24",
+    "filesize": "11.0.25",
     "npm-check-updates": "^23.1.0",
     "pinia": "4.0.3",
     "vue": "3.5.43"
@@ -29,7 +29,7 @@
     "@iconify-json/fa6-brands": "1.2.6",
     "@iconify-json/fa6-regular": "1.2.4",
     "@iconify-json/fa6-solid": "1.2.4",
-    "@iconify-json/simple-icons": "1.2.97",
+    "@iconify-json/simple-icons": "1.2.98",
     "@tailwindcss/vite": "4.3.3",
     "@types/node": "25.9.8",
     "@vitejs/plugin-vue": "6.0.9",
