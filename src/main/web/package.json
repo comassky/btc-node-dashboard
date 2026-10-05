@@ -29,7 +29,7 @@
     "@iconify-json/fa6-brands": "1.2.6",
     "@iconify-json/fa6-regular": "1.2.4",
     "@iconify-json/fa6-solid": "1.2.4",
-    "@iconify-json/simple-icons": "1.2.98",
+    "@iconify-json/simple-icons": "1.2.99",
     "@tailwindcss/vite": "4.3.3",
     "@types/node": "25.9.9",
     "@vitejs/plugin-vue": "6.0.9",
