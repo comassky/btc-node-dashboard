@@ -32,12 +32,12 @@
     "@iconify-json/simple-icons": "1.2.99",
     "@tailwindcss/vite": "4.3.3",
     "@types/node": "25.9.9",
-    "@vitejs/plugin-vue": "6.0.9",
+    "@vitejs/plugin-vue": "6.0.10",
     "@vitest/coverage-v8": "5.0.3",
     "@vitest/ui": "5.0.3",
     "@vue/test-utils": "2.5.1",
     "happy-dom": "20.14.6",
-    "prettier": "3.9.9",
+    "prettier": "3.9.10",
     "prettier-plugin-tailwindcss": "0.8.1",
     "rollup-plugin-visualizer": "7.1.1",
     "sirv-cli": "3.0.1",
@@ -49,6 +49,6 @@
     "vite-plugin-compression": "0.5.1",
     "vite-plugin-inspect": "12.1.0",
     "vitest": "5.0.3",
-    "vue-tsc": "3.3.12"
+    "vue-tsc": "3.3.13"
   }
 }
