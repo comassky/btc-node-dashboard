@@ -12,7 +12,7 @@
         <quinoa.version>2.9.3</quinoa.version>
         <quarkus.quinoa.package-manager-install.node-version>24.22.2</quarkus.quinoa.package-manager-install.node-version>
         <compiler-plugin.version>3.16.0</compiler-plugin.version>
-        <surefire-plugin.version>3.6.0</surefire-plugin.version>
+        <surefire-plugin.version>3.6.1</surefire-plugin.version>
 
         <!-- Other Properties -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
