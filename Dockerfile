@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
-FROM maven:3.10.0-eclipse-temurin-25@sha256:365910828831a156696b3557a1379a3c2e3eca63007d613fbb17f667d2800250 AS builder
+FROM maven:3.10.0-eclipse-temurin-25@sha256:9d329e21adce7c0cc53f2fd21e73c127a247c73287b8503196136ec5cff52328 AS builder
 WORKDIR /build
 
 COPY pom.xml ./
@@ -7,7 +7,7 @@ COPY src ./src
 RUN --mount=type=cache,target=/root/.m2 \
     mvn --batch-mode --no-transfer-progress verify
 
-FROM gcr.io/distroless/java25-debian13:nonroot@sha256:5d3177252775d4b01603470fe21c015393019089904f68724bd37242e4bc6e6d AS runner
+FROM gcr.io/distroless/java25-debian13:nonroot@sha256:fc6f4aec634ee433ff16a5d18814181e7928f4be9f434b44b48231e2eb7becee AS runner
 WORKDIR /app
 
 COPY --from=builder --chown=65532:65532 /build/target/quarkus-app/lib/ ./lib/
