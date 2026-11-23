@@ -16,9 +16,9 @@
   },
   "dependencies": {
     "@floating-ui/vue": "2.0.1",
-    "@vueuse/core": "15.0.0",
+    "@vueuse/core": "15.1.0",
     "@vueuse/motion": "3.0.3",
-    "chart.js": "4.6.1",
+    "chart.js": "4.6.2",
     "date-fns": "4.4.0",
     "filesize": "11.0.35",
     "npm-check-updates": "^23.1.1",
